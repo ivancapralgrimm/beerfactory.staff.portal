@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#160b07">
+<title>BeerFactory — меню</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="menu">
+<header>
+  <div class="kicker">@BEERFACTORYbot · справочник</div>
+  <h1>BEERFACTORY</h1>
+  <div class="nav-actions"><a href="index.html" class="training-link">⌂ Главная</a><a href="training.html" class="training-link">📚 Обучение</a><a href="attestation.html" class="training-link">✓ Аттестация</a></div>
+</header>
+<div class="controls">
+  <div class="topbar">
+    <button class="menu-trigger" id="menuBtn"><span class="mt-icon">☰</span><span class="mt-label" id="menuLabel">Всё меню</span><span class="mt-chev">▾</span></button>
+    <div class="search-slot" id="searchSlot"><button class="search-icon-btn" id="searchIconBtn">🔎 Поиск</button><input id="search" type="text" placeholder="найти по названию или тегу..."></div>
+  </div>
+  <div class="toolbar"><span id="count">— позиций</span><button class="surprise-btn" id="surprise">🎲 Не знаю, что выбрать</button></div>
+</div>
+<div class="drawer-overlay" id="drawerOverlay"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head"><span class="dh-title">Категории</span><button class="drawer-close" id="drawerClose">×</button></div>
+  <nav class="drawer-list" id="tabs">
+    <button class="drawer-item category-main active" data-cat="all" data-sub="all"><span class="di-label">Всё меню</span></button>
+    <div class="drawer-group">
+      <button class="drawer-item category-main" data-cat="Бар" data-sub="all"><span class="di-label">🍸 Бар</span></button>
+      <div class="drawer-sublist">
+        <button class="drawer-subitem" data-cat="Бар" data-sub="Б/А напитки">Б/А напитки</button>
+        <button class="drawer-subitem" data-cat="Бар" data-sub="Коктейли">Коктейли</button>
+        <button class="drawer-subitem" data-cat="Бар" data-sub="Лимонады">Лимонады</button>
+        <button class="drawer-subitem" data-cat="Бар" data-sub="Крепкий алкоголь">Крепкий алкоголь</button>
+        <button class="drawer-subitem" data-cat="Бар" data-sub="Вино">Вино</button>
+        <button class="drawer-subitem" data-cat="Бар" data-sub="Кофе">Кофе</button>
+        <button class="drawer-subitem" data-cat="Бар" data-sub="Чай">Чай</button>
+        <button class="drawer-subitem" data-cat="Бар" data-sub="Сезонное предложение">Сезонное предложение</button>
+        <button class="drawer-subitem" data-cat="Бар" data-sub="Пиво">Пиво</button>
+        <button class="drawer-subitem" data-cat="Бар" data-sub="Бутылочное Пиво">Бутылочное Пиво</button>
+        <button class="drawer-subitem" data-cat="Бар" data-sub="Настойки">Настойки</button>
+        <button class="drawer-subitem" data-cat="Бар" data-sub="Заготовки">Заготовки</button>
+      </div>
+    </div>
+    <div class="drawer-group">
+      <button class="drawer-item category-main" data-cat="Кухня" data-sub="all"><span class="di-label">🍽 Кухня</span></button>
+      <div class="drawer-sublist">
+        <button class="drawer-subitem" data-cat="Кухня" data-sub="Горячие закуски">Горячие закуски</button>
+        <button class="drawer-subitem" data-cat="Кухня" data-sub="Холодные закуски">Холодные закуски</button>
+        <button class="drawer-subitem" data-cat="Кухня" data-sub="Намазки">Намазки</button>
+        <button class="drawer-subitem" data-cat="Кухня" data-sub="Салаты">Салаты</button>
+        <button class="drawer-subitem" data-cat="Кухня" data-sub="Супы">Супы</button>
+        <button class="drawer-subitem" data-cat="Кухня" data-sub="Горячие блюда">Горячие блюда</button>
+        <button class="drawer-subitem" data-cat="Кухня" data-sub="Гарниры">Гарниры</button>
+        <button class="drawer-subitem" data-cat="Кухня" data-sub="Соусы">Соусы</button>
+        <button class="drawer-subitem" data-cat="Кухня" data-sub="Десерты">Десерты</button>
+      </div>
+    </div>
+  </nav>
+</aside>
+<div class="grid" id="grid"></div><div class="empty" id="empty" style="display:none">Ничего не нашлось. Попробуй другое слово.</div>
+<div class="note">Сайт в разработке</div>
+<div class="lightbox-overlay" id="lightboxOverlay"><button class="lightbox-close" id="lightboxClose">×</button><img class="lightbox-img" id="lightboxImg" alt=""></div>
+<button class="to-top" id="toTop">↑</button>
+<script src="script.js"></script>
+</body></html>
