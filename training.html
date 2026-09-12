@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
   <meta name="theme-color" content="#160b07">
   <title>BeerFactory — Обучение</title>
   <link rel="stylesheet" href="styles.css">
@@ -13,12 +13,6 @@
   <header class="site-header">
     <div class="brand-row">
       <a class="brand" href="index.html"><span class="brand-mark">♧</span> BEERFACTORY</a>
-      <nav class="main-nav">
-        <a href="menu.html">Меню</a>
-        <a class="active" href="training.html">Обучение</a>
-        <a href="attestation.html">Аттестация</a>
-      </nav>
-      <div class="header-icons"><button class="icon-btn" id="trainingSearchBtn" aria-label="Поиск">⌕</button><a class="icon-btn" href="attestation.html" aria-label="Аттестация">♙</a></div>
     </div>
   </header>
 
@@ -33,6 +27,12 @@
         <div class="training-search" id="trainingSearch">
           <span>⌕</span><input id="search" type="search" placeholder="Поиск по материалам..." autocomplete="off">
         </div>
+        <nav class="training-quick-nav" aria-label="Разделы">
+          <a href="index.html">Главная</a>
+          <a href="menu.html">Меню</a>
+          <a class="active" href="training.html">Обучение</a>
+          <a href="attestation.html">Аттестация</a>
+        </nav>
       </div>
     </section>
 
