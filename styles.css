@@ -65,18 +65,19 @@ body.quiz-page{display:flex;align-items:center;justify-content:center;min-height
   .training-sidebar{
     display:flex;
     flex-direction:row;
-    gap:8px;                         /* ровный отступ между темами */
+    gap:8px;
     overflow-x:auto;
     -webkit-overflow-scrolling:touch;
     touch-action:pan-x;
     min-width:0;
-    padding:2px 0 6px;               /* запас снизу под тень активной темы */
+    padding:2px 0 6px;
     scrollbar-width:none;
   }
   .training-sidebar::-webkit-scrollbar{display:none}
   .side-item{
+    width:auto;               /* ключ: сбрасываем width:100% из десктопа */
     flex:0 0 auto;
-    min-width:max-content;           /* ключ: не даёт сжаться и обрезать подпись */
+    min-width:max-content;
     grid-template-columns:20px 1fr;
     white-space:nowrap;
   }
