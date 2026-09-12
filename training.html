@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <meta name="theme-color" content="#160b07">
+  <title>BeerFactory — Обучение</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="training">
+  <div class="progress-rail"><div class="progress-fill" id="progressFill"></div></div>
+
+  <header class="site-header">
+    <div class="brand-row">
+      <a class="brand" href="index.html"><span class="brand-mark">♧</span> BEERFACTORY</a>
+    </div>
+  </header>
+
+  <main class="training-shell">
+    <section class="training-hero">
+      <div class="hero-photo" aria-hidden="true"></div>
+      <div class="hero-overlay"></div>
+      <div class="hero-copy">
+        <div class="eyebrow">Обучение персонала</div>
+        <h1>Знания делают сервис лучше.</h1>
+        <p>Изучай, применяй, развивайся.</p>
+        <div class="training-search" id="trainingSearch">
+          <span>⌕</span><input id="search" type="search" placeholder="Поиск по материалам..." autocomplete="off">
+        </div>
+        <nav class="training-quick-nav" aria-label="Разделы">
+          <a href="index.html">Главная</a>
+          <a href="menu.html">Меню</a>
+          <a class="active" href="training.html">Обучение</a>
+          <a href="attestation.html">Аттестация</a>
+        </nav>
+      </div>
+    </section>
+
+    <div class="training-layout">
+      <aside class="training-sidebar">
+        <button class="side-item active" data-category="all"><span>◈</span><b>Все материалы</b><em id="countAll">0</em></button>
+        <button class="side-item" data-category="Коктейли"><span>◒</span><b>Коктейли</b><em data-training-count="Коктейли">0</em></button>
+        <button class="side-item" data-category="Крепкий алкоголь"><span>◓</span><b>Крепкий алкоголь</b><em data-training-count="Крепкий алкоголь">0</em></button>
+        <button class="side-item" data-category="Пиво"><span>♜</span><b>Пиво</b><em data-training-count="Пиво">0</em></button>
+        <button class="side-item" data-category="Кухня"><span>◇</span><b>Кухня</b><em data-training-count="Кухня">0</em></button>
+        <button class="side-item" data-category="Сервис"><span>♧</span><b>Сервис</b><em data-training-count="Сервис">0</em></button>
+        <button class="side-item" data-category="База"><span>▣</span><b>База</b><em data-training-count="База">0</em></button>
+      </aside>
+
+      <section class="training-content">
+        <div class="section-heading">
+          <div><div class="eyebrow">Подборка</div><h2>Популярные материалы</h2></div>
+          <button class="text-btn" id="showAllBtn">Показать все →</button>
+        </div>
+        <div class="material-grid" id="feed"></div>
+        <div class="empty" id="empty" hidden>
+          <span class="big">⌕</span>
+          <span>Ничего не нашлось. Попробуй другое слово.</span>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div class="article-view" id="articleView" hidden>
+    <div class="article-backdrop" id="articleBackdrop"></div>
+    <article class="article-panel">
+      <div class="article-topbar">
+        <button class="back-link" id="articleBack">← Назад к материалам</button>
+        <div class="article-top-meta" id="articleTopMeta"></div>
+      </div>
+      <div class="article-grid">
+        <div class="article-main" id="articleMain"></div>
+        <aside class="article-aside">
+          <div class="toc-card" id="tocCard"><div class="toc-title">Содержание</div><div id="toc"></div></div>
+          <div class="aside-tip" id="asideTip"></div>
+          <button class="aside-nav" id="prevArticle">← Предыдущий материал</button>
+          <button class="aside-nav gold" id="nextArticle">Следующий материал →</button>
+        </aside>
+      </div>
+    </article>
+  </div>
+
+  <div class="lightbox-overlay" id="lightbox"><button class="lightbox-close" id="lightboxClose">×</button><img class="lightbox-img" id="lightboxImg" alt=""></div>
+  <button class="to-top" id="toTop">↑</button>
+  <script src="script.js"></script>
+</body>
+</html>
