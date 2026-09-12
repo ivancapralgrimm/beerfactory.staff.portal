@@ -62,6 +62,7 @@ body.quiz-page{display:flex;align-items:center;justify-content:center;min-height
 .article-open{overflow:hidden}.progress-rail{position:fixed;top:0;left:0;right:0;z-index:200;height:3px;background:rgba(255,255,255,.05)}.progress-fill{height:100%;width:0;background:var(--bf-gold)}
 @media(max-width:900px){
   .training-layout{grid-template-columns:1fr}
+  .training-categories-bar{padding:3px}          /* было 4px */
   .training-sidebar{
     display:flex;
     flex-direction:row;
@@ -70,12 +71,12 @@ body.quiz-page{display:flex;align-items:center;justify-content:center;min-height
     -webkit-overflow-scrolling:touch;
     touch-action:pan-x;
     min-width:0;
-    padding:2px 0 6px;
+    padding:0 0 2px;                             /* было 2px 0 4px */
     scrollbar-width:none;
   }
   .training-sidebar::-webkit-scrollbar{display:none}
   .side-item{
-    width:auto;               /* ключ: сбрасываем width:100% из десктопа */
+    width:auto;
     flex:0 0 auto;
     min-width:max-content;
     grid-template-columns:20px 1fr;
