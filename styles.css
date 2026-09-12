@@ -151,10 +151,13 @@ button,input{color-scheme:dark}
 .training-hero{border-color:var(--bf-line-strong);box-shadow:var(--bf-shadow)}
 /* ЗАГЛУШКА: сюда позже поставить реальное фото через background:...,url("training-hero-bg.jpg") center/cover */
 .hero-photo{
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background: linear-gradient(...), url("training-hero-bg.jpg") center center / cover no-repeat, #120805;
+  position:absolute;
+  inset:0;
+  z-index:0;
+  background:
+    linear-gradient(90deg,rgba(16,7,4,.72) 0%,rgba(32,12,5,.35) 50%,rgba(24,9,4,.15) 100%),
+    url("training-hero-bg.jpg") center center / cover no-repeat,
+    #120805;
 }
 .hero-overlay{background:linear-gradient(0deg,rgba(10,5,3,.86),transparent 70%)}
 .training-search{border-color:rgba(225,146,87,.28);background:rgba(20,8,4,.68);box-shadow:inset 0 1px rgba(255,255,255,.06)}
