@@ -62,9 +62,25 @@ body.quiz-page{display:flex;align-items:center;justify-content:center;min-height
 .article-open{overflow:hidden}.progress-rail{position:fixed;top:0;left:0;right:0;z-index:200;height:3px;background:rgba(255,255,255,.05)}.progress-fill{height:100%;width:0;background:var(--bf-gold)}
 @media(max-width:900px){
   .training-layout{grid-template-columns:1fr}
-  .training-sidebar{display:flex;flex-direction:row;gap:5px;overflow-x:auto;-webkit-overflow-scrolling:touch;touch-action:pan-x;min-width:0;padding-bottom:3px;scrollbar-width:none}
+  .training-sidebar{
+    display:flex;
+    flex-direction:row;
+    gap:8px;                         /* ровный отступ между темами */
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    touch-action:pan-x;
+    min-width:0;
+    padding:2px 0 6px;               /* запас снизу под тень активной темы */
+    scrollbar-width:none;
+  }
   .training-sidebar::-webkit-scrollbar{display:none}
-  .side-item{grid-template-columns:20px 1fr;flex:0 0 auto}
+  .side-item{
+    flex:0 0 auto;
+    min-width:max-content;           /* ключ: не даёт сжаться и обрезать подпись */
+    grid-template-columns:20px 1fr;
+    white-space:nowrap;
+  }
+  .side-item b{white-space:nowrap}
   .side-item em{display:none}
   .material-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .article-grid{grid-template-columns:1fr}
