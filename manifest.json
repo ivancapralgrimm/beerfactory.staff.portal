@@ -1,0 +1,9 @@
+{
+  "name":"BeerFactory Staff Portal",
+  "short_name":"BeerFactory",
+  "start_url":"./index.html",
+  "display":"standalone",
+  "background_color":"#0b0b0a",
+  "theme_color":"#0b0b0a",
+  "lang":"ru"
+}
