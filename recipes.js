@@ -1,5 +1,5 @@
 (() => {
-  const STYLE_ID = 'bf-recipes-r15-style';
+  const STYLE_ID = 'bf-recipes-r16-style';
   if (!document.getElementById(STYLE_ID)) {
     const s = document.createElement('style');
     s.id = STYLE_ID;
@@ -27,15 +27,16 @@
       .recipeTag.tone-1{color:#e4bd64;background:rgba(194,145,41,.13);border-color:rgba(220,168,53,.28)}
       .recipeTag.tone-2{color:#ef8f82;background:rgba(187,61,47,.13);border-color:rgba(216,77,62,.28)}
       .recipeFlipCard{perspective:1400px;cursor:pointer;touch-action:manipulation}
-      .recipeFlipInner{position:relative;display:grid;transform-style:preserve-3d;transition:transform .52s cubic-bezier(.2,.7,.2,1)}
+      .recipeFlipInner{position:relative;transform-style:preserve-3d;transition:transform .52s cubic-bezier(.2,.7,.2,1),height .34s ease}
       .recipeFlipCard.flipped .recipeFlipInner{transform:rotateY(180deg)}
-      .recipeFace{grid-area:1/1;backface-visibility:hidden;-webkit-backface-visibility:hidden}
-      .recipeBack{transform:rotateY(180deg);pointer-events:none}
+      .recipeFace{position:absolute;inset:0 auto auto 0;width:100%;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+      .recipeFront{height:230px;display:flex;flex-direction:column}
+      .recipeBack{position:absolute;top:0;left:0;width:100%;transform:rotateY(180deg);pointer-events:none}
       .recipeFlipCard.flipped .recipeFront{pointer-events:none}
       .recipeFlipCard.flipped .recipeBack{pointer-events:auto}
       .recipeFace.card{margin:0}
       .recipeBack .detail{display:block!important}
-      .recipeTapHint{margin-top:14px;font-size:11px;color:var(--dim)}
+      .recipeTapHint{margin-top:auto;padding-top:16px;font-size:11px;color:var(--dim)}
 
       @media(max-width:600px){.recipeCalcGrid{grid-template-columns:1fr}}
     `;
@@ -149,7 +150,7 @@
   }
 
   window.loadMenu = async function loadMenuR12() {
-    if (state.menuSchemaVersion === 15 && Array.isArray(state.menu) && state.menu.length) return state.menu;
+    if (state.menuSchemaVersion === 16 && Array.isArray(state.menu) && state.menu.length) return state.menu;
 
     try {
       const r = await fetch(API_BASE + '/menu', {
@@ -164,7 +165,7 @@
 
       state.menu = rows;
       state.menuSource = 'api';
-      state.menuSchemaVersion = 15;
+      state.menuSchemaVersion = 16;
       save();
       return rows;
     } catch (e) {
@@ -173,7 +174,7 @@
       const fallback = (typeof localMenu === 'function' ? localMenu() : []).map(x => normalizeRow(x));
       state.menu = fallback;
       state.menuSource = 'local';
-      state.menuSchemaVersion = 15;
+      state.menuSchemaVersion = 16;
       save();
       return fallback;
     }
@@ -399,8 +400,25 @@
         !!target.closest('input,select,textarea,button,a,[data-recipe-photo],.recipeLightbox');
 
       list.querySelectorAll('[data-recipe-card]').forEach(card => {
+        const inner = card.querySelector('.recipeFlipInner');
+        const front = card.querySelector('.recipeFront');
+        const back = card.querySelector('.recipeBack');
+
+        const syncHeight = flipped => {
+          requestAnimationFrame(() => {
+            const h = flipped
+              ? Math.ceil(back.scrollHeight)
+              : Math.ceil(front.offsetHeight);
+
+            inner.style.height = `${Math.max(h, 1)}px`;
+          });
+        };
+
+        syncHeight(false);
+
         const toggle = () => {
           const next = !card.classList.contains('flipped');
+          syncHeight(next);
           card.classList.toggle('flipped', next);
           card.setAttribute('aria-expanded', String(next));
         };
@@ -416,6 +434,10 @@
           e.preventDefault();
           toggle();
         });
+
+        window.addEventListener('resize', () => {
+          syncHeight(card.classList.contains('flipped'));
+        }, { passive: true });
       });
 
       filtered.forEach((item, i) => {
