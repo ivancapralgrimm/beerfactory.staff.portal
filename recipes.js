@@ -1,21 +1,42 @@
 (() => {
-  const STYLE_ID = 'bf-recipes-r12-style';
+  const STYLE_ID = 'bf-recipes-r15-style';
   if (!document.getElementById(STYLE_ID)) {
     const s = document.createElement('style');
     s.id = STYLE_ID;
     s.textContent = `
-      .recipePhoto{width:100%;max-height:260px;object-fit:cover;border-radius:14px;margin:12px 0}
+      .recipePhotoWrap{width:100%;height:210px;margin:12px 0;border-radius:14px;background:rgba(255,255,255,.025);display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:zoom-in}
+      .recipePhoto{display:block;width:100%;height:100%;object-fit:contain;border-radius:14px}
+      .recipeLightbox{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;padding:max(24px,env(safe-area-inset-top)) 18px max(24px,env(safe-area-inset-bottom));opacity:0;visibility:hidden;pointer-events:none;transition:opacity .18s ease,visibility .18s ease}
+      .recipeLightbox.open{opacity:1;visibility:visible;pointer-events:auto}
+      .recipeLightboxImg{display:block;max-width:min(94vw,1200px);max-height:90vh;width:auto;height:auto;object-fit:contain;border-radius:14px;box-shadow:0 20px 70px rgba(0,0,0,.45)}
+      .recipeLightboxClose{position:fixed;top:max(14px,env(safe-area-inset-top));right:14px;width:44px;height:44px;border:1px solid rgba(255,255,255,.18);border-radius:999px;background:rgba(20,16,13,.76);color:#fff;font-size:28px;line-height:1;display:grid;place-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent}
+      body.recipeLightboxOpen{overflow:hidden}
       .recipeMethod,.recipeServing{margin-top:14px;color:var(--muted);white-space:pre-wrap}
       .recipeIngredients{display:grid;gap:7px;margin-top:10px}
       .recipeIngredient{padding:10px 12px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(255,255,255,.035)}
       .recipeCalc{margin-top:16px;padding:14px;border:1px solid rgba(223,139,78,.24);border-radius:14px;background:rgba(189,99,49,.07)}
-      .recipeCalc h4{margin:0 0 10px}.recipeCalcGrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+      .recipeCalc h4{margin:0 0 10px}.recipeCalcGrid{display:grid;grid-template-columns:1fr;gap:9px}
       .recipeCalc label{font-size:11px;color:var(--muted);display:grid;gap:5px}
-      .recipeCalc select{width:100%;min-height:46px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.055);color:var(--cream);border-radius:14px;padding:10px 12px}
-      .recipeCalcActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
       .scaledRecipe{display:grid;gap:7px;margin-top:12px}
       .scaledRecipe .recipeIngredient{border-color:rgba(199,160,75,.22)}
-      .sourceBadge{font-size:10px;color:var(--dim)}
+      
+      .recipeCategory{font-size:14px;font-weight:800;letter-spacing:.02em;color:var(--cream);margin-bottom:8px}
+      .recipeTags{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0 2px}
+      .recipeTag{display:inline-flex;align-items:center;min-height:28px;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:800;line-height:1;border:1px solid transparent}
+      .recipeTag.tone-0{color:#91d9a3;background:rgba(60,150,83,.13);border-color:rgba(82,183,106,.28)}
+      .recipeTag.tone-1{color:#e4bd64;background:rgba(194,145,41,.13);border-color:rgba(220,168,53,.28)}
+      .recipeTag.tone-2{color:#ef8f82;background:rgba(187,61,47,.13);border-color:rgba(216,77,62,.28)}
+      .recipeFlipCard{perspective:1400px;cursor:pointer;touch-action:manipulation}
+      .recipeFlipInner{position:relative;display:grid;transform-style:preserve-3d;transition:transform .52s cubic-bezier(.2,.7,.2,1)}
+      .recipeFlipCard.flipped .recipeFlipInner{transform:rotateY(180deg)}
+      .recipeFace{grid-area:1/1;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+      .recipeBack{transform:rotateY(180deg);pointer-events:none}
+      .recipeFlipCard.flipped .recipeFront{pointer-events:none}
+      .recipeFlipCard.flipped .recipeBack{pointer-events:auto}
+      .recipeFace.card{margin:0}
+      .recipeBack .detail{display:block!important}
+      .recipeTapHint{margin-top:14px;font-size:11px;color:var(--dim)}
+
       @media(max-width:600px){.recipeCalcGrid{grid-template-columns:1fr}}
     `;
     document.head.appendChild(s);
@@ -28,6 +49,62 @@
     for (const k of keys) if (row && row[k] != null && clean(row[k]) !== '') return row[k];
     return '';
   };
+
+  function ensureRecipeLightbox() {
+    let box = document.getElementById('recipeLightbox');
+    if (box) return box;
+
+    box = document.createElement('div');
+    box.id = 'recipeLightbox';
+    box.className = 'recipeLightbox';
+    box.setAttribute('aria-hidden', 'true');
+    box.innerHTML = `
+      <button class="recipeLightboxClose" type="button" aria-label="Закрыть">×</button>
+      <img class="recipeLightboxImg" alt="">
+    `;
+    document.body.appendChild(box);
+
+    const close = () => {
+      box.classList.remove('open');
+      box.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('recipeLightboxOpen');
+      const img = box.querySelector('.recipeLightboxImg');
+      img.removeAttribute('src');
+      img.alt = '';
+    };
+
+    box.querySelector('.recipeLightboxClose').addEventListener('click', close);
+
+    box.addEventListener('click', e => {
+      if (e.target === box) close();
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && box.classList.contains('open')) close();
+    });
+
+    box._closeRecipeLightbox = close;
+    return box;
+  }
+
+  function openRecipeLightbox(src, alt = '') {
+    if (!src) return;
+    const box = ensureRecipeLightbox();
+    const img = box.querySelector('.recipeLightboxImg');
+    img.src = src;
+    img.alt = alt;
+    box.classList.add('open');
+    box.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('recipeLightboxOpen');
+  }
+
+  function attachRecipePhotos(root) {
+    root.querySelectorAll('[data-recipe-photo]').forEach(img => {
+      img.addEventListener('click', () => {
+        openRecipeLightbox(img.currentSrc || img.src, img.alt || '');
+      });
+    });
+  }
 
   function normalizeRow(row, fallbackCategory = 'Меню') {
     const category = clean(get(row, 'category', 'Category', 'Категория', 'cat')) || fallbackCategory;
@@ -48,7 +125,9 @@
       method: clean(method),
       serving: clean(serving),
       photo: clean(get(row, 'photo', 'Photo', 'Фото-ссылка', 'Фото')),
-      tags: Array.isArray(tagsRaw) ? tagsRaw : clean(tagsRaw).split(/\s+/).filter(Boolean)
+      tags: Array.isArray(tagsRaw)
+        ? tagsRaw.map(clean).filter(Boolean)
+        : clean(tagsRaw).split(/[,;\n|]+/).map(x => x.trim()).filter(Boolean)
     };
   }
 
@@ -70,7 +149,7 @@
   }
 
   window.loadMenu = async function loadMenuR12() {
-    if (state.menuSchemaVersion === 12 && Array.isArray(state.menu) && state.menu.length) return state.menu;
+    if (state.menuSchemaVersion === 15 && Array.isArray(state.menu) && state.menu.length) return state.menu;
 
     try {
       const r = await fetch(API_BASE + '/menu', {
@@ -85,7 +164,7 @@
 
       state.menu = rows;
       state.menuSource = 'api';
-      state.menuSchemaVersion = 12;
+      state.menuSchemaVersion = 15;
       save();
       return rows;
     } catch (e) {
@@ -94,7 +173,7 @@
       const fallback = (typeof localMenu === 'function' ? localMenu() : []).map(x => normalizeRow(x));
       state.menu = fallback;
       state.menuSource = 'local';
-      state.menuSchemaVersion = 12;
+      state.menuSchemaVersion = 15;
       save();
       return fallback;
     }
@@ -158,56 +237,25 @@
       item.ingredients.some(parseIngredient);
   }
 
-  function targetUnits(parsed) {
-    if (!parsed) return [];
-    if (parsed.info.group === 'volume') return [{v:'мл',f:1},{v:'л',f:1000}];
-    if (parsed.info.group === 'mass') return [{v:'г',f:1},{v:'кг',f:1000}];
-    return [{v:parsed.unit,f:1}];
-  }
 
   function calculatorHtml(item, idx) {
     if (!isCalculable(item)) return '';
-
-    const parsed = item.ingredients
-      .map((line, i) => ({line, i, p:parseIngredient(line)}))
-      .filter(x => x.p);
-
-    const first = parsed[0];
 
     return `<div class="recipeCalc" data-calc="${idx}">
       <h4>Калькулятор рецепта</h4>
 
       <div class="recipeCalcGrid">
         <label>
-          Коэффициент
-          <input class="search calcMultiplier" type="number" min="0.01" step="0.1" value="1">
+          Порции
+          <input
+            class="search calcPortions"
+            type="text"
+            inputmode="decimal"
+            autocomplete="off"
+            value="1"
+            placeholder="Например: 0,5 или 4,5"
+          >
         </label>
-
-        <label>
-          Или базовый ингредиент
-          <select class="calcBase">
-            ${parsed.map(x =>
-              `<option value="${x.i}">${esc(x.p.label)} · ${esc(x.p.valueText)} ${esc(x.p.unit)}</option>`
-            ).join('')}
-          </select>
-        </label>
-
-        <label>
-          Нужное количество
-          <input class="search calcTarget" type="number" min="0.01" step="0.01" placeholder="Например: 750">
-        </label>
-
-        <label>
-          Единица
-          <select class="calcTargetUnit">
-            ${targetUnits(first?.p).map(u => `<option value="${u.f}">${esc(u.v)}</option>`).join('')}
-          </select>
-        </label>
-      </div>
-
-      <div class="recipeCalcActions">
-        <button class="btn primary calcByBase" type="button">Рассчитать по ингредиенту</button>
-        <button class="btn calcReset" type="button">Сбросить</button>
       </div>
 
       <div class="scaledRecipe"></div>
@@ -219,52 +267,38 @@
     if (!calc) return;
 
     const out = calc.querySelector('.scaledRecipe');
-    const multInput = calc.querySelector('.calcMultiplier');
-    const baseSelect = calc.querySelector('.calcBase');
-    const targetInput = calc.querySelector('.calcTarget');
-    const unitSelect = calc.querySelector('.calcTargetUnit');
+    const portionsInput = calc.querySelector('.calcPortions');
 
-    const parsedAt = i => parseIngredient(item.ingredients[Number(i)] || '');
+    const parsePortions = raw => {
+      const normalized = String(raw ?? '')
+        .trim()
+        .replace(',', '.');
 
-    const renderScaled = multiplier => {
-      const m = Math.max(0.01, Number(multiplier) || 1);
-      multInput.value = String(Math.round(m * 10000) / 10000);
+      if (normalized === '') return 0;
+
+      const n = Number(normalized);
+      return Number.isFinite(n) && n >= 0 ? n : 0;
+    };
+
+    const renderScaled = rawValue => {
+      const portions = parsePortions(rawValue);
 
       out.innerHTML = item.ingredients
-        .map(line => `<div class="recipeIngredient">${esc(scaleLine(line, m))}</div>`)
+        .map(line => `<div class="recipeIngredient">${esc(scaleLine(line, portions))}</div>`)
         .join('');
     };
 
-    const refreshUnits = () => {
-      const p = parsedAt(baseSelect.value);
-      unitSelect.innerHTML = targetUnits(p)
-        .map(u => `<option value="${u.f}">${esc(u.v)}</option>`)
-        .join('');
-    };
+    portionsInput.addEventListener('input', () => {
+      // Разрешаем только цифры и один десятичный разделитель.
+      let v = portionsInput.value
+        .replace(/[^\d.,]/g, '')
+        .replace(/([.,].*)[.,]/g, '$1');
 
-    multInput.addEventListener('input', () => renderScaled(multInput.value));
-    baseSelect.addEventListener('change', refreshUnits);
+      portionsInput.value = v;
+      renderScaled(v);
+    });
 
-    calc.querySelector('.calcByBase').onclick = () => {
-      const p = parsedAt(baseSelect.value);
-      const target = Number(String(targetInput.value).replace(',', '.'));
-      const targetFactor = Number(unitSelect.value) || 1;
-
-      if (!p || !Number.isFinite(target) || target <= 0) {
-        return toast('Введите нужное количество');
-      }
-
-      const multiplier = (target * targetFactor) / (p.value * p.info.factor);
-      renderScaled(multiplier);
-    };
-
-    calc.querySelector('.calcReset').onclick = () => {
-      targetInput.value = '';
-      renderScaled(1);
-    };
-
-    refreshUnits();
-    renderScaled(1);
+    renderScaled(portionsInput.value);
   }
 
   window.menu = async function menuR12() {
@@ -304,44 +338,84 @@
 
       const list = document.getElementById('menuList');
 
-      list.innerHTML = filtered.map((x,i) => `<article class="card item" data-recipe-card="${i}">
-        <div class="meta">
-          <span>${esc(x.category || 'Меню')}</span>
-          ${x.subcategory ? `<span>•</span><span>${esc(x.subcategory)}</span>` : ''}
-          <span>•</span>
-          <span class="sourceBadge">${state.menuSource === 'api' ? 'NocoDB через Worker' : 'локальный резерв'}</span>
-        </div>
+      list.innerHTML = filtered.map((x,i) => {
+        const tags = Array.isArray(x.tags)
+          ? x.tags.map(clean).filter(Boolean)
+          : [];
 
-        <h3>${esc(x.name)}</h3>
-        <p>${esc(x.desc)}</p>
+        const tagsHtml = tags.length
+          ? `<div class="recipeTags">${tags.map((tag, tagIndex) =>
+              `<span class="recipeTag tone-${tagIndex % 3}">${esc(tag)}</span>`
+            ).join('')}</div>`
+          : '';
 
-        <button class="btn" data-open="${i}">Открыть техкарту</button>
+        return `<article class="recipeFlipCard" data-recipe-card="${i}" tabindex="0" role="button" aria-expanded="false">
+          <div class="recipeFlipInner">
 
-        <div class="detail" id="detail-${i}">
-          ${x.photo ? `<img class="recipePhoto" src="${esc(x.photo)}" alt="${esc(x.name)}">` : ''}
+            <section class="recipeFace recipeFront card item">
+              <div class="recipeCategory">${esc(x.category || 'Меню')}</div>
 
-          <div class="eyebrow">СОСТАВ</div>
-          <div class="recipeIngredients">
-            ${x.ingredients.map(v => `<div class="recipeIngredient">${esc(v)}</div>`).join('') ||
-              '<div class="recipeIngredient">Состав не заполнен.</div>'}
+              <h3>${esc(x.name)}</h3>
+
+              ${tagsHtml}
+
+              <div class="recipeTapHint">Тапните по карточке, чтобы открыть техкарту</div>
+            </section>
+
+            <section class="recipeFace recipeBack card item">
+              <div class="recipeCategory">${esc(x.category || 'Меню')}</div>
+              <h3>${esc(x.name)}</h3>
+
+              <div class="detail open">
+                ${x.photo ? `<div class="recipePhotoWrap"><img class="recipePhoto" data-recipe-photo src="${esc(x.photo)}" alt="${esc(x.name)}" loading="lazy"></div>` : ''}
+
+                <div class="eyebrow">СОСТАВ</div>
+                <div class="recipeIngredients">
+                  ${x.ingredients.map(v => `<div class="recipeIngredient">${esc(v)}</div>`).join('') ||
+                    '<div class="recipeIngredient">Состав не заполнен.</div>'}
+                </div>
+
+                ${calculatorHtml(x, i)}
+
+                ${x.method ? `<div class="recipeMethod">
+                  <div class="eyebrow">ПРИГОТОВЛЕНИЕ</div>
+                  ${esc(x.method)}
+                </div>` : ''}
+
+                ${x.serving ? `<div class="recipeServing">
+                  <div class="eyebrow">ПОДАЧА / ВЫХОД</div>
+                  ${esc(x.serving)}
+                </div>` : ''}
+              </div>
+            </section>
+
           </div>
+        </article>`;
+      }).join('') || '<div class="card empty">Ничего не найдено.</div>';
 
-          ${calculatorHtml(x, i)}
+      attachRecipePhotos(list);
 
-          ${x.method ? `<div class="recipeMethod">
-            <div class="eyebrow">ПРИГОТОВЛЕНИЕ</div>
-            ${esc(x.method)}
-          </div>` : ''}
+      const isInteractiveTarget = target =>
+        !!target.closest('input,select,textarea,button,a,[data-recipe-photo],.recipeLightbox');
 
-          ${x.serving ? `<div class="recipeServing">
-            <div class="eyebrow">ПОДАЧА / ВЫХОД</div>
-            ${esc(x.serving)}
-          </div>` : ''}
-        </div>
-      </article>`).join('') || '<div class="card empty">Ничего не найдено.</div>';
+      list.querySelectorAll('[data-recipe-card]').forEach(card => {
+        const toggle = () => {
+          const next = !card.classList.contains('flipped');
+          card.classList.toggle('flipped', next);
+          card.setAttribute('aria-expanded', String(next));
+        };
 
-      list.querySelectorAll('[data-open]').forEach(b => {
-        b.onclick = () => document.getElementById('detail-' + b.dataset.open).classList.toggle('open');
+        card.addEventListener('click', e => {
+          if (isInteractiveTarget(e.target)) return;
+          toggle();
+        });
+
+        card.addEventListener('keydown', e => {
+          if (e.key !== 'Enter' && e.key !== ' ') return;
+          if (isInteractiveTarget(e.target)) return;
+          e.preventDefault();
+          toggle();
+        });
       });
 
       filtered.forEach((item, i) => {
