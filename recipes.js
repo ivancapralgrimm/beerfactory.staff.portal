@@ -1,5 +1,5 @@
 (() => {
-  const STYLE_ID = 'bf-recipes-r16-style';
+  const STYLE_ID = 'bf-recipes-r17-style';
   if (!document.getElementById(STYLE_ID)) {
     const s = document.createElement('style');
     s.id = STYLE_ID;
@@ -30,13 +30,17 @@
       .recipeFlipInner{position:relative;transform-style:preserve-3d;transition:transform .52s cubic-bezier(.2,.7,.2,1),height .34s ease}
       .recipeFlipCard.flipped .recipeFlipInner{transform:rotateY(180deg)}
       .recipeFace{position:absolute;inset:0 auto auto 0;width:100%;backface-visibility:hidden;-webkit-backface-visibility:hidden}
-      .recipeFront{height:230px;display:flex;flex-direction:column}
+      .recipeFront{height:155px;box-sizing:border-box;padding:12px;display:flex;flex-direction:column}
+      .recipeFront .recipeCategory{font-size:12px;margin-bottom:5px;flex-shrink:0}
+      .recipeFront h3{margin:0;font-size:18px;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;flex-shrink:0}
+      .recipeFront .recipeTags{gap:4px;margin:6px 0 0;min-height:0;overflow-y:auto;align-content:flex-start}
+      .recipeFront .recipeTag{min-height:20px;padding:3px 7px;font-size:11px;flex-shrink:0;box-sizing:border-box}
       .recipeBack{position:absolute;top:0;left:0;width:100%;transform:rotateY(180deg);pointer-events:none}
       .recipeFlipCard.flipped .recipeFront{pointer-events:none}
       .recipeFlipCard.flipped .recipeBack{pointer-events:auto}
       .recipeFace.card{margin:0}
       .recipeBack .detail{display:block!important}
-      .recipeTapHint{margin-top:auto;padding-top:16px;font-size:11px;color:var(--dim)}
+      .recipeTapHint{margin-top:auto;padding-top:6px;font-size:10px;line-height:1.2;flex-shrink:0;color:var(--dim)}
 
       @media(max-width:600px){.recipeCalcGrid{grid-template-columns:1fr}}
     `;
@@ -44,6 +48,9 @@
   }
 
   const clean = v => String(v ?? '').trim();
+  const categoryLabel = value => /^лимонад$/i.test(clean(value)) ? 'Б/А напитки' : clean(value);
+  const tagWords = value => (Array.isArray(value) ? value : [value])
+    .flatMap(part => clean(part).split(/[\s,;|·]+/u)).filter(Boolean);
   const lines = v => clean(v).split(/\n|·/).map(x => x.trim()).filter(Boolean);
 
   const get = (row, ...keys) => {
@@ -126,9 +133,7 @@
       method: clean(method),
       serving: clean(serving),
       photo: clean(get(row, 'photo', 'Photo', 'Фото-ссылка', 'Фото')),
-      tags: Array.isArray(tagsRaw)
-        ? tagsRaw.map(clean).filter(Boolean)
-        : clean(tagsRaw).split(/[,;\n|]+/).map(x => x.trim()).filter(Boolean)
+      tags: tagWords(tagsRaw)
     };
   }
 
@@ -150,7 +155,7 @@
   }
 
   window.loadMenu = async function loadMenuR12() {
-    if (state.menuSchemaVersion === 16 && Array.isArray(state.menu) && state.menu.length) return state.menu;
+    if (state.menuSchemaVersion === 17 && Array.isArray(state.menu) && state.menu.length) return state.menu;
 
     try {
       const r = await fetch(API_BASE + '/menu', {
@@ -165,7 +170,7 @@
 
       state.menu = rows;
       state.menuSource = 'api';
-      state.menuSchemaVersion = 16;
+      state.menuSchemaVersion = 17;
       save();
       return rows;
     } catch (e) {
@@ -174,7 +179,7 @@
       const fallback = (typeof localMenu === 'function' ? localMenu() : []).map(x => normalizeRow(x));
       state.menu = fallback;
       state.menuSource = 'local';
-      state.menuSchemaVersion = 16;
+      state.menuSchemaVersion = 17;
       save();
       return fallback;
     }
@@ -324,7 +329,7 @@
     const cats = ['Все', ...new Set(data.map(x => x.category).filter(Boolean))];
 
     document.getElementById('menuCats').innerHTML = cats
-      .map((x,i) => `<button class="chip ${i===0?'active':''}" data-cat="${esc(x)}">${esc(x)}</button>`)
+      .map((x,i) => `<button class="chip ${i===0?'active':''}" data-cat="${esc(x)}">${esc(categoryLabel(x))}</button>`)
       .join('');
 
     const renderList = () => {
@@ -332,7 +337,7 @@
 
       const filtered = data.filter(x =>
         (cat === 'Все' || x.category === cat) &&
-        `${x.name} ${x.category} ${x.subcategory} ${x.desc} ${x.ingredients.join(' ')} ${x.tags.join(' ')}`
+        `${x.name} ${x.category} ${categoryLabel(x.category)} ${x.subcategory} ${x.desc} ${x.ingredients.join(' ')} ${x.tags.join(' ')}`
           .toLowerCase()
           .includes(q)
       );
@@ -340,9 +345,7 @@
       const list = document.getElementById('menuList');
 
       list.innerHTML = filtered.map((x,i) => {
-        const tags = Array.isArray(x.tags)
-          ? x.tags.map(clean).filter(Boolean)
-          : [];
+        const tags = tagWords(x.tags);
 
         const tagsHtml = tags.length
           ? `<div class="recipeTags">${tags.map((tag, tagIndex) =>
@@ -354,7 +357,7 @@
           <div class="recipeFlipInner">
 
             <section class="recipeFace recipeFront card item">
-              <div class="recipeCategory">${esc(x.category || 'Меню')}</div>
+              <div class="recipeCategory">${esc(categoryLabel(x.category) || 'Меню')}</div>
 
               <h3>${esc(x.name)}</h3>
 
@@ -364,7 +367,7 @@
             </section>
 
             <section class="recipeFace recipeBack card item">
-              <div class="recipeCategory">${esc(x.category || 'Меню')}</div>
+              <div class="recipeCategory">${esc(categoryLabel(x.category) || 'Меню')}</div>
               <h3>${esc(x.name)}</h3>
 
               <div class="detail open">
