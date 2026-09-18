@@ -1,5 +1,5 @@
 (() => {
-  const STYLE_ID = 'bf-recipes-r17-style';
+  const STYLE_ID = 'bf-recipes-r18-style';
   if (!document.getElementById(STYLE_ID)) {
     const s = document.createElement('style');
     s.id = STYLE_ID;
@@ -41,6 +41,7 @@
       .recipeFace.card{margin:0}
       .recipeBack .detail{display:block!important}
       .recipeTapHint{margin-top:auto;padding-top:6px;font-size:10px;line-height:1.2;flex-shrink:0;color:var(--dim)}
+      .recipeDataStatus{margin-top:10px;padding:9px 11px;border-radius:12px;border:1px solid rgba(199,160,75,.26);background:rgba(199,160,75,.08);color:var(--muted);font-size:11px;line-height:1.35}
 
       @media(max-width:600px){.recipeCalcGrid{grid-template-columns:1fr}}
     `;
@@ -154,12 +155,45 @@
     return out;
   }
 
-  window.loadMenu = async function loadMenuR12() {
-    if (state.menuSchemaVersion === 17 && Array.isArray(state.menu) && state.menu.length) return state.menu;
+  const MENU_SCHEMA_VERSION = 18;
+  const MENU_FRESH_MS = 5 * 60 * 1000;
+
+  function cachedMenu() {
+    if (!Array.isArray(state.menu) || !state.menu.length) return [];
+    if (![17, MENU_SCHEMA_VERSION].includes(Number(state.menuSchemaVersion))) return [];
+    return state.menu.map(x => normalizeRow(x));
+  }
+
+  function setMenuState(rows, source, syncedAt = state.menuSyncedAt || null) {
+    state.menu = rows;
+    state.menuSource = source;
+    state.menuSchemaVersion = MENU_SCHEMA_VERSION;
+    state.menuSyncedAt = syncedAt;
+    save();
+  }
+
+  function menuCacheIsFresh() {
+    const t = Number(state.menuSyncedAt || 0);
+    return t > 0 && (Date.now() - t) < MENU_FRESH_MS;
+  }
+
+  window.loadMenu = async function loadMenuR18() {
+    const cached = cachedMenu();
+
+    if (cached.length && menuCacheIsFresh()) {
+      setMenuState(cached, 'cache', state.menuSyncedAt);
+      return cached;
+    }
+
+    if (cached.length && navigator.onLine === false) {
+      setMenuState(cached, 'cache', state.menuSyncedAt);
+      return cached;
+    }
 
     try {
+      const timeoutMs = cached.length ? 3000 : 7000;
       const r = await fetch(API_BASE + '/menu', {
-        signal: AbortSignal.timeout(7000),
+        signal: AbortSignal.timeout(timeoutMs),
         cache: 'no-store'
       });
       if (!r.ok) throw new Error('menu_http_' + r.status);
@@ -168,19 +202,18 @@
       const rows = rowsFromPayload(d);
       if (!rows.length) throw new Error('menu_empty');
 
-      state.menu = rows;
-      state.menuSource = 'api';
-      state.menuSchemaVersion = 17;
-      save();
+      setMenuState(rows, 'api', Date.now());
       return rows;
     } catch (e) {
       console.warn('BeerFactory recipes API unavailable:', e);
 
+      if (cached.length) {
+        setMenuState(cached, 'cache', state.menuSyncedAt);
+        return cached;
+      }
+
       const fallback = (typeof localMenu === 'function' ? localMenu() : []).map(x => normalizeRow(x));
-      state.menu = fallback;
-      state.menuSource = 'local';
-      state.menuSchemaVersion = 17;
-      save();
+      setMenuState(fallback, 'local', null);
       return fallback;
     }
   };
@@ -313,6 +346,7 @@
       <h1>Рецепты</h1>
       <p>Поиск по названию, категории и составу. Для настоек, кордиалов и заготовок доступен пересчёт.</p>
       <input class="search" id="menuSearch" placeholder="Поиск по рецептам...">
+      <div id="menuDataStatus" class="recipeDataStatus" hidden></div>
     </div>
 
     <div class="rail" id="menuCats"></div>
@@ -324,6 +358,21 @@
     </section>`, '/menu');
 
     const data = await window.loadMenu();
+
+    const dataStatus = document.getElementById('menuDataStatus');
+    if (dataStatus && state.menuSource === 'cache') {
+      const syncTime = state.menuSyncedAt
+        ? new Date(state.menuSyncedAt).toLocaleString('ru-RU', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})
+        : '';
+      dataStatus.hidden = false;
+      dataStatus.textContent = syncTime
+        ? `Нет связи с сервером · показана сохранённая версия от ${syncTime}`
+        : 'Нет связи с сервером · показана сохранённая версия';
+    } else if (dataStatus && state.menuSource === 'local') {
+      dataStatus.hidden = false;
+      dataStatus.textContent = 'Сервер и сохранённая версия недоступны · показаны резервные данные';
+    }
+
     let cat = 'Все';
 
     const cats = ['Все', ...new Set(data.map(x => x.category).filter(Boolean))];
