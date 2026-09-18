@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
 
   <meta name="theme-color" content="#14100d">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="mobile-compat.css?v=20260918-r2">
   <link rel="stylesheet" href="recipes.css?v=20260918-r22">
   <link rel="stylesheet" href="learning.css?v=20260918-r23">
+  <link rel="stylesheet" href="ui.css?v=20260918-r24">
 
   <title>BeerFactory Staff</title>
 </head>
@@ -34,11 +35,12 @@
   <script src="app.js?v=20260917-r11"></script>
   <script src="recipes.js?v=20260918-r22"></script>
   <script src="learning.js?v=20260918-r23"></script>
+  <script src="ui.js?v=20260918-r24"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {
-        navigator.serviceWorker.register('./sw.js?v=20260918-r23').catch(function (err) {
+        navigator.serviceWorker.register('./sw.js?v=20260918-r24').catch(function (err) {
           console.warn('BeerFactory service worker registration failed:', err);
         });
       });

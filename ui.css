@@ -1,0 +1,332 @@
+
+/* BeerFactory Pilot UI · r24
+   Auth glass surface + compact profile avatar + mobile keyboard/viewport hardening.
+   Keep app/product styles elsewhere. */
+
+:root{
+  --bf-auth-glass:rgba(238,242,239,.76);
+  --bf-auth-line:rgba(255,255,255,.44);
+  --bf-auth-ink:#33454a;
+  --bf-auth-muted:rgba(51,69,74,.66);
+}
+
+/* iOS Safari: 16px prevents focus zoom on form fields without disabling pinch zoom. */
+input,
+textarea,
+select{
+  font-size:16px;
+}
+
+/* ===== Header ===== */
+.top .topin{
+  gap:10px;
+}
+
+.top .btn.gold[href="#/admin"],
+.top .topLogout{
+  display:none!important;
+}
+
+#profileBtn{
+  position:relative;
+  flex:0 0 auto;
+  width:48px;
+  height:48px;
+  min-width:48px;
+  min-height:48px;
+  margin-left:auto;
+  padding:0!important;
+  border-radius:50%!important;
+  overflow:hidden;
+  font-size:0!important;
+  color:transparent!important;
+  border:1px solid rgba(245,234,215,.20)!important;
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.15),rgba(255,255,255,.025)),
+    url("./assets/profile-placeholder.jpeg") center/cover no-repeat!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.30),
+    inset 0 -8px 18px rgba(0,0,0,.16),
+    0 7px 24px rgba(0,0,0,.28)!important;
+  transform:translateZ(0);
+}
+
+#profileBtn::after{
+  content:"";
+  position:absolute;
+  inset:1px;
+  border-radius:inherit;
+  pointer-events:none;
+  background:linear-gradient(135deg,rgba(255,255,255,.24),transparent 42%);
+}
+
+#profileBtn:focus-visible{
+  outline:2px solid var(--copper2);
+  outline-offset:3px;
+}
+
+@media(max-width:600px){
+  .topin .brand{
+    min-width:0;
+  }
+  .topin .brand b{
+    font-size:12px;
+    letter-spacing:.13em;
+    white-space:nowrap;
+  }
+  .topin .brand small{
+    font-size:8px;
+  }
+  #profileBtn{
+    width:46px;
+    height:46px;
+    min-width:46px;
+    min-height:46px;
+  }
+}
+
+/* ===== Authentication ===== */
+.loginWrap{
+  position:relative;
+  min-height:100vh;
+  min-height:100svh;
+  display:grid;
+  place-items:center;
+  padding:
+    max(28px,env(safe-area-inset-top))
+    18px
+    max(28px,env(safe-area-inset-bottom));
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 15% 20%,rgba(95,135,119,.38),transparent 34%),
+    radial-gradient(circle at 82% 22%,rgba(77,104,156,.35),transparent 38%),
+    radial-gradient(circle at 72% 78%,rgba(84,63,113,.28),transparent 35%),
+    linear-gradient(145deg,#17343a 0%,#253b49 42%,#1d1a33 100%);
+}
+
+.loginWrap::before{
+  content:"";
+  position:absolute;
+  inset:-10%;
+  background:
+    radial-gradient(circle at 40% 38%,rgba(255,255,255,.10),transparent 24%),
+    linear-gradient(120deg,rgba(255,255,255,.04),transparent 40%);
+  filter:blur(28px);
+  pointer-events:none;
+}
+
+.loginCard{
+  position:relative;
+  isolation:isolate;
+  width:min(100%,430px);
+  padding:96px 28px 26px;
+  border:1px solid var(--bf-auth-line);
+  border-radius:34px;
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.28),rgba(255,255,255,.06) 42%,rgba(255,255,255,.16)),
+    var(--bf-auth-glass);
+  -webkit-backdrop-filter:blur(28px) saturate(125%);
+  backdrop-filter:blur(28px) saturate(125%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.65),
+    inset 0 -1px 0 rgba(255,255,255,.22),
+    0 28px 80px rgba(0,0,0,.28);
+  color:var(--bf-auth-ink);
+}
+
+.loginCard::before{
+  content:"";
+  position:absolute;
+  z-index:2;
+  top:-62px;
+  left:50%;
+  width:124px;
+  height:124px;
+  transform:translateX(-50%);
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.55);
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.20),rgba(255,255,255,.02)),
+    url("./assets/profile-placeholder.jpeg") center/cover no-repeat;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.75),
+    0 14px 38px rgba(0,0,0,.20);
+}
+
+.loginCard::after{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+  background:
+    linear-gradient(128deg,rgba(255,255,255,.24) 0 23%,transparent 23% 58%,rgba(255,255,255,.08) 58% 100%);
+}
+
+.loginBrand{
+  justify-content:center;
+  margin:0 0 18px;
+}
+
+.loginBrand .mark{
+  display:none;
+}
+
+.loginBrand b{
+  color:var(--bf-auth-ink);
+  font-size:14px;
+  letter-spacing:.18em;
+}
+
+.loginBrand small{
+  color:var(--bf-auth-muted);
+}
+
+.loginCard .eyebrow{
+  color:rgba(51,69,74,.70);
+  text-align:center;
+}
+
+.loginCard h1{
+  margin:8px 0 8px;
+  text-align:center;
+  color:var(--bf-auth-ink);
+  font-size:clamp(28px,8vw,38px);
+  letter-spacing:-.03em;
+}
+
+.loginCard p{
+  margin:0 0 22px;
+  color:var(--bf-auth-muted);
+  text-align:center;
+  line-height:1.5;
+}
+
+.loginCard form{
+  display:grid;
+  gap:11px;
+}
+
+.loginCard .search{
+  width:100%;
+  box-sizing:border-box;
+  min-height:52px;
+  border:0;
+  border-bottom:1px solid rgba(51,69,74,.38);
+  border-radius:0;
+  padding:12px 4px;
+  color:var(--bf-auth-ink);
+  background:transparent;
+  box-shadow:none;
+  outline:none;
+}
+
+.loginCard .search::placeholder{
+  color:rgba(51,69,74,.56);
+}
+
+.loginCard .search:focus{
+  border-bottom-color:rgba(51,69,74,.86);
+  box-shadow:0 1px 0 rgba(51,69,74,.36);
+}
+
+.loginCard .btn{
+  width:100%;
+  min-height:50px;
+  margin-top:5px;
+  border-color:rgba(51,69,74,.45);
+  color:#f7f7f5;
+  background:rgba(38,55,63,.78);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.14),
+    0 8px 18px rgba(20,35,42,.15);
+}
+
+.loginCard .btn:hover{
+  background:rgba(31,47,55,.90);
+}
+
+.loginCard .textBtn{
+  min-height:42px;
+  border:0;
+  color:rgba(51,69,74,.78);
+  background:transparent;
+  text-decoration:none;
+}
+
+.loginCard .textBtn:hover{
+  color:var(--bf-auth-ink);
+}
+
+.loginError{
+  min-height:20px;
+  color:#8e3f3a;
+  font-size:14px;
+  text-align:center;
+}
+
+.recoveryResult{
+  padding-top:96px;
+}
+
+@media(max-width:430px){
+  .loginWrap{
+    align-items:center;
+    padding-left:16px;
+    padding-right:16px;
+  }
+
+  .loginCard{
+    padding:88px 22px 22px;
+    border-radius:30px;
+  }
+
+  .loginCard::before{
+    width:112px;
+    height:112px;
+    top:-56px;
+  }
+
+  .loginCard h1{
+    font-size:30px;
+  }
+}
+
+@media(max-height:700px){
+  .loginWrap{
+    align-items:start;
+    padding-top:84px;
+  }
+
+  .loginCard{
+    padding-top:72px;
+  }
+
+  .loginCard::before{
+    width:94px;
+    height:94px;
+    top:-47px;
+  }
+
+  .loginBrand{
+    margin-bottom:10px;
+  }
+
+  .loginCard p{
+    margin-bottom:14px;
+  }
+}
+
+/* Keyboard-open viewport support where the browser exposes dvh. */
+@supports(height:100dvh){
+  .loginWrap{
+    min-height:100dvh;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  #profileBtn{
+    transition:none!important;
+  }
+}

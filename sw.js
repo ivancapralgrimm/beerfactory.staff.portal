@@ -1,5 +1,5 @@
-const SHELL_CACHE = 'bf-shell-r23';
-const RUNTIME_CACHE = 'bf-runtime-r23';
+const SHELL_CACHE = 'bf-shell-r24';
+const RUNTIME_CACHE = 'bf-runtime-r24';
 
 const CORE = [
   './',
@@ -8,10 +8,13 @@ const CORE = [
   './mobile-compat.css?v=20260918-r2',
   './recipes.css?v=20260918-r22',
   './learning.css?v=20260918-r23',
+  './ui.css?v=20260918-r24',
   './app.js?v=20260917-r11',
   './recipes.js?v=20260918-r22',
   './learning.js?v=20260918-r23',
+  './ui.js?v=20260918-r24',
   './manifest.json',
+  './assets/profile-placeholder.jpeg',
   './assets/training-data.txt',
   './assets/training-data.json',
   './assets/question-banks.json',
@@ -65,7 +68,6 @@ async function navigationResponse(request) {
 async function cacheFirst(request) {
   const cached = await caches.match(request);
   if (cached) return cached;
-
   const response = await fetch(request);
   if (response && (response.ok || response.type === 'opaque')) {
     const cache = await caches.open(RUNTIME_CACHE);
