@@ -15,10 +15,11 @@
 
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="app.css?v=20260917-r10">
-  <link rel="stylesheet" href="mobile-compat.css?v=20260918-r1">
+  <link rel="stylesheet" href="mobile-compat.css?v=20260918-r2">
+  <link rel="stylesheet" href="recipes.css?v=20260918-r22">
+  <link rel="stylesheet" href="learning.css?v=20260918-r23">
 
   <title>BeerFactory Staff</title>
-  <link rel="stylesheet" href="learning.css?v=20260917-r19">
 </head>
 
 <body>
@@ -31,13 +32,13 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="app.js?v=20260917-r11"></script>
-  <script src="recipes.js?v=20260918-r19"></script>
-  <script src="learning.js?v=20260917-r19"></script>
+  <script src="recipes.js?v=20260918-r22"></script>
+  <script src="learning.js?v=20260918-r23"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {
-        navigator.serviceWorker.register('./sw.js?v=20260918-r20').catch(function (err) {
+        navigator.serviceWorker.register('./sw.js?v=20260918-r23').catch(function (err) {
           console.warn('BeerFactory service worker registration failed:', err);
         });
       });

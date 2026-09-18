@@ -1,15 +1,16 @@
-const SHELL_CACHE = 'bf-shell-r20';
-const RUNTIME_CACHE = 'bf-runtime-r20';
+const SHELL_CACHE = 'bf-shell-r23';
+const RUNTIME_CACHE = 'bf-runtime-r23';
 
 const CORE = [
   './',
   './index.html',
   './app.css?v=20260917-r10',
-  './mobile-compat.css?v=20260918-r1',
-  './learning.css?v=20260917-r19',
+  './mobile-compat.css?v=20260918-r2',
+  './recipes.css?v=20260918-r22',
+  './learning.css?v=20260918-r23',
   './app.js?v=20260917-r11',
-  './recipes.js?v=20260918-r19',
-  './learning.js?v=20260917-r19',
+  './recipes.js?v=20260918-r22',
+  './learning.js?v=20260918-r23',
   './manifest.json',
   './assets/training-data.txt',
   './assets/training-data.json',
@@ -79,7 +80,6 @@ self.addEventListener('fetch', event => {
 
   const url = new URL(request.url);
 
-  // Recipe API freshness remains controlled only by recipes.js.
   if (url.hostname === 'beerfactory-menu-api.ivan-capral-grimm.workers.dev') return;
 
   if (request.mode === 'navigate') {

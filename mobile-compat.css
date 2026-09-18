@@ -1,15 +1,12 @@
-/* BeerFactory mobile compatibility layer · r1
-   Keep this file small. It exists only for mobile/browser fallbacks. */
+/* BeerFactory mobile compatibility layer · r2
+   Browser fallbacks only. Product styles belong in module CSS files. */
 
-/* Older iOS/Android engines understand vh even when svh is unknown. */
 .loginWrap{min-height:100vh}
 @supports (height:100svh){.loginWrap{min-height:100svh}}
 
-/* Safari/iOS still benefits from the prefixed form. */
 .top{-webkit-backdrop-filter:blur(20px)}
 .bottom{-webkit-backdrop-filter:blur(22px)}
 
-/* Fallback offsets/padding if inset(), max() or safe-area env() are not understood. */
 .recipeLightbox{top:0;right:0;bottom:0;left:0;padding:24px 18px}
 .recipeLightboxClose{top:14px;right:14px}
 @supports (padding-top:env(safe-area-inset-top)){
@@ -17,21 +14,15 @@
   .recipeLightboxClose{top:max(14px,env(safe-area-inset-top))}
 }
 
-/* Narrow Android phones: preserve card readability instead of squeezing text. */
 @media(max-width:380px){
   body .main{padding-left:12px;padding-right:12px}
-  body .recipeFront h3{font-size:17px}
-  body .recipeFront .recipeTag{font-size:10px;padding-left:6px;padding-right:6px}
-  body .recipeTapHint{font-size:9px}
 }
 
-/* Coarse-touch devices get reliable 44px-ish targets. */
 @media(pointer:coarse){
   .chip{min-height:44px}
   .recipeLightboxClose{min-width:44px;min-height:44px}
 }
 
-/* Reduced-motion users should not get a 3D flip. */
 @media(prefers-reduced-motion:reduce){
-  .recipeFlipInner{transition:none!important}
+  *{scroll-behavior:auto!important;transition:none!important}
 }
