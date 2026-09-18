@@ -1,5 +1,5 @@
 (() => {
-  const STYLE_ID = 'bf-recipes-r18-style';
+  const STYLE_ID = 'bf-recipes-r19-style';
   if (!document.getElementById(STYLE_ID)) {
     const s = document.createElement('style');
     s.id = STYLE_ID;
@@ -33,7 +33,7 @@
       .recipeFront{height:155px;box-sizing:border-box;padding:12px;display:flex;flex-direction:column}
       .recipeFront .recipeCategory{font-size:12px;margin-bottom:5px;flex-shrink:0}
       .recipeFront h3{margin:0;font-size:18px;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;flex-shrink:0}
-      .recipeFront .recipeTags{gap:4px;margin:6px 0 0;min-height:0;overflow-y:auto;align-content:flex-start}
+      .recipeFront .recipeTags{gap:4px;margin:6px 0 0;min-height:0;max-height:48px;overflow:hidden;align-content:flex-start}
       .recipeFront .recipeTag{min-height:20px;padding:3px 7px;font-size:11px;flex-shrink:0;box-sizing:border-box}
       .recipeBack{position:absolute;top:0;left:0;width:100%;transform:rotateY(180deg);pointer-events:none}
       .recipeFlipCard.flipped .recipeFront{pointer-events:none}
@@ -112,7 +112,26 @@
       img.addEventListener('click', () => {
         openRecipeLightbox(img.currentSrc || img.src, img.alt || '');
       });
+      img.addEventListener('error', () => {
+        const wrap = img.closest('.recipePhotoWrap');
+        if (wrap) wrap.remove();
+      }, { once: true });
     });
+  }
+
+  function makeRecipeId() {
+    if (globalThis.crypto && typeof globalThis.crypto.randomUUID === 'function') {
+      return globalThis.crypto.randomUUID();
+    }
+    if (globalThis.crypto && typeof globalThis.crypto.getRandomValues === 'function') {
+      const bytes = new Uint8Array(16);
+      globalThis.crypto.getRandomValues(bytes);
+      bytes[6] = (bytes[6] & 0x0f) | 0x40;
+      bytes[8] = (bytes[8] & 0x3f) | 0x80;
+      const h = [...bytes].map(v => v.toString(16).padStart(2, '0')).join('');
+      return `${h.slice(0,8)}-${h.slice(8,12)}-${h.slice(12,16)}-${h.slice(16,20)}-${h.slice(20)}`;
+    }
+    return `bf-${Date.now()}-${Math.random().toString(16).slice(2)}`;
   }
 
   function normalizeRow(row, fallbackCategory = 'Меню') {
@@ -125,7 +144,7 @@
     const ingredientLines = Array.isArray(compound) ? compound.map(clean).filter(Boolean) : lines(compound);
 
     return {
-      id: clean(get(row, 'id', 'Id', 'ID', '_id')) || crypto.randomUUID(),
+      id: clean(get(row, 'id', 'Id', 'ID', '_id')) || makeRecipeId(),
       name: clean(get(row, 'name', 'Name', 'Название', 'Title')) || 'Без названия',
       category,
       subcategory,
@@ -155,12 +174,12 @@
     return out;
   }
 
-  const MENU_SCHEMA_VERSION = 18;
+  const MENU_SCHEMA_VERSION = 19;
   const MENU_FRESH_MS = 5 * 60 * 1000;
 
   function cachedMenu() {
     if (!Array.isArray(state.menu) || !state.menu.length) return [];
-    if (![17, MENU_SCHEMA_VERSION].includes(Number(state.menuSchemaVersion))) return [];
+    if (![17, 18, MENU_SCHEMA_VERSION].includes(Number(state.menuSchemaVersion))) return [];
     return state.menu.map(x => normalizeRow(x));
   }
 
@@ -177,25 +196,34 @@
     return t > 0 && (Date.now() - t) < MENU_FRESH_MS;
   }
 
-  window.loadMenu = async function loadMenuR18() {
+  async function fetchWithTimeout(url, options = {}, timeoutMs = 7000) {
+    const controller = typeof AbortController === 'function' ? new AbortController() : null;
+    const timer = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
+    try {
+      return await fetch(url, { ...options, ...(controller ? { signal: controller.signal } : {}) });
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
+  }
+
+  window.loadMenu = async function loadMenuR19() {
     const cached = cachedMenu();
 
     if (cached.length && menuCacheIsFresh()) {
-      setMenuState(cached, 'cache', state.menuSyncedAt);
+      setMenuState(cached, 'cache-fresh', state.menuSyncedAt);
       return cached;
     }
 
     if (cached.length && navigator.onLine === false) {
-      setMenuState(cached, 'cache', state.menuSyncedAt);
+      setMenuState(cached, 'cache-offline', state.menuSyncedAt);
       return cached;
     }
 
     try {
       const timeoutMs = cached.length ? 3000 : 7000;
-      const r = await fetch(API_BASE + '/menu', {
-        signal: AbortSignal.timeout(timeoutMs),
+      const r = await fetchWithTimeout(API_BASE + '/menu', {
         cache: 'no-store'
-      });
+      }, timeoutMs);
       if (!r.ok) throw new Error('menu_http_' + r.status);
 
       const d = await r.json();
@@ -208,7 +236,7 @@
       console.warn('BeerFactory recipes API unavailable:', e);
 
       if (cached.length) {
-        setMenuState(cached, 'cache', state.menuSyncedAt);
+        setMenuState(cached, 'cache-offline', state.menuSyncedAt);
         return cached;
       }
 
@@ -218,7 +246,7 @@
     }
   };
 
-  const UNIT_RX = /(мл|л|гр|г|кг|шт|порц(?:ия|ии|ий)?|порц|ст\.л|ч\.л|уп|кап(?:ля|ли|ель)|дэш(?:а|ей)?|dash(?:es)?)/i;
+  const UNIT_RX = /(мл|л|гр|г|кг|шт|штук(?:а|и)?|порц(?:ия|ии|ий)?|порц|ст\.л|ч\.л|уп|кап(?:ля|ли|ель)|дольк(?:а|и|ек)|слайс(?:а|ов)?|лист(?:а|ьев)?|зерн(?:о|а|ёрен)|веточк(?:а|и|ек)|палочк(?:а|и|ек)|зубчик(?:а|ов)?|ломтик(?:а|ов)?|кус(?:ок|ка|ков)|дэш(?:а|ей)?|dash(?:es)?)/i;
 
   function unitInfo(raw) {
     const u = clean(raw).toLowerCase().replace(/\.$/, '');
@@ -325,6 +353,8 @@
       out.innerHTML = item.ingredients
         .map(line => `<div class="recipeIngredient">${esc(scaleLine(line, portions))}</div>`)
         .join('');
+
+      requestAnimationFrame(() => card._syncRecipeHeight?.());
     };
 
     portionsInput.addEventListener('input', () => {
@@ -340,7 +370,7 @@
     renderScaled(portionsInput.value);
   }
 
-  window.menu = async function menuR12() {
+  window.menu = async function menuR19() {
     shell(`<div class="pageTitle">
       <div class="eyebrow">РЕЦЕПТЫ · NOCODB</div>
       <h1>Рецепты</h1>
@@ -360,7 +390,7 @@
     const data = await window.loadMenu();
 
     const dataStatus = document.getElementById('menuDataStatus');
-    if (dataStatus && state.menuSource === 'cache') {
+    if (dataStatus && state.menuSource === 'cache-offline') {
       const syncTime = state.menuSyncedAt
         ? new Date(state.menuSyncedAt).toLocaleString('ru-RU', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})
         : '';
@@ -449,7 +479,7 @@
       attachRecipePhotos(list);
 
       const isInteractiveTarget = target =>
-        !!target.closest('input,select,textarea,button,a,[data-recipe-photo],.recipeLightbox');
+        !!target.closest('input,select,textarea,button,a,[data-recipe-photo],.recipePhotoWrap,.recipeLightbox');
 
       list.querySelectorAll('[data-recipe-card]').forEach(card => {
         const inner = card.querySelector('.recipeFlipInner');
@@ -487,10 +517,16 @@
           toggle();
         });
 
-        window.addEventListener('resize', () => {
-          syncHeight(card.classList.contains('flipped'));
-        }, { passive: true });
+        card._syncRecipeHeight = () => syncHeight(card.classList.contains('flipped'));
       });
+
+      if (window._bfRecipeResizeHandler) {
+        window.removeEventListener('resize', window._bfRecipeResizeHandler);
+      }
+      window._bfRecipeResizeHandler = () => {
+        list.querySelectorAll('[data-recipe-card]').forEach(card => card._syncRecipeHeight?.());
+      };
+      window.addEventListener('resize', window._bfRecipeResizeHandler, { passive: true });
 
       filtered.forEach((item, i) => {
         const card = list.querySelector(`[data-recipe-card="${i}"]`);
