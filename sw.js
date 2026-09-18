@@ -1,5 +1,5 @@
-const SHELL_CACHE = 'bf-shell-r19';
-const RUNTIME_CACHE = 'bf-runtime-r19';
+const SHELL_CACHE = 'bf-shell-r20';
+const RUNTIME_CACHE = 'bf-runtime-r20';
 
 const CORE = [
   './',
@@ -11,8 +11,21 @@ const CORE = [
   './recipes.js?v=20260918-r19',
   './learning.js?v=20260917-r19',
   './manifest.json',
+  './assets/training-data.txt',
   './assets/training-data.json',
   './assets/question-banks.json',
+  './assets/service-images/steps-overview.png',
+  './assets/service-images/steps-2-1.jpg',
+  './assets/service-images/steps-6-1.jpg',
+  './assets/service-images/sales-3-2.jpg',
+  './assets/service-images/sales-5-1.jpg',
+  './assets/service-images/sales-8-1.jpg',
+  './assets/service-images/phrases-1-1.jpg',
+  './assets/service-images/guests-3-1.jpg',
+  './assets/service-images/guests-6-1.jpg',
+  './assets/service-images/guests-8-1.jpg',
+  './assets/service-images/guests-11-1.jpg',
+  './assets/service-images/hall-1-1.jpg',
   'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
 ];
 
@@ -28,7 +41,11 @@ self.addEventListener('activate', event => {
   event.waitUntil((async () => {
     const keep = new Set([SHELL_CACHE, RUNTIME_CACHE]);
     const names = await caches.keys();
-    await Promise.all(names.filter(name => name.startsWith('bf-') && !keep.has(name)).map(name => caches.delete(name)));
+    await Promise.all(
+      names
+        .filter(name => name.startsWith('bf-') && !keep.has(name))
+        .map(name => caches.delete(name))
+    );
     await self.clients.claim();
   })());
 });
@@ -47,6 +64,7 @@ async function navigationResponse(request) {
 async function cacheFirst(request) {
   const cached = await caches.match(request);
   if (cached) return cached;
+
   const response = await fetch(request);
   if (response && (response.ok || response.type === 'opaque')) {
     const cache = await caches.open(RUNTIME_CACHE);
@@ -61,7 +79,7 @@ self.addEventListener('fetch', event => {
 
   const url = new URL(request.url);
 
-  // Recipe API freshness is controlled in recipes.js. Do not add a second stale layer here.
+  // Recipe API freshness remains controlled only by recipes.js.
   if (url.hostname === 'beerfactory-menu-api.ivan-capral-grimm.workers.dev') return;
 
   if (request.mode === 'navigate') {
@@ -70,7 +88,9 @@ self.addEventListener('fetch', event => {
   }
 
   const sameOrigin = url.origin === self.location.origin;
-  const jsDelivrSupabase = url.hostname === 'cdn.jsdelivr.net' && url.pathname.includes('@supabase/supabase-js');
+  const jsDelivrSupabase =
+    url.hostname === 'cdn.jsdelivr.net' &&
+    url.pathname.includes('@supabase/supabase-js');
 
   if (sameOrigin || jsDelivrSupabase) {
     event.respondWith(cacheFirst(request));
