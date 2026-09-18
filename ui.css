@@ -1,16 +1,20 @@
 
-/* BeerFactory Pilot UI · r24
-   Auth glass surface + compact profile avatar + mobile keyboard/viewport hardening.
-   Keep app/product styles elsewhere. */
+/* BeerFactory Pilot UI · r24.2
+   Reference-inspired composition, rebuilt inside the BeerFactory design system. */
 
 :root{
-  --bf-auth-glass:rgba(238,242,239,.76);
-  --bf-auth-line:rgba(255,255,255,.44);
-  --bf-auth-ink:#33454a;
-  --bf-auth-muted:rgba(51,69,74,.66);
+  --bf-ui-bg:#14100D;
+  --bf-ui-surface:#241B15;
+  --bf-ui-surface-2:#2C2119;
+  --bf-ui-border:#49372A;
+  --bf-ui-cream:#F5EAD7;
+  --bf-ui-muted:#B9A58D;
+  --bf-ui-copper:#BD6331;
+  --bf-ui-copper-hi:#DF8B4E;
+  --bf-ui-gold:#C7A04B;
 }
 
-/* iOS Safari: 16px prevents focus zoom on form fields without disabling pinch zoom. */
+/* Prevent iOS focus zoom without disabling pinch zoom. */
 input,
 textarea,
 select{
@@ -40,28 +44,39 @@ select{
   overflow:hidden;
   font-size:0!important;
   color:transparent!important;
-  border:1px solid rgba(245,234,215,.20)!important;
+  border:1px solid rgba(223,139,78,.42)!important;
   background:
-    linear-gradient(145deg,rgba(255,255,255,.15),rgba(255,255,255,.025)),
-    url("./assets/profile-placeholder.jpeg") center/cover no-repeat!important;
+    radial-gradient(circle at 50% 34%,var(--bf-ui-cream) 0 15%,transparent 15.8%),
+    radial-gradient(ellipse at 50% 74%,var(--bf-ui-cream) 0 27%,transparent 27.8%),
+    linear-gradient(145deg,rgba(255,255,255,.07),rgba(189,99,49,.09)),
+    var(--bf-ui-surface-2)!important;
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.30),
-    inset 0 -8px 18px rgba(0,0,0,.16),
-    0 7px 24px rgba(0,0,0,.28)!important;
+    inset 0 1px 0 rgba(255,255,255,.10),
+    inset 0 -10px 22px rgba(0,0,0,.24),
+    0 8px 22px rgba(0,0,0,.28)!important;
   transform:translateZ(0);
+}
+
+#profileBtn::before{
+  content:"";
+  position:absolute;
+  inset:4px;
+  border-radius:inherit;
+  border:1px solid rgba(245,234,215,.10);
+  pointer-events:none;
 }
 
 #profileBtn::after{
   content:"";
   position:absolute;
-  inset:1px;
+  inset:0;
   border-radius:inherit;
   pointer-events:none;
-  background:linear-gradient(135deg,rgba(255,255,255,.24),transparent 42%);
+  background:linear-gradient(135deg,rgba(255,255,255,.12),transparent 38%);
 }
 
 #profileBtn:focus-visible{
-  outline:2px solid var(--copper2);
+  outline:2px solid var(--bf-ui-copper-hi);
   outline-offset:3px;
 }
 
@@ -69,14 +84,17 @@ select{
   .topin .brand{
     min-width:0;
   }
+
   .topin .brand b{
     font-size:12px;
     letter-spacing:.13em;
     white-space:nowrap;
   }
+
   .topin .brand small{
     font-size:8px;
   }
+
   #profileBtn{
     width:46px;
     height:46px;
@@ -93,64 +111,65 @@ select{
   display:grid;
   place-items:center;
   padding:
-    max(28px,env(safe-area-inset-top))
+    max(32px,env(safe-area-inset-top))
     18px
-    max(28px,env(safe-area-inset-bottom));
+    max(32px,env(safe-area-inset-bottom));
   overflow:hidden;
   background:
-    radial-gradient(circle at 15% 20%,rgba(95,135,119,.38),transparent 34%),
-    radial-gradient(circle at 82% 22%,rgba(77,104,156,.35),transparent 38%),
-    radial-gradient(circle at 72% 78%,rgba(84,63,113,.28),transparent 35%),
-    linear-gradient(145deg,#17343a 0%,#253b49 42%,#1d1a33 100%);
+    radial-gradient(circle at 50% -10%,rgba(189,99,49,.16),transparent 36%),
+    radial-gradient(circle at 12% 72%,rgba(199,160,75,.07),transparent 28%),
+    var(--bf-ui-bg);
 }
 
 .loginWrap::before{
   content:"";
   position:absolute;
-  inset:-10%;
-  background:
-    radial-gradient(circle at 40% 38%,rgba(255,255,255,.10),transparent 24%),
-    linear-gradient(120deg,rgba(255,255,255,.04),transparent 40%);
-  filter:blur(28px);
+  inset:0;
   pointer-events:none;
+  background:
+    linear-gradient(125deg,transparent 0 39%,rgba(255,255,255,.018) 39% 55%,transparent 55%),
+    radial-gradient(circle at 76% 18%,rgba(255,255,255,.025),transparent 24%);
 }
 
 .loginCard{
   position:relative;
   isolation:isolate;
   width:min(100%,430px);
-  padding:96px 28px 26px;
-  border:1px solid var(--bf-auth-line);
-  border-radius:34px;
+  padding:94px 28px 26px;
+  border:1px solid rgba(223,139,78,.22);
+  border-radius:30px;
   background:
-    linear-gradient(145deg,rgba(255,255,255,.28),rgba(255,255,255,.06) 42%,rgba(255,255,255,.16)),
-    var(--bf-auth-glass);
-  -webkit-backdrop-filter:blur(28px) saturate(125%);
-  backdrop-filter:blur(28px) saturate(125%);
+    linear-gradient(145deg,rgba(255,255,255,.035),rgba(255,255,255,.006) 42%,rgba(189,99,49,.025)),
+    rgba(36,27,21,.97);
+  -webkit-backdrop-filter:blur(18px);
+  backdrop-filter:blur(18px);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.65),
-    inset 0 -1px 0 rgba(255,255,255,.22),
-    0 28px 80px rgba(0,0,0,.28);
-  color:var(--bf-auth-ink);
+    inset 0 1px 0 rgba(255,255,255,.055),
+    inset 0 -1px 0 rgba(0,0,0,.20),
+    0 30px 76px rgba(0,0,0,.38);
+  color:var(--bf-ui-cream);
 }
 
 .loginCard::before{
   content:"";
   position:absolute;
   z-index:2;
-  top:-62px;
+  top:-58px;
   left:50%;
-  width:124px;
-  height:124px;
+  width:116px;
+  height:116px;
   transform:translateX(-50%);
   border-radius:50%;
-  border:1px solid rgba(255,255,255,.55);
+  border:1px solid rgba(223,139,78,.34);
   background:
-    linear-gradient(145deg,rgba(255,255,255,.20),rgba(255,255,255,.02)),
-    url("./assets/profile-placeholder.jpeg") center/cover no-repeat;
+    radial-gradient(circle at 50% 34%,var(--bf-ui-cream) 0 15%,transparent 15.8%),
+    radial-gradient(ellipse at 50% 74%,var(--bf-ui-cream) 0 27%,transparent 27.8%),
+    linear-gradient(145deg,rgba(255,255,255,.06),rgba(189,99,49,.10)),
+    var(--bf-ui-surface-2);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.75),
-    0 14px 38px rgba(0,0,0,.20);
+    inset 0 1px 0 rgba(255,255,255,.09),
+    inset 0 -12px 26px rgba(0,0,0,.23),
+    0 16px 38px rgba(0,0,0,.30);
 }
 
 .loginCard::after{
@@ -161,12 +180,12 @@ select{
   border-radius:inherit;
   pointer-events:none;
   background:
-    linear-gradient(128deg,rgba(255,255,255,.24) 0 23%,transparent 23% 58%,rgba(255,255,255,.08) 58% 100%);
+    linear-gradient(128deg,rgba(255,255,255,.025) 0 23%,transparent 23% 58%,rgba(189,99,49,.022) 58% 100%);
 }
 
 .loginBrand{
   justify-content:center;
-  margin:0 0 18px;
+  margin:0 0 20px;
 }
 
 .loginBrand .mark{
@@ -174,31 +193,31 @@ select{
 }
 
 .loginBrand b{
-  color:var(--bf-auth-ink);
+  color:var(--bf-ui-cream);
   font-size:14px;
   letter-spacing:.18em;
 }
 
 .loginBrand small{
-  color:var(--bf-auth-muted);
+  color:rgba(185,165,141,.70);
 }
 
 .loginCard .eyebrow{
-  color:rgba(51,69,74,.70);
+  color:var(--bf-ui-copper-hi);
   text-align:center;
 }
 
 .loginCard h1{
   margin:8px 0 8px;
   text-align:center;
-  color:var(--bf-auth-ink);
+  color:var(--bf-ui-cream);
   font-size:clamp(28px,8vw,38px);
   letter-spacing:-.03em;
 }
 
 .loginCard p{
   margin:0 0 22px;
-  color:var(--bf-auth-muted);
+  color:var(--bf-ui-muted);
   text-align:center;
   line-height:1.5;
 }
@@ -212,62 +231,67 @@ select{
   width:100%;
   box-sizing:border-box;
   min-height:52px;
-  border:0;
-  border-bottom:1px solid rgba(51,69,74,.38);
-  border-radius:0;
-  padding:12px 4px;
-  color:var(--bf-auth-ink);
-  background:transparent;
-  box-shadow:none;
+  border:1px solid rgba(245,234,215,.11);
+  border-radius:14px;
+  padding:12px 14px;
+  color:var(--bf-ui-cream);
+  background:rgba(255,255,255,.025);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.025),
+    0 0 0 1px transparent;
   outline:none;
 }
 
 .loginCard .search::placeholder{
-  color:rgba(51,69,74,.56);
+  color:rgba(185,165,141,.72);
 }
 
 .loginCard .search:focus{
-  border-bottom-color:rgba(51,69,74,.86);
-  box-shadow:0 1px 0 rgba(51,69,74,.36);
+  border-color:rgba(223,139,78,.58);
+  background:rgba(255,255,255,.035);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.035),
+    0 0 0 3px rgba(189,99,49,.10);
 }
 
 .loginCard .btn{
   width:100%;
   min-height:50px;
   margin-top:5px;
-  border-color:rgba(51,69,74,.45);
-  color:#f7f7f5;
-  background:rgba(38,55,63,.78);
+  border-color:rgba(223,139,78,.48);
+  color:#17110d;
+  background:
+    linear-gradient(180deg,var(--bf-ui-copper-hi),var(--bf-ui-copper));
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.14),
-    0 8px 18px rgba(20,35,42,.15);
+    inset 0 1px 0 rgba(255,255,255,.16),
+    0 10px 22px rgba(88,42,18,.18);
 }
 
 .loginCard .btn:hover{
-  background:rgba(31,47,55,.90);
+  filter:brightness(1.03);
 }
 
 .loginCard .textBtn{
   min-height:42px;
   border:0;
-  color:rgba(51,69,74,.78);
+  color:var(--bf-ui-muted);
   background:transparent;
   text-decoration:none;
 }
 
 .loginCard .textBtn:hover{
-  color:var(--bf-auth-ink);
+  color:var(--bf-ui-cream);
 }
 
 .loginError{
   min-height:20px;
-  color:#8e3f3a;
+  color:#e58b80;
   font-size:14px;
   text-align:center;
 }
 
 .recoveryResult{
-  padding-top:96px;
+  padding-top:94px;
 }
 
 @media(max-width:430px){
@@ -278,14 +302,14 @@ select{
   }
 
   .loginCard{
-    padding:88px 22px 22px;
-    border-radius:30px;
+    padding:86px 22px 22px;
+    border-radius:28px;
   }
 
   .loginCard::before{
-    width:112px;
-    height:112px;
-    top:-56px;
+    width:108px;
+    height:108px;
+    top:-54px;
   }
 
   .loginCard h1{
@@ -296,17 +320,17 @@ select{
 @media(max-height:700px){
   .loginWrap{
     align-items:start;
-    padding-top:84px;
+    padding-top:82px;
   }
 
   .loginCard{
-    padding-top:72px;
+    padding-top:70px;
   }
 
   .loginCard::before{
-    width:94px;
-    height:94px;
-    top:-47px;
+    width:92px;
+    height:92px;
+    top:-46px;
   }
 
   .loginBrand{
@@ -318,7 +342,6 @@ select{
   }
 }
 
-/* Keyboard-open viewport support where the browser exposes dvh. */
 @supports(height:100dvh){
   .loginWrap{
     min-height:100dvh;

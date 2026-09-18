@@ -1,5 +1,5 @@
-const SHELL_CACHE = 'bf-shell-r24';
-const RUNTIME_CACHE = 'bf-runtime-r24';
+const SHELL_CACHE = 'bf-shell-r24-2';
+const RUNTIME_CACHE = 'bf-runtime-r24-2';
 
 const CORE = [
   './',
@@ -8,13 +8,12 @@ const CORE = [
   './mobile-compat.css?v=20260918-r2',
   './recipes.css?v=20260918-r22',
   './learning.css?v=20260918-r23',
-  './ui.css?v=20260918-r24',
+  './ui.css?v=20260918-r24-2',
   './app.js?v=20260917-r11',
   './recipes.js?v=20260918-r22',
   './learning.js?v=20260918-r23',
-  './ui.js?v=20260918-r24',
+  './ui.js?v=20260918-r24-2',
   './manifest.json',
-  './assets/profile-placeholder.jpeg',
   './assets/training-data.txt',
   './assets/training-data.json',
   './assets/question-banks.json',
