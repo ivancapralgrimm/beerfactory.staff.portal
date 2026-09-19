@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '20260918-r23';
+  const VERSION = '20260918-r31';
 
   const e = text => String(text ?? '').replace(/[&<>"']/g, c => ({
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
@@ -175,6 +175,60 @@
     }
   }
 
+  let trainingProgressCache = null;
+  let trainingProgressLoadedAt = 0;
+
+  async function getTrainingReadState(force = false) {
+    const local = new Set(readRecord().read || []);
+
+    if (!currentUser?.id) {
+      return { ids: local, source: 'device' };
+    }
+
+    if (!force && trainingProgressCache && Date.now() - trainingProgressLoadedAt < 30000) {
+      return { ids: new Set(trainingProgressCache), source: 'profile' };
+    }
+
+    const { data, error } = await sb
+      .from('training_progress')
+      .select('article_id,completed')
+      .eq('user_id', currentUser.id)
+      .eq('completed', true);
+
+    if (error) throw error;
+
+    trainingProgressCache = new Set((data || []).map(x => x.article_id).filter(Boolean));
+    trainingProgressLoadedAt = Date.now();
+
+    // Preserve offline continuity by mirroring server-completed articles locally.
+    const record = readRecord();
+    record.read = [...new Set([...(record.read || []), ...trainingProgressCache])];
+    writeRecord(record);
+
+    return { ids: new Set(trainingProgressCache), source: 'profile' };
+  }
+
+  async function markArticleRead(articleId) {
+    if (!currentUser?.id) throw new Error('auth_required');
+
+    const now = new Date().toISOString();
+    const { error } = await sb
+      .from('training_progress')
+      .upsert({
+        user_id: currentUser.id,
+        article_id: articleId,
+        completed: true,
+        progress_percent: 100,
+        updated_at: now
+      }, { onConflict: 'user_id,article_id' });
+
+    if (error) throw error;
+
+    if (!trainingProgressCache) trainingProgressCache = new Set();
+    trainingProgressCache.add(articleId);
+    trainingProgressLoadedAt = Date.now();
+  }
+
   let articles = null;
   let bank = null;
   let activeQuiz = null;
@@ -198,6 +252,22 @@
     }
     return articles;
   }
+
+  window.searchKnowledge = async function searchKnowledgeR36(query) {
+    const q = String(query ?? '').trim().toLowerCase();
+    if (!q) return [];
+
+    const data = await getArticles();
+    return data
+      .filter(a => `${a.title} ${a.category} ${a.body}`.toLowerCase().includes(q))
+      .slice(0, 8)
+      .map(a => ({
+        type: 'knowledge',
+        id: a.id,
+        title: a.title,
+        category: a.category
+      }));
+  };
 
   function errorPage(message, route) {
     shell(
@@ -294,7 +364,7 @@
     }
   }
 
-  window.training = async function trainingR23() {
+  window.training = async function trainingR31() {
     window.scrollTo(0, 0);
     shell('<div class="card empty">Загрузка статей…</div>', '/training');
 
@@ -309,6 +379,13 @@
 
     const available = ['Все', ...new Set(data.map(a => a.category))];
     if (!available.includes(browse.category)) browse.category = 'Все';
+
+    let readState;
+    try {
+      readState = await getTrainingReadState(false);
+    } catch {
+      readState = { ids: new Set(readRecord().read || []), source: 'device' };
+    }
 
     shell(`
       <div class="pageTitle learnPageTitle">
@@ -334,7 +411,7 @@
       .join('');
 
     function list() {
-      const read = readRecord().read || [];
+      const read = readState.ids;
       const q = browse.query.toLowerCase().trim();
 
       const filtered = data.filter(a =>
@@ -354,7 +431,7 @@
             <div class="learnRowMeta">
               <span>${minutes(a)} мин</span>
               <span>·</span>
-              <span class="${read.includes(a.id) ? 'learnRead' : ''}">${read.includes(a.id) ? 'Прочитано ✓' : 'Открыть статью'}</span>
+              <span class="${read.has(a.id) ? 'learnRead' : ''}">${read.has(a.id) ? 'Прочитано ✓' : 'Открыть статью'}</span>
             </div>
           </div>
           <span class="learnRowArrow" aria-hidden="true">›</span>
@@ -386,7 +463,7 @@
     }
   };
 
-  window.article = async function articleR23(id) {
+  window.article = async function articleR31(id) {
     shell('<div class="card empty">Загрузка статьи…</div>', '/training');
 
     let data;
@@ -410,7 +487,12 @@
       return;
     }
 
-    const read = (readRecord().read || []).includes(a.id);
+    let read = false;
+    try {
+      read = (await getTrainingReadState(false)).ids.has(a.id);
+    } catch {
+      read = (readRecord().read || []).includes(a.id);
+    }
 
     shell(`
       <div class="learnDetailTop">
@@ -442,13 +524,28 @@
 
     attachLearnImages(document);
 
-    document.getElementById('markRead').onclick = () => {
+    document.getElementById('markRead').onclick = async () => {
+      const button = document.getElementById('markRead');
+      const status = document.getElementById('learnSaveStatus');
+
       const record = readRecord();
       record.read = [...new Set([...(record.read || []), id])];
-      if (writeRecord(record)) {
-        document.getElementById('markRead').textContent = 'Прочитано ✓';
-      } else {
-        document.getElementById('learnSaveStatus').textContent = 'Не удалось сохранить отметку на устройстве.';
+      writeRecord(record);
+
+      button.disabled = true;
+      button.textContent = 'Сохраняем…';
+      status.textContent = '';
+
+      try {
+        await markArticleRead(id);
+        button.textContent = 'Прочитано ✓';
+        status.textContent = 'Отметка сохранена в профиле.';
+      } catch (error) {
+        console.error('BeerFactory training progress:', error);
+        button.textContent = 'Прочитано ✓';
+        status.textContent = 'Профиль недоступен. Отметка сохранена только на этом устройстве.';
+      } finally {
+        button.disabled = false;
       }
     };
   };
@@ -532,7 +629,66 @@
   const hasPassed = (correct, total, percent = 80) =>
     total > 0 && correct * 100 >= total * percent;
 
-  window.attestation = async function attestationR23() {
+  async function getRemoteQuizHistory(limit = 5) {
+    if (!currentUser?.id) return [];
+
+    const { data, error } = await sb
+      .from('quiz_attempts')
+      .select('category,category_id,score,passed,total_questions,correct_answers,created_at,finished_at')
+      .eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+    return data || [];
+  }
+
+  function buildTopicResults(attempt) {
+    const topics = {};
+
+    attempt.qs.forEach((q, i) => {
+      const topic = q.topic || 'Общее';
+      const chosen = q.answers[attempt.answers[i]];
+      if (!topics[topic]) topics[topic] = { total: 0, correct: 0 };
+      topics[topic].total += 1;
+      if (chosen?.correct) topics[topic].correct += 1;
+    });
+
+    const weakTopics = Object.entries(topics)
+      .filter(([, value]) => value.correct < value.total)
+      .map(([topic, value]) => ({
+        topic,
+        total: value.total,
+        correct: value.correct
+      }));
+
+    return { topics, weakTopics };
+  }
+
+  async function persistQuizAttempt(attempt, result) {
+    if (!currentUser?.id) throw new Error('auth_required');
+
+    const { error } = await sb.from('quiz_attempts').insert({
+      user_id: currentUser.id,
+      category: attempt.category,
+      category_id: attempt.categoryId,
+      score: result.score,
+      passed: result.passed,
+      total_questions: result.total,
+      correct_answers: result.correct,
+      category_results: {
+        pass_percent: attempt.passPercent,
+        topics: result.topicResults.topics,
+        weak_topics: result.topicResults.weakTopics
+      },
+      started_at: attempt.startedAt,
+      finished_at: result.finishedAt
+    });
+
+    if (error) throw error;
+  }
+
+  window.attestation = async function attestationR31() {
     window.scrollTo(0, 0);
     activeQuiz = null;
     shell('<div class="card empty">Загрузка вопросов…</div>', '/training');
@@ -546,7 +702,29 @@
     if (path() !== '/attestation') return;
 
     let selected = null;
-    const history = readRecord().history || [];
+    let historySource = 'profile';
+    let history = [];
+
+    try {
+      history = (await getRemoteQuizHistory(5)).map(h => ({
+        category: h.category || 'Общий тест',
+        time: h.finished_at || h.created_at,
+        correct: h.correct_answers,
+        total: h.total_questions,
+        score: h.score,
+        passed: h.passed
+      }));
+    } catch {
+      historySource = 'device';
+      history = (readRecord().history || []).slice(-5).reverse().map(h => ({
+        category: h.category || 'Общий тест',
+        time: h.time,
+        correct: h.correct,
+        total: h.total,
+        score: h.score,
+        passed: h.passed
+      }));
+    }
 
     shell(`
       <div class="pageTitle">
@@ -577,9 +755,11 @@
 
       <section class="section card cardPad">
         <h2>Мои попытки</h2>
-        <p>Пока история хранится в этом браузере для вашего аккаунта. Перенос в Supabase — следующий этап.</p>
+        <p>${historySource === 'profile'
+          ? 'История сохраняется в вашем профиле.'
+          : 'Профиль недоступен. Показана локальная история этого устройства.'}</p>
         ${history.length
-          ? history.slice(-5).reverse().map(h => `
+          ? history.map(h => `
               <div class="metric">
                 <span>${e(h.category || 'Общий тест')}<br>${e(new Date(h.time).toLocaleString('ru-RU'))}</span>
                 <b>${h.correct}/${h.total} · ${h.score}%</b>
@@ -620,7 +800,8 @@
         i: 0,
         answers: [],
         selected: null,
-        owner: storageKey()
+        owner: storageKey(),
+        startedAt: new Date().toISOString()
       };
 
       question();
@@ -688,15 +869,20 @@
     const attempt = activeQuiz;
     activeQuiz = null;
 
-    const mistakes = attempt.qs
-      .map((q,i) => ({ q, chosen: q.answers[attempt.answers[i]] }))
-      .filter(x => !x.chosen.correct);
+    const reviewed = attempt.qs.map((q,i) => ({
+      q,
+      chosen: q.answers[attempt.answers[i]]
+    }));
 
+    const mistakes = reviewed.filter(x => !x.chosen.correct);
     const total = attempt.qs.length;
     const correct = total - mistakes.length;
     const score = Math.round(correct / total * 100);
     const passed = hasPassed(correct, total, attempt.passPercent);
+    const finishedAt = new Date().toISOString();
+    const topicResults = buildTopicResults(attempt);
 
+    // Local history remains only as cache/fallback, not source of truth.
     const record = readRecord();
     record.history = [
       ...(record.history || []),
@@ -711,8 +897,7 @@
         passPercent: attempt.passPercent
       }
     ].slice(-100);
-
-    const saved = attempt.owner === storageKey() && writeRecord(record);
+    if (attempt.owner === storageKey()) writeRecord(record);
 
     shell(`
       <section class="card result">
@@ -720,7 +905,7 @@
         <div class="score">${score}%</div>
         <h1>${passed ? 'Аттестация пройдена' : 'Нужно повторить материал'}</h1>
         <p>${correct} из ${total} · проходной порог ${attempt.passPercent}%</p>
-        <p>${saved ? 'Попытка сохранена в этом браузере.' : 'Не удалось сохранить попытку на устройстве.'}</p>
+        <p id="quizSaveStatus" class="quizSaveStatus">Сохраняем результат в профиль…</p>
         <div class="actions">
           <button class="btn primary" id="learnAgain">Новая попытка</button>
           <a class="btn" href="#/training">К знаниям</a>
@@ -747,5 +932,27 @@
 
     document.getElementById('learnAgain').onclick = window.attestation;
     window.scrollTo(0, 0);
+
+    persistQuizAttempt(attempt, {
+      score,
+      passed,
+      total,
+      correct,
+      finishedAt,
+      topicResults
+    }).then(() => {
+      const status = document.getElementById('quizSaveStatus');
+      if (status) {
+        status.textContent = 'Результат сохранён в профиле.';
+        status.classList.add('saved');
+      }
+    }).catch(error => {
+      console.error('BeerFactory quiz persistence:', error);
+      const status = document.getElementById('quizSaveStatus');
+      if (status) {
+        status.textContent = 'Не удалось сохранить в профиле. Результат останется только на этом устройстве.';
+        status.classList.add('failed');
+      }
+    });
   }
 })();

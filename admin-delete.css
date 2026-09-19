@@ -1,0 +1,55 @@
+/* BeerFactory admin user deletion · r34 */
+.adminDeleteUserBtn{margin-left:auto}
+.adminDeleteOpen{overflow:hidden}
+.adminDeleteOverlay{
+  position:fixed;
+  inset:0;
+  z-index:100000;
+  display:grid;
+  place-items:center;
+  padding:
+    max(20px,env(safe-area-inset-top))
+    16px
+    max(20px,env(safe-area-inset-bottom));
+  background:rgba(8,6,5,.82);
+  -webkit-backdrop-filter:blur(12px);
+  backdrop-filter:blur(12px);
+}
+.adminDeleteDialog{
+  width:min(100%,460px);
+  max-height:min(88dvh,760px);
+  overflow:auto;
+  padding:22px;
+  border:1px solid rgba(217,106,94,.34);
+  border-radius:24px;
+  background:
+    linear-gradient(145deg,rgba(217,106,94,.04),rgba(255,255,255,.01)),
+    var(--surface);
+  box-shadow:0 28px 80px rgba(0,0,0,.48);
+}
+.adminDeleteDialog h2{margin:7px 0 3px;font-size:28px}
+.adminDeleteName{margin:0 0 16px;color:var(--cream);font-weight:850}
+.adminDeleteInfo{
+  display:grid;
+  gap:8px;
+  margin-bottom:16px;
+  padding:13px 14px;
+  border:1px solid rgba(217,106,94,.18);
+  border-radius:14px;
+  background:rgba(217,106,94,.055);
+}
+.adminDeleteInfo p{margin:0;color:var(--muted);font-size:12px;line-height:1.5}
+.adminDeleteConfirmField{display:grid;gap:7px}
+.adminDeleteConfirmField>span{
+  color:var(--muted);
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase
+}
+.adminDeleteActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+@media(max-width:420px){
+  .adminDeleteDialog{padding:18px;border-radius:20px}
+  .adminDeleteActions{grid-template-columns:1fr}
+  .adminDeleteUserBtn{margin-left:0}
+}

@@ -147,15 +147,20 @@ This structure is intentionally compatible with a future native app information 
 Previously synchronized recipes must remain available during temporary network loss.
 Application shell and Knowledge assets are cached by Service Worker.
 
-## 9. Recipe governance · next
+## 9. Recipe governance
 NocoDB fields:
-- Status: Draft / Current / Archive
-- Version
-- Updated at
-- Updated by
-- Change note
+- `Статус`: Черновик / Актуальный / Архив
+- `Версия`
+- `Обновлено`
+- `Кем обновлено`
+- `Что изменено`
 
-Staff should only see Current recipes.
+Empty status is treated as `Актуальный` during migration.
+`Черновик` is excluded from staff responses.
+`Архив` remains readable for staff, but is excluded from normal browse/categories.
+Archive is exposed as a dedicated pseudo-category `Архив` and is included in global search results after current items.
+Archived recipe detail must show an explicit archive warning.
+Recipe detail supports Version / Updated / Updated by / Change note.
 
 ## 10. Knowledge
 Knowledge is short, searchable and operational.
@@ -174,7 +179,7 @@ Knowledge uses the same durable information architecture as Recipes: searchable 
 Articles support:
 - normalized visible categories;
 - reading time;
-- read state;
+- read state persisted in Supabase `training_progress` with local offline fallback;
 - image lightbox;
 - direct share/copy link;
 - offline availability after successful cache population.
@@ -192,11 +197,15 @@ Rules:
 - random subset;
 - shuffled answers;
 - avoid pointless gram/ml memorization;
-- persist results in Supabase;
+- results persist in Supabase `quiz_attempts`;
+- attempt stores category, timing, score/pass state and topic-level weak areas;
+- localStorage is fallback cache only;
 - later expose weak topics to managers.
 
 ## 12. Shift handover
 Structured operational handover, not a chat clone.
+
+Source of truth: Supabase `notes`.
 
 Fields:
 - category;
@@ -208,11 +217,36 @@ Fields:
 - acknowledged_by/at;
 - resolved_by/at.
 
-## 13. Checklists · later
-Short, meaningful opening/closing workflows.
-Rough target 10-15 items, with evidence only when operationally justified.
+Staff may create handovers but cannot directly forge acknowledgement/resolution fields.
+Acknowledgement and resolution use constrained Supabase RPC functions.
 
-## 14. UX validation
+## 13. Opening / closing
+Shift checklist source of truth is Supabase `shifts` + `shift_checks`.
+
+Rules:
+- one shared shift per operational date;
+- opening and closing are separate phases;
+- staff checks individual items through constrained RPC;
+- shift cannot open/close until every active item for that phase is complete;
+- completed_by / completed_at are server-controlled;
+- open/close events are audited;
+- offline UI must never pretend an operational checklist was synchronized;
+- photo/numeric evidence is added only where operationally justified.
+
+## 14. Home dashboard
+Home answers: “What do I need to know or do now?”
+
+Prepared:
+- today’s shift state;
+- unresolved/critical handover;
+- personal Knowledge completion count;
+- latest attestation result;
+- combined Recipes + Knowledge search;
+- direct work shortcuts.
+
+Home does not display stale operational state as current when Supabase is unavailable.
+
+## 15. UX validation
 Real-device validation is mandatory for major mobile/browser changes.
 
 Current verified baseline:
@@ -222,7 +256,7 @@ Current verified baseline:
 
 Formal timed staff lookup testing is deferred by product-owner decision. Do not block Recipes on that test unless it is explicitly reinstated.
 
-## 15. Design tokens
+## 16. Design tokens
 Background #14100D
 Surface #241B15
 Surface2 #2C2119
@@ -235,7 +269,7 @@ Gold #C7A04B
 Green #6EAA72
 Red #D96A5E
 
-## 16. Design review rule
+## 17. Design review rule
 Before adopting or replacing a major interaction:
 1. check whether the pattern is contemporary and appropriate for current mobile products;
 2. check whether it scales to the likely future native app;
@@ -244,7 +278,7 @@ Before adopting or replacing a major interaction:
 5. prefer a better long-term system even if implementation is more work;
 6. still reject complexity that adds no user value.
 
-## 17. MVP Done
+## 18. MVP Done
 Ready for pilot when:
 - Recipes are current, offline-capable and stable on iPhone/Android.
 - Knowledge is usable/searchable/offline-capable.
@@ -254,3 +288,64 @@ Ready for pilot when:
 - No frontend secrets.
 - Hardening pass complete.
 - PROJECT_SPEC and TASKS match production.
+
+
+## 18. Recipe write security
+Recipe governance writes are admin-only.
+
+- frontend admin visibility is presentation only;
+- Worker verifies Supabase access token;
+- Worker reads the authoritative profile role;
+- only active `admin` may mutate recipe governance;
+- read and write NocoDB credentials are separate;
+- NocoDB write token is stored only as a Cloudflare secret;
+- current viewer token should remain read-only.
+
+
+### Audit log
+Supabase `public.audit_log` is the canonical immutable audit trail for sensitive admin/recipe governance actions.
+
+Current audited action families:
+- recipe governance updates;
+- staff role changes;
+- activation/deactivation;
+- password/recovery-code administrative resets.
+
+The admin portal provides a read-only history view. Credentials/hashes are never stored in audit payloads.
+
+
+### Admin console
+The current admin console is organized into:
+- Employees;
+- Attestations;
+- Audit.
+
+Attestation visibility shows recent attempts, pass state, score and weak topics without exposing question-bank answer keys.
+
+
+### Staff deletion
+Admin may permanently delete a non-owner user other than self.
+
+Deletion policy:
+- disable target before purge;
+- delete Auth user and profile;
+- cascade personal quiz/training/notification/message data;
+- delete handovers authored by the target;
+- preserve shared shift/operational records while clearing personal foreign-key references;
+- anonymize historical audit events where the deleted user was the actor;
+- retain one non-identifying `profile_delete` audit event;
+- deletion is irreversible and requires explicit typed confirmation in UI.
+
+
+### Runtime hardening
+- network loss is visible globally;
+- Recipes and Knowledge may use verified cache/offline data;
+- shift/handover operational writes never report local-only success;
+- Service Worker uses versioned shell caches and network timeouts;
+- versioned content may fall back to its pre-cached queryless asset only when network fetch fails;
+- accessibility layer provides focus visibility, skip navigation, dialog semantics and reduced-motion behavior.
+
+### Recipe governance capability negotiation
+Recipe governance editing is shown only when the Cloudflare Worker explicitly advertises the governance capability.
+Write controls enable only when the Worker reports a server-side write credential is configured.
+This prevents a frontend deployment from exposing dead admin controls before the NocoDB/Worker migration is complete.

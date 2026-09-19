@@ -1,0 +1,4 @@
+/* BeerFactory attestation persistence · r29 */
+.quizSaveStatus{color:var(--muted);font-size:13px}
+.quizSaveStatus.saved{color:#a8dcaf}
+.quizSaveStatus.failed{color:#e99990}

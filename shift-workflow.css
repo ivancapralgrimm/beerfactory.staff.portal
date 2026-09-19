@@ -1,0 +1,71 @@
+/* BeerFactory shift workflow · r35 */
+.shiftStatusHero{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  padding-bottom:18px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.shiftStatusHero h2{margin:5px 0 0;font-size:30px}
+.shiftTimes{display:grid;gap:6px;text-align:right;color:var(--muted);font-size:11px}
+.shiftTimes b{color:var(--cream)}
+.shiftStatusHero.status-active h2{color:#a8dcaf}
+.shiftStatusHero.status-closed h2{color:var(--muted)}
+.shiftPhase{padding-top:20px}
+.shiftPhase + .shiftPhase{margin-top:20px;border-top:1px solid rgba(255,255,255,.08)}
+.shiftChecklist{display:grid;gap:8px;margin-top:13px}
+.shiftCheck{
+  display:grid;
+  grid-template-columns:28px 1fr;
+  gap:11px;
+  align-items:center;
+  min-height:54px;
+  padding:10px 12px;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:13px;
+  background:rgba(255,255,255,.025);
+  cursor:pointer;
+}
+.shiftCheck.critical{border-color:rgba(199,160,75,.22)}
+.shiftCheck.locked{cursor:default;opacity:.78}
+.shiftCheck input{
+  position:absolute;
+  opacity:0;
+  pointer-events:none;
+}
+.shiftCheckBox{
+  width:25px;
+  height:25px;
+  border-radius:8px;
+  border:1px solid rgba(245,234,215,.22);
+  background:rgba(255,255,255,.025);
+  position:relative;
+}
+.shiftCheck input:checked + .shiftCheckBox{
+  border-color:rgba(110,170,114,.42);
+  background:rgba(110,170,114,.16);
+}
+.shiftCheck input:checked + .shiftCheckBox::after{
+  content:"";
+  position:absolute;
+  width:8px;
+  height:13px;
+  left:8px;
+  top:3px;
+  border-right:2px solid #a8dcaf;
+  border-bottom:2px solid #a8dcaf;
+  transform:rotate(42deg);
+}
+.shiftCheckText{display:grid;gap:3px}
+.shiftCheckText strong{font-size:14px}
+.shiftCheckText small{color:#d9b875;font-size:10px}
+.shiftConfirm{width:100%;margin-top:14px}
+.shiftWorkflowMessage{min-height:20px;margin-top:12px;color:#e99990;font-size:12px}
+.shiftOfflineState{padding:4px}
+.shiftOfflineState h2{margin:6px 0}
+.shiftOfflineState p{color:var(--muted);line-height:1.5}
+@media(max-width:560px){
+  .shiftStatusHero{display:grid}
+  .shiftTimes{text-align:left;grid-template-columns:1fr 1fr}
+}

@@ -1,0 +1,171 @@
+/* BeerFactory admin console · r30 */
+.adminModeTabs{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:8px;
+  max-width:680px;
+  margin:0 0 18px;
+  padding:5px;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  background:rgba(255,255,255,.025);
+}
+.adminModeTab{
+  min-height:44px;
+  border:1px solid transparent;
+  border-radius:12px;
+  background:transparent;
+  color:var(--muted);
+  font-weight:850;
+  cursor:pointer;
+}
+.adminModeTab.active{
+  border-color:rgba(223,139,78,.30);
+  background:rgba(189,99,49,.14);
+  color:var(--cream);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+}
+.adminModeTab:focus-visible{
+  outline:2px solid var(--copper2);
+  outline-offset:2px;
+}
+.adminConsoleTools{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:10px;
+}
+.adminConsoleFilters{
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.adminConsoleFilters::-webkit-scrollbar{display:none}
+.adminConsoleRefresh{flex:0 0 auto}
+.adminConsoleSummary{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:8px 2px 12px;
+  color:var(--muted);
+  font-size:12px;
+}
+.adminConsoleSummary b{color:var(--cream)}
+
+.adminAttemptMetrics{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:8px;
+  margin:12px 0;
+}
+.adminAttemptMetric{
+  padding:13px;
+  display:grid;
+  gap:4px;
+}
+.adminAttemptMetric span{color:var(--muted);font-size:11px}
+.adminAttemptMetric b{font-size:21px}
+.adminAttemptList{display:grid;gap:10px}
+.adminAttemptItem{padding:16px}
+.adminAttemptTop{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}
+.adminAttemptTop h3{margin:4px 0 0;font-size:18px}
+.adminScore{
+  min-width:58px;
+  min-height:42px;
+  display:grid;
+  place-items:center;
+  border-radius:13px;
+  border:1px solid rgba(255,255,255,.10);
+  font-weight:900;
+}
+.adminScore.passed{
+  color:#a8dcaf;
+  border-color:rgba(110,170,114,.28);
+  background:rgba(110,170,114,.09);
+}
+.adminScore.failed{
+  color:#e99990;
+  border-color:rgba(217,106,94,.28);
+  background:rgba(217,106,94,.09);
+}
+.adminAttemptMeta{
+  display:flex;
+  gap:6px;
+  margin-top:8px;
+  color:var(--dim);
+  font-size:11px;
+}
+.adminWeakTopics{
+  margin-top:13px;
+  padding-top:12px;
+  border-top:1px solid rgba(255,255,255,.07);
+}
+.adminWeakTopics strong{display:block;margin-bottom:8px;font-size:11px;color:var(--muted)}
+.adminWeakTopics>div{display:flex;flex-wrap:wrap;gap:6px}
+.adminWeakTopics span{
+  display:inline-flex;
+  min-height:26px;
+  align-items:center;
+  padding:4px 8px;
+  border:1px solid rgba(217,106,94,.20);
+  border-radius:999px;
+  background:rgba(217,106,94,.06);
+  color:#d9b0aa;
+  font-size:10px;
+}
+.adminAttemptClean{margin:12px 0 0;color:#a8dcaf;font-size:12px}
+
+.adminAuditList{display:grid;gap:10px}
+.adminAuditItem{padding:16px}
+.adminAuditTop{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:10px;
+}
+.adminAuditTop time{color:var(--dim);font-size:11px;white-space:nowrap}
+.adminAuditTag{
+  display:inline-flex;
+  align-items:center;
+  min-height:24px;
+  padding:4px 8px;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:999px;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.09em;
+}
+.adminAuditTag.recipe{color:#e5b86d;border-color:rgba(199,160,75,.25);background:rgba(199,160,75,.08)}
+.adminAuditTag.role{color:#d7a174;border-color:rgba(189,99,49,.28);background:rgba(189,99,49,.10)}
+.adminAuditTag.access{color:#a9d4ad;border-color:rgba(110,170,114,.28);background:rgba(110,170,114,.09)}
+.adminAuditTag.security{color:#cdbb9f;border-color:rgba(185,165,141,.20);background:rgba(185,165,141,.06)}
+.adminAuditTag.critical{color:#e99990;border-color:rgba(217,106,94,.28);background:rgba(217,106,94,.09)}
+.adminAuditItem h3{margin:0;font-size:18px}
+.adminAuditActor{margin:5px 0 0;color:var(--muted);font-size:12px}
+.adminAuditChanges{
+  display:grid;
+  gap:7px;
+  margin-top:12px;
+  padding-top:12px;
+  border-top:1px solid rgba(255,255,255,.07);
+}
+.adminAuditChanges>div{
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.45;
+  overflow-wrap:anywhere;
+}
+@media(max-width:560px){
+  .adminModeTabs{grid-template-columns:1fr}
+  .adminModeTab{min-height:42px}
+  .adminConsoleTools{align-items:flex-start;flex-direction:column}
+  .adminConsoleRefresh{width:100%}
+  .adminConsoleFilters{width:100%}
+  .adminAttemptMetrics{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:380px){
+  .adminAttemptMetrics{grid-template-columns:1fr}
+}

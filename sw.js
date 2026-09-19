@@ -1,19 +1,33 @@
-const SHELL_CACHE = 'bf-shell-r24-3';
-const RUNTIME_CACHE = 'bf-runtime-r24-3';
+const SHELL_CACHE = 'bf-shell-r40';
+const RUNTIME_CACHE = 'bf-runtime-r40';
 
 const CORE = [
   './',
   './index.html',
   './app.css?v=20260917-r10',
   './mobile-compat.css?v=20260918-r2',
-  './recipes.css?v=20260918-r22',
+  './recipes.css?v=20260918-r40',
   './learning.css?v=20260918-r23',
   './ui.css?v=20260918-r24-2',
+  './admin-console.css?v=20260918-r40',
+  './admin-delete.css?v=20260918-r40',
+  './attestation-r29.css?v=20260918-r40',
+  './handover.css?v=20260918-r40',
+  './shift-workflow.css?v=20260918-r40',
+  './dashboard.css?v=20260918-r40',
+  './runtime-hardening.css?v=20260918-r40',
+  './accessibility.css?v=20260918-r40',
   './app.js?v=20260917-r11',
-  './recipes.js?v=20260918-r22',
-  './recipes-id-hotfix.js?v=20260919-r24-3',
-  './learning.js?v=20260918-r23',
+  './recipes.js?v=20260918-r40',
+  './learning.js?v=20260918-r40',
+  './handover.js?v=20260918-r40',
+  './shift-workflow.js?v=20260918-r40',
+  './dashboard.js?v=20260918-r40',
   './ui.js?v=20260918-r24-2',
+  './admin-console.js?v=20260918-r40',
+  './admin-delete.js?v=20260918-r40',
+  './runtime-hardening.js?v=20260918-r40',
+  './accessibility.js?v=20260918-r40',
   './manifest.json',
   './assets/training-data.txt',
   './assets/training-data.json',
@@ -54,9 +68,22 @@ self.addEventListener('activate', event => {
   })());
 });
 
+async function networkWithTimeout(request, timeoutMs = 6500) {
+  if (typeof AbortController !== 'function') return fetch(request);
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    return await fetch(request, { signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function navigationResponse(request) {
   try {
-    const fresh = await fetch(request);
+    const fresh = await networkWithTimeout(request, 6500);
     const cache = await caches.open(RUNTIME_CACHE);
     cache.put('./index.html', fresh.clone()).catch(() => {});
     return fresh;
@@ -66,14 +93,20 @@ async function navigationResponse(request) {
 }
 
 async function cacheFirst(request) {
-  const cached = await caches.match(request);
-  if (cached) return cached;
-  const response = await fetch(request);
-  if (response && (response.ok || response.type === 'opaque')) {
-    const cache = await caches.open(RUNTIME_CACHE);
-    cache.put(request, response.clone()).catch(() => {});
+  const exact = await caches.match(request);
+  if (exact) return exact;
+
+  try {
+    const response = await networkWithTimeout(request, 8000);
+    if (response && (response.ok || response.type === 'opaque')) {
+      const cache = await caches.open(RUNTIME_CACHE);
+      cache.put(request, response.clone()).catch(() => {});
+    }
+    return response;
+  } catch (_) {
+    // Useful for versioned Knowledge assets that are pre-cached without a query string.
+    return (await caches.match(request, { ignoreSearch: true })) || Response.error();
   }
-  return response;
 }
 
 self.addEventListener('fetch', event => {

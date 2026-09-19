@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const MENU_SCHEMA_VERSION = 22;
+  const MENU_SCHEMA_VERSION = 40;
   const MENU_FRESH_MS = 5 * 60 * 1000;
 
   const viewState = {
@@ -31,7 +31,7 @@
     return `bf-${(hash >>> 0).toString(36)}`;
   }
 
-  function normalizeRow(row, fallbackCategory = 'Меню') {
+  function normalizeRow(row, fallbackCategory = 'Меню', sourceHint = '') {
     const category = clean(get(row, 'category', 'Category', 'Категория', 'cat')) || fallbackCategory;
     const name = clean(get(row, 'name', 'Name', 'Название', 'Title')) || 'Без названия';
     const subcategory = clean(get(row, 'subcategory', 'Subcategory', 'Подкатегория', 'subcat'));
@@ -40,9 +40,14 @@
     const serving = get(row, 'serving', 'Serving', 'Подача', 'Граммовка', 'Вес');
     const tagsRaw = get(row, 'tags', 'Tags', 'Теги');
     const ingredientLines = Array.isArray(compound) ? compound.map(clean).filter(Boolean) : lines(compound);
+    const recordId = clean(get(row, 'recordId', 'record_id', 'id', 'Id', 'ID', '_id'));
+    const source = clean(sourceHint || get(row, 'source', 'Source', '_source', 'table', 'Table')) || category || fallbackCategory;
+    const id = recordId ? `${source.toLowerCase()}:${recordId}` : stableFallbackId(source, name);
 
     return {
-      id: clean(get(row, 'id', 'Id', 'ID', '_id')) || stableFallbackId(category, name),
+      id,
+      recordId,
+      source,
       name,
       category,
       subcategory,
@@ -52,33 +57,74 @@
       serving: clean(serving),
       photo: clean(get(row, 'photo', 'Photo', 'Фото-ссылка', 'Фото')),
       tags: tagWords(tagsRaw),
+      status: clean(get(row, 'status', 'Status', 'Статус')),
       version: clean(get(row, 'version', 'Version', 'Версия')),
       updatedAt: clean(get(row, 'updated_at', 'updatedAt', 'Updated at', 'Обновлено')),
+      updatedBy: clean(get(row, 'updated_by', 'updatedBy', 'Updated by', 'Кем обновлено')),
       changeNote: clean(get(row, 'change_note', 'changeNote', 'Change note', 'Что изменено'))
     };
   }
 
-  function rowsFromPayload(d) {
-    if (Array.isArray(d)) return d.map(x => normalizeRow(x));
-    if (Array.isArray(d?.recipes)) return d.recipes.map(x => normalizeRow(x));
+  function recipeStatusKind(value) {
+    const status = clean(value).toLowerCase();
+    if (!status) return 'current';
+    if (['актуальный','current','active','published'].includes(status)) return 'current';
+    if (['архив','archive','archived'].includes(status)) return 'archive';
+    if (['черновик','draft'].includes(status)) return 'draft';
+    return 'current';
+  }
 
-    const out = [];
-    for (const [key, fallback] of [
-      ['bar','Бар'],
-      ['kitchen','Кухня'],
-      ['preparations','Заготовки'],
-      ['infusions','Настойки'],
-      ['cordials','Кордиалы']
-    ]) {
-      if (Array.isArray(d?.[key])) out.push(...d[key].map(x => normalizeRow(x, fallback)));
+  function isArchive(item) {
+    return recipeStatusKind(item?.status) === 'archive';
+  }
+
+  function staffVisible(rows) {
+    return rows.filter(item => recipeStatusKind(item.status) !== 'draft');
+  }
+
+  function rowsFromPayload(d) {
+    if (Array.isArray(d)) {
+      return staffVisible(d.map(x => {
+        const fallback = clean(get(x, 'category', 'Category', 'Категория', 'cat')) || 'Меню';
+        const source = clean(get(x, 'source', 'Source', '_source', 'table', 'Table')) || fallback;
+        return normalizeRow(x, fallback, source);
+      }));
     }
-    return out;
+
+    const groups = [
+      ['bar','Бар','bar'],
+      ['kitchen','Кухня','kitchen'],
+      ['preparations','Заготовки','preparations'],
+      ['infusions','Настойки','infusions'],
+      ['cordials','Кордиалы','cordials']
+    ];
+
+    const hasGroups = groups.some(([key]) => Array.isArray(d?.[key]));
+    if (hasGroups) {
+      const out = [];
+      for (const [key, fallback, source] of groups) {
+        if (Array.isArray(d?.[key])) {
+          out.push(...d[key].map(x => normalizeRow(x, fallback, source)));
+        }
+      }
+      return staffVisible(out);
+    }
+
+    if (Array.isArray(d?.recipes)) {
+      return staffVisible(d.recipes.map(x => {
+        const fallback = clean(get(x, 'category', 'Category', 'Категория', 'cat')) || 'Меню';
+        const source = clean(get(x, 'source', 'Source', '_source', 'table', 'Table')) || fallback;
+        return normalizeRow(x, fallback, source);
+      }));
+    }
+
+    return [];
   }
 
   function cachedMenu() {
     if (!Array.isArray(state.menu) || !state.menu.length) return [];
-    if (![17,18,19,20,21,MENU_SCHEMA_VERSION].includes(Number(state.menuSchemaVersion))) return [];
-    return state.menu.map(x => normalizeRow(x));
+    if (![17,18,19,20,21,22,23,24,MENU_SCHEMA_VERSION].includes(Number(state.menuSchemaVersion))) return [];
+    return staffVisible(state.menu.map(x => normalizeRow(x, x.category || 'Меню', x.source || x.category || 'Меню')));
   }
 
   function setMenuState(rows, source, syncedAt = state.menuSyncedAt || null) {
@@ -104,7 +150,7 @@
     }
   }
 
-  window.loadMenu = async function loadMenuR22() {
+  window.loadMenu = async function loadMenuR40() {
     const cached = cachedMenu();
 
     if (cached.length && menuCacheIsFresh()) {
@@ -123,6 +169,18 @@
       if (!r.ok) throw new Error('menu_http_' + r.status);
 
       const d = await r.json();
+
+      state.menuGovernanceEnabled = Boolean(
+        d?.capabilities?.governance ||
+        d?.governance?.enabled
+      );
+      state.menuGovernanceWritable = Boolean(
+        d?.capabilities?.recipe_admin_write
+      );
+      state.menuSourceAwareIds = Boolean(
+        d?.capabilities?.source_aware_ids
+      );
+
       const rows = rowsFromPayload(d);
       if (!rows.length) throw new Error('menu_empty');
 
@@ -233,6 +291,33 @@
       `<span class="recipeTag tone-${i % 3}">${esc(tag)}</span>`
     ).join('')}</div>`;
   }
+
+  window.searchRecipes = async function searchRecipesR36(query) {
+    const q = clean(query).toLowerCase();
+    if (!q) return [];
+
+    const data = await window.loadMenu();
+
+    return data
+      .filter(x =>
+        `${x.name} ${x.category} ${categoryLabel(x.category)} ${x.subcategory} ${x.desc} ${x.ingredients.join(' ')} ${x.tags.join(' ')}`
+          .toLowerCase()
+          .includes(q)
+      )
+      .sort((a,b) => {
+        const byArchive = Number(isArchive(a)) - Number(isArchive(b));
+        if (byArchive !== 0) return byArchive;
+        return a.name.localeCompare(b.name, 'ru');
+      })
+      .slice(0, 8)
+      .map(x => ({
+        type: 'recipe',
+        id: x.id,
+        title: x.name,
+        category: categoryLabel(x.category) || 'Меню',
+        archived: isArchive(x)
+      }));
+  };
 
   function dataStatusHtml() {
     if (state.menuSource === 'cache-offline') {
@@ -358,6 +443,151 @@
     }
   }
 
+
+  function isAdminUser() {
+    return String(currentUser?.role || '').toLowerCase() === 'admin';
+  }
+
+  function recipeGovernanceWriteReady() {
+    return Boolean(
+      state.menuGovernanceEnabled &&
+      state.menuGovernanceWritable &&
+      state.menuSourceAwareIds &&
+      state.menuSource === 'api' &&
+      navigator.onLine !== false
+    );
+  }
+
+  async function recipeAdminHeaders() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session?.access_token) throw new Error('auth_required');
+
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + session.access_token
+    };
+  }
+
+  async function updateRecipeGovernance(source, recordId, patch) {
+    if (!isAdminUser()) throw new Error('admin_required');
+
+    const safeSource = clean(source).toLowerCase();
+    if (!['bar','kitchen'].includes(safeSource)) throw new Error('recipe_source_required');
+    if (!clean(recordId)) throw new Error('recipe_record_id_required');
+
+    const response = await fetch(
+      API_BASE + '/admin/recipes/' + encodeURIComponent(safeSource) + '/' + encodeURIComponent(recordId),
+      {
+        method: 'PATCH',
+        headers: await recipeAdminHeaders(),
+        body: JSON.stringify(patch)
+      }
+    );
+
+    let payload = null;
+    try { payload = await response.json(); } catch {}
+
+    if (!response.ok) throw new Error(payload?.error || 'recipe_update_failed');
+
+    state.menu = null;
+    state.menuSource = 'network';
+    try { localStorage.removeItem(MENU_CACHE_KEY); } catch {}
+    return payload;
+  }
+
+  function adminGovernancePanel(item) {
+    if (!isAdminUser() || !state.menuGovernanceEnabled) return '';
+
+    const status = item.status || 'Актуальный';
+    const options = ['Актуальный','Черновик','Архив']
+      .map(v => `<option value="${esc(v)}" ${v === status ? 'selected' : ''}>${esc(v)}</option>`)
+      .join('');
+
+    return `
+      <article class="card recipeSection recipeAdminPanel">
+        <div class="recipeAdminHead">
+          <div>
+            <div class="eyebrow">ADMIN</div>
+            <h2>Управление рецептом</h2>
+          </div>
+          <span class="pill">Только admin</span>
+        </div>
+
+        <div class="recipeAdminGrid">
+          <label>
+            <span>Статус</span>
+            <select class="search" id="recipeAdminStatus">${options}</select>
+          </label>
+
+          <label>
+            <span>Версия</span>
+            <input class="search" id="recipeAdminVersion" value="${esc(item.version || '1')}" inputmode="decimal">
+          </label>
+        </div>
+
+        <label class="recipeAdminField">
+          <span>Что изменено</span>
+          <textarea class="search recipeAdminTextarea" id="recipeAdminNote" rows="3" maxlength="1000" placeholder="Короткое описание изменения">${esc(item.changeNote || '')}</textarea>
+        </label>
+
+        <div class="recipeAdminActions">
+          <button class="btn primary" id="recipeAdminSave" type="button" ${recipeGovernanceWriteReady() ? '' : 'disabled'}>
+            ${recipeGovernanceWriteReady()
+              ? 'Сохранить'
+              : (!state.menuGovernanceWritable
+                  ? 'Запись пока не подключена'
+                  : (!state.menuSourceAwareIds ? 'Нужно обновить API' : 'Нужна связь с сервером'))}
+          </button>
+          <span id="recipeAdminMessage" class="recipeAdminMessage" role="status"></span>
+        </div>
+      </article>
+    `;
+  }
+
+  function attachAdminGovernance(item) {
+    if (!isAdminUser() || !recipeGovernanceWriteReady()) return;
+
+    const save = document.getElementById('recipeAdminSave');
+    if (!save) return;
+
+    save.onclick = async () => {
+      const message = document.getElementById('recipeAdminMessage');
+      const status = document.getElementById('recipeAdminStatus').value;
+      const version = document.getElementById('recipeAdminVersion').value.trim();
+      const changeNote = document.getElementById('recipeAdminNote').value.trim();
+
+      message.textContent = '';
+      save.disabled = true;
+      save.textContent = 'Сохраняем…';
+
+      try {
+        const result = await updateRecipeGovernance(item.source, item.recordId, {
+          status,
+          version,
+          changeNote
+        });
+
+        toast(result?.audit_recorded === false
+          ? 'Рецепт сохранён, но журнал изменений не записан'
+          : 'Изменения сохранены');
+        await recipeDetail(item.id);
+      } catch (error) {
+        const code = error?.message || '';
+        message.textContent =
+          code === 'admin_required' ? 'Недостаточно прав.' :
+          code === 'auth_required' ? 'Нужно войти заново.' :
+          code === 'forbidden' ? 'Изменения доступны только администратору.' :
+          code === 'write_token_missing' ? 'Запись в NocoDB пока не подключена.' :
+          code === 'recipe_source_required' || code === 'source_required' ? 'Не удалось определить таблицу рецепта.' :
+          code === 'recipe_record_id_required' ? 'Не удалось определить запись NocoDB.' :
+          'Не удалось сохранить.';
+      } finally {
+        save.disabled = false;
+        save.textContent = 'Сохранить';
+      }
+    };
+  }
+
   async function recipeDetail(id, { replaceInvalid = true } = {}) {
     window.scrollTo(0, 0);
     shell(`<div class="card empty">Загрузка техкарты…</div>`, '/menu');
@@ -386,11 +616,18 @@
       ['Категория', categoryLabel(item.category) || 'Меню'],
       item.subcategory ? ['Подкатегория', item.subcategory] : null,
       item.version ? ['Версия', item.version] : null,
-      item.updatedAt ? ['Обновлено', item.updatedAt] : null
+      item.updatedAt ? ['Обновлено', item.updatedAt] : null,
+      item.updatedBy ? ['Изменил', item.updatedBy] : null
     ].filter(Boolean);
 
     shell(`
       <div class="recipeDetail">
+        ${isArchive(item) ? `
+          <div class="recipeArchiveNotice" role="note">
+            <strong>АРХИВ</strong>
+            <span>Позиция больше не находится в текущем меню. Рецепт сохранён для истории и справки.</span>
+          </div>
+        ` : ''}
         <div class="recipeDetailTop">
           <button class="recipeBack" id="recipeBack" type="button">← Рецепты</button>
           <div class="recipeDetailActions">
@@ -461,6 +698,8 @@
                 <div class="recipeText">${esc(item.changeNote)}</div>
               </article>
             ` : ''}
+
+            ${adminGovernancePanel(item)}
           </aside>
         </section>
       </div>
@@ -471,11 +710,12 @@
     if (shareBtn) shareBtn.onclick = () => shareRecipe(item);
     attachRecipePhoto(document);
     attachCalculator(item);
+    attachAdminGovernance(item);
   }
 
   window.recipeDetail = recipeDetail;
 
-  window.menu = async function menuR22() {
+  window.menu = async function menuR40() {
     const deepId = currentRecipeQuery();
     if (deepId) {
       await recipeDetail(deepId);
@@ -506,7 +746,11 @@
     const status = document.getElementById('menuDataStatus');
     status.innerHTML = dataStatusHtml();
 
-    const cats = ['Все', ...new Set(data.map(x => x.category).filter(Boolean))];
+    const activeCategories = [...new Set(
+      data.filter(x => !isArchive(x)).map(x => x.category).filter(Boolean)
+    )];
+    const hasArchive = data.some(isArchive);
+    const cats = ['Все', ...activeCategories, ...(hasArchive ? ['Архив'] : [])];
     if (!cats.includes(viewState.category)) viewState.category = 'Все';
 
     document.getElementById('menuCats').innerHTML = cats
@@ -515,23 +759,48 @@
 
     const renderList = () => {
       const q = viewState.query.toLowerCase().trim();
-      const filtered = data.filter(x =>
-        (viewState.category === 'Все' || x.category === viewState.category) &&
-        `${x.name} ${x.category} ${categoryLabel(x.category)} ${x.subcategory} ${x.desc} ${x.ingredients.join(' ')} ${x.tags.join(' ')}`
+      const filtered = data.filter(x => {
+        const archived = isArchive(x);
+
+        const categoryMatch =
+          viewState.category === 'Архив'
+            ? archived
+            : viewState.category === 'Все'
+              ? (q ? true : !archived)
+              : (!archived && x.category === viewState.category);
+
+        if (!categoryMatch) return false;
+
+        return `${x.name} ${x.category} ${categoryLabel(x.category)} ${x.subcategory} ${x.desc} ${x.ingredients.join(' ')} ${x.tags.join(' ')}`
           .toLowerCase()
-          .includes(q)
-      );
+          .includes(q);
+      });
+
+      // Search from "Все" intentionally includes archive matches, but archived
+      // positions never pollute the ordinary browse list without a query.
+      filtered.sort((a, b) => {
+        if (q && viewState.category === 'Все') {
+          const byArchive = Number(isArchive(a)) - Number(isArchive(b));
+          if (byArchive !== 0) return byArchive;
+        }
+        return a.name.localeCompare(b.name, 'ru');
+      });
 
       const count = document.getElementById('recipeResultCount');
-      if (count) count.textContent = `Найдено: ${filtered.length}`;
+      if (count) {
+        const archiveCount = filtered.filter(isArchive).length;
+        count.textContent = q && archiveCount
+          ? `Найдено: ${filtered.length} · архив: ${archiveCount}`
+          : `Найдено: ${filtered.length}`;
+      }
 
       const list = document.getElementById('menuList');
       list.innerHTML = filtered.map(x => `
-        <article class="card recipeRow" data-recipe-id="${esc(x.id)}" tabindex="0" role="link" aria-label="Открыть рецепт ${esc(x.name)}">
+        <article class="card recipeRow ${isArchive(x) ? 'recipeRowArchive' : ''}" data-recipe-id="${esc(x.id)}" tabindex="0" role="link" aria-label="Открыть рецепт ${esc(x.name)}${isArchive(x) ? ', архив' : ''}">
           <div class="recipeRowBody">
-            <div class="recipeRowCategory">${esc(categoryLabel(x.category) || 'Меню')}</div>
+            <div class="recipeRowCategory">${esc(categoryLabel(x.category) || 'Меню')}${isArchive(x) ? ' · АРХИВ' : ''}</div>
             <h3>${esc(x.name)}</h3>
-            <div class="recipeRowMeta">${tagHtml(x.tags)}</div>
+            <div class="recipeRowMeta">${isArchive(x) ? '<span class="recipeArchiveTag">Архив</span>' : ''}${tagHtml(x.tags)}</div>
           </div>
           <div class="recipeRowArrow" aria-hidden="true">›</div>
         </article>

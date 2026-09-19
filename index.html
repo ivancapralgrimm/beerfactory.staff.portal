@@ -3,31 +3,59 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
+
   <meta name="theme-color" content="#14100d">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="description" content="BeerFactory Staff Portal: меню, знания, смена, заметки и аттестация">
+
+  <meta
+    name="description"
+    content="BeerFactory Staff Portal: меню, знания, смена, заметки и аттестация"
+  >
+
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="app.css?v=20260917-r10">
   <link rel="stylesheet" href="mobile-compat.css?v=20260918-r2">
-  <link rel="stylesheet" href="recipes.css?v=20260918-r22">
+  <link rel="stylesheet" href="recipes.css?v=20260918-r40">
   <link rel="stylesheet" href="learning.css?v=20260918-r23">
   <link rel="stylesheet" href="ui.css?v=20260918-r24-2">
+  <link rel="stylesheet" href="admin-console.css?v=20260918-r40">
+  <link rel="stylesheet" href="admin-delete.css?v=20260918-r40">
+  <link rel="stylesheet" href="attestation-r29.css?v=20260918-r40">
+  <link rel="stylesheet" href="handover.css?v=20260918-r40">
+  <link rel="stylesheet" href="shift-workflow.css?v=20260918-r40">
+  <link rel="stylesheet" href="dashboard.css?v=20260918-r40">
+  <link rel="stylesheet" href="runtime-hardening.css?v=20260918-r40">
+  <link rel="stylesheet" href="accessibility.css?v=20260918-r40">
+
   <title>BeerFactory Staff</title>
 </head>
+
 <body>
+
   <div id="app"></div>
-  <noscript>Для работы портала нужен JavaScript.</noscript>
+
+  <noscript>
+    Для работы портала нужен JavaScript.
+  </noscript>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="app.js?v=20260917-r11"></script>
-  <script src="recipes.js?v=20260918-r22"></script>
-  <script src="recipes-id-hotfix.js?v=20260919-r24-3"></script>
-  <script src="learning.js?v=20260918-r23"></script>
+  <script src="recipes.js?v=20260918-r40"></script>
+  <script src="learning.js?v=20260918-r40"></script>
+  <script src="handover.js?v=20260918-r40"></script>
+  <script src="shift-workflow.js?v=20260918-r40"></script>
+  <script src="dashboard.js?v=20260918-r40"></script>
   <script src="ui.js?v=20260918-r24-2"></script>
+  <script src="admin-console.js?v=20260918-r40"></script>
+  <script src="admin-delete.js?v=20260918-r40"></script>
+  <script src="runtime-hardening.js?v=20260918-r40"></script>
+  <script src="accessibility.js?v=20260918-r40"></script>
+
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {
-        navigator.serviceWorker.register('./sw.js?v=20260919-r24-3').catch(function (err) {
+        navigator.serviceWorker.register('./sw.js?v=20260918-r40').catch(function (err) {
           console.warn('BeerFactory service worker registration failed:', err);
         });
       });
