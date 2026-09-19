@@ -346,12 +346,18 @@
     return new URL(location.href).searchParams.get('recipe');
   }
 
+  function clearRecipeQuery({ replace = true } = {}) {
+    if (!currentRecipeQuery()) return;
+    setRecipeQuery(null, { replace });
+  }
+
   function returnToMenu() {
-    if (currentRecipeQuery()) {
-      history.back();
-    } else {
-      window.menu();
+    clearRecipeQuery({ replace: true });
+    if ((location.hash || '#/').slice(1) !== '/menu') {
+      location.hash = '/menu';
+      return;
     }
+    window.menu();
   }
 
   function calculatorHtml(item) {
@@ -444,150 +450,6 @@
   }
 
 
-  function isAdminUser() {
-    return String(currentUser?.role || '').toLowerCase() === 'admin';
-  }
-
-  function recipeGovernanceWriteReady() {
-    const usableSource = ['api','cache-fresh','network'].includes(String(state.menuSource || ''));
-    return Boolean(
-      state.menuGovernanceEnabled &&
-      state.menuGovernanceWritable &&
-      state.menuSourceAwareIds &&
-      usableSource &&
-      navigator.onLine !== false
-    );
-  }
-
-  async function recipeAdminHeaders() {
-    const { data: { session } } = await sb.auth.getSession();
-    if (!session?.access_token) throw new Error('auth_required');
-
-    return {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + session.access_token
-    };
-  }
-
-  async function updateRecipeGovernance(source, recordId, patch) {
-    if (!isAdminUser()) throw new Error('admin_required');
-
-    const safeSource = clean(source).toLowerCase();
-    if (!['bar','kitchen'].includes(safeSource)) throw new Error('recipe_source_required');
-    if (!clean(recordId)) throw new Error('recipe_record_id_required');
-
-    const response = await fetch(
-      API_BASE + '/admin/recipes/' + encodeURIComponent(safeSource) + '/' + encodeURIComponent(recordId),
-      {
-        method: 'PATCH',
-        headers: await recipeAdminHeaders(),
-        body: JSON.stringify(patch)
-      }
-    );
-
-    let payload = null;
-    try { payload = await response.json(); } catch {}
-
-    if (!response.ok) throw new Error(payload?.error || 'recipe_update_failed');
-
-    state.menu = null;
-    state.menuSource = 'network';
-    try { localStorage.removeItem(MENU_CACHE_KEY); } catch {}
-    return payload;
-  }
-
-  function adminGovernancePanel(item) {
-    if (!isAdminUser() || !state.menuGovernanceEnabled) return '';
-
-    const status = item.status || 'Актуальный';
-    const options = ['Актуальный','Черновик','Архив']
-      .map(v => `<option value="${esc(v)}" ${v === status ? 'selected' : ''}>${esc(v)}</option>`)
-      .join('');
-
-    return `
-      <article class="card recipeSection recipeAdminPanel">
-        <div class="recipeAdminHead">
-          <div>
-            <div class="eyebrow">ADMIN</div>
-            <h2>Управление рецептом</h2>
-          </div>
-          <span class="pill">Только admin</span>
-        </div>
-
-        <div class="recipeAdminGrid">
-          <label>
-            <span>Статус</span>
-            <select class="search" id="recipeAdminStatus">${options}</select>
-          </label>
-
-          <label>
-            <span>Версия</span>
-            <input class="search" id="recipeAdminVersion" value="${esc(item.version || '1')}" inputmode="decimal">
-          </label>
-        </div>
-
-        <label class="recipeAdminField">
-          <span>Что изменено</span>
-          <textarea class="search recipeAdminTextarea" id="recipeAdminNote" rows="3" maxlength="1000" placeholder="Короткое описание изменения">${esc(item.changeNote || '')}</textarea>
-        </label>
-
-        <div class="recipeAdminActions">
-          <button class="btn primary" id="recipeAdminSave" type="button" ${recipeGovernanceWriteReady() ? '' : 'disabled'}>
-            ${recipeGovernanceWriteReady()
-              ? 'Сохранить'
-              : (!state.menuGovernanceWritable
-                  ? 'Запись пока не подключена'
-                  : (!state.menuSourceAwareIds ? 'Нужно обновить API' : 'Нужна связь с сервером'))}
-          </button>
-          <span id="recipeAdminMessage" class="recipeAdminMessage" role="status"></span>
-        </div>
-      </article>
-    `;
-  }
-
-  function attachAdminGovernance(item) {
-    if (!isAdminUser() || !recipeGovernanceWriteReady()) return;
-
-    const save = document.getElementById('recipeAdminSave');
-    if (!save) return;
-
-    save.onclick = async () => {
-      const message = document.getElementById('recipeAdminMessage');
-      const status = document.getElementById('recipeAdminStatus').value;
-      const version = document.getElementById('recipeAdminVersion').value.trim();
-      const changeNote = document.getElementById('recipeAdminNote').value.trim();
-
-      message.textContent = '';
-      save.disabled = true;
-      save.textContent = 'Сохраняем…';
-
-      try {
-        const result = await updateRecipeGovernance(item.source, item.recordId, {
-          status,
-          version,
-          changeNote
-        });
-
-        toast(result?.audit_recorded === false
-          ? 'Рецепт сохранён, но журнал изменений не записан'
-          : 'Изменения сохранены');
-        await recipeDetail(item.id);
-      } catch (error) {
-        const code = error?.message || '';
-        message.textContent =
-          code === 'admin_required' ? 'Недостаточно прав.' :
-          code === 'auth_required' ? 'Нужно войти заново.' :
-          code === 'forbidden' ? 'Изменения доступны только администратору.' :
-          code === 'write_token_missing' ? 'Запись в NocoDB пока не подключена.' :
-          code === 'recipe_source_required' || code === 'source_required' ? 'Не удалось определить таблицу рецепта.' :
-          code === 'recipe_record_id_required' ? 'Не удалось определить запись NocoDB.' :
-          'Не удалось сохранить.';
-      } finally {
-        save.disabled = false;
-        save.textContent = 'Сохранить';
-      }
-    };
-  }
 
   async function recipeDetail(id, { replaceInvalid = true } = {}) {
     window.scrollTo(0, 0);
@@ -700,7 +562,6 @@
               </article>
             ` : ''}
 
-            ${adminGovernancePanel(item)}
           </aside>
         </section>
       </div>
@@ -711,7 +572,6 @@
     if (shareBtn) shareBtn.onclick = () => shareRecipe(item);
     attachRecipePhoto(document);
     attachCalculator(item);
-    attachAdminGovernance(item);
   }
 
   window.recipeDetail = recipeDetail;
@@ -844,6 +704,27 @@
       requestAnimationFrame(() => window.scrollTo(0, viewState.scrollY));
     }
   };
+
+
+  if (!window._bfRecipeNavGuardBound) {
+    window._bfRecipeNavGuardBound = true;
+    document.addEventListener('click', event => {
+      const link = event.target.closest?.('a[href^="#/"]');
+      if (!link || !currentRecipeQuery()) return;
+
+      const targetPath = String(link.getAttribute('href') || '').slice(1) || '/';
+      clearRecipeQuery({ replace: true });
+
+      if (targetPath === '/menu') {
+        event.preventDefault();
+        if ((location.hash || '#/').slice(1) !== '/menu') {
+          location.hash = '/menu';
+        } else {
+          window.menu();
+        }
+      }
+    }, true);
+  }
 
   if (!window._bfRecipePopstateBound) {
     window._bfRecipePopstateBound = true;

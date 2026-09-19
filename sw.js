@@ -1,5 +1,5 @@
-const SHELL_CACHE = 'bf-shell-r40-1';
-const RUNTIME_CACHE = 'bf-runtime-r40-1';
+const SHELL_CACHE = 'bf-shell-r40-2';
+const RUNTIME_CACHE = 'bf-runtime-r40-2';
 
 const CORE = [
   './',
@@ -18,11 +18,11 @@ const CORE = [
   './runtime-hardening.css?v=20260918-r40',
   './accessibility.css?v=20260918-r40',
   './app.js?v=20260917-r11',
-  './recipes.js?v=20260919-r40-1',
+  './recipes.js?v=20260919-r40-2',
   './learning.js?v=20260918-r40',
   './handover.js?v=20260918-r40',
   './shift-workflow.js?v=20260918-r40',
-  './dashboard.js?v=20260919-r40-1',
+  './dashboard.js?v=20260919-r40-2',
   './ui.js?v=20260918-r24-2',
   './admin-console.js?v=20260918-r40',
   './admin-delete.js?v=20260918-r40',
