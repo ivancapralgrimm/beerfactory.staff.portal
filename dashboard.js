@@ -58,10 +58,16 @@
     ]);
 
     return {
-      shift: shiftRes.error ? null : shiftRes.data,
-      handovers: handoverRes.error ? [] : (handoverRes.data || []),
-      attempt: attemptRes.error ? null : attemptRes.data,
-      completedKnowledge: progressRes.error ? null : (progressRes.count || 0)
+      shift: shiftRes.data || null,
+      handovers: handoverRes.data || [],
+      attempt: attemptRes.data || null,
+      completedKnowledge: progressRes.count || 0,
+      errors: {
+        shift: shiftRes.error || null,
+        handover: handoverRes.error || null,
+        attempt: attemptRes.error || null,
+        progress: progressRes.error || null
+      }
     };
   }
 
@@ -189,23 +195,57 @@
       const activeHandovers = data.handovers.length;
       const critical = data.handovers.filter(x => x.priority === 'critical').length;
       const latestAttempt = data.attempt;
+      const e = data.errors || {};
 
-      statusHost.innerHTML = `
+      const shiftCard = e.shift ? `
+        <div class="card homeStatusCard shift">
+          <span>Смена</span>
+          <strong>Недоступно</strong>
+          <small>Не удалось получить состояние смены.</small>
+        </div>
+      ` : `
         <a class="card homeStatusCard shift ${escDash(status)}" href="${actionHref}">
           <span>Смена</span>
           <strong>${escDash(shiftLabel(status))}</strong>
           <small>${escDash(actionLabel)} →</small>
         </a>
+      `;
+
+      const handoverCard = e.handover ? `
+        <div class="card homeStatusCard handover">
+          <span>Передача</span>
+          <strong>Недоступно</strong>
+          <small>Не удалось получить записи передачи.</small>
+        </div>
+      ` : `
         <a class="card homeStatusCard handover" href="#/notes">
           <span>Передача</span>
           <strong>${activeHandovers}</strong>
           <small>${critical ? `Критичных: ${critical}` : 'Активных записей'}</small>
         </a>
+      `;
+
+      const learningCard = e.progress ? `
+        <div class="card homeStatusCard learning">
+          <span>Знания</span>
+          <strong>Недоступно</strong>
+          <small>Прогресс сейчас не загружен.</small>
+        </div>
+      ` : `
         <a class="card homeStatusCard learning" href="#/training">
           <span>Знания</span>
-          <strong>${data.completedKnowledge == null ? '—' : data.completedKnowledge}</strong>
+          <strong>${data.completedKnowledge}</strong>
           <small>Прочитано статей</small>
         </a>
+      `;
+
+      const attestationCard = e.attempt ? `
+        <div class="card homeStatusCard attestation">
+          <span>Последний тест</span>
+          <strong>Недоступно</strong>
+          <small>История попыток сейчас не загружена.</small>
+        </div>
+      ` : `
         <a class="card homeStatusCard attestation" href="#/attestation">
           <span>Последний тест</span>
           <strong>${latestAttempt ? `${Number(latestAttempt.score || 0)}%` : '—'}</strong>
@@ -213,29 +253,43 @@
         </a>
       `;
 
-      const focus = topHandovers(data.handovers);
-      focusHost.innerHTML = `
-        <div class="sectionHead">
-          <div><div class="eyebrow">СЕЙЧАС</div><h2>Фокус смены</h2></div>
-          ${activeHandovers ? `<span class="pill">${activeHandovers}</span>` : ''}
-        </div>
-        ${focus.length ? `
-          <div class="homeFocusList">
-            ${focus.map(row => `
-              <a class="card homeFocusItem priority-${escDash(row.priority)}" href="#/notes">
-                <span class="homeFocusPriority">${row.priority === 'critical' ? 'КРИТИЧНО' : row.priority === 'high' ? 'ВАЖНО' : 'ПЕРЕДАЧА'}</span>
-                <strong>${escDash(row.body)}</strong>
-                <small>${escDash(row.category || 'Другое')}</small>
-              </a>
-            `).join('')}
+      statusHost.innerHTML = shiftCard + handoverCard + learningCard + attestationCard;
+
+      if (e.handover) {
+        focusHost.innerHTML = `
+          <div class="sectionHead">
+            <div><div class="eyebrow">СЕЙЧАС</div><h2>Фокус смены</h2></div>
           </div>
-        ` : `
           <div class="card homeQuiet">
-            <strong>Активных передач нет.</strong>
-            <span>Редкое и подозрительно приятное состояние.</span>
+            <strong>Передача смены недоступна.</strong>
+            <span>Не подменяем ошибку пустым списком.</span>
           </div>
-        `}
-      `;
+        `;
+      } else {
+        const focus = topHandovers(data.handovers);
+        focusHost.innerHTML = `
+          <div class="sectionHead">
+            <div><div class="eyebrow">СЕЙЧАС</div><h2>Фокус смены</h2></div>
+            ${activeHandovers ? `<span class="pill">${activeHandovers}</span>` : ''}
+          </div>
+          ${focus.length ? `
+            <div class="homeFocusList">
+              ${focus.map(row => `
+                <a class="card homeFocusItem priority-${escDash(row.priority)}" href="#/notes">
+                  <span class="homeFocusPriority">${row.priority === 'critical' ? 'КРИТИЧНО' : row.priority === 'high' ? 'ВАЖНО' : 'ПЕРЕДАЧА'}</span>
+                  <strong>${escDash(row.body)}</strong>
+                  <small>${escDash(row.category || 'Другое')}</small>
+                </a>
+              `).join('')}
+            </div>
+          ` : `
+            <div class="card homeQuiet">
+              <strong>Активных передач нет.</strong>
+              <span>Редкое и подозрительно приятное состояние.</span>
+            </div>
+          `}
+        `;
+      }
     } catch (error) {
       console.error('BeerFactory home dashboard:', error);
       statusHost.innerHTML = `

@@ -449,11 +449,12 @@
   }
 
   function recipeGovernanceWriteReady() {
+    const usableSource = ['api','cache-fresh','network'].includes(String(state.menuSource || ''));
     return Boolean(
       state.menuGovernanceEnabled &&
       state.menuGovernanceWritable &&
       state.menuSourceAwareIds &&
-      state.menuSource === 'api' &&
+      usableSource &&
       navigator.onLine !== false
     );
   }
