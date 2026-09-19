@@ -1,5 +1,5 @@
-const SHELL_CACHE = 'bf-shell-r24-2';
-const RUNTIME_CACHE = 'bf-runtime-r24-2';
+const SHELL_CACHE = 'bf-shell-r24-3';
+const RUNTIME_CACHE = 'bf-runtime-r24-3';
 
 const CORE = [
   './',
@@ -11,6 +11,7 @@ const CORE = [
   './ui.css?v=20260918-r24-2',
   './app.js?v=20260917-r11',
   './recipes.js?v=20260918-r22',
+  './recipes-id-hotfix.js?v=20260919-r24-3',
   './learning.js?v=20260918-r23',
   './ui.js?v=20260918-r24-2',
   './manifest.json',
