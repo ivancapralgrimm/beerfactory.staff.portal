@@ -1,5 +1,5 @@
-const SHELL_CACHE = 'bf-shell-r40-2';
-const RUNTIME_CACHE = 'bf-runtime-r40-2';
+const SHELL_CACHE = 'bf-shell-r40-3-pwa1';
+const RUNTIME_CACHE = 'bf-runtime-r40-3-pwa1';
 
 const CORE = [
   './',
@@ -29,6 +29,11 @@ const CORE = [
   './runtime-hardening.js?v=20260918-r40',
   './accessibility.js?v=20260918-r40',
   './manifest.json',
+  './assets/icons/icon-192.png',
+  './assets/icons/icon-512.png',
+  './assets/icons/icon-maskable-512.png',
+  './assets/icons/apple-touch-icon.png',
+  './assets/icons/icon-source-user.png',
   './assets/training-data.txt',
   './assets/training-data.json',
   './assets/question-banks.json',
@@ -104,7 +109,6 @@ async function cacheFirst(request) {
     }
     return response;
   } catch (_) {
-    // Useful for versioned Knowledge assets that are pre-cached without a query string.
     return (await caches.match(request, { ignoreSearch: true })) || Response.error();
   }
 }
