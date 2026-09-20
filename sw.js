@@ -33,7 +33,6 @@ const CORE = [
   './assets/icons/icon-512.png',
   './assets/icons/icon-maskable-512.png',
   './assets/icons/apple-touch-icon.png',
-  './assets/icons/icon-source-user.png',
   './assets/training-data.txt',
   './assets/training-data.json',
   './assets/question-banks.json',
