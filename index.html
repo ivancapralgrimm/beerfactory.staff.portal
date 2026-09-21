@@ -48,19 +48,6 @@
 
   <script>
     if ('serviceWorker' in navigator) {
-      let bfSwReloading = false;
-
-      navigator.serviceWorker.addEventListener('controllerchange', function () {
-        if (bfSwReloading) return;
-        bfSwReloading = true;
-
-        const version = 'r40-3-pwa3';
-        if (sessionStorage.getItem('bf-sw-reload') !== version) {
-          sessionStorage.setItem('bf-sw-reload', version);
-          location.reload();
-        }
-      });
-
       window.addEventListener('load', async function () {
         try {
           const registration = await navigator.serviceWorker.register(
