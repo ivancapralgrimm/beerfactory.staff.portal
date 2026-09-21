@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="theme-color" content="#14100d">
+  <title>BeerFactory r40.3 · Device QA</title>
+  <style>
+    :root{color-scheme:dark;--bg:#14100d;--card:#201914;--line:#49382b;--text:#f1e6d2;--muted:#b9a995;--ok:#76c893;--bad:#ff7b72;--warn:#e8a33d;--accent:#c1652f}
+    *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    body{padding:max(16px,env(safe-area-inset-top)) 14px max(24px,env(safe-area-inset-bottom))}
+    main{max-width:900px;margin:0 auto}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin:0 0 12px}
+    h1{font-size:21px;margin:0 0 6px}h2{font-size:16px;margin:0 0 10px}.muted{color:var(--muted)}
+    button,a.btn{appearance:none;border:1px solid var(--line);background:#2b211a;color:var(--text);border-radius:12px;padding:11px 13px;font:inherit;text-decoration:none;display:inline-block;margin:4px 4px 4px 0}
+    button:active,a.btn:active{transform:translateY(1px)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px}.kv{background:#18130f;border:1px solid #372a21;border-radius:12px;padding:10px}.k{color:var(--muted);font-size:12px}.v{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-word;margin-top:3px}
+    .ok{color:var(--ok)}.bad{color:var(--bad)}.warn{color:var(--warn)}pre{white-space:pre-wrap;word-break:break-word;background:#100d0a;border-radius:12px;padding:10px;max-height:320px;overflow:auto}
+    #frameStage{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:14px;background:#0d0b09}.frameScale{transform-origin:top left;width:390px}.frameScale iframe{display:block;width:390px;height:844px;border:0;background:white}
+    .statusDot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:6px;background:var(--warn)}
+    .pass .statusDot{background:var(--ok)}.fail .statusDot{background:var(--bad)}
+    code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  </style>
+</head>
+<body>
+<main>
+  <section class="card">
+    <h1>BeerFactory r40.3 · Device QA</h1>
+    <div class="muted">Временная same-origin диагностика. Ничего не отправляет наружу и не читает содержимое localStorage. После QA файл удалить из ветки.</div>
+  </section>
+
+  <section class="card">
+    <h2>1. Устройство и сеть</h2>
+    <div id="deviceGrid" class="grid"></div>
+    <div style="margin-top:8px">
+      <button id="refreshBtn">Обновить диагностику</button>
+      <button id="pingBtn">Проверить реальную сеть</button>
+      <a class="btn" href="./index.html#/" target="_blank" rel="noopener">Открыть портал отдельно</a>
+    </div>
+    <pre id="networkLog">Ожидание…</pre>
+  </section>
+
+  <section class="card">
+    <h2>2. Service Worker и Cache Storage</h2>
+    <div id="swSummary"></div>
+    <pre id="swDetails">Проверка…</pre>
+  </section>
+
+  <section class="card">
+    <h2>3. Manifest и PWA-иконки</h2>
+    <div id="assetSummary"></div>
+    <pre id="assetDetails">Проверка…</pre>
+  </section>
+
+  <section class="card">
+    <h2>4. Настоящий viewport 390 × 844 CSS px</h2>
+    <p class="muted">Ниже сам портал загружен в same-origin iframe шириной ровно 390 CSS px. Он масштабируется только визуально, внутренняя ширина остаётся 390.</p>
+    <div>
+      <button id="frameReloadBtn">Перезагрузить 390-frame</button>
+      <button id="overflowBtn">Проверить overflow</button>
+    </div>
+    <div id="frameReport" class="muted" style="margin:8px 0">Ожидание загрузки…</div>
+    <div id="frameStage"><div id="frameScale" class="frameScale"><iframe id="appFrame" src="./index.html#/" title="BeerFactory 390px QA"></iframe></div></div>
+    <pre id="overflowDetails">После загрузки нажми «Проверить overflow» на каждом важном экране.</pre>
+  </section>
+
+  <section class="card">
+    <h2>5. Как закрыть offline QA</h2>
+    <ol>
+      <li>Сначала онлайн открой портал и эту страницу, дождись PASS по Service Worker и cache.</li>
+      <li>Включи авиарежим и выключи Wi‑Fi. Нажми «Проверить реальную сеть»: запрос к Worker должен упасть.</li>
+      <li>Не закрывая эту QA-страницу, нажми «Перезагрузить 390-frame». Портал должен загрузиться из service worker cache.</li>
+      <li>Внутри frame открой уже закэшированные Dashboard / Recipes / Knowledge. Белого экрана или системной network error быть не должно.</li>
+      <li>Проверь Shift/Handover: offline-запись не должна выглядеть успешно сохранённой. Для Handover используй текст <code>QA OFFLINE TEST — SHOULD NOT SAVE</code>.</li>
+      <li>Верни интернет, нажми «Проверить реальную сеть», затем перезагрузи портал. Тестовая offline-запись не должна появиться на сервере.</li>
+    </ol>
+    <div class="warn">Не нажимай действия, которые опасно менять в рабочей смене. Для Shift выбирай только безопасную проверку состояния/чекбокса, которую можно сразу сверить после reload.</div>
+  </section>
+</main>
+<script>
+(() => {
+  'use strict';
+  const EXPECTED_SHELL = 'bf-shell-r40-3-pwa1';
+  const EXPECTED_RUNTIME = 'bf-runtime-r40-3-pwa1';
+  const WORKER_URL = 'https://beerfactory-menu-api.ivan-capral-grimm.workers.dev/menu';
+  const expectedAssets = [
+    'manifest.json',
+    'assets/icons/icon-192.png',
+    'assets/icons/icon-512.png',
+    'assets/icons/icon-maskable-512.png',
+    'assets/icons/apple-touch-icon.png'
+  ];
+  const $ = s => document.querySelector(s);
+  const esc = v => String(v ?? '').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  const kv = (k,v,cls='') => `<div class="kv"><div class="k">${esc(k)}</div><div class="v ${cls}">${esc(v)}</div></div>`;
+
+  function updateDevice() {
+    const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+    const online = navigator.onLine;
+    $('#deviceGrid').innerHTML = [
+      kv('location', location.href),
+      kv('innerWidth × innerHeight', `${innerWidth} × ${innerHeight}`),
+      kv('screen.width × height', `${screen.width} × ${screen.height}`),
+      kv('devicePixelRatio', devicePixelRatio),
+      kv('navigator.onLine', online, online ? 'ok' : 'bad'),
+      kv('standalone', standalone, standalone ? 'ok' : 'warn'),
+      kv('secure context', isSecureContext, isSecureContext ? 'ok' : 'bad'),
+      kv('userAgent', navigator.userAgent)
+    ].join('');
+  }
+
+  async function networkPing() {
+    const out = $('#networkLog');
+    out.textContent = 'Проверяю Worker…';
+    const started = performance.now();
+    try {
+      const sep = WORKER_URL.includes('?') ? '&' : '?';
+      const r = await fetch(WORKER_URL + sep + 'qa=' + Date.now(), {cache:'no-store'});
+      const text = await r.text();
+      out.textContent = `PASS network\nHTTP ${r.status} in ${Math.round(performance.now()-started)} ms\n${text.slice(0,240)}`;
+    } catch (e) {
+      out.textContent = `OFFLINE / network blocked\n${e.name}: ${e.message}`;
+    }
+    updateDevice();
+  }
+
+  async function swCheck() {
+    const summary = $('#swSummary');
+    const details = $('#swDetails');
+    if (!('serviceWorker' in navigator)) {
+      summary.innerHTML = '<span class="fail"><span class="statusDot"></span>FAIL: serviceWorker API отсутствует</span>';
+      details.textContent = '';
+      return;
+    }
+    try {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      const cacheNames = 'caches' in window ? await caches.keys() : [];
+      const controller = navigator.serviceWorker.controller;
+      const shellPresent = cacheNames.includes(EXPECTED_SHELL);
+      const anyReg = regs.length > 0;
+      const activeUrl = regs.map(r => r.active?.scriptURL || r.waiting?.scriptURL || r.installing?.scriptURL).filter(Boolean);
+      const swLooksRight = activeUrl.some(u => /\/sw\.js(?:\?|$)/.test(u));
+      summary.innerHTML = `<span class="${anyReg && shellPresent && swLooksRight ? 'pass' : 'fail'}"><span class="statusDot"></span>${anyReg && shellPresent && swLooksRight ? 'PASS' : 'CHECK'}: registration=${anyReg}, shell cache=${shellPresent}, sw.js=${swLooksRight}</span>`;
+      const lines = [];
+      lines.push(`controller: ${controller?.scriptURL || 'null'}`);
+      regs.forEach((r,i) => lines.push(`registration[${i}] scope=${r.scope}\n  active=${r.active?.scriptURL || 'null'}\n  waiting=${r.waiting?.scriptURL || 'null'}\n  installing=${r.installing?.scriptURL || 'null'}`));
+      lines.push(`caches: ${cacheNames.join(', ') || '(none)'}`);
+      if (shellPresent) {
+        const c = await caches.open(EXPECTED_SHELL);
+        const keys = await c.keys();
+        lines.push(`${EXPECTED_SHELL} entries=${keys.length}`);
+        const wanted = ['index.html','manifest.json','icon-192.png','icon-512.png','icon-maskable-512.png','apple-touch-icon.png','training-data.txt','question-banks.json'];
+        for (const w of wanted) lines.push(`  ${w}: ${keys.some(k => k.url.includes(w)) ? 'cached' : 'MISSING'}`);
+      }
+      if (cacheNames.includes(EXPECTED_RUNTIME)) {
+        const c = await caches.open(EXPECTED_RUNTIME); const keys = await c.keys();
+        lines.push(`${EXPECTED_RUNTIME} entries=${keys.length}`);
+      } else {
+        lines.push(`${EXPECTED_RUNTIME}: not created yet (нормально до первого runtime-cacheable запроса)`);
+      }
+      details.textContent = lines.join('\n');
+    } catch (e) {
+      summary.innerHTML = '<span class="fail"><span class="statusDot"></span>FAIL при чтении SW/cache</span>';
+      details.textContent = e.stack || `${e.name}: ${e.message}`;
+    }
+  }
+
+  async function assetCheck() {
+    const rows = [];
+    let all = true;
+    for (const path of expectedAssets) {
+      try {
+        const r = await fetch('./' + path, {cache:'no-store'});
+        rows.push(`${path}: HTTP ${r.status} ${r.ok ? 'PASS' : 'FAIL'} ${r.headers.get('content-type') || ''}`);
+        if (!r.ok) all = false;
+      } catch (e) {
+        rows.push(`${path}: fetch failed (${e.message})`);
+        all = false;
+      }
+    }
+    try {
+      const r = await fetch('./sw.js?qa=' + Date.now(), {cache:'no-store'});
+      const text = await r.text();
+      const shell = (text.match(/SHELL_CACHE\s*=\s*['\"]([^'\"]+)/)||[])[1] || 'not found';
+      const runtime = (text.match(/RUNTIME_CACHE\s*=\s*['\"]([^'\"]+)/)||[])[1] || 'not found';
+      rows.push(`sw.js SHELL_CACHE=${shell}`);
+      rows.push(`sw.js RUNTIME_CACHE=${runtime}`);
+      if (shell !== EXPECTED_SHELL || runtime !== EXPECTED_RUNTIME) all = false;
+    } catch(e) { rows.push(`sw.js fetch failed: ${e.message}`); all = false; }
+    $('#assetSummary').innerHTML = `<span class="${all ? 'pass' : 'fail'}"><span class="statusDot"></span>${all ? 'PASS' : 'CHECK'}: manifest/icons/sw</span>`;
+    $('#assetDetails').textContent = rows.join('\n');
+  }
+
+  function resizeFrame() {
+    const stage = $('#frameStage');
+    const scaler = $('#frameScale');
+    const available = Math.max(240, stage.clientWidth);
+    const scale = Math.min(1, available / 390);
+    scaler.style.transform = `scale(${scale})`;
+    stage.style.height = `${Math.ceil(844 * scale)}px`;
+  }
+
+  function frameReport() {
+    const f = $('#appFrame');
+    try {
+      const w = f.contentWindow, d = f.contentDocument;
+      $('#frameReport').textContent = `frame innerWidth=${w.innerWidth}, clientWidth=${d.documentElement.clientWidth}, scrollWidth=${d.documentElement.scrollWidth}, route=${w.location.hash || '(none)'}`;
+    } catch(e) {
+      $('#frameReport').textContent = `frame inspection unavailable: ${e.message}`;
+    }
+  }
+
+  function checkOverflow() {
+    const f = $('#appFrame');
+    try {
+      const w = f.contentWindow, d = f.contentDocument;
+      const vw = d.documentElement.clientWidth;
+      const offenders = [];
+      for (const el of d.querySelectorAll('body *')) {
+        const cs = w.getComputedStyle(el);
+        if (cs.display === 'none' || cs.visibility === 'hidden' || Number(cs.opacity) === 0 || el.getAttribute('aria-hidden') === 'true') continue;
+        const r = el.getBoundingClientRect();
+        if (!r.width && !r.height) continue;
+        if (r.left < -1 || r.right > vw + 1 || r.width > vw + 1) {
+          const id = el.id ? `#${el.id}` : '';
+          const cls = typeof el.className === 'string' && el.className.trim() ? '.' + el.className.trim().split(/\s+/).slice(0,3).join('.') : '';
+          offenders.push(`${el.tagName.toLowerCase()}${id}${cls} left=${r.left.toFixed(1)} right=${r.right.toFixed(1)} width=${r.width.toFixed(1)}`);
+          if (offenders.length >= 30) break;
+        }
+      }
+      const horizontal = d.documentElement.scrollWidth > vw + 1 || d.body.scrollWidth > vw + 1;
+      $('#overflowDetails').textContent = `viewport=${vw}\ndocument scrollWidth=${d.documentElement.scrollWidth}\nbody scrollWidth=${d.body.scrollWidth}\nhorizontal overflow=${horizontal}\nroute=${w.location.href}\n\nПодозрительные элементы (${offenders.length}):\n${offenders.join('\n') || '(none)'}`;
+      $('#frameReport').innerHTML = `<span class="${horizontal ? 'fail' : 'pass'}"><span class="statusDot"></span>${horizontal ? 'FAIL horizontal overflow' : 'PASS no document-level horizontal overflow'} · innerWidth=${w.innerWidth}</span>`;
+    } catch(e) {
+      $('#overflowDetails').textContent = e.stack || `${e.name}: ${e.message}`;
+    }
+  }
+
+  async function refreshAll() {
+    updateDevice();
+    await Promise.all([swCheck(), assetCheck()]);
+    frameReport();
+  }
+
+  addEventListener('online', () => { $('#networkLog').textContent = 'Событие: ONLINE\n' + new Date().toLocaleTimeString(); updateDevice(); });
+  addEventListener('offline', () => { $('#networkLog').textContent = 'Событие: OFFLINE\n' + new Date().toLocaleTimeString(); updateDevice(); });
+  addEventListener('resize', () => { updateDevice(); resizeFrame(); });
+  $('#refreshBtn').addEventListener('click', refreshAll);
+  $('#pingBtn').addEventListener('click', networkPing);
+  $('#frameReloadBtn').addEventListener('click', () => { $('#appFrame').contentWindow.location.reload(); });
+  $('#overflowBtn').addEventListener('click', checkOverflow);
+  $('#appFrame').addEventListener('load', () => { frameReport(); setTimeout(checkOverflow, 700); });
+  resizeFrame();
+  refreshAll();
+})();
+</script>
+</body>
+</html>
