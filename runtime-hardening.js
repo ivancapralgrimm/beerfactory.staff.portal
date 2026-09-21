@@ -23,7 +23,7 @@
     const offline = navigator.onLine === false;
     el.hidden = !offline;
     el.textContent = offline
-      ? 'Офлайн · рецепты и знания доступны из сохранённой версии'
+      ? 'Офлайн · доступны сохранённые рецепты. Остальные разделы требуют подключения.'
       : '';
     document.documentElement.classList.toggle('bfOffline', offline);
   }
