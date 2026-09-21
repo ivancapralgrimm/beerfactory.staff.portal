@@ -41,6 +41,7 @@
     Для работы портала нужен JavaScript.
   </noscript>
 
+  <script src="offline-bootstrap.js?v=20260921-r40-3-pwa2"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="app.js?v=20260917-r11"></script>
   <script src="recipes.js?v=20260919-r40-2"></script>
@@ -57,7 +58,7 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {
-        navigator.serviceWorker.register('./sw.js?v=20260921-r40-3-pwa1').catch(function (err) {
+        navigator.serviceWorker.register('./sw.js?v=20260921-r40-3-pwa2').catch(function (err) {
           console.warn('BeerFactory service worker registration failed:', err);
         });
       });
