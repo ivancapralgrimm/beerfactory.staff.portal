@@ -44,14 +44,14 @@
   <script src="admin-console.js?v=20260918-r40"></script>
   <script src="admin-delete.js?v=20260918-r40"></script>
   <script src="runtime-hardening.js?v=20260921-r40-3-final"></script>
-  <script src="accessibility.js?v=20260922-r40-3-p1"></script>
+  <script src="accessibility.js?v=20260922-r40-3-p2"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', async function () {
         try {
           const registration = await navigator.serviceWorker.register(
-            './sw.js?v=20260922-r40-3-pwa5',
+            './sw.js?v=20260922-r40-3-pwa6',
             { updateViaCache: 'none' }
           );
           registration.update().catch(function () {});

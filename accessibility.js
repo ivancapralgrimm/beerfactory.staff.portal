@@ -19,14 +19,46 @@
     setupRecoveryCode2: 'Повторите секретный код'
   });
 
-  function ensureSkipLink() {
-    if (document.querySelector('.bfSkipLink')) return;
+  function currentMainTarget() {
+    return document.querySelector('main.main') || document.querySelector('.loginCard');
+  }
 
-    const a = document.createElement('a');
-    a.className = 'bfSkipLink';
-    a.href = '#mainContent';
-    a.textContent = 'К основному содержимому';
-    document.body.prepend(a);
+  function ensureMainTarget() {
+    const target = currentMainTarget();
+    if (!target) return null;
+
+    const existing = document.getElementById('mainContent');
+    if (existing && existing !== target) existing.removeAttribute('id');
+
+    target.id = 'mainContent';
+    target.setAttribute('tabindex','-1');
+
+    if (target.classList.contains('loginCard')) {
+      target.setAttribute('role','main');
+    }
+
+    return target;
+  }
+
+  function ensureSkipLink() {
+    let a = document.querySelector('.bfSkipLink');
+
+    if (!a) {
+      a = document.createElement('a');
+      a.className = 'bfSkipLink';
+      a.href = '#mainContent';
+      a.textContent = 'К основному содержимому';
+      document.body.prepend(a);
+
+      a.addEventListener('click', event => {
+        const target = ensureMainTarget();
+        if (!target) return;
+
+        event.preventDefault();
+        target.focus({preventScroll:true});
+        target.scrollIntoView({block:'start'});
+      });
+    }
   }
 
   function ensureAuthLabels() {
@@ -51,11 +83,7 @@
   }
 
   function patchAccessibility(root = document) {
-    const main = root.querySelector?.('main.main') || document.querySelector('main.main');
-    if (main) {
-      main.id = 'mainContent';
-      main.setAttribute('tabindex','-1');
-    }
+    ensureMainTarget();
 
     const nav = root.querySelector?.('.bottom .nav') || document.querySelector('.bottom .nav');
     if (nav) nav.setAttribute('aria-label','Основная навигация');
