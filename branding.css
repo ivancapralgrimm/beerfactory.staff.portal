@@ -1,0 +1,18 @@
+/* BeerFactory Staff Portal · brand assets
+   Profile avatar replacement only. */
+#profileBtn{
+  border:0!important;
+  background:transparent url("assets/icons/profile-avatar.png?v=20260921-r40-3-brand1") center/contain no-repeat!important;
+  box-shadow:0 8px 22px rgba(0,0,0,.28)!important;
+}
+
+#profileBtn::before,
+#profileBtn::after{
+  display:none!important;
+}
+
+.loginCard::before{
+  border:0!important;
+  background:transparent url("assets/icons/profile-avatar.png?v=20260921-r40-3-brand1") center/contain no-repeat!important;
+  box-shadow:0 16px 38px rgba(0,0,0,.30)!important;
+}
