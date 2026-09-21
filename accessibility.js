@@ -1,22 +1,89 @@
 (() => {
   'use strict';
 
-  function ensureSkipLink() {
-    if (document.querySelector('.bfSkipLink')) return;
+  const AUTH_LABELS = Object.freeze({
+    firstName: 'Имя',
+    lastName: 'Фамилия',
+    code: 'Пароль',
+    regFirst: 'Имя',
+    regLast: 'Фамилия',
+    regPassword: 'Пароль',
+    regPassword2: 'Повторите пароль',
+    regSecret: 'Секретный код',
+    regSecret2: 'Повторите секретный код',
+    rFirstName: 'Имя',
+    rLastName: 'Фамилия',
+    recoveryCode: 'Секретный код',
+    newCode: 'Новый пароль',
+    setupRecoveryCode: 'Секретный код',
+    setupRecoveryCode2: 'Повторите секретный код'
+  });
 
-    const a = document.createElement('a');
-    a.className = 'bfSkipLink';
-    a.href = '#mainContent';
-    a.textContent = 'К основному содержимому';
-    document.body.prepend(a);
+  function currentMainTarget() {
+    return document.querySelector('main.main') || document.querySelector('.loginCard');
+  }
+
+  function ensureMainTarget() {
+    const target = currentMainTarget();
+    if (!target) return null;
+
+    const existing = document.getElementById('mainContent');
+    if (existing && existing !== target) existing.removeAttribute('id');
+
+    target.id = 'mainContent';
+    target.setAttribute('tabindex','-1');
+
+    if (target.classList.contains('loginCard')) {
+      target.setAttribute('role','main');
+    }
+
+    return target;
+  }
+
+  function ensureSkipLink() {
+    let a = document.querySelector('.bfSkipLink');
+
+    if (!a) {
+      a = document.createElement('a');
+      a.className = 'bfSkipLink';
+      a.href = '#mainContent';
+      a.textContent = 'К основному содержимому';
+      document.body.prepend(a);
+
+      a.addEventListener('click', event => {
+        const target = ensureMainTarget();
+        if (!target) return;
+
+        event.preventDefault();
+        target.focus({preventScroll:true});
+        target.scrollIntoView({block:'start'});
+      });
+    }
+  }
+
+  function ensureAuthLabels() {
+    document.querySelectorAll('.loginCard input[id]').forEach(input => {
+      const id = input.id;
+      if (!id) return;
+
+      const existing = document.querySelector(`label[for="${id}"]`);
+      if (existing) return;
+
+      const label = document.createElement('label');
+      label.className = 'bfSrOnly';
+      label.htmlFor = id;
+      label.textContent = AUTH_LABELS[id] || input.placeholder || 'Поле формы';
+      input.before(label);
+    });
+
+    document.querySelectorAll('.loginError').forEach(el => {
+      el.setAttribute('role','alert');
+      el.setAttribute('aria-live','polite');
+    });
   }
 
   function patchAccessibility(root = document) {
-    const main = root.querySelector?.('main.main') || document.querySelector('main.main');
-    if (main) {
-      main.id = 'mainContent';
-      main.setAttribute('tabindex','-1');
-    }
+    ensureMainTarget();
 
     const nav = root.querySelector?.('.bottom .nav') || document.querySelector('.bottom .nav');
     if (nav) nav.setAttribute('aria-label','Основная навигация');
@@ -41,6 +108,8 @@
       el.setAttribute('role','dialog');
       el.setAttribute('aria-modal','true');
     });
+
+    ensureAuthLabels();
 
     const h1 = document.querySelector('main.main h1');
     if (h1?.textContent?.trim()) {
