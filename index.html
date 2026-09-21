@@ -11,6 +11,7 @@
   <link rel="manifest" href="manifest.json?v=20260921-r40-3-brand1">
   <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png?v=20260921-r40-3-brand1">
   <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png?v=20260921-r40-3-brand1">
+
   <link rel="stylesheet" href="app.css?v=20260917-r10">
   <link rel="stylesheet" href="mobile-compat.css?v=20260918-r2">
   <link rel="stylesheet" href="recipes.css?v=20260918-r40">
@@ -32,7 +33,6 @@
   <div id="app"></div>
   <noscript>Для работы портала нужен JavaScript.</noscript>
 
-  <script src="offline-bootstrap.js?v=20260921-r40-3-pwa2"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="app.js?v=20260917-r11"></script>
   <script src="recipes.js?v=20260919-r40-2"></script>
@@ -48,10 +48,29 @@
 
   <script>
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register('./sw.js?v=20260921-r40-3-pwa2').catch(function (err) {
+      let bfSwReloading = false;
+
+      navigator.serviceWorker.addEventListener('controllerchange', function () {
+        if (bfSwReloading) return;
+        bfSwReloading = true;
+
+        const version = 'r40-3-pwa3';
+        if (sessionStorage.getItem('bf-sw-reload') !== version) {
+          sessionStorage.setItem('bf-sw-reload', version);
+          location.reload();
+        }
+      });
+
+      window.addEventListener('load', async function () {
+        try {
+          const registration = await navigator.serviceWorker.register(
+            './sw.js?v=20260921-r40-3-pwa3',
+            { updateViaCache: 'none' }
+          );
+          registration.update().catch(function () {});
+        } catch (err) {
           console.warn('BeerFactory service worker registration failed:', err);
-        });
+        }
       });
     }
   </script>

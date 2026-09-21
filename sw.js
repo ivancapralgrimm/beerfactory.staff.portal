@@ -1,5 +1,5 @@
-const SHELL_CACHE = 'bf-shell-r40-3-pwa2';
-const RUNTIME_CACHE = 'bf-runtime-r40-3-pwa2';
+const SHELL_CACHE = 'bf-shell-r40-3-pwa3';
+const RUNTIME_CACHE = 'bf-runtime-r40-3-pwa3';
 
 const CORE = [
   './',
@@ -17,7 +17,7 @@ const CORE = [
   './dashboard.css?v=20260918-r40',
   './runtime-hardening.css?v=20260918-r40',
   './accessibility.css?v=20260918-r40',
-  './offline-bootstrap.js?v=20260921-r40-3-pwa2',
+  './branding.css?v=20260921-r40-3-safe3',
   './app.js?v=20260917-r11',
   './recipes.js?v=20260919-r40-2',
   './learning.js?v=20260918-r40',
@@ -27,7 +27,7 @@ const CORE = [
   './ui.js?v=20260918-r24-2',
   './admin-console.js?v=20260918-r40',
   './admin-delete.js?v=20260918-r40',
-  './runtime-hardening.js?v=20260918-r40',
+  './runtime-hardening.js?v=20260921-r40-3-final',
   './accessibility.js?v=20260918-r40',
   './manifest.json',
   './assets/icons/icon-192.png',
@@ -64,27 +64,16 @@ self.addEventListener('activate', event => {
   event.waitUntil((async () => {
     const keep = new Set([SHELL_CACHE, RUNTIME_CACHE]);
     const names = await caches.keys();
+
     await Promise.all(
       names
         .filter(name => name.startsWith('bf-') && !keep.has(name))
         .map(name => caches.delete(name))
     );
+
     await self.clients.claim();
   })());
 });
-
-async function networkWithTimeout(request, timeoutMs = 6500) {
-  if (typeof AbortController !== 'function') return fetch(request);
-
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-
-  try {
-    return await fetch(request, { signal: controller.signal });
-  } finally {
-    clearTimeout(timer);
-  }
-}
 
 async function cachedNavigationShell() {
   const runtime = await caches.open(RUNTIME_CACHE);
@@ -98,18 +87,18 @@ async function cachedNavigationShell() {
 async function navigationResponse(request) {
   const cached = await cachedNavigationShell();
 
-  // Safari can keep an offline navigation pending for several seconds before
-  // rejecting it. If the platform already reports offline, serve the app shell
-  // immediately. Otherwise keep a short network-first window so normal online
-  // deployments can still refresh index.html.
   if (self.navigator && self.navigator.onLine === false && cached) {
     return cached;
   }
 
   try {
-    const fresh = await networkWithTimeout(request, 1200);
-    const cache = await caches.open(RUNTIME_CACHE);
-    cache.put('./index.html', fresh.clone()).catch(() => {});
+    const fresh = await fetch(request, { cache: 'no-store' });
+
+    if (fresh && fresh.ok) {
+      const cache = await caches.open(RUNTIME_CACHE);
+      cache.put('./index.html', fresh.clone()).catch(() => {});
+    }
+
     return fresh;
   } catch (_) {
     return cached || Response.error();
@@ -120,9 +109,6 @@ async function cacheFirst(request) {
   const exact = await caches.match(request);
   if (exact) return exact;
 
-  // Core files are pre-cached without every cache-busting query string. Keep
-  // this fallback ready, but prefer the network while online so a newer
-  // versioned asset cannot be shadowed by an older cached URL.
   const queryAgnostic = await caches.match(request, { ignoreSearch: true });
 
   if (self.navigator && self.navigator.onLine === false) {
@@ -130,11 +116,13 @@ async function cacheFirst(request) {
   }
 
   try {
-    const response = await networkWithTimeout(request, 1500);
+    const response = await fetch(request);
+
     if (response && (response.ok || response.type === 'opaque')) {
       const cache = await caches.open(RUNTIME_CACHE);
       cache.put(request, response.clone()).catch(() => {});
     }
+
     return response;
   } catch (_) {
     return queryAgnostic || Response.error();
@@ -147,6 +135,7 @@ self.addEventListener('fetch', event => {
 
   const url = new URL(request.url);
 
+  if (url.hostname.endsWith('.supabase.co')) return;
   if (url.hostname === 'beerfactory-menu-api.ivan-capral-grimm.workers.dev') return;
 
   if (request.mode === 'navigate') {
