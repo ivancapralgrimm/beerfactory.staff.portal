@@ -120,3 +120,11 @@
     top:-42px!important;
   }
 }
+
+/* iPhone / installed PWA safe area.
+   Keep the sticky header below the system status bar / Dynamic Island. */
+@supports (padding-top: env(safe-area-inset-top)){
+  .top{
+    padding-top:env(safe-area-inset-top)!important;
+  }
+}
