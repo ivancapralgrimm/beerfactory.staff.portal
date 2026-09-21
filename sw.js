@@ -1,5 +1,5 @@
-const SHELL_CACHE = 'bf-shell-r40-3-pwa4';
-const RUNTIME_CACHE = 'bf-runtime-r40-3-pwa4';
+const SHELL_CACHE = 'bf-shell-r40-3-pwa5';
+const RUNTIME_CACHE = 'bf-runtime-r40-3-pwa5';
 
 const CORE = [
   './',
@@ -16,8 +16,8 @@ const CORE = [
   './shift-workflow.css?v=20260918-r40',
   './dashboard.css?v=20260918-r40',
   './runtime-hardening.css?v=20260918-r40',
-  './accessibility.css?v=20260918-r40',
-  './branding.css?v=20260921-r40-3-safe3',
+  './accessibility.css?v=20260922-r40-3-p1',
+  './branding.css?v=20260922-r40-3-p1',
   './app.js?v=20260921-r40-3-login-route',
   './recipes.js?v=20260919-r40-2',
   './learning.js?v=20260918-r40',
@@ -28,7 +28,7 @@ const CORE = [
   './admin-console.js?v=20260918-r40',
   './admin-delete.js?v=20260918-r40',
   './runtime-hardening.js?v=20260921-r40-3-final',
-  './accessibility.js?v=20260918-r40',
+  './accessibility.js?v=20260922-r40-3-p1',
   './manifest.json',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',

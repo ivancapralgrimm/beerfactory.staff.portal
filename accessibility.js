@@ -1,6 +1,24 @@
 (() => {
   'use strict';
 
+  const AUTH_LABELS = Object.freeze({
+    firstName: 'Имя',
+    lastName: 'Фамилия',
+    code: 'Пароль',
+    regFirst: 'Имя',
+    regLast: 'Фамилия',
+    regPassword: 'Пароль',
+    regPassword2: 'Повторите пароль',
+    regSecret: 'Секретный код',
+    regSecret2: 'Повторите секретный код',
+    rFirstName: 'Имя',
+    rLastName: 'Фамилия',
+    recoveryCode: 'Секретный код',
+    newCode: 'Новый пароль',
+    setupRecoveryCode: 'Секретный код',
+    setupRecoveryCode2: 'Повторите секретный код'
+  });
+
   function ensureSkipLink() {
     if (document.querySelector('.bfSkipLink')) return;
 
@@ -9,6 +27,27 @@
     a.href = '#mainContent';
     a.textContent = 'К основному содержимому';
     document.body.prepend(a);
+  }
+
+  function ensureAuthLabels() {
+    document.querySelectorAll('.loginCard input[id]').forEach(input => {
+      const id = input.id;
+      if (!id) return;
+
+      const existing = document.querySelector(`label[for="${id}"]`);
+      if (existing) return;
+
+      const label = document.createElement('label');
+      label.className = 'bfSrOnly';
+      label.htmlFor = id;
+      label.textContent = AUTH_LABELS[id] || input.placeholder || 'Поле формы';
+      input.before(label);
+    });
+
+    document.querySelectorAll('.loginError').forEach(el => {
+      el.setAttribute('role','alert');
+      el.setAttribute('aria-live','polite');
+    });
   }
 
   function patchAccessibility(root = document) {
@@ -41,6 +80,8 @@
       el.setAttribute('role','dialog');
       el.setAttribute('aria-modal','true');
     });
+
+    ensureAuthLabels();
 
     const h1 = document.querySelector('main.main h1');
     if (h1?.textContent?.trim()) {

@@ -1,4 +1,17 @@
-/* BeerFactory accessibility pass · r39 */
+/* BeerFactory accessibility pass · r40.3 P1 */
+
+.bfSrOnly{
+  position:absolute!important;
+  width:1px!important;
+  height:1px!important;
+  padding:0!important;
+  margin:-1px!important;
+  overflow:hidden!important;
+  clip:rect(0,0,0,0)!important;
+  white-space:nowrap!important;
+  border:0!important;
+}
+
 .bfSkipLink{
   position:fixed;
   z-index:100001;
@@ -12,6 +25,7 @@
   font-weight:850;
 }
 .bfSkipLink:focus{transform:translateY(0)}
+
 a:focus-visible,
 button:focus-visible,
 input:focus-visible,
@@ -21,11 +35,13 @@ select:focus-visible,
   outline:2px solid var(--copper2,#df8b4e);
   outline-offset:3px;
 }
+
 button:disabled,
 .btn:disabled{
   opacity:.48;
   cursor:not-allowed;
 }
+
 @media(prefers-reduced-motion:reduce){
   *,
   *::before,
@@ -36,6 +52,7 @@ button:disabled,
     transition-duration:.001ms!important;
   }
 }
+
 @media(forced-colors:active){
   .card,.btn,.chip,.search,input,textarea,select{border:1px solid CanvasText}
 }

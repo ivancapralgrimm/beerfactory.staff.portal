@@ -1,4 +1,9 @@
-/* BeerFactory Staff Portal · brand assets + compact auth */
+/* BeerFactory Staff Portal · brand assets + compact auth + P1 UI polish */
+
+:root{
+  /* Raise tertiary text contrast across the dark brown surfaces. */
+  --dim:#9f8b76;
+}
 
 #profileBtn{
   border:0!important;
@@ -18,7 +23,7 @@
 }
 
 /* Compact mobile auth shell.
-   Keeps the card centered while reducing its footprint. */
+   Keeps the card centered while preserving usable touch targets. */
 .loginWrap{
   padding:
     max(48px,env(safe-area-inset-top))
@@ -67,9 +72,10 @@
   margin-top:3px!important;
 }
 
+/* Secondary auth actions remain visually quiet, but are still proper iPhone touch targets. */
 .loginCard .textBtn{
-  min-height:32px!important;
-  padding:4px 8px!important;
+  min-height:44px!important;
+  padding:8px 8px!important;
 }
 
 .loginError{
