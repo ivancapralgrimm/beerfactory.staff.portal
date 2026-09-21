@@ -1,5 +1,5 @@
-/* BeerFactory Staff Portal · brand assets
-   Profile avatar replacement only. */
+/* BeerFactory Staff Portal · brand assets + compact auth */
+
 #profileBtn{
   border:0!important;
   background:transparent url("assets/icons/profile-avatar.png?v=20260921-r40-3-brand1") center/contain no-repeat!important;
@@ -14,5 +14,109 @@
 .loginCard::before{
   border:0!important;
   background:transparent url("assets/icons/profile-avatar.png?v=20260921-r40-3-brand1") center/contain no-repeat!important;
-  box-shadow:0 16px 38px rgba(0,0,0,.30)!important;
+  box-shadow:0 14px 30px rgba(0,0,0,.28)!important;
+}
+
+/* Compact mobile auth shell.
+   Keeps the card centered while reducing its footprint. */
+.loginWrap{
+  padding:
+    max(48px,env(safe-area-inset-top))
+    20px
+    max(48px,env(safe-area-inset-bottom))!important;
+}
+
+.loginCard{
+  width:min(calc(100% - 18px),380px)!important;
+  padding:72px 22px 18px!important;
+  border-radius:26px!important;
+}
+
+.loginCard::before{
+  width:96px!important;
+  height:96px!important;
+  top:-48px!important;
+}
+
+.loginBrand{
+  margin-bottom:12px!important;
+}
+
+.loginCard h1{
+  margin:6px 0 7px!important;
+  font-size:clamp(27px,7.2vw,34px)!important;
+  line-height:1.04!important;
+}
+
+.loginCard p{
+  margin:0 0 14px!important;
+  line-height:1.42!important;
+}
+
+.loginCard form{
+  gap:8px!important;
+}
+
+.loginCard .search{
+  min-height:46px!important;
+  padding:10px 13px!important;
+}
+
+.loginCard .btn{
+  min-height:46px!important;
+  margin-top:3px!important;
+}
+
+.loginCard .textBtn{
+  min-height:32px!important;
+  padding:4px 8px!important;
+}
+
+.loginError{
+  min-height:16px!important;
+  font-size:13px!important;
+}
+
+.recoveryResult{
+  padding-top:72px!important;
+}
+
+@media(max-width:430px){
+  .loginWrap{
+    padding-left:20px!important;
+    padding-right:20px!important;
+  }
+
+  .loginCard{
+    width:100%!important;
+    padding:70px 20px 17px!important;
+  }
+
+  .loginCard::before{
+    width:92px!important;
+    height:92px!important;
+    top:-46px!important;
+  }
+
+  .loginCard h1{
+    font-size:29px!important;
+  }
+}
+
+@media(max-height:720px){
+  .loginWrap{
+    align-items:start!important;
+    padding-top:70px!important;
+    padding-bottom:26px!important;
+  }
+
+  .loginCard{
+    padding-top:64px!important;
+  }
+
+  .loginCard::before{
+    width:84px!important;
+    height:84px!important;
+    top:-42px!important;
+  }
 }
