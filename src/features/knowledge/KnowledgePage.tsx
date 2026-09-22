@@ -182,7 +182,7 @@ export function KnowledgePage() {
             </span>
             <Button
               asChild
-              variant="ghost"
+              variant="secondary"
               className="ml-auto h-9 min-h-9 px-3 text-xs"
             >
               <Link to="/attestation">Аттестация</Link>
