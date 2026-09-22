@@ -1,0 +1,19 @@
+BeerFactory r40.4 · Repair without mockup
+
+REPLACE:
+- src/pages/ProfilePage.tsx
+- DESIGN_SYSTEM.md
+- R40_4_ROADMAP.md
+- REPO_DELTA_AUDIT.md
+- REPO_DELTA_MANIFEST.json
+
+DELETE:
+- src/styles.css.append.txt
+
+DO NOT ADD:
+- docs/design/BFStaff_design-system-preview.png
+
+Reason:
+- mockup is not used by runtime code or deployment;
+- it is intentionally not part of repository requirements;
+- ProfilePage TypeScript narrowing fix is required for CI/build.

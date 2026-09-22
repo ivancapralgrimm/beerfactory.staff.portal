@@ -6,16 +6,16 @@
     "action": "ADD"
   },
   "DESIGN_SYSTEM.md": {
-    "sha256": "7a2eb16f4d5a0cb400db4de4bc6e4d0b31f75d0f1c18886313e6af16c829e7bb",
-    "git_blob_sha1": "1d9b9e1281f7f612e937d9f0ecb2a637b6b11e0a",
-    "bytes": 2908,
-    "action": "ADD"
+    "sha256": "999b385359cbf1d9b7905e7975e05fafd4349a0377b64ad5caeb79b319dd4581",
+    "git_blob_sha1": "8ab0619418e79742f122d1c83984895ae77249b8",
+    "bytes": 2669,
+    "action": "REPLACE"
   },
   "R40_4_ROADMAP.md": {
-    "sha256": "5f99d0b90bae9822695060c8275fdba06c036013171541e19cbbd75c739f302e",
-    "git_blob_sha1": "1c31917648b0c8e5bf1735dcfe75fc886fdaff99",
-    "bytes": 2985,
-    "action": "ADD"
+    "sha256": "c114ed9dd42e802685171a7f6f842313cb34a36fb97e1a0d622af05410f422c5",
+    "git_blob_sha1": "470f9c484f90018a12f9b52a1b43d1a735b40826",
+    "bytes": 2907,
+    "action": "REPLACE"
   },
   "R40_4_SHIFT_POSITION_V5.md": {
     "sha256": "84f7c480ef4bf17862bbe57ed948af3f3a61dd1022ae718b5d8611e7c3a07f14",
@@ -24,10 +24,10 @@
     "action": "ADD"
   },
   "REPO_DELTA_AUDIT.md": {
-    "sha256": "b0f732c968d7125cca99b1c326c9b6acbfb061214d4598e7aa39b72b8b0f7b04",
-    "git_blob_sha1": "b3a7968b71bb16a297a6b8c12ff659b62adb444f",
-    "bytes": 2615,
-    "action": "ADD"
+    "sha256": "f199d0fcb03277614dd5c68c0d52adf00aed8c709b95ff28e9a0ab7a4a58a11d",
+    "git_blob_sha1": "77885fdd7269371468814e92340a68d89635d204",
+    "bytes": 2796,
+    "action": "REPLACE"
   },
   "SHIFT_CHECKBOX_QA_V5.md": {
     "sha256": "5f9dd294530a58c1f5d58ae6c4690dd317142fee0485e61c700eb48f7ff1326d",
@@ -45,12 +45,6 @@
     "sha256": "2ee5518ba955fdb1fcdd3cb477eaf03c0ce2aecf34479a2f137e165b460e6ec6",
     "git_blob_sha1": "f4c5fc83c9351cf8e6bded82c7db291e80c54d20",
     "bytes": 1470,
-    "action": "ADD"
-  },
-  "docs/design/BFStaff_design-system-preview.png": {
-    "sha256": "12e52e89dd21f8e7d5ced01d2b51eac09059c93b649ff8ab3dc994dd3cb0510c",
-    "git_blob_sha1": "563fd5c766c2f1370b12762e11d527d26e45e91c",
-    "bytes": 1571173,
     "action": "ADD"
   },
   "src/app/App.tsx": {
@@ -84,9 +78,9 @@
     "action": "ADD"
   },
   "src/pages/ProfilePage.tsx": {
-    "sha256": "02dc55f2122e8642cbe7f5c4a98fae5528d8ddef8b8afbf489a785dccfb9a07e",
-    "git_blob_sha1": "16b4533e8243a9fe3191a9180b01bbea6acab1d3",
-    "bytes": 7723,
+    "sha256": "a2dd851001cda719ac76327cb68d8b858210e4e149591101d0f1f100bf38ee2b",
+    "git_blob_sha1": "05c95181eeb25ddacff0659d93e4be18a92fd389",
+    "bytes": 7759,
     "action": "REPLACE"
   },
   "src/types/auth.ts": {

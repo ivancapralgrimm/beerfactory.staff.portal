@@ -29,7 +29,6 @@ This package contains only work that is not present in that audited repository s
 - `SHIFT_CHECKBOX_QA_V5.md`
 - `SUPABASE_ALREADY_APPLIED.txt`
 - `SUPABASE_MIGRATIONS_APPLIED.md`
-- `docs/design/BFStaff_design-system-preview.png`
 - `src/features/shift/ShiftPage.tsx`
 - `src/features/shift/shift-api.ts`
 - `src/features/shift/types.ts`
@@ -60,3 +59,8 @@ This package adds their source to GitHub so repository state matches deployed ba
 
 This delta includes the Profile functionality required by Shift: personal working-position selection.
 The later full React Admin migration (employee management UI, role/activation/audit screens) is not silently claimed as complete here.
+
+## Repository policy update
+
+`docs/design/BFStaff_design-system-preview.png` is intentionally NOT required in the repository.
+It is not used by runtime code or deployment and should not be treated as a missing file during audits.

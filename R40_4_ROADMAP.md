@@ -6,7 +6,6 @@
 - All migration work stays in `r40.4-react`.
 - Server-authoritative workflows never report local-only success.
 - `DESIGN_SYSTEM.md` is the active visual/interaction contract.
-- The stored mockup is the current visual target, not disposable concept art.
 
 ## Completed
 

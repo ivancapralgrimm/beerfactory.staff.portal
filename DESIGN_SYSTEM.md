@@ -2,12 +2,6 @@
 
 Status: active contract for `r40.4-react`.
 
-Visual reference:
-`docs/design/BFStaff_design-system-preview.png`
-
-The mockup is a visual target, not decorative concept art. If product logic or UX changes materially,
-the reference is updated together with the implementation direction.
-
 ## Core rule
 
 **An action the user is expected to notice must look actionable at rest.**
