@@ -46,6 +46,12 @@ const KnowledgeArticlePage = lazy(() =>
   }))
 );
 
+const AttestationPage = lazy(() =>
+  import("@/features/attestation/AttestationPage").then((module) => ({
+    default: module.AttestationPage
+  }))
+);
+
 const PlaceholderPage = lazy(() =>
   import("@/pages/PlaceholderPage").then((module) => ({
     default: module.PlaceholderPage
@@ -222,11 +228,7 @@ export function App() {
           path="attestation"
           element={
             <LazyRoute>
-              <PlaceholderPage
-                eyebrow="АТТЕСТАЦИЯ"
-                title="Attestation migration"
-                description="Следующий этап: переносим банк вопросов, категории, билеты, сохранение результата и финальный экран."
-              />
+              <AttestationPage />
             </LazyRoute>
           }
         />
