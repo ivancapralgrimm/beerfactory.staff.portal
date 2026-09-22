@@ -1,5 +1,14 @@
-import { lazy, Suspense, type ReactNode } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import {
+  lazy,
+  Suspense,
+  type ReactNode
+} from "react";
+import {
+  Navigate,
+  Route,
+  Routes,
+  useParams
+} from "react-router-dom";
 import { AppShell } from "@/components/layout/AppShell";
 import { useAuth } from "@/features/auth/auth-context";
 import { LoginPage } from "@/features/auth/LoginPage";
@@ -22,6 +31,18 @@ const RecipesPage = lazy(() =>
 const RecipeDetailPage = lazy(() =>
   import("@/features/recipes/RecipeDetailPage").then((module) => ({
     default: module.RecipeDetailPage
+  }))
+);
+
+const KnowledgePage = lazy(() =>
+  import("@/features/knowledge/KnowledgePage").then((module) => ({
+    default: module.KnowledgePage
+  }))
+);
+
+const KnowledgeArticlePage = lazy(() =>
+  import("@/features/knowledge/KnowledgeArticlePage").then((module) => ({
+    default: module.KnowledgeArticlePage
   }))
 );
 
@@ -104,6 +125,17 @@ function LazyRoute({ children }: { children: ReactNode }) {
   return <Suspense fallback={<RouteLoader />}>{children}</Suspense>;
 }
 
+function LegacyArticleRedirect() {
+  const { articleId = "" } = useParams();
+
+  return (
+    <Navigate
+      to={`/knowledge/${encodeURIComponent(articleId)}`}
+      replace
+    />
+  );
+}
+
 export function App() {
   return (
     <Routes>
@@ -142,6 +174,7 @@ export function App() {
             </LazyRoute>
           }
         />
+
         <Route
           path="menu"
           element={
@@ -163,14 +196,41 @@ export function App() {
           path="knowledge"
           element={
             <LazyRoute>
+              <KnowledgePage />
+            </LazyRoute>
+          }
+        />
+        <Route
+          path="knowledge/:articleId"
+          element={
+            <LazyRoute>
+              <KnowledgeArticlePage />
+            </LazyRoute>
+          }
+        />
+
+        <Route
+          path="training"
+          element={<Navigate to="/knowledge" replace />}
+        />
+        <Route
+          path="article/:articleId"
+          element={<LegacyArticleRedirect />}
+        />
+
+        <Route
+          path="attestation"
+          element={
+            <LazyRoute>
               <PlaceholderPage
-                eyebrow="ЗНАНИЯ"
-                title="Knowledge migration"
-                description="После Recipes переносим статьи, категории, read-state, изображения и offline availability."
+                eyebrow="АТТЕСТАЦИЯ"
+                title="Attestation migration"
+                description="Следующий этап: переносим банк вопросов, категории, билеты, сохранение результата и финальный экран."
               />
             </LazyRoute>
           }
         />
+
         <Route
           path="shift"
           element={
