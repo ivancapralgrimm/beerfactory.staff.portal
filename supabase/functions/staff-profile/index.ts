@@ -34,6 +34,9 @@ const positionFromLegacy=(value:unknown):PositionCode|null=>{
   if(v==="менеджер"){
     return "manager";
   }
+  if(v==="хостес"||v==="hostess"){
+    return "hostess";
+  }
   return null;
 };
 
