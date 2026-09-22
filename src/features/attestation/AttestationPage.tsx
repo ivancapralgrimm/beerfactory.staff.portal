@@ -447,10 +447,11 @@ function ResultView({
                       {reviewRoute ? (
                         <Button
                           asChild
-                          variant="ghost"
-                          className="-ml-3 mt-2"
+                          variant="secondary"
+                          className="mt-3"
                         >
                           <Link to={reviewRoute}>
+                            <BookOpen className="size-4" aria-hidden />
                             {question.reviewLabel || "Повторить тему"}
                           </Link>
                         </Button>
