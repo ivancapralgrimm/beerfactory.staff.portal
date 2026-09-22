@@ -1,6 +1,14 @@
 import type { Session, User } from "@supabase/supabase-js";
 
 export type StaffRole = "staff" | "senior" | "manager" | "admin";
+export type StaffPosition = "bartender" | "waiter" | "manager" | "hostess";
+
+export const STAFF_POSITION_LABELS: Record<StaffPosition, string> = {
+  bartender: "Бармен",
+  waiter: "Официант",
+  manager: "Менеджер",
+  hostess: "Хостес"
+};
 
 export type StaffProfile = {
   id: string;
@@ -10,6 +18,7 @@ export type StaffProfile = {
   is_owner?: boolean | null;
   is_active?: boolean | null;
   position?: string | null;
+  position_code?: StaffPosition | null;
   birth_date?: string | null;
   recovery_configured?: boolean | null;
 };
