@@ -74,6 +74,8 @@ export function ProfilePage() {
     return null;
   }
 
+  const accessToken = state.session.access_token;
+
   const fullName = [
     user.first_name,
     user.last_name
@@ -89,7 +91,7 @@ export function ProfilePage() {
 
     try {
       await updateStaffProfile(
-        state.session.access_token,
+        accessToken,
         { positionCode: selectedPosition }
       );
       await refreshProfile();
