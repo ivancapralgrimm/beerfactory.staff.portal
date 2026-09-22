@@ -1,32 +1,34 @@
-BeerFactory Staff Portal · r40.4 Phase 2 Recipes
+BeerFactory Staff Portal · r40.4 Phase 3 Knowledge
 
-Target branch: r40.4-react
+TARGET BRANCH:
+r40.4-react
+
 DO NOT upload to main.
 
-UPLOAD NEW FILES preserving folders:
-- src/features/recipes/types.ts
-- src/features/recipes/recipe-data.ts
-- src/features/recipes/use-recipes.ts
-- src/features/recipes/recipe-calculator.tsx
-- src/features/recipes/recipe-photo-dialog.tsx
-- src/features/recipes/RecipesPage.tsx
-- src/features/recipes/RecipeDetailPage.tsx
-- R40_4_RECIPES_MIGRATION.md
+UPLOAD NEW FILES preserving paths:
+- src/features/knowledge/types.ts
+- src/features/knowledge/knowledge-data.ts
+- src/features/knowledge/use-knowledge.ts
+- src/features/knowledge/knowledge-progress.ts
+- src/features/knowledge/use-knowledge-progress.ts
+- src/features/knowledge/knowledge-markdown.tsx
+- src/features/knowledge/KnowledgeImageDialog.tsx
+- src/features/knowledge/KnowledgePage.tsx
+- src/features/knowledge/KnowledgeArticlePage.tsx
+- R40_4_KNOWLEDGE_MIGRATION.md
 
 REPLACE:
 - src/app/App.tsx
-
-EDIT:
 - src/styles.css
 
-For src/styles.css:
-open src/styles.css and append the full contents of `src/styles.css.append.txt` to the END of the existing file.
-Do not replace the entire current styles.css with the append file.
-
-Then delete `src/styles.css.append.txt` from your local extracted package; it is only the snippet to paste.
+Important:
+The styles.css in this package is a FULL replacement.
+Do not append anything manually.
 
 Commit:
-feat: migrate Recipes to React
+feat: migrate Knowledge to React
 
-After commit GitHub Actions and Vercel Preview run automatically.
-Do not merge to main.
+After commit:
+- GitHub Actions runs automatically
+- Vercel Preview deploys automatically
+- do not modify main
