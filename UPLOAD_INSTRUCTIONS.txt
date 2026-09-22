@@ -1,4 +1,4 @@
-BeerFactory Staff Portal · r40.4 Phase 3 Knowledge
+BeerFactory Staff Portal · r40.4 Phase 4 Attestation · refined UI + semantic motion
 
 TARGET BRANCH:
 r40.4-react
@@ -6,27 +6,24 @@ r40.4-react
 DO NOT upload to main.
 
 UPLOAD NEW FILES preserving paths:
-- src/features/knowledge/types.ts
-- src/features/knowledge/knowledge-data.ts
-- src/features/knowledge/use-knowledge.ts
-- src/features/knowledge/knowledge-progress.ts
-- src/features/knowledge/use-knowledge-progress.ts
-- src/features/knowledge/knowledge-markdown.tsx
-- src/features/knowledge/KnowledgeImageDialog.tsx
-- src/features/knowledge/KnowledgePage.tsx
-- src/features/knowledge/KnowledgeArticlePage.tsx
-- R40_4_KNOWLEDGE_MIGRATION.md
+- src/features/attestation/types.ts
+- src/features/attestation/attestation-data.ts
+- src/features/attestation/attestation-history.ts
+- src/features/attestation/use-attestation-bank.ts
+- src/features/attestation/AttestationPage.tsx
+- src/features/attestation/CategoryMotionIcon.tsx
+- R40_4_ATTESTATION_MIGRATION.md
 
 REPLACE:
 - src/app/App.tsx
-- src/styles.css
 
-Important:
-The styles.css in this package is a FULL replacement.
-Do not append anything manually.
+CLEANUP:
+- delete accidental 1-byte file: src/features/knowledge/Txt.txt
+
+No CSS file changes are required in this phase.
 
 Commit:
-feat: migrate Knowledge to React
+feat: migrate Attestation to React
 
 After commit:
 - GitHub Actions runs automatically
