@@ -18,6 +18,8 @@ export function RecoverySetupPage() {
   if (state.status === "booting") return null;
   if (state.status !== "authenticated") return <Navigate to="/login" replace />;
 
+  const accessToken = state.session.access_token;
+
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
@@ -32,7 +34,7 @@ export function RecoverySetupPage() {
 
     setPending(true);
     try {
-      await setRecoveryCode(state.session.access_token, first);
+      await setRecoveryCode(accessToken, first);
       await markRecoveryConfigured();
       navigate("/", { replace: true });
     } catch {
