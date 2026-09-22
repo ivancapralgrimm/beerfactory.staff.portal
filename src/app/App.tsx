@@ -52,6 +52,12 @@ const AttestationPage = lazy(() =>
   }))
 );
 
+const ShiftPage = lazy(() =>
+  import("@/features/shift/ShiftPage").then((module) => ({
+    default: module.ShiftPage
+  }))
+);
+
 const PlaceholderPage = lazy(() =>
   import("@/pages/PlaceholderPage").then((module) => ({
     default: module.PlaceholderPage
@@ -118,7 +124,11 @@ function PublicOnly({ children }: { children: ReactNode }) {
   if (state.status === "authenticated") {
     return (
       <Navigate
-        to={state.recoveryRequired ? "/setup-recovery" : "/"}
+        to={
+          state.recoveryRequired
+            ? "/setup-recovery"
+            : "/"
+        }
         replace
       />
     );
@@ -127,8 +137,16 @@ function PublicOnly({ children }: { children: ReactNode }) {
   return children;
 }
 
-function LazyRoute({ children }: { children: ReactNode }) {
-  return <Suspense fallback={<RouteLoader />}>{children}</Suspense>;
+function LazyRoute({
+  children
+}: {
+  children: ReactNode;
+}) {
+  return (
+    <Suspense fallback={<RouteLoader />}>
+      {children}
+    </Suspense>
+  );
 }
 
 function LegacyArticleRedirect() {
@@ -169,7 +187,10 @@ export function App() {
           </PublicOnly>
         }
       />
-      <Route path="/setup-recovery" element={<RecoverySetupPage />} />
+      <Route
+        path="/setup-recovery"
+        element={<RecoverySetupPage />}
+      />
 
       <Route element={<ProtectedApp />}>
         <Route
@@ -237,14 +258,11 @@ export function App() {
           path="shift"
           element={
             <LazyRoute>
-              <PlaceholderPage
-                eyebrow="СМЕНА"
-                title="Shift migration"
-                description="Операционные подтверждения останутся server-authoritative. Никаких локальных фальшивых успехов."
-              />
+              <ShiftPage />
             </LazyRoute>
           }
         />
+
         <Route
           path="handover"
           element={
@@ -252,11 +270,12 @@ export function App() {
               <PlaceholderPage
                 eyebrow="ПЕРЕДАЧА СМЕНЫ"
                 title="Handover migration"
-                description="Структурированные заметки и constrained RPC переедут после стабильных информационных модулей."
+                description="Структурированные заметки и constrained RPC переедут после Shift."
               />
             </LazyRoute>
           }
         />
+
         <Route
           path="profile"
           element={
@@ -267,7 +286,10 @@ export function App() {
         />
       </Route>
 
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route
+        path="*"
+        element={<Navigate to="/" replace />}
+      />
     </Routes>
   );
 }
