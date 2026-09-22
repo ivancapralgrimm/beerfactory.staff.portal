@@ -1,0 +1,21 @@
+BeerFactory r40.4 · Post-smoke patch
+
+Upload ALL files from this archive into branch:
+r40.4-react
+
+REPLACE:
+- supabase/functions/staff-profile/index.ts
+- SUPABASE_MIGRATIONS_APPLIED.md
+- SUPABASE_ALREADY_APPLIED.txt
+- REPO_DELTA_AUDIT.md
+- REPO_DELTA_MANIFEST.json
+
+ADD:
+- supabase/migrations/20260922175321_harden_position_shift_table_privileges.sql
+
+IMPORTANT:
+The SQL migration is ALREADY APPLIED to live Supabase.
+Commit the SQL file to GitHub for source-of-truth only.
+Do not manually execute it again.
+
+No mockup files are required.

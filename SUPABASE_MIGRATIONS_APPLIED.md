@@ -8,6 +8,7 @@ These migrations were applied through the connected Supabase migration API:
 - `20260922161603` · `seed_waiter_manager_demo_shift_checklists`
 - `20260922161749` · `add_hostess_staff_position`
 - `20260922161802` · `seed_hostess_demo_shift_checklist`
+- `20260922175321` · `harden_position_shift_table_privileges`
 
 They are already present in the live Supabase migration history.
 
@@ -31,3 +32,13 @@ The matching SQL source files are now included in `supabase/migrations/`.
 They mirror migrations already present in the live Supabase migration history.
 They are committed for reproducibility and future environments, not to be manually rerun
 against the current live project.
+
+## Post-smoke security hardening
+
+Smoke QA found default table privileges that were broader than intended on the new
+`position_shift_*` tables. The live project now has:
+
+- no table privileges for `anon`;
+- `authenticated` keeps only `SELECT` on the three position-shift tables;
+- all writes continue through constrained RPCs;
+- `TRUNCATE`, `REFERENCES` and `TRIGGER` are revoked from client roles.

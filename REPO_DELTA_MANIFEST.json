@@ -24,9 +24,9 @@
     "action": "ADD"
   },
   "REPO_DELTA_AUDIT.md": {
-    "sha256": "f199d0fcb03277614dd5c68c0d52adf00aed8c709b95ff28e9a0ab7a4a58a11d",
-    "git_blob_sha1": "77885fdd7269371468814e92340a68d89635d204",
-    "bytes": 2796,
+    "sha256": "beb4cd99a4c456c0ad8842dafaa3fe0bece15d4321a24f173c8b5811c1895ee7",
+    "git_blob_sha1": "733629cc82d592b237dfd6cd896868894bff9c50",
+    "bytes": 3663,
     "action": "REPLACE"
   },
   "SHIFT_CHECKBOX_QA_V5.md": {
@@ -36,16 +36,16 @@
     "action": "ADD"
   },
   "SUPABASE_ALREADY_APPLIED.txt": {
-    "sha256": "b9af013746e53924c451660c067160bda9e52981b2a2cd3b983a2e51b6572e83",
-    "git_blob_sha1": "0fad89b92c7c9bd8dfdb7a2d5b933c752c907f05",
-    "bytes": 561,
-    "action": "ADD"
+    "sha256": "86bbee7135f74bbc314da2896a3adf7befb17e7cb920b1b768c197ebac8ae252",
+    "git_blob_sha1": "92f87df610d7089e3b2a5d8bebfe4e5907acb9bd",
+    "bytes": 618,
+    "action": "REPLACE"
   },
   "SUPABASE_MIGRATIONS_APPLIED.md": {
-    "sha256": "2ee5518ba955fdb1fcdd3cb477eaf03c0ce2aecf34479a2f137e165b460e6ec6",
-    "git_blob_sha1": "f4c5fc83c9351cf8e6bded82c7db291e80c54d20",
-    "bytes": 1470,
-    "action": "ADD"
+    "sha256": "ac19c0c8da7d7cf7e4c4e8e6eff16e2f73dc9b7438788be6f5edc3862cc189ef",
+    "git_blob_sha1": "b9e7c885802aee9f12c22b4e435dce27a436c176",
+    "bytes": 1933,
+    "action": "REPLACE"
   },
   "src/app/App.tsx": {
     "sha256": "b04370fd5897130ec5b9d505a72f102dca729c0c2507deba52f40b0c10c9799e",
@@ -96,10 +96,10 @@
     "action": "ADD"
   },
   "supabase/functions/staff-profile/index.ts": {
-    "sha256": "263ed5494b81e96c23e1cd4aef04a42654aaa14f8e15f1d6f22087091fd2b510",
-    "git_blob_sha1": "f2829cebdd7bb42f880e5ebc7a0215daa08f1e72",
-    "bytes": 3508,
-    "action": "ADD"
+    "sha256": "f4b627c53f6b704e05ea6dc5aad6fb50348c204dc1b9761f257b24b5c854c11c",
+    "git_blob_sha1": "aa090a9deb0d8ebccb1282f81420b97da1b7c4e7",
+    "bytes": 3575,
+    "action": "REPLACE"
   },
   "supabase/migrations/20260922153817_add_position_aware_shift_v2.sql": {
     "sha256": "6e8bf5d25d38dc818b17bf38ca6ce1c027e6a608f09ab31b7eeea0da74e95924",
@@ -135,6 +135,12 @@
     "sha256": "78856b65b60066075aeb4e84214710d1e850ab736458fd628168c514ee81f2da",
     "git_blob_sha1": "be8e7862365254a3a7e0540df557c775d120c3a9",
     "bytes": 2528,
+    "action": "ADD"
+  },
+  "supabase/migrations/20260922175321_harden_position_shift_table_privileges.sql": {
+    "sha256": "39f820bab0d18ec4271492504e54927672986a4d6997be1028c915bbcc5e09ea",
+    "git_blob_sha1": "7fa71f25891efe3bad848e1b633d07eee661da52",
+    "bytes": 946,
     "action": "ADD"
   }
 }

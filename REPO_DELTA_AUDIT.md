@@ -64,3 +64,24 @@ The later full React Admin migration (employee management UI, role/activation/au
 
 `docs/design/BFStaff_design-system-preview.png` is intentionally NOT required in the repository.
 It is not used by runtime code or deployment and should not be treated as a missing file during audits.
+
+## Post-upload smoke audit
+
+Verified after the r40.4 Shift/Profile upload:
+
+- GitHub Typecheck: pass
+- GitHub Build: pass
+- Vercel deployment: pass
+- unauthenticated protected routes redirect to `/login`
+- public login / registration / recovery screens render
+- server operational window uses `Asia/Novosibirsk`
+- Bar / Waiter / Manager / Hostess each have 6 opening + 6 closing definitions
+- no-position workflow returns `position_required`
+- read-only workflow does not create operational rows
+- live `staff-profile` is ACTIVE v5
+- position-shift RPCs are executable by `authenticated`, not `anon`
+- position-shift client table privileges were hardened in migration `20260922175321`
+
+Repository/source sync fix:
+- `staff-profile/index.ts` now includes legacy `Хостес` / `hostess` -> `hostess`
+  mapping, matching the already deployed Edge Function behavior.

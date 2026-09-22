@@ -13,3 +13,5 @@ DO NOT manually rerun the SQL from this package against production.
 The SQL source is included only so GitHub contains a record of the deployed backend design.
 
 Stable r40.3 legacy Shift functions were not replaced.
+
+- 20260922175321 harden_position_shift_table_privileges
