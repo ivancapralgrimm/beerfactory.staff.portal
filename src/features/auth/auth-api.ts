@@ -1,6 +1,9 @@
 import type { Session } from "@supabase/supabase-js";
 import { config, edgeFunctions } from "@/lib/config";
-import type { StaffProfile } from "@/types/auth";
+import type {
+  StaffPosition,
+  StaffProfile
+} from "@/types/auth";
 
 type LoginResponse = {
   session?: Session;
@@ -50,7 +53,11 @@ export async function fetchStaffProfile(accessToken: string) {
     }
   });
 
-  if (response.status === 401 || response.status === 403 || response.status === 404) {
+  if (
+    response.status === 401 ||
+    response.status === 403 ||
+    response.status === 404
+  ) {
     const error = new Error("profile_auth_failed");
     Object.assign(error, { status: response.status });
     throw error;
@@ -60,7 +67,49 @@ export async function fetchStaffProfile(accessToken: string) {
     throw new Error("profile_load_failed");
   }
 
-  const data = (await jsonOrEmpty(response)) as { profile?: StaffProfile };
+  const data = (await jsonOrEmpty(response)) as {
+    profile?: StaffProfile;
+  };
+
+  return data.profile ?? null;
+}
+
+export async function updateStaffProfile(
+  accessToken: string,
+  input: {
+    positionCode?: StaffPosition;
+    birthDate?: string | null;
+  }
+) {
+  const body: Record<string, unknown> = {};
+
+  if ("positionCode" in input) {
+    body.position_code = input.positionCode;
+  }
+  if ("birthDate" in input) {
+    body.birth_date = input.birthDate || null;
+  }
+
+  const response = await fetch(edgeFunctions.profile, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: config.supabasePublishableKey,
+      Authorization: `Bearer ${accessToken}`
+    },
+    body: JSON.stringify(body)
+  });
+
+  const data = (await jsonOrEmpty(response)) as {
+    ok?: boolean;
+    profile?: StaffProfile;
+    error?: string;
+  };
+
+  if (!response.ok || !data.ok) {
+    throw new Error(data.error || "profile_update_failed");
+  }
+
   return data.profile ?? null;
 }
 
@@ -86,7 +135,9 @@ export async function registerStaff(input: {
 
   const data = await jsonOrEmpty(response);
   if (!response.ok || !(data as { ok?: boolean }).ok) {
-    throw new Error((data as { error?: string }).error || "registration_failed");
+    throw new Error(
+      (data as { error?: string }).error || "registration_failed"
+    );
   }
 }
 
@@ -112,11 +163,16 @@ export async function recoverStaff(input: {
 
   const data = await jsonOrEmpty(response);
   if (!response.ok || !(data as { ok?: boolean }).ok) {
-    throw new Error((data as { error?: string }).error || "recovery_failed");
+    throw new Error(
+      (data as { error?: string }).error || "recovery_failed"
+    );
   }
 }
 
-export async function setRecoveryCode(accessToken: string, recoveryCode: string) {
+export async function setRecoveryCode(
+  accessToken: string,
+  recoveryCode: string
+) {
   const response = await fetch(edgeFunctions.setRecovery, {
     method: "POST",
     headers: {
