@@ -1,0 +1,32 @@
+BeerFactory Staff Portal · r40.4 Phase 1 React foundation
+
+IMPORTANT:
+GitHub integration is read-only for branch writes in this ChatGPT connection (403 on create_ref),
+so this package is prepared for manual upload.
+
+1. In GitHub create a NEW branch from main:
+   r40.4-react
+
+2. Switch to r40.4-react.
+
+3. Upload/replace the contents of this ZIP at repository root.
+   Do NOT delete the existing assets/ directory or the existing legacy JS/CSS yet.
+   The build script uses the existing assets/ directory.
+
+4. Commit:
+   feat: start r40.4 React foundation
+
+5. Wait for Vercel branch Preview.
+   Do NOT merge to main.
+
+Expected first QA:
+- Preview opens on #/login.
+- Existing staff credentials work.
+- First login opens the new Dashboard without reload loops.
+- Reload preserves the session.
+- Logout returns to #/login.
+- Registration/recovery routes render.
+- PWA manifest and generated sw.js load.
+- Menu/Knowledge/Shift/Handover are intentionally placeholders in Phase 1.
+
+Production main stays on stable r40.3.
