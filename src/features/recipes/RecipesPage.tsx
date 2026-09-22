@@ -349,7 +349,7 @@ export function RecipesPage() {
                 ? ` · архив: ${archiveCount}`
                 : ""}
             </span>
-            {data.source === "api" ? (
+            {state.data.source === "api" ? (
               <span className="text-[var(--bf-green)]">актуально</span>
             ) : null}
           </div>
