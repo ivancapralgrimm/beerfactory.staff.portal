@@ -14,7 +14,7 @@ ALREADY APPLIED TO SUPABASE:
 - 20260922191434 add_web_push_subscriptions
 - 20260922191509 add_web_push_vapid_config
 - 20260922191810 normalize_web_push_metadata
-- handover-push Edge Function version 1
+- handover-push Edge Function version 2
 - staff-profile Edge Function version 5
 
 IMPORTANT:

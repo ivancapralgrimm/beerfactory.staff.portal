@@ -2,7 +2,7 @@
 
 ## Goal
 
-When one employee creates a Handover note, subscribed active employees receive a system push notification even when BFStaff is not open.
+When one employee creates a Handover note, subscribed active employees receive a system push notification even when BFStaff is not open. Resolving a note also sends a system push to the rest of the subscribed active team.
 
 The author does not receive their own notification.
 
@@ -22,9 +22,9 @@ A subscription belongs to the current authenticated user. Re-registering the sam
 Web Push is intended for the installed Home Screen web app.
 The UI explains this and does not request permission from a normal iPhone browser tab.
 
-## Handover create + delivery
+## Handover create / resolve + delivery
 
-React sends new Handover creation to the authenticated `handover-push` Edge Function.
+React sends both Handover creation and resolve actions to the authenticated `handover-push` Edge Function.
 The function:
 1. validates the Supabase user and active profile;
 2. creates the note through the existing auth-bound `create_handover` RPC;
@@ -57,7 +57,24 @@ The push handler:
 - shows a persistent system notification;
 - uses device-default sound because `silent` is false;
 - requests vibration where supported;
-- sets an app badge where supported;
-- opens `/#/handover` when tapped.
+- does not set a synthetic unread-count badge;
+- opens `/#/handover` when tapped;
+- clears any stale legacy badge when BFStaff is opened/refocused or a notification is handled.
 
 A custom audio file is not guaranteed by Web Push and is intentionally not used.
+
+
+## Resolved notification
+
+When a user marks a Handover note as resolved, the Edge Function:
+- resolves the note through the existing auth-bound RPC;
+- suppresses duplicate push if the note was already resolved;
+- excludes the resolving employee from recipients;
+- sends `BeerFactory · Передача решена`;
+- includes the resolving employee name, category and a short excerpt of the note.
+
+## Badge policy
+
+The first Web Push implementation called `setAppBadge(1)` for every push. That produced a stale red `1` on iOS after a notification was dismissed.
+
+Until BFStaff has a real per-user unread model, the app no longer invents a badge count. Existing stale badges are cleared when the app opens or returns to the foreground, when a notification is tapped, and when the browser delivers a notification-close event.

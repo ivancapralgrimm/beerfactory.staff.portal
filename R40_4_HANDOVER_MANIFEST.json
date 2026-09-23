@@ -12,20 +12,20 @@
     "action": "ADD"
   },
   "R40_4_HANDOVER_PUSH.md": {
-    "sha256": "ba1b7de76863bf03b80e8f55af76317df668f27e3aef90b78ed47665600c27f0",
-    "git_blob_sha1": "452045a20aa195597c59edf354086d93c1d24a95",
-    "bytes": 2293,
+    "sha256": "ea3a40d46e44242e526d1a0ca4428883251b0a0097937f0cdd6aabb8006ebee8",
+    "git_blob_sha1": "d32cf3ceb93d78e54ac827257b6c070c5ee21c60",
+    "bytes": 3343,
     "action": "ADD"
   },
   "R40_4_ROADMAP.md": {
-    "sha256": "62a8256404b80867bc6306b59cf7af7895d61c95aab4df341f160df2a04b1062",
-    "git_blob_sha1": "7e71a222b70bdca5df2214d574142e1e993986cc",
-    "bytes": 2019,
+    "sha256": "6961ef9756bb8aea9519cd543dbe5d31ba27c2a51a8ef77502f4619a83bdbf8e",
+    "git_blob_sha1": "52502dc69dec39be181e5771c70b04104fd0f9ae",
+    "bytes": 3350,
     "action": "REPLACE"
   },
   "SUPABASE_ALREADY_APPLIED.txt": {
-    "sha256": "2cd0aec8ca90cd83610043307b1f7fd3dd58c9d95414476911b20ffb1a82ad66",
-    "git_blob_sha1": "a5d254d7dcea5b997bba636c858d9886cc2e0e47",
+    "sha256": "87c918d0efee3d6aa932be2c092694eabe1086455db6c9b10c7a8290ea4e15cd",
+    "git_blob_sha1": "66e036d085692619fa990864f19fdd9816281455",
     "bytes": 1087,
     "action": "REPLACE"
   },
@@ -36,9 +36,9 @@
     "action": "REPLACE"
   },
   "public/push-sw.js": {
-    "sha256": "b88a2a72f8eb5f0fcaf794cba5625f183786fcdca64dbde267aac514d77763b5",
-    "git_blob_sha1": "2051afab40623e458c8a21cb05e58b16a9e9788e",
-    "bytes": 2088,
+    "sha256": "03c4b33897b0a23b8740ee573051bb538f57eab3213309a62505949cb4e49069",
+    "git_blob_sha1": "51de4785f9b1eb195cebbe8f9145b5da28ef691d",
+    "bytes": 2086,
     "action": "ADD"
   },
   "src/app/App.tsx": {
@@ -48,9 +48,9 @@
     "action": "REPLACE"
   },
   "src/components/layout/AppShell.tsx": {
-    "sha256": "cf5cf35e2ebd527e96e8eb6d0ed556c4317be8f3aa9dbe15851b9858852036e2",
-    "git_blob_sha1": "4cfbe2cc97ae10fd16a692446eec77ab03d35b70",
-    "bytes": 3451,
+    "sha256": "050a52ffa8966b64d995b15ef6a8dd365dd41643cbd46d38243f5d4cb536a8f4",
+    "git_blob_sha1": "dac0eff79297cc704342119300b847157c1a37a8",
+    "bytes": 4062,
     "action": "REPLACE"
   },
   "src/features/handover/HandoverNoteCard.tsx": {
@@ -66,9 +66,9 @@
     "action": "ADD"
   },
   "src/features/handover/handover-api.ts": {
-    "sha256": "0535fb8147de6eed6fef677abcc03d7ea9c22a0e8dbe3ada826ff2d9be5595c3",
-    "git_blob_sha1": "3c0c29778bfd1a95a0c62f4512a45bbb145ee587",
-    "bytes": 3837,
+    "sha256": "3b692513793b57c5f5d0388790135b99b3e423dc2af4ff29fdffaba90b6e692a",
+    "git_blob_sha1": "b5fe7690752d7845c6426d6eb90a0ec54844db43",
+    "bytes": 4360,
     "action": "ADD"
   },
   "src/features/handover/types.ts": {
@@ -90,9 +90,9 @@
     "action": "ADD"
   },
   "src/features/notifications/notification-api.ts": {
-    "sha256": "0ec117c83183b4c254abb4bfd442878582ea3e99eade3479e7442325d11231b7",
-    "git_blob_sha1": "9a990a88b06a00f0163f601bd0c1ef236bb1083f",
-    "bytes": 4452,
+    "sha256": "21561df2cf0ab0c4d51d7f1b941e341888c83d3c83def06a7157136d14f78986",
+    "git_blob_sha1": "c56d7de0b16c2940e4b3b37d884ac57168929bc1",
+    "bytes": 5096,
     "action": "ADD"
   },
   "src/lib/config.ts": {
@@ -102,9 +102,9 @@
     "action": "REPLACE"
   },
   "src/pages/DashboardPage.tsx": {
-    "sha256": "06cd1cdb940dd46d9e3f791656315c1bcd72774f32d4c9d337a35f59e175543c",
-    "git_blob_sha1": "d7e01d4331b17a921f35e6fd50b8b6c6d76db3f3",
-    "bytes": 6619,
+    "sha256": "a3425d9033df0a600ce6c3eebb3d841ddc4494ce85f782df6233785ca6905443",
+    "git_blob_sha1": "23a4b5932e5adffb8263045cc9dcfa2faa72e566",
+    "bytes": 6737,
     "action": "REPLACE"
   },
   "src/pages/ProfilePage.tsx": {
@@ -120,9 +120,9 @@
     "action": "ADD"
   },
   "supabase/functions/handover-push/index.ts": {
-    "sha256": "253b64a20092ead184cc29d2fa4b340941c8614285e37d06b8433b7da41bfd59",
-    "git_blob_sha1": "3130cd6ebeed8df426905a874399f6ab18cb6365",
-    "bytes": 7681,
+    "sha256": "2973a8deb2940a1d444d255c1efe2b2879a61c86699e34a2733b6696930c815a",
+    "git_blob_sha1": "ff5d299b2492c3e65fd47920312c27a0a0c4ebd5",
+    "bytes": 7957,
     "action": "ADD"
   },
   "supabase/migrations/20260922184713_add_react_handover_create_rpc_and_harden_grants.sql": {

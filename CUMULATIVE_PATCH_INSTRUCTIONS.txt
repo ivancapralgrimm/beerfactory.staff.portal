@@ -1,0 +1,28 @@
+BeerFactory r40.4 · cumulative Handover patch
+
+DO NOT install the older HANDOVER_RESOLVE_BADGE_FIX package.
+This archive supersedes it.
+
+Target branch:
+r40.4-react
+
+This cumulative patch includes:
+- push notification when Handover is resolved;
+- resolver name + note excerpt in resolved push;
+- removal of the synthetic persistent iOS badge;
+- stale badge cleanup on app open/refocus/notification handling;
+- Dashboard shows only active Handover notes;
+- resolved Handover notes stay only in Handover history;
+- roadmap updated: Dashboard becomes the daily operational hub.
+
+No SQL needs to be run manually.
+handover-push Edge Function v2 is already deployed live.
+
+Upload every file in this archive preserving paths.
+After upload run/verify:
+- GitHub Typecheck
+- Build
+- Vercel Preview
+- real-device push resolve test
+- iPhone badge regression test
+- Dashboard active-only test
