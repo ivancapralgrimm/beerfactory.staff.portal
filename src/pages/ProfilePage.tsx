@@ -18,6 +18,9 @@ import {
 } from "@/features/auth/auth-api";
 import { useAuth } from "@/features/auth/auth-context";
 import {
+  NotificationSettingsCard
+} from "@/features/notifications/NotificationSettingsCard";
+import {
   STAFF_POSITION_LABELS,
   type StaffPosition
 } from "@/types/auth";
@@ -238,6 +241,8 @@ export function ProfilePage() {
           {message?.text || ""}
         </p>
       </Surface>
+
+      <NotificationSettingsCard accessToken={accessToken} />
 
       <Button
         variant="danger"
