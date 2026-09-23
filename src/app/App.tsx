@@ -80,6 +80,14 @@ const HandoverPage = lazy(() =>
   }))
 );
 
+const AdminPage = lazy(() =>
+  import(
+    "@/features/admin/AdminPage"
+  ).then((module) => ({
+    default: module.AdminPage
+  }))
+);
+
 const ProfilePage = lazy(() =>
   import("@/pages/ProfilePage").then(
     (module) => ({
@@ -317,6 +325,15 @@ export function App() {
           element={
             <LazyRoute>
               <HandoverPage />
+            </LazyRoute>
+          }
+        />
+
+        <Route
+          path="admin"
+          element={
+            <LazyRoute>
+              <AdminPage />
             </LazyRoute>
           }
         />
