@@ -49,9 +49,11 @@ export function DashboardPage() {
     error
   } = useHandoverFeed();
 
-  const activeCount = notes.filter(
+  const activeNotes = notes.filter(
     (note) => note.status !== "resolved"
-  ).length;
+  );
+
+  const activeCount = activeNotes.length;
 
   return (
     <motion.div
@@ -96,10 +98,10 @@ export function DashboardPage() {
         <div className="flex items-end justify-between gap-3">
           <div>
             <p className="eyebrow">
-              ПЕРЕДАЧА СМЕНЫ
+              СЕГОДНЯ · ПЕРЕДАЧА
             </p>
             <h2 className="mt-1 text-2xl font-black">
-              Общие заметки
+              Активные передачи
             </h2>
           </div>
 
@@ -122,7 +124,7 @@ export function DashboardPage() {
             {activeCount} активных
           </span>
           <span>
-            Видно всей команде · хранение 60 дней
+            Только то, что ещё требует внимания
           </span>
         </div>
 
@@ -142,9 +144,9 @@ export function DashboardPage() {
               Остальные разделы портала продолжают работать.
             </p>
           </Surface>
-        ) : notes.length ? (
+        ) : activeNotes.length ? (
           <div className="mt-3 grid gap-2">
-            {notes.map((note) => (
+            {activeNotes.map((note) => (
               <HandoverNoteCard
                 key={note.id}
                 note={note}
@@ -159,10 +161,10 @@ export function DashboardPage() {
               aria-hidden
             />
             <p className="mt-2 text-sm font-black">
-              Передача чистая
+              Активных передач нет
             </p>
             <p className="mt-1 text-xs leading-5 text-[var(--bf-dim)]">
-              Сейчас нет ни активных, ни решённых заметок.
+              Решённые остаются в истории раздела «Передача» и не занимают главную.
             </p>
           </Surface>
         )}
