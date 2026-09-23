@@ -5,21 +5,64 @@ import {
   ClipboardCheck,
   Home,
   Menu,
-  StickyNote,
-  UserRound
+  StickyNote
 } from "lucide-react";
-import { Brand } from "@/components/Brand";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/features/auth/auth-context";
 import { clearPushBadge } from "@/features/notifications/notification-api";
 
 const navItems = [
-  { to: "/", label: "Главная", icon: Home, end: true },
-  { to: "/menu", label: "Меню", icon: Menu },
-  { to: "/knowledge", label: "Знания", icon: BookOpen },
-  { to: "/shift", label: "Смена", icon: ClipboardCheck },
-  { to: "/handover", label: "Передача", icon: StickyNote }
+  {
+    to: "/",
+    label: "Главная",
+    icon: Home,
+    end: true
+  },
+  {
+    to: "/menu",
+    label: "Меню",
+    icon: Menu
+  },
+  {
+    to: "/knowledge",
+    label: "Знания",
+    icon: BookOpen
+  },
+  {
+    to: "/shift",
+    label: "Смена",
+    icon: ClipboardCheck
+  },
+  {
+    to: "/handover",
+    label: "Передача",
+    icon: StickyNote
+  }
 ];
+
+function HeaderBrand() {
+  return (
+    <div className="flex min-w-0 items-center gap-3">
+      <img
+        src="/assets/icons/icon-192.png"
+        alt=""
+        width="44"
+        height="44"
+        className="size-11 shrink-0 object-contain"
+        aria-hidden
+      />
+
+      <div className="min-w-0 leading-none">
+        <div className="truncate text-[13px] font-extrabold tracking-[0.13em] text-[var(--bf-cream)] sm:text-[14px]">
+          BEERFACTORY
+        </div>
+        <div className="mt-1 truncate text-[10px] font-semibold tracking-[0.18em] text-[var(--bf-dim)] sm:text-[11px]">
+          STAFF PORTAL
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function AppShell() {
   const { state } = useAuth();
@@ -67,7 +110,7 @@ export function AppShell() {
 
       <header className="sticky top-0 z-40 border-b border-[var(--bf-line)] bg-[color:color-mix(in_srgb,var(--bf-bg),transparent_5%)] pt-[env(safe-area-inset-top)] backdrop-blur-xl">
         <div className="mx-auto flex min-h-16 max-w-5xl items-center justify-between gap-3 px-4">
-          <Brand compact />
+          <HeaderBrand />
 
           <NavLink
             to="/profile"
@@ -81,12 +124,17 @@ export function AppShell() {
               )
             }
           >
-            <span className="grid size-8 shrink-0 place-items-center rounded-full border border-[var(--bf-line)] bg-[var(--bf-surface-2)]">
-              <UserRound
-                className="size-4"
+            <span className="grid size-9 shrink-0 place-items-center rounded-full border border-[var(--bf-line)] bg-[var(--bf-surface-2)] p-0.5">
+              <img
+                src="/assets/icons/profile-avatar.png"
+                alt=""
+                width="34"
+                height="34"
+                className="size-full object-contain"
                 aria-hidden
               />
             </span>
+
             <span className="text-xs font-black tracking-[0.01em]">
               Профиль
             </span>
