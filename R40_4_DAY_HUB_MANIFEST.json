@@ -1,0 +1,56 @@
+{
+  "src/features/dashboard/types.ts": {
+    "sha256": "5f21cb1671fdf0300ee4145c8147ff15097d219e302fdf065298e2c8fae64bfb",
+    "git_blob_sha1": "088b1e089ce4b53794cb3d3623285edd00e6dd89",
+    "bytes": 200,
+    "action": "ADD"
+  },
+  "src/features/dashboard/dashboard-api.ts": {
+    "sha256": "7ebfbde5c805c5934c53c67a04b1b94ee76993dda2a5217095696edb9426ce21",
+    "git_blob_sha1": "d76acf43820b8aef863c6f3fea227d19b885d537",
+    "bytes": 910,
+    "action": "ADD"
+  },
+  "src/features/dashboard/use-upcoming-birthdays.ts": {
+    "sha256": "eeb933b693dc0b57333e589c0b00099e75874dee42718ab2201d7006eca0ee71",
+    "git_blob_sha1": "88b458e082a2d92a5d5377c195fe5796575a5064",
+    "bytes": 2006,
+    "action": "ADD"
+  },
+  "src/pages/DashboardPage.tsx": {
+    "sha256": "d3db9c5d4e9afde7fffdcba5bcb5a68b4508b4634a67a62bacfbc79a4de53997",
+    "git_blob_sha1": "9e02dc86013c28e16770a9c589b56793a93223c1",
+    "bytes": 12651,
+    "action": "REPLACE"
+  },
+  "supabase/migrations/20260923225425_add_dashboard_upcoming_birthdays_rpc.sql": {
+    "sha256": "72db66a7d909b8dce35c476fcb03832308feae6e549c00d830d4bf80bc69ae4e",
+    "git_blob_sha1": "77b929902d268045d5bd02fcd0020a75e5b22f93",
+    "bytes": 1801,
+    "action": "ADD"
+  },
+  "supabase/migrations/20260923230336_extend_dashboard_birthdays_with_age.sql": {
+    "sha256": "e40cc50cddda501c7771edf7d333bd51f992a3cb40a6dfd88bc4f741abaefc54",
+    "git_blob_sha1": "d8b23dd72bb56f6fa5437a1e5c3a9ead86f2dbce",
+    "bytes": 2054,
+    "action": "ADD"
+  },
+  "R40_4_DAY_HUB.md": {
+    "sha256": "3e4aa6db32860c0687d34d9b16039947e14e6dd25343ed03e1136971720d9622",
+    "git_blob_sha1": "25f0b7a917a3c8b40cc4984fb690cc5f17114a73",
+    "bytes": 1234,
+    "action": "ADD"
+  },
+  "R40_4_ROADMAP.md": {
+    "sha256": "432aa7240fad3c6fa6dcf1fac9bd5f651158d1e527fa0974f7fc91b48de6ae47",
+    "git_blob_sha1": "37ffcc6b83ef1ecf467e2863581721e36ea0effa",
+    "bytes": 1641,
+    "action": "REPLACE"
+  },
+  "DAY_HUB_UPLOAD_INSTRUCTIONS.txt": {
+    "sha256": "8667697269722b6c91b229b668c6a75adc4012732dc3f443c2ae12102273e40d",
+    "git_blob_sha1": "7cd9f5ed4aee71b8aeca5ad13551dfe2631d2721",
+    "bytes": 627,
+    "action": "ADD"
+  }
+}

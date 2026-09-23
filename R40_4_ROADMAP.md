@@ -17,57 +17,30 @@
 6. Design-system gate
 7. Shift + Profile working position
 8. Handover + Web Push
+9. Profile / Admin full migration
 
-## Current · Profile / Admin full migration
+## Current · Dashboard / Day Hub
 
-Working position remains strictly separate from authorization role.
-
-Profile:
-- position self-selection;
-- birthday self-management for future Day Hub reminders;
-- push notification device settings;
-- admin entry point for access role `admin`.
-
-Admin:
-- React `/admin` route;
-- team management;
-- access roles `staff / senior / manager / admin`;
-- independent working-position management;
-- activation/deactivation;
-- credential reset;
-- protected deletion;
-- attestation visibility;
-- audit visibility;
-- owner protection.
-
-Backend:
-- `staff-admin-users` v5;
-- `staff-profile` v6;
-- delete preparation understands Shift v2 references;
-- direct grants on profiles / quiz attempts / audit log hardened;
-- direct profile reads restricted to safe staff-directory columns only.
-
-## Dashboard direction · Day Hub
-
-The Dashboard is the operational hub for the current day.
-
-Current:
-- only unresolved Handover (`new` / `acknowledged`) appears on Dashboard.
-
-Planned next:
+Implemented:
+- unresolved Handover only (`new` / `acknowledged`);
 - birthdays today;
 - birthdays tomorrow;
 - birthdays in two days;
-- important announcements;
-- time-sensitive operational notices.
+- current age shown only on the actual birthday;
+- birthday data exposed through a narrow auth-bound RPC without exposing raw `birth_date` or birth year.
 
-Resolved / expired information should disappear from the main screen automatically; detailed history stays in the owning module.
+Planned later:
+- important announcements;
+- time-sensitive operational notices;
+- manager notices and other approved daily signals.
+
+Resolved / expired information should disappear from the main screen automatically.
+Detailed history stays in the owning module.
 
 ## Next
 
-9. Dashboard final refinement / Day Hub
 10. Cross-module visual cleanup
-11. PWA/hardening QA
+11. PWA / hardening QA
 12. Release gate
 
 ## Release rule
@@ -83,5 +56,5 @@ No merge to `main` until:
 - Profile birthday persistence smoke;
 - Admin read-only smoke;
 - explicit controlled admin mutation smoke only when approved;
-- Dashboard Day Hub smoke;
+- Dashboard birthday + age smoke;
 - explicit release review.
