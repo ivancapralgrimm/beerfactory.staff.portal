@@ -142,16 +142,38 @@ export async function acknowledgeHandover(
 export async function resolveHandover(
   noteId: string
 ) {
-  const { data, error } = await supabase.rpc(
-    "resolve_handover",
-    { p_note_id: noteId }
-  );
+  const {
+    data: { session }
+  } = await supabase.auth.getSession();
 
-  if (error || !data) {
-    throw error || new Error("handover_resolve_failed");
+  if (!session) {
+    throw new Error("unauthorized");
   }
 
-  return data;
+  const response = await fetch(edgeFunctions.handoverPush, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: config.supabasePublishableKey,
+      Authorization: `Bearer ${session.access_token}`
+    },
+    body: JSON.stringify({
+      action: "resolve",
+      note_id: noteId
+    })
+  });
+
+  const data = (await response.json().catch(() => ({}))) as {
+    ok?: boolean;
+    note?: unknown;
+    error?: string;
+  };
+
+  if (!response.ok || !data.ok || !data.note) {
+    throw new Error(data.error || "handover_resolve_failed");
+  }
+
+  return data.note;
 }
 
 export function subscribeToHandovers(
