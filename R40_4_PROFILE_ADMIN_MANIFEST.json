@@ -59,12 +59,6 @@
     "bytes": 13064,
     "action": "ADD"
   },
-  "src/features/admin/AdminUserCard.tsx": {
-    "sha256": "a8ecfcd1bccaa33682a0943b3bf0760eaa63e2149507571ea9d292aa05dba91e",
-    "git_blob_sha1": "0338c0e680f3ab994e482881c4b408ff467ab008",
-    "bytes": 15355,
-    "action": "ADD"
-  },
   "src/features/admin/admin-api.ts": {
     "sha256": "a78230c490a25c654623cfcd09290f1abe53855c26075ab6c164e894f7d331a1",
     "git_blob_sha1": "73a2e4f1d9aeef7881e8a967aaf40c9e4ff0e2d9",
@@ -117,6 +111,24 @@
     "sha256": "e0ae30d40040bafa4b9d898785b250f2759daccde0bd55951285071ce181f01f",
     "git_blob_sha1": "0e859b13ad6947d2a07b93bf19e686e7cdd2ccce",
     "bytes": 391,
+    "action": "ADD"
+  },
+  "src/components/layout/AppShell.tsx": {
+    "sha256": "8b93e1c7f687b9d873667f574b1ccaa662276d5cb7e30c1872e18d965b8b9bc1",
+    "git_blob_sha1": "3cf64d408b1b6ad5f539a7a3c414abba721c13dc",
+    "bytes": 4685,
+    "action": "REPLACE"
+  },
+  "src/features/admin/AdminUserCard.tsx": {
+    "sha256": "c5a033fe8d63e4497b35bdff785aa347d1108ab27bbdc0361d0d8a9493f0d12b",
+    "git_blob_sha1": "6ade633e6163ee091f42c4ac62a832a6ea02b839",
+    "bytes": 14743,
+    "action": "REPLACE"
+  },
+  "src/features/admin/AdminSecurityDialog.tsx": {
+    "sha256": "1f06c66cf0360fb716013bc223e59e0815587cda863955edb2b488a09950ebe1",
+    "git_blob_sha1": "bed937c576f7c52562548c9e1f813137397ae0a2",
+    "bytes": 9527,
     "action": "ADD"
   }
 }
