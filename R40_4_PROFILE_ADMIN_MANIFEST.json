@@ -1,0 +1,122 @@
+{
+  "PROFILE_ADMIN_UPLOAD_INSTRUCTIONS.txt": {
+    "sha256": "3e322ea324caabe96c2e00850c3bbfd238a87005c0e5b6ccfe4e80c8339554fd",
+    "git_blob_sha1": "76d5a9bd8e2370773d50711f65f558e81d61be24",
+    "bytes": 1523,
+    "action": "ADD"
+  },
+  "R40_4_PROFILE_ADMIN.md": {
+    "sha256": "b9a1c704b041d8caf9fb44ef2c4a48dd8047fc8629cb955217720a2c282aba80",
+    "git_blob_sha1": "e53ac0c519525aa65efa756ac68cd4204c2271d8",
+    "bytes": 3138,
+    "action": "ADD"
+  },
+  "R40_4_ROADMAP.md": {
+    "sha256": "e2093d4b6d526213c39fd0d81de617d9efbdb7449ccc46742d54beb1ee2d8e0d",
+    "git_blob_sha1": "7364509c0a1b7c24e7de83d694a87f72b07d55fe",
+    "bytes": 2328,
+    "action": "REPLACE"
+  },
+  "SUPABASE_ALREADY_APPLIED.txt": {
+    "sha256": "461c0ce580783983f00c93a5a307fccb901786d13470c61969e114cea8ced0f7",
+    "git_blob_sha1": "6112babd8995ecd294307e62c357d1a470c27c5c",
+    "bytes": 1155,
+    "action": "REPLACE"
+  },
+  "SUPABASE_MIGRATIONS_APPLIED.md": {
+    "sha256": "87e9fc5daad5e722d7b9eb9b7c2675d7b8e7f8ed9bff88e4838fdc8853508574",
+    "git_blob_sha1": "ad1a8c413a21f8436d78e9fc41e12f4b0b65612b",
+    "bytes": 1687,
+    "action": "REPLACE"
+  },
+  "src/app/App.tsx": {
+    "sha256": "9f4cec8f84cc59b81b633f6b6b6e9ad51c5430308ea69aae0336ba88636329e2",
+    "git_blob_sha1": "c06dd3edfbe0e8976128bfab43203810c0609ca4",
+    "bytes": 6728,
+    "action": "REPLACE"
+  },
+  "src/features/admin/AdminAttemptsPanel.tsx": {
+    "sha256": "614a266eb06f8e270cf071ef23b215d3d538fb936cef8035ec421d76f045b977",
+    "git_blob_sha1": "05b26374e436f15a2d23e35e86ce7497223cdd82",
+    "bytes": 9007,
+    "action": "ADD"
+  },
+  "src/features/admin/AdminAuditPanel.tsx": {
+    "sha256": "5776e5ed6b2091bbe692790227b22fd367e8e265c75a9476bc2cddc5773af669",
+    "git_blob_sha1": "4137141386538bf0eab5ab8cabc92921631dcc1a",
+    "bytes": 7931,
+    "action": "ADD"
+  },
+  "src/features/admin/AdminConfirmDialog.tsx": {
+    "sha256": "2701cf6b988c59bf618ef50db06866958c619995f9c60b496f49c7bb7262aa57",
+    "git_blob_sha1": "585a2a66f0b05590c1ad7cea06d5fd4805935ef7",
+    "bytes": 3369,
+    "action": "ADD"
+  },
+  "src/features/admin/AdminPage.tsx": {
+    "sha256": "9991ba182ec76b02837ace1e27e88d240acfe0fc73cf7e52ce3e7e4be517345f",
+    "git_blob_sha1": "7b2362d16ca03a50c982cd0cc99c3239a17de40a",
+    "bytes": 13064,
+    "action": "ADD"
+  },
+  "src/features/admin/AdminUserCard.tsx": {
+    "sha256": "a8ecfcd1bccaa33682a0943b3bf0760eaa63e2149507571ea9d292aa05dba91e",
+    "git_blob_sha1": "0338c0e680f3ab994e482881c4b408ff467ab008",
+    "bytes": 15355,
+    "action": "ADD"
+  },
+  "src/features/admin/admin-api.ts": {
+    "sha256": "a78230c490a25c654623cfcd09290f1abe53855c26075ab6c164e894f7d331a1",
+    "git_blob_sha1": "73a2e4f1d9aeef7881e8a967aaf40c9e4ff0e2d9",
+    "bytes": 2493,
+    "action": "ADD"
+  },
+  "src/features/admin/types.ts": {
+    "sha256": "d605e374b574e9ef01566294a0ce419097ad872b398face69a2a19f401c724c4",
+    "git_blob_sha1": "0b288909fc4e057e76d245acafc5e17a646a5caf",
+    "bytes": 1940,
+    "action": "ADD"
+  },
+  "src/pages/ProfilePage.tsx": {
+    "sha256": "536fec3a8397755446ab21b1176244b71af14c4b770566e8639b7733178727c5",
+    "git_blob_sha1": "22f5f172c935657962629cfc456b89ba720cb045",
+    "bytes": 11321,
+    "action": "REPLACE"
+  },
+  "supabase/functions/staff-admin-users/deno.json": {
+    "sha256": "d2dc61f6669cde1904f0781903f11d553f38efb03db63cb8013d7493cfb63411",
+    "git_blob_sha1": "15d08094a97a1f251df1757126c765452d6bcaa3",
+    "bytes": 82,
+    "action": "ADD"
+  },
+  "supabase/functions/staff-admin-users/index.ts": {
+    "sha256": "6e4f8d679c7358af5b01a5f0480c7d7984bdd73482b9759bf2e0b6f218e6e138",
+    "git_blob_sha1": "b1b000286a93d48d933f1ffb90a788c70deaf139",
+    "bytes": 12707,
+    "action": "ADD"
+  },
+  "supabase/functions/staff-profile/deno.json": {
+    "sha256": "d2dc61f6669cde1904f0781903f11d553f38efb03db63cb8013d7493cfb63411",
+    "git_blob_sha1": "15d08094a97a1f251df1757126c765452d6bcaa3",
+    "bytes": 82,
+    "action": "REPLACE"
+  },
+  "supabase/functions/staff-profile/index.ts": {
+    "sha256": "aa5fde775e9cfd3420fefa4f68548774c54852542e8b928580d77486325d6146",
+    "git_blob_sha1": "64daa80efe055047bac21df0eedfeac69ae38f24",
+    "bytes": 4616,
+    "action": "REPLACE"
+  },
+  "supabase/migrations/20260923174754_harden_profile_admin_and_update_delete_v2.sql": {
+    "sha256": "ca07678880a682eae1c13edb4be02b6c75696c2e79b5912a7de312ba0e554249",
+    "git_blob_sha1": "ae10ec72f28ac0bcf4a3af093eef5f26e8389c9b",
+    "bytes": 5606,
+    "action": "ADD"
+  },
+  "supabase/migrations/20260923175915_restrict_profile_directory_columns.sql": {
+    "sha256": "e0ae30d40040bafa4b9d898785b250f2759daccde0bd55951285071ce181f01f",
+    "git_blob_sha1": "0e859b13ad6947d2a07b93bf19e686e7cdd2ccce",
+    "bytes": 391,
+    "action": "ADD"
+  }
+}

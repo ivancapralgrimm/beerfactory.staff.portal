@@ -14,12 +14,13 @@ ALREADY APPLIED TO SUPABASE:
 - 20260922191434 add_web_push_subscriptions
 - 20260922191509 add_web_push_vapid_config
 - 20260922191810 normalize_web_push_metadata
+- 20260923174754 harden_profile_admin_and_update_delete_v2
+- 20260923175915 restrict_profile_directory_columns
 - handover-push Edge Function version 2
-- staff-profile Edge Function version 5
+- staff-profile Edge Function version 6
+- staff-admin-users Edge Function version 5
 
 IMPORTANT:
-- current Handover history was intentionally cleared before r40.4 Handover QA
-- Handover retention is 60 days
-- cleanup runs monthly through pg_cron
-- SQL source is included for repository history
+- SQL source is included for repository history only
 - DO NOT manually rerun these SQL files against the current live project
+- Admin destructive actions are not part of read-only QA

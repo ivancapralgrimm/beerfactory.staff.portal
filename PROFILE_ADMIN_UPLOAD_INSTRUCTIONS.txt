@@ -1,0 +1,47 @@
+BeerFactory Staff Portal · r40.4 Profile/Admin full migration
+
+TARGET BRANCH:
+r40.4-react
+
+UPLOAD ALL FILES FROM THIS ARCHIVE preserving paths.
+
+ADD:
+- src/features/admin/types.ts
+- src/features/admin/admin-api.ts
+- src/features/admin/AdminConfirmDialog.tsx
+- src/features/admin/AdminUserCard.tsx
+- src/features/admin/AdminAttemptsPanel.tsx
+- src/features/admin/AdminAuditPanel.tsx
+- src/features/admin/AdminPage.tsx
+- supabase/functions/staff-admin-users/index.ts
+- supabase/functions/staff-admin-users/deno.json
+- supabase/migrations/20260923174754_harden_profile_admin_and_update_delete_v2.sql
+- supabase/migrations/20260923175915_restrict_profile_directory_columns.sql
+- R40_4_PROFILE_ADMIN.md
+- R40_4_PROFILE_ADMIN_MANIFEST.json
+- PROFILE_ADMIN_UPLOAD_INSTRUCTIONS.txt
+
+REPLACE:
+- src/app/App.tsx
+- src/pages/ProfilePage.tsx
+- supabase/functions/staff-profile/index.ts
+- supabase/functions/staff-profile/deno.json
+- R40_4_ROADMAP.md
+- SUPABASE_MIGRATIONS_APPLIED.md
+- SUPABASE_ALREADY_APPLIED.txt
+
+BACKEND IS ALREADY LIVE:
+- migrations 20260923174754 and 20260923175915 already applied
+- staff-admin-users v5 already deployed
+- staff-profile v6 already deployed
+
+DO NOT run SQL manually.
+DO NOT redeploy Edge Functions manually.
+
+After upload:
+1. GitHub Typecheck / Build must pass.
+2. Vercel Preview must pass.
+3. Read-only smoke: Profile + /admin tabs.
+4. Verify non-admin cannot use /admin.
+5. Verify role and position are visually separate.
+6. Do not change real roles/access/delete users during read-only smoke.
