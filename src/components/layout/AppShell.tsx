@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import {
   BookOpen,
@@ -10,6 +11,7 @@ import {
 import { Brand } from "@/components/Brand";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/features/auth/auth-context";
+import { clearPushBadge } from "@/features/notifications/notification-api";
 
 const navItems = [
   {
@@ -46,6 +48,27 @@ export function AppShell() {
     state.status === "authenticated"
       ? state.user.first_name || ""
       : "";
+
+  useEffect(() => {
+    const clear = () => {
+      void clearPushBadge();
+    };
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        clear();
+      }
+    };
+
+    clear();
+    window.addEventListener("focus", clear);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
+    return () => {
+      window.removeEventListener("focus", clear);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+  }, []);
 
   return (
     <div className="min-h-dvh bg-[var(--bf-bg)] pb-[calc(78px+env(safe-area-inset-bottom))]">
