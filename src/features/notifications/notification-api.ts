@@ -185,3 +185,29 @@ export async function disablePushNotifications() {
 
   return getPushDeviceState();
 }
+
+
+type BadgeNavigator = Navigator & {
+  clearAppBadge?: () => Promise<void>;
+};
+
+export async function clearPushBadge() {
+  const badgeNavigator = navigator as BadgeNavigator;
+
+  try {
+    if (typeof badgeNavigator.clearAppBadge === "function") {
+      await badgeNavigator.clearAppBadge();
+    }
+  } catch {
+    // Badge support is optional.
+  }
+
+  try {
+    if ("serviceWorker" in navigator) {
+      const registration = await navigator.serviceWorker.getRegistration();
+      registration?.active?.postMessage({ type: "BF_CLEAR_APP_BADGE" });
+    }
+  } catch {
+    // Foreground clear above is enough when the worker is still updating.
+  }
+}
