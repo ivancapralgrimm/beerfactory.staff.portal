@@ -12,21 +12,47 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/features/auth/auth-context";
 
 const navItems = [
-  { to: "/", label: "Главная", icon: Home, end: true },
-  { to: "/menu", label: "Меню", icon: Menu },
-  { to: "/knowledge", label: "Знания", icon: BookOpen },
-  { to: "/shift", label: "Смена", icon: ClipboardCheck },
-  { to: "/handover", label: "Заметки", icon: StickyNote }
+  {
+    to: "/",
+    label: "Главная",
+    icon: Home,
+    end: true
+  },
+  {
+    to: "/menu",
+    label: "Меню",
+    icon: Menu
+  },
+  {
+    to: "/knowledge",
+    label: "Знания",
+    icon: BookOpen
+  },
+  {
+    to: "/shift",
+    label: "Смена",
+    icon: ClipboardCheck
+  },
+  {
+    to: "/handover",
+    label: "Передача",
+    icon: StickyNote
+  }
 ];
 
 export function AppShell() {
   const { state } = useAuth();
   const firstName =
-    state.status === "authenticated" ? state.user.first_name || "" : "";
+    state.status === "authenticated"
+      ? state.user.first_name || ""
+      : "";
 
   return (
     <div className="min-h-dvh bg-[var(--bf-bg)] pb-[calc(78px+env(safe-area-inset-bottom))]">
-      <a className="bf-skip-link" href="#mainContent">
+      <a
+        className="bf-skip-link"
+        href="#mainContent"
+      >
         К основному содержимому
       </a>
 
@@ -61,22 +87,33 @@ export function AppShell() {
         className="fixed inset-x-0 bottom-0 z-50 border-t border-[var(--bf-line)] bg-[color:color-mix(in_srgb,var(--bf-bg),transparent_3%)] pb-[env(safe-area-inset-bottom)] backdrop-blur-xl"
       >
         <div className="mx-auto grid min-h-[68px] max-w-xl grid-cols-5 px-2">
-          {navItems.map(({ to, label, icon: Icon, end }) => (
-            <NavLink
-              key={to}
-              to={to}
-              end={end}
-              className={({ isActive }) =>
-                cn(
-                  "flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl px-1 text-[11px] font-semibold text-[var(--bf-dim)] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]",
-                  isActive && "text-[var(--bf-copper-hi)]"
-                )
-              }
-            >
-              <Icon className="size-5" aria-hidden />
-              <span>{label}</span>
-            </NavLink>
-          ))}
+          {navItems.map(
+            ({
+              to,
+              label,
+              icon: Icon,
+              end
+            }) => (
+              <NavLink
+                key={to}
+                to={to}
+                end={end}
+                className={({ isActive }) =>
+                  cn(
+                    "flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl px-1 text-[11px] font-semibold text-[var(--bf-dim)] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]",
+                    isActive &&
+                      "text-[var(--bf-copper-hi)]"
+                  )
+                }
+              >
+                <Icon
+                  className="size-5"
+                  aria-hidden
+                />
+                <span>{label}</span>
+              </NavLink>
+            )
+          )}
         </div>
       </nav>
     </div>
