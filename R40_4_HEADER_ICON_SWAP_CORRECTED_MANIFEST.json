@@ -1,0 +1,14 @@
+{
+  "src/components/layout/AppShell.tsx": {
+    "sha256": "e4e24c0f37e52a5164c1e3d6e8a24e37caad4f70cad5bb02badaefea72f629a7",
+    "git_blob_sha1": "c6238fcbb4c7b54033a1aea7637aba5f3e8e8d39",
+    "bytes": 5520,
+    "action": "REPLACE"
+  },
+  "HEADER_ICON_SWAP_CORRECTED_INSTRUCTIONS.txt": {
+    "sha256": "fbb0a44a59b1fb6833efa3c81cb98e13e31b41ef6016659d3d3e4eeb000f1e85",
+    "git_blob_sha1": "f2ca10512e3be18fe1f95c034e3530d72dd9c874",
+    "bytes": 909,
+    "action": "ADD"
+  }
+}

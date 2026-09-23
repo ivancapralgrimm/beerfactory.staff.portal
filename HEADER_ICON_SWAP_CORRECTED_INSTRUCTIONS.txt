@@ -1,0 +1,35 @@
+BeerFactory Staff Portal · r40.4
+Corrected header icon swap
+
+IMPORTANT:
+This package supersedes BeerFactory_r40.4_HEADER_ICON_SWAP.zip.
+Do NOT upload the previous package.
+
+TARGET:
+r40.4-react
+
+REPLACE:
+- src/components/layout/AppShell.tsx
+
+ADD:
+- HEADER_ICON_SWAP_CORRECTED_INSTRUCTIONS.txt
+- R40_4_HEADER_ICON_SWAP_CORRECTED_MANIFEST.json
+
+NO NEW IMAGE ASSETS ARE ADDED.
+
+This patch reuses existing repository assets:
+- /assets/icons/profile-avatar.png
+  Original round profile image with person + beer bubbles.
+- /assets/icons/icon-192.png
+  Existing BF application icon.
+
+RESULT:
+- left header: BF app icon + BEERFACTORY / STAFF PORTAL
+- right profile pill: original profile-avatar.png + Профиль
+- profile icon uses object-contain, so it is not cropped
+- login / session check / other places keep their existing assets unchanged
+
+BACKEND:
+- no SQL
+- no Supabase changes
+- no Edge Function changes
