@@ -16,5 +16,6 @@ export const edgeFunctions = {
   recover: `${config.supabaseUrl}/functions/v1/staff-recover`,
   setRecovery: `${config.supabaseUrl}/functions/v1/staff-set-recovery`,
   profile: `${config.supabaseUrl}/functions/v1/staff-profile`,
-  adminUsers: `${config.supabaseUrl}/functions/v1/staff-admin-users`
+  adminUsers: `${config.supabaseUrl}/functions/v1/staff-admin-users`,
+  handoverPush: `${config.supabaseUrl}/functions/v1/handover-push`
 } as const;
