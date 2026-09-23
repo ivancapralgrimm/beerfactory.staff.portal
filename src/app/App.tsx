@@ -17,57 +17,75 @@ import { RecoverySetupPage } from "@/features/auth/RecoverySetupPage";
 import { RegisterPage } from "@/features/auth/RegisterPage";
 
 const DashboardPage = lazy(() =>
-  import("@/pages/DashboardPage").then((module) => ({
-    default: module.DashboardPage
-  }))
+  import("@/pages/DashboardPage").then(
+    (module) => ({
+      default: module.DashboardPage
+    })
+  )
 );
 
 const RecipesPage = lazy(() =>
-  import("@/features/recipes/RecipesPage").then((module) => ({
-    default: module.RecipesPage
-  }))
+  import("@/features/recipes/RecipesPage").then(
+    (module) => ({
+      default: module.RecipesPage
+    })
+  )
 );
 
 const RecipeDetailPage = lazy(() =>
-  import("@/features/recipes/RecipeDetailPage").then((module) => ({
+  import(
+    "@/features/recipes/RecipeDetailPage"
+  ).then((module) => ({
     default: module.RecipeDetailPage
   }))
 );
 
 const KnowledgePage = lazy(() =>
-  import("@/features/knowledge/KnowledgePage").then((module) => ({
+  import(
+    "@/features/knowledge/KnowledgePage"
+  ).then((module) => ({
     default: module.KnowledgePage
   }))
 );
 
 const KnowledgeArticlePage = lazy(() =>
-  import("@/features/knowledge/KnowledgeArticlePage").then((module) => ({
+  import(
+    "@/features/knowledge/KnowledgeArticlePage"
+  ).then((module) => ({
     default: module.KnowledgeArticlePage
   }))
 );
 
 const AttestationPage = lazy(() =>
-  import("@/features/attestation/AttestationPage").then((module) => ({
+  import(
+    "@/features/attestation/AttestationPage"
+  ).then((module) => ({
     default: module.AttestationPage
   }))
 );
 
 const ShiftPage = lazy(() =>
-  import("@/features/shift/ShiftPage").then((module) => ({
-    default: module.ShiftPage
-  }))
+  import("@/features/shift/ShiftPage").then(
+    (module) => ({
+      default: module.ShiftPage
+    })
+  )
 );
 
-const PlaceholderPage = lazy(() =>
-  import("@/pages/PlaceholderPage").then((module) => ({
-    default: module.PlaceholderPage
+const HandoverPage = lazy(() =>
+  import(
+    "@/features/handover/HandoverPage"
+  ).then((module) => ({
+    default: module.HandoverPage
   }))
 );
 
 const ProfilePage = lazy(() =>
-  import("@/pages/ProfilePage").then((module) => ({
-    default: module.ProfilePage
-  }))
+  import("@/pages/ProfilePage").then(
+    (module) => ({
+      default: module.ProfilePage
+    })
+  )
 );
 
 function BootScreen() {
@@ -106,21 +124,42 @@ function RouteLoader() {
 function ProtectedApp() {
   const { state } = useAuth();
 
-  if (state.status === "booting") return <BootScreen />;
-  if (state.status !== "authenticated") {
-    return <Navigate to="/login" replace />;
+  if (state.status === "booting") {
+    return <BootScreen />;
   }
+
+  if (state.status !== "authenticated") {
+    return (
+      <Navigate
+        to="/login"
+        replace
+      />
+    );
+  }
+
   if (state.recoveryRequired) {
-    return <Navigate to="/setup-recovery" replace />;
+    return (
+      <Navigate
+        to="/setup-recovery"
+        replace
+      />
+    );
   }
 
   return <AppShell />;
 }
 
-function PublicOnly({ children }: { children: ReactNode }) {
+function PublicOnly({
+  children
+}: {
+  children: ReactNode;
+}) {
   const { state } = useAuth();
 
-  if (state.status === "booting") return <BootScreen />;
+  if (state.status === "booting") {
+    return <BootScreen />;
+  }
+
   if (state.status === "authenticated") {
     return (
       <Navigate
@@ -150,11 +189,14 @@ function LazyRoute({
 }
 
 function LegacyArticleRedirect() {
-  const { articleId = "" } = useParams();
+  const { articleId = "" } =
+    useParams();
 
   return (
     <Navigate
-      to={`/knowledge/${encodeURIComponent(articleId)}`}
+      to={`/knowledge/${encodeURIComponent(
+        articleId
+      )}`}
       replace
     />
   );
@@ -238,11 +280,18 @@ export function App() {
 
         <Route
           path="training"
-          element={<Navigate to="/knowledge" replace />}
+          element={
+            <Navigate
+              to="/knowledge"
+              replace
+            />
+          }
         />
         <Route
           path="article/:articleId"
-          element={<LegacyArticleRedirect />}
+          element={
+            <LegacyArticleRedirect />
+          }
         />
 
         <Route
@@ -267,11 +316,7 @@ export function App() {
           path="handover"
           element={
             <LazyRoute>
-              <PlaceholderPage
-                eyebrow="ПЕРЕДАЧА СМЕНЫ"
-                title="Handover migration"
-                description="Структурированные заметки и constrained RPC переедут после Shift."
-              />
+              <HandoverPage />
             </LazyRoute>
           }
         />
@@ -288,7 +333,12 @@ export function App() {
 
       <Route
         path="*"
-        element={<Navigate to="/" replace />}
+        element={
+          <Navigate
+            to="/"
+            replace
+          />
+        }
       />
     </Routes>
   );
