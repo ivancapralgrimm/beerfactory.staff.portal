@@ -1,8 +1,10 @@
 import {
   BriefcaseBusiness,
+  CalendarDays,
   Check,
   Loader2,
   LogOut,
+  Settings2,
   ShieldCheck
 } from "lucide-react";
 import {
@@ -10,7 +12,10 @@ import {
   useMemo,
   useState
 } from "react";
-import { useNavigate } from "react-router-dom";
+import {
+  Link,
+  useNavigate
+} from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Surface } from "@/components/ui/surface";
 import {
@@ -51,7 +56,9 @@ export function ProfilePage() {
 
   const [selectedPosition, setSelectedPosition] =
     useState<StaffPosition | null>(null);
-  const [saving, setSaving] = useState(false);
+  const [birthDate, setBirthDate] = useState("");
+  const [savingPosition, setSavingPosition] = useState(false);
+  const [savingBirthday, setSavingBirthday] = useState(false);
   const [message, setMessage] = useState<{
     tone: "success" | "error";
     text: string;
@@ -62,9 +69,10 @@ export function ProfilePage() {
 
   useEffect(() => {
     setSelectedPosition(user?.position_code || null);
-  }, [user?.position_code]);
+    setBirthDate(user?.birth_date || "");
+  }, [user?.position_code, user?.birth_date]);
 
-  const dirty = useMemo(
+  const positionDirty = useMemo(
     () =>
       Boolean(
         selectedPosition &&
@@ -72,6 +80,9 @@ export function ProfilePage() {
       ),
     [selectedPosition, user?.position_code]
   );
+
+  const birthdayDirty =
+    birthDate !== (user?.birth_date || "");
 
   if (state.status !== "authenticated" || !user) {
     return null;
@@ -87,9 +98,15 @@ export function ProfilePage() {
     .join(" ");
 
   async function savePosition() {
-    if (!selectedPosition || !dirty || saving) return;
+    if (
+      !selectedPosition ||
+      !positionDirty ||
+      savingPosition
+    ) {
+      return;
+    }
 
-    setSaving(true);
+    setSavingPosition(true);
     setMessage(null);
 
     try {
@@ -108,7 +125,35 @@ export function ProfilePage() {
         text: "Не удалось сохранить должность. Изменение не применено."
       });
     } finally {
-      setSaving(false);
+      setSavingPosition(false);
+    }
+  }
+
+  async function saveBirthday() {
+    if (!birthdayDirty || savingBirthday) return;
+
+    setSavingBirthday(true);
+    setMessage(null);
+
+    try {
+      await updateStaffProfile(
+        accessToken,
+        { birthDate: birthDate || null }
+      );
+      await refreshProfile();
+      setMessage({
+        tone: "success",
+        text: birthDate
+          ? "Дата рождения сохранена."
+          : "Дата рождения удалена из профиля."
+      });
+    } catch {
+      setMessage({
+        tone: "error",
+        text: "Не удалось сохранить дату рождения."
+      });
+    } finally {
+      setSavingBirthday(false);
     }
   }
 
@@ -132,15 +177,30 @@ export function ProfilePage() {
               aria-hidden
             />
           </div>
-          <div>
+          <div className="min-w-0 flex-1">
             <p className="eyebrow">ДОСТУП</p>
             <p className="mt-1 text-lg font-black text-[var(--bf-cream)]">
               {accessLabel(user.role, user.is_owner)}
             </p>
             <p className="mt-1 text-sm leading-6 text-[var(--bf-muted)]">
-              Права доступа и рабочая должность разделены. Выбор должности
-              не выдаёт административные права.
+              Права доступа и рабочая должность разделены. Выбор должности не выдаёт административные права.
             </p>
+
+            {user.role === "admin" ? (
+              <Button
+                asChild
+                variant="secondary"
+                className="mt-3"
+              >
+                <Link to="/admin">
+                  <Settings2
+                    className="size-4"
+                    aria-hidden
+                  />
+                  Управление персоналом
+                </Link>
+              </Button>
+            ) : null}
           </div>
         </div>
       </Surface>
@@ -157,8 +217,7 @@ export function ProfilePage() {
               Рабочая должность
             </h2>
             <p className="mt-1 text-sm leading-6 text-[var(--bf-muted)]">
-              Определяет, какой чек-лист открытия и закрытия показывается
-              в разделе «Смена».
+              Определяет, какой чек-лист открытия и закрытия показывается в разделе «Смена».
             </p>
           </div>
         </div>
@@ -211,10 +270,10 @@ export function ProfilePage() {
           type="button"
           variant="primary"
           className="mt-4 w-full"
-          disabled={!dirty || saving}
+          disabled={!positionDirty || savingPosition}
           onClick={savePosition}
         >
-          {saving ? (
+          {savingPosition ? (
             <Loader2
               className="size-4 animate-spin"
               aria-hidden
@@ -225,22 +284,76 @@ export function ProfilePage() {
               aria-hidden
             />
           )}
-          {saving ? "Сохраняем…" : "Сохранить должность"}
+          {savingPosition
+            ? "Сохраняем…"
+            : "Сохранить должность"}
         </Button>
-
-        <p
-          className={cn(
-            "mt-3 min-h-5 text-xs leading-5",
-            message?.tone === "error"
-              ? "text-[#e99990]"
-              : "text-[#9dd0a0]"
-          )}
-          role="status"
-          aria-live="polite"
-        >
-          {message?.text || ""}
-        </p>
       </Surface>
+
+      <Surface className="mt-3 p-4">
+        <div className="flex items-start gap-3">
+          <CalendarDays
+            className="mt-0.5 size-5 shrink-0 text-[var(--bf-gold)]"
+            aria-hidden
+          />
+          <div className="min-w-0 flex-1">
+            <p className="eyebrow">ДЕНЬ РОЖДЕНИЯ</p>
+            <h2 className="mt-1 text-xl font-black">
+              Для внутренних напоминаний
+            </h2>
+            <p className="mt-1 text-sm leading-6 text-[var(--bf-muted)]">
+              Используется для поздравлений и будущего блока «Сегодня» на главной.
+            </p>
+          </div>
+        </div>
+
+        <input
+          type="date"
+          value={birthDate}
+          max={new Date().toISOString().slice(0, 10)}
+          onChange={(event) => {
+            setBirthDate(event.target.value);
+            setMessage(null);
+          }}
+          className="mt-4 min-h-12 w-full rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3 text-sm font-bold text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
+        />
+
+        <Button
+          type="button"
+          variant="secondary"
+          className="mt-3 w-full"
+          disabled={!birthdayDirty || savingBirthday}
+          onClick={saveBirthday}
+        >
+          {savingBirthday ? (
+            <Loader2
+              className="size-4 animate-spin"
+              aria-hidden
+            />
+          ) : (
+            <CalendarDays
+              className="size-4"
+              aria-hidden
+            />
+          )}
+          {savingBirthday
+            ? "Сохраняем…"
+            : "Сохранить дату рождения"}
+        </Button>
+      </Surface>
+
+      <p
+        className={cn(
+          "mt-3 min-h-5 text-xs leading-5",
+          message?.tone === "error"
+            ? "text-[#e99990]"
+            : "text-[#9dd0a0]"
+        )}
+        role="status"
+        aria-live="polite"
+      >
+        {message?.text || ""}
+      </p>
 
       <NotificationSettingsCard accessToken={accessToken} />
 
