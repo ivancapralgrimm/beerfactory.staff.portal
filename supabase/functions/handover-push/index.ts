@@ -22,7 +22,7 @@ async function ensureVapidConfig(admin:ReturnType<typeof createClient>){
 }
 
 function excerpt(value:unknown,max=150){
-  const clean=String(value||"").replace(/\\s+/g," ").trim();
+  const clean=String(value||"").replace(/\s+/g," ").trim();
   return clean.length>max?clean.slice(0,Math.max(0,max-1))+"…":clean;
 }
 function personName(profile:{first_name?:string|null;last_name?:string|null}){
@@ -58,7 +58,7 @@ Deno.serve(async(req)=>{
   const url=Deno.env.get("SUPABASE_URL"),serviceKey=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY"),anonKey=Deno.env.get("SUPABASE_ANON_KEY"),authorization=req.headers.get("Authorization")||"";
   if(!url||!serviceKey||!anonKey) return J({error:"server_configuration_error"},500);
   const admin=createClient(url,serviceKey,{auth:{persistSession:false,autoRefreshToken:false}});
-  const token=authorization.replace(/^Bearer\\s+/i,"");
+  const token=authorization.replace(/^Bearer\s+/i,"");
   const {data:{user},error:userError}=await admin.auth.getUser(token);
   if(userError||!user) return J({error:"unauthorized"},401);
   const {data:profile,error:profileError}=await admin.from("profiles").select("id,is_active,role,first_name,last_name").eq("id",user.id).maybeSingle();
