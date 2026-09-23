@@ -1,0 +1,19 @@
+BeerFactory Staff Portal · r40.4
+Day Hub hide-empty patch
+
+TARGET:
+r40.4-react
+
+REPLACE:
+- src/pages/DashboardPage.tsx
+
+BEHAVIOR:
+- if there are no upcoming birthdays after loading, the entire birthday section is omitted;
+- if there are no active handover notes after loading, the entire handover section is omitted;
+- loading skeletons remain while data is being fetched;
+- genuine load errors remain visible and are not silently treated as empty state.
+
+BACKEND:
+- no SQL
+- no Supabase changes
+- no Edge Function changes
