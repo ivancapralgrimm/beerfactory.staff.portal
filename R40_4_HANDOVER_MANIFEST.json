@@ -120,9 +120,9 @@
     "action": "ADD"
   },
   "supabase/functions/handover-push/index.ts": {
-    "sha256": "2973a8deb2940a1d444d255c1efe2b2879a61c86699e34a2733b6696930c815a",
-    "git_blob_sha1": "ff5d299b2492c3e65fd47920312c27a0a0c4ebd5",
-    "bytes": 7957,
+    "sha256": "78989aae327f2d2e615a2bdeb6b5610e078755447bf3d579e00ed54f1cf04194",
+    "git_blob_sha1": "ec9d76063873c91ae29ed284ce903cb702521138",
+    "bytes": 7955,
     "action": "ADD"
   },
   "supabase/migrations/20260922184713_add_react_handover_create_rpc_and_harden_grants.sql": {
