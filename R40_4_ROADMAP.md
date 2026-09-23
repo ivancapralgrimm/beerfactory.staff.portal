@@ -15,67 +15,48 @@
 4. Knowledge
 5. Attestation
 6. Design-system gate
+7. Shift + Profile working position
 
-## Current · Shift + profile position
+## Current · Handover
 
-### Position
-Working position is separate from access role.
+Handover is a shared operational feed for the whole team.
 
-Allowed:
+Core rules:
+- all retained notes are visible to all authenticated employees;
+- the same feed appears on Dashboard and `/handover`;
+- categories: Bar, Kitchen, Hall, Equipment, Purchasing, Other;
+- priorities: Normal, High, Critical;
+- lifecycle: New → Acknowledged → Resolved;
+- create / acknowledge / resolve are server-authoritative;
+- Realtime changes refresh open clients;
+- optional Web Push notifies subscribed devices even when BFStaff is closed;
+- push excludes the author and opens `/handover`;
+- history retention is 60 days;
+- cleanup runs monthly;
+- creating a Handover note never opens a Shift.
+
+The pre-r40.4 Handover history was intentionally cleared before testing this implementation.
+
+## Shift model retained
+
+Working position remains separate from access role.
+
+Positions:
 - bartender / Бармен
 - waiter / Официант
 - manager / Менеджер
 - hostess / Хостес
 
-Position is changed through Profile.
-It does not grant admin/manager permissions.
-
-### Shift model
-Existing r40.3 Shift remains untouched for production compatibility.
-
-React r40.4 uses:
-- global operational day in `shifts`;
-- per-position state in `position_shift_states`;
-- per-position checks in `position_shift_checks`;
-- per-position definitions in `position_shift_check_definitions`.
-
-This keeps Handover compatible with the shared operational day while allowing each position to have
-independent opening/closing state.
-
-### Operational window
-Venue timezone: `Asia/Novosibirsk`.
-
+Operational window:
 - 11:00–23:59 → current calendar date
 - 00:00–02:59 → previous operational date
 - 03:00–10:59 → locked
-- 11:00 → fresh operational day
-
-A stale unclosed positional shift expires when a later mutating workflow operation normalizes old state.
-
-### Checklist interaction
-- each checkbox saves independently;
-- only the tapped row shows pending feedback;
-- other rows do not dim or lock;
-- several different items may be saved in parallel;
-- an ordinary checkbox write patches only that row after server acknowledgement;
-- full Shift workflow refresh is reserved for manual refresh, return to foreground, or phase transition;
-- open/close confirmation waits for pending item writes.
-
-### Current checklist content
-All four positions now have 6 opening + 6 closing items.
-
-- Bartender: based on the existing Bar checklist.
-- Waiter: demo hall/service checklist.
-- Manager: demo control checklist focused on verifying Bar + Waiter readiness/closing, POS/cash, stop-list, briefing, handover and safety.
-- Hostess: demo reception checklist focused on entrance/reception, reservations, seating plan, menus, guest information and handover.
-
-Waiter/Manager items are explicitly demo content and should be replaced or edited when the real operating procedure is approved.
+- venue timezone: `Asia/Novosibirsk`
 
 ## Next
 
-7. Handover
 8. Profile/Admin full migration
-9. Dashboard final
+9. Dashboard final refinement
 10. Cross-module visual cleanup
 11. PWA/hardening QA
 12. Release gate
@@ -83,9 +64,10 @@ Waiter/Manager items are explicitly demo content and should be replaced or edite
 ## Release rule
 
 No merge to `main` until:
-- GitHub Actions green
-- Vercel Preview green
-- mobile smoke
-- Shift read-only smoke
-- explicit controlled test of one positional checklist write
-- explicit controlled open/close test, if real operational timing permits
+- GitHub Actions green;
+- Vercel Preview green;
+- mobile smoke;
+- Shift controlled mutation smoke;
+- Handover create / acknowledge / resolve smoke;
+- Dashboard shared-feed visibility smoke;
+- explicit release review.

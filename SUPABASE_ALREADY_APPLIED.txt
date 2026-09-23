@@ -4,14 +4,22 @@ ALREADY APPLIED TO SUPABASE:
 - 20260922153817 add_position_aware_shift_v2
 - 20260922153947 harden_position_shift_v2
 - 20260922154038 make_position_shift_read_non_destructive
+- 20260922161603 seed_waiter_manager_demo_shift_checklists
 - 20260922161749 add_hostess_staff_position
 - 20260922161802 seed_hostess_demo_shift_checklist
+- 20260922175321 harden_position_shift_table_privileges
+- 20260922184713 add_react_handover_create_rpc_and_harden_grants
+- 20260922185135 reset_handover_and_add_60_day_retention
+- 20260922185826 revoke_anon_create_handover_execute
+- 20260922191434 add_web_push_subscriptions
+- 20260922191509 add_web_push_vapid_config
+- 20260922191810 normalize_web_push_metadata
+- handover-push Edge Function version 1
 - staff-profile Edge Function version 5
 
-DO NOT manually rerun the SQL from this package against production.
-
-The SQL source is included only so GitHub contains a record of the deployed backend design.
-
-Stable r40.3 legacy Shift functions were not replaced.
-
-- 20260922175321 harden_position_shift_table_privileges
+IMPORTANT:
+- current Handover history was intentionally cleared before r40.4 Handover QA
+- Handover retention is 60 days
+- cleanup runs monthly through pg_cron
+- SQL source is included for repository history
+- DO NOT manually rerun these SQL files against the current live project

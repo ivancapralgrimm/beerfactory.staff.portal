@@ -1,0 +1,34 @@
+BeerFactory Staff Portal · r40.4 Handover + Web Push
+
+TARGET:
+r40.4-react
+
+UPLOAD ALL FILES FROM THIS ARCHIVE preserving paths.
+
+Important additions include:
+- React Handover shared feed
+- Dashboard Handover feed
+- Profile notification settings
+- Web Push Service Worker handler
+- handover-push Edge Function source
+- push subscription/VAPID migration source
+
+IMPORTANT BACKEND STATE:
+The SQL migrations in this archive are ALREADY APPLIED to live Supabase.
+The `handover-push` Edge Function is ALREADY DEPLOYED and ACTIVE.
+
+Do not manually execute the SQL files against the current live project.
+Do not redeploy the Edge Function manually unless a later source change requires it.
+
+After upload:
+1. GitHub Actions Typecheck + Build must pass.
+2. Vercel Preview must pass.
+3. Profile must show notification setup.
+4. On iPhone, install preview PWA to Home Screen before requesting notifications.
+5. Controlled test with two accounts/devices:
+   - device B enables notifications;
+   - device A creates one Handover note;
+   - device B receives push while BFStaff is closed;
+   - tapping push opens `/handover`;
+   - shared feed visible on Dashboard and Handover;
+   - acknowledge and resolve work normally.

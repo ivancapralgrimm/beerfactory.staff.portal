@@ -19,9 +19,11 @@ export default defineConfig({
         "assets/icons/icon-192.png",
         "assets/icons/icon-512.png",
         "assets/icons/icon-maskable-512.png",
-        "assets/icons/profile-avatar.png"
+        "assets/icons/profile-avatar.png",
+        "push-sw.js"
       ],
       manifest: {
+        id: "/",
         name: "BeerFactory Staff Portal",
         short_name: "BF Staff",
         description: "Рабочий портал персонала BeerFactory",
@@ -54,7 +56,10 @@ export default defineConfig({
       workbox: {
         cleanupOutdatedCaches: true,
         navigateFallback: "/index.html",
-        globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,jpg,jpeg,json,txt}"]
+        importScripts: ["push-sw.js"],
+        globPatterns: [
+          "**/*.{js,css,html,ico,png,svg,webp,jpg,jpeg,json,txt}"
+        ]
       }
     })
   ],

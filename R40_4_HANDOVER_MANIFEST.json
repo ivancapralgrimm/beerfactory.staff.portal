@@ -1,0 +1,170 @@
+{
+  "HANDOVER_UPLOAD_INSTRUCTIONS.txt": {
+    "sha256": "fafcbf7cdcbc603fd828484526b68291d169eefb9b7f32ca865310ae2cd23bb1",
+    "git_blob_sha1": "a6c9e630321f170f35064d8ae5ff5b9bbc752435",
+    "bytes": 1207,
+    "action": "ADD"
+  },
+  "R40_4_HANDOVER_MIGRATION.md": {
+    "sha256": "344726eef7ccb41767d29612e963c41cd5061e7c4c76c06910c58c527d46b168",
+    "git_blob_sha1": "c49d673f8daae739a27a78adb0abaa17c7078b75",
+    "bytes": 2425,
+    "action": "ADD"
+  },
+  "R40_4_HANDOVER_PUSH.md": {
+    "sha256": "ba1b7de76863bf03b80e8f55af76317df668f27e3aef90b78ed47665600c27f0",
+    "git_blob_sha1": "452045a20aa195597c59edf354086d93c1d24a95",
+    "bytes": 2293,
+    "action": "ADD"
+  },
+  "R40_4_ROADMAP.md": {
+    "sha256": "62a8256404b80867bc6306b59cf7af7895d61c95aab4df341f160df2a04b1062",
+    "git_blob_sha1": "7e71a222b70bdca5df2214d574142e1e993986cc",
+    "bytes": 2019,
+    "action": "REPLACE"
+  },
+  "SUPABASE_ALREADY_APPLIED.txt": {
+    "sha256": "2cd0aec8ca90cd83610043307b1f7fd3dd58c9d95414476911b20ffb1a82ad66",
+    "git_blob_sha1": "a5d254d7dcea5b997bba636c858d9886cc2e0e47",
+    "bytes": 1087,
+    "action": "REPLACE"
+  },
+  "SUPABASE_MIGRATIONS_APPLIED.md": {
+    "sha256": "451ab387ffaf8293c81bc34ec874eaf898ad95f90e56ff395c9eb155bbf4bf1c",
+    "git_blob_sha1": "d60e450b20f1ffff8a6475ae8b7653aaff20426d",
+    "bytes": 2209,
+    "action": "REPLACE"
+  },
+  "public/push-sw.js": {
+    "sha256": "b88a2a72f8eb5f0fcaf794cba5625f183786fcdca64dbde267aac514d77763b5",
+    "git_blob_sha1": "2051afab40623e458c8a21cb05e58b16a9e9788e",
+    "bytes": 2088,
+    "action": "ADD"
+  },
+  "src/app/App.tsx": {
+    "sha256": "bc4fe07d7b629438512d736461293f762bde56331cfa4738b72936fac6e31154",
+    "git_blob_sha1": "de3d51862a0975b5a8420ebed191c0a1099a1fb1",
+    "bytes": 6433,
+    "action": "REPLACE"
+  },
+  "src/components/layout/AppShell.tsx": {
+    "sha256": "cf5cf35e2ebd527e96e8eb6d0ed556c4317be8f3aa9dbe15851b9858852036e2",
+    "git_blob_sha1": "4cfbe2cc97ae10fd16a692446eec77ab03d35b70",
+    "bytes": 3451,
+    "action": "REPLACE"
+  },
+  "src/features/handover/HandoverNoteCard.tsx": {
+    "sha256": "baf0fbeecc4a9f38e2617fc65a8e988bf46128e13f4824cf3e27735a3f3d2f0b",
+    "git_blob_sha1": "0b353b10bcf90fa58a00ef400038abb7c47e6f00",
+    "bytes": 6818,
+    "action": "ADD"
+  },
+  "src/features/handover/HandoverPage.tsx": {
+    "sha256": "505910e8189ca7d0c906091eea32b9ae722d5ed244bdc859f078eac456753733",
+    "git_blob_sha1": "afdff49ea0dc92f046605faf45d1219cb13c4bfa",
+    "bytes": 15191,
+    "action": "ADD"
+  },
+  "src/features/handover/handover-api.ts": {
+    "sha256": "0535fb8147de6eed6fef677abcc03d7ea9c22a0e8dbe3ada826ff2d9be5595c3",
+    "git_blob_sha1": "3c0c29778bfd1a95a0c62f4512a45bbb145ee587",
+    "bytes": 3837,
+    "action": "ADD"
+  },
+  "src/features/handover/types.ts": {
+    "sha256": "d5fc8374421ecb90a91a8cd3c6198742347273e1adf6a8a17f3d30dc682d015c",
+    "git_blob_sha1": "6c174f47b5c818b793685920a078c994dfb82578",
+    "bytes": 854,
+    "action": "ADD"
+  },
+  "src/features/handover/use-handover-feed.ts": {
+    "sha256": "1d76660a2c038ae8e2a60e01685e765f3d91c152858e9e58937f44a0098590f6",
+    "git_blob_sha1": "ef33d509495b16125128cc009ee1875e9d781b12",
+    "bytes": 1952,
+    "action": "ADD"
+  },
+  "src/features/notifications/NotificationSettingsCard.tsx": {
+    "sha256": "9c6056feaba63dd5d2316c32e37a115d2bf13e3be0ece6dca3738841fe6f87c1",
+    "git_blob_sha1": "ebd81510b4e48505301adc5aa4d17303a3045a5f",
+    "bytes": 6821,
+    "action": "ADD"
+  },
+  "src/features/notifications/notification-api.ts": {
+    "sha256": "0ec117c83183b4c254abb4bfd442878582ea3e99eade3479e7442325d11231b7",
+    "git_blob_sha1": "9a990a88b06a00f0163f601bd0c1ef236bb1083f",
+    "bytes": 4452,
+    "action": "ADD"
+  },
+  "src/lib/config.ts": {
+    "sha256": "04ca4d2f9ab6b16abe84b4db3c23a76c921fbfd0f155d4e3baec7c299f9a93c5",
+    "git_blob_sha1": "85e4b8a8bec0807bfce07e57b3965c08a40c5843",
+    "bytes": 995,
+    "action": "REPLACE"
+  },
+  "src/pages/DashboardPage.tsx": {
+    "sha256": "06cd1cdb940dd46d9e3f791656315c1bcd72774f32d4c9d337a35f59e175543c",
+    "git_blob_sha1": "d7e01d4331b17a921f35e6fd50b8b6c6d76db3f3",
+    "bytes": 6619,
+    "action": "REPLACE"
+  },
+  "src/pages/ProfilePage.tsx": {
+    "sha256": "07e2d29b7057f4cbb0810f162e7b7623c98184e1e0f2f33c3e97d20d611f1a46",
+    "git_blob_sha1": "5a42d8031eda8243b9ec36bcadb6535b0cba3e7d",
+    "bytes": 7917,
+    "action": "REPLACE"
+  },
+  "supabase/functions/handover-push/deno.json": {
+    "sha256": "8c4645dd23ca5ea7c7d365aa9e7392c106ed1139d11e5560221cd518e8f3697b",
+    "git_blob_sha1": "c68356e7ccd49526149cda572f6b92046674b159",
+    "bytes": 120,
+    "action": "ADD"
+  },
+  "supabase/functions/handover-push/index.ts": {
+    "sha256": "253b64a20092ead184cc29d2fa4b340941c8614285e37d06b8433b7da41bfd59",
+    "git_blob_sha1": "3130cd6ebeed8df426905a874399f6ab18cb6365",
+    "bytes": 7681,
+    "action": "ADD"
+  },
+  "supabase/migrations/20260922184713_add_react_handover_create_rpc_and_harden_grants.sql": {
+    "sha256": "2025d5dfb15a5cfb00a5ef0bab30533334d8d2d5987626c103df030f2f6840d2",
+    "git_blob_sha1": "ae98f08a055c98b016db9687d4678a37c3df0942",
+    "bytes": 1795,
+    "action": "ADD"
+  },
+  "supabase/migrations/20260922185135_reset_handover_and_add_60_day_retention.sql": {
+    "sha256": "128313194dd547dd67f333dbd465536c90224101f9884487e8d8cdfac3fde91a",
+    "git_blob_sha1": "f519dbcac73822431fcde3b79323d56164711814",
+    "bytes": 1296,
+    "action": "ADD"
+  },
+  "supabase/migrations/20260922185826_revoke_anon_create_handover_execute.sql": {
+    "sha256": "9e5faf8b4c4c40e7d6a74911f0f3d148f55af824c5cb05d3947e87f588612dcd",
+    "git_blob_sha1": "ae1b4319223b6f0282c38ba566436bb10d3b9d00",
+    "bytes": 316,
+    "action": "ADD"
+  },
+  "supabase/migrations/20260922191434_add_web_push_subscriptions.sql": {
+    "sha256": "67c0a45bdda437a4c92a5a096463ead613fdbb290dcdd0dac257c03126d29847",
+    "git_blob_sha1": "258f922bd3224693e5b9e8ccba94b6e11e65f1b5",
+    "bytes": 3433,
+    "action": "ADD"
+  },
+  "supabase/migrations/20260922191509_add_web_push_vapid_config.sql": {
+    "sha256": "3fa647c9a45ac9d4c01a41582d7d54fcf3c7b53f697811fdd64b0550fe62d484",
+    "git_blob_sha1": "8013cfc1d83726bf83320f2fef27362f32c650e6",
+    "bytes": 989,
+    "action": "ADD"
+  },
+  "supabase/migrations/20260922191810_normalize_web_push_metadata.sql": {
+    "sha256": "c7a281015360f319693257bc538cb5dfe1ec28b2977ffd0af1d949a930f5dd1c",
+    "git_blob_sha1": "5912218bed1cb8201c9021b7c492a1fd36531a27",
+    "bytes": 453,
+    "action": "ADD"
+  },
+  "vite.config.ts": {
+    "sha256": "78bceeaaf6c41b8f47c8dde2257e85dbd6f4d084b7b4439d0d7b76ffb4d277bc",
+    "git_blob_sha1": "71cef73ee064050595545b453cbc71b4f2eee6ed",
+    "bytes": 1953,
+    "action": "REPLACE"
+  }
+}
