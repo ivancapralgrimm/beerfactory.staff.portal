@@ -14,36 +14,16 @@ import { useAuth } from "@/features/auth/auth-context";
 import { clearPushBadge } from "@/features/notifications/notification-api";
 
 const navItems = [
-  {
-    to: "/",
-    label: "Главная",
-    icon: Home,
-    end: true
-  },
-  {
-    to: "/menu",
-    label: "Меню",
-    icon: Menu
-  },
-  {
-    to: "/knowledge",
-    label: "Знания",
-    icon: BookOpen
-  },
-  {
-    to: "/shift",
-    label: "Смена",
-    icon: ClipboardCheck
-  },
-  {
-    to: "/handover",
-    label: "Передача",
-    icon: StickyNote
-  }
+  { to: "/", label: "Главная", icon: Home, end: true },
+  { to: "/menu", label: "Меню", icon: Menu },
+  { to: "/knowledge", label: "Знания", icon: BookOpen },
+  { to: "/shift", label: "Смена", icon: ClipboardCheck },
+  { to: "/handover", label: "Передача", icon: StickyNote }
 ];
 
 export function AppShell() {
   const { state } = useAuth();
+
   const firstName =
     state.status === "authenticated"
       ? state.user.first_name || ""
@@ -62,11 +42,17 @@ export function AppShell() {
 
     clear();
     window.addEventListener("focus", clear);
-    document.addEventListener("visibilitychange", onVisibilityChange);
+    document.addEventListener(
+      "visibilitychange",
+      onVisibilityChange
+    );
 
     return () => {
       window.removeEventListener("focus", clear);
-      document.removeEventListener("visibilitychange", onVisibilityChange);
+      document.removeEventListener(
+        "visibilitychange",
+        onVisibilityChange
+      );
     };
   }, []);
 
@@ -82,12 +68,28 @@ export function AppShell() {
       <header className="sticky top-0 z-40 border-b border-[var(--bf-line)] bg-[color:color-mix(in_srgb,var(--bf-bg),transparent_5%)] pt-[env(safe-area-inset-top)] backdrop-blur-xl">
         <div className="mx-auto flex min-h-16 max-w-5xl items-center justify-between gap-3 px-4">
           <Brand compact />
+
           <NavLink
             to="/profile"
             aria-label="Открыть профиль"
-            className="grid size-11 place-items-center rounded-full border border-[var(--bf-line)] bg-[var(--bf-surface)] text-[var(--bf-cream)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
+            className={({ isActive }) =>
+              cn(
+                "inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border bg-[var(--bf-surface)] py-1.5 pl-1.5 pr-3 text-[var(--bf-cream)] outline-none transition-[background-color,border-color,color] focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]",
+                isActive
+                  ? "border-[var(--bf-copper-hi)] bg-[color:color-mix(in_srgb,var(--bf-copper),transparent_84%)]"
+                  : "border-[var(--bf-line)]"
+              )
+            }
           >
-            <UserRound className="size-5" />
+            <span className="grid size-8 shrink-0 place-items-center rounded-full border border-[var(--bf-line)] bg-[var(--bf-surface-2)]">
+              <UserRound
+                className="size-4"
+                aria-hidden
+              />
+            </span>
+            <span className="text-xs font-black tracking-[0.01em]">
+              Профиль
+            </span>
           </NavLink>
         </div>
       </header>
