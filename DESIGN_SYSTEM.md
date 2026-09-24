@@ -1,6 +1,6 @@
 # BeerFactory Staff Portal · DESIGN SYSTEM v1.1
 
-Status: active contract for `r40.4-react`.
+Status: active contract for `r40.4-react`. The attached four-screen mockup takes precedence for visual choices.
 
 ## Core rule
 
@@ -110,3 +110,19 @@ Every module defines:
 - locked/conflict where applicable
 
 Operational modules may not claim local-only success.
+
+## Mockup visual lock (September 2026)
+
+The four-phone BeerFactory mockup is the visual authority for the React migration.
+Use a near-black brown canvas (`#17120e`), restrained copper (`#ba6638`), cream text,
+subtle brown borders, compact controls, and a small bottom navigation dock. There is
+no persistent global top header. The profile entry is available on Dashboard.
+
+At approximately 390 CSS pixels, Dashboard uses a brewery photograph behind a
+compact greeting, then a shift status entry, a 2×2 grid of quick actions, one
+attestation row, a copper recipe CTA, and a profile action. Live birthday and active
+handover sections remain conditional and use real server data. At other screens,
+keep page titles below the top safe area and avoid a global brand header.
+
+Buttons retain the accessibility contract above. Dock links provide 44px or larger
+interactive regions, visible keyboard focus and bottom safe-area padding.
