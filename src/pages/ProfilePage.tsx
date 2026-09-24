@@ -1,7 +1,7 @@
 import {
   BriefcaseBusiness,
   CalendarDays,
-  Check,
+  ChevronDown,
   Loader2,
   LogOut,
   Settings2,
@@ -46,6 +46,22 @@ function accessLabel(
   return "Сотрудник";
 }
 
+function formatPositionChangeTime(
+  value: string | null | undefined
+) {
+  if (!value) return null;
+
+  const timestamp = Date.parse(value);
+  if (!Number.isFinite(timestamp)) return null;
+
+  return new Intl.DateTimeFormat("ru-RU", {
+    day: "numeric",
+    month: "long",
+    hour: "2-digit",
+    minute: "2-digit"
+  }).format(new Date(timestamp));
+}
+
 export function ProfilePage() {
   const navigate = useNavigate();
   const {
@@ -72,6 +88,9 @@ export function ProfilePage() {
     setBirthDate(user?.birth_date || "");
   }, [user?.position_code, user?.birth_date]);
 
+  const positionLocked =
+    user?.position_change_allowed === false;
+
   const positionDirty = useMemo(
     () =>
       Boolean(
@@ -97,10 +116,21 @@ export function ProfilePage() {
     .filter(Boolean)
     .join(" ");
 
+  const nextPositionChangeLabel =
+    formatPositionChangeTime(
+      user.position_change_available_at
+    );
+
+  const positionLockText =
+    user.position_change_reason === "window_locked"
+      ? "Смена должности доступна только во время рабочего окна: с 11:00 до 02:59."
+      : "Должность уже менялась в этой рабочей смене.";
+
   async function savePosition() {
     if (
       !selectedPosition ||
       !positionDirty ||
+      positionLocked ||
       savingPosition
     ) {
       return;
@@ -117,13 +147,29 @@ export function ProfilePage() {
       await refreshProfile();
       setMessage({
         tone: "success",
-        text: "Должность сохранена. Раздел «Смена» будет использовать её чек-лист."
+        text: "Должность сохранена. Следующее изменение будет доступно в следующую рабочую смену."
       });
-    } catch {
-      setMessage({
-        tone: "error",
-        text: "Не удалось сохранить должность. Изменение не применено."
-      });
+    } catch (error) {
+      const code =
+        error instanceof Error ? error.message : "";
+
+      if (
+        code === "position_change_next_window" ||
+        code === "position_change_window_locked"
+      ) {
+        await refreshProfile();
+        setMessage({
+          tone: "error",
+          text: code === "position_change_window_locked"
+            ? "Сейчас должность менять нельзя. Следующее рабочее окно начнётся в 11:00."
+            : "Должность уже менялась в этой рабочей смене. Следующее изменение — с нового рабочего окна."
+        });
+      } else {
+        setMessage({
+          tone: "error",
+          text: "Не удалось сохранить должность. Изменение не применено."
+        });
+      }
     } finally {
       setSavingPosition(false);
     }
@@ -207,91 +253,6 @@ export function ProfilePage() {
 
       <Surface className="mt-3 p-4">
         <div className="flex items-start gap-3">
-          <BriefcaseBusiness
-            className="mt-0.5 size-5 shrink-0 text-[var(--bf-copper-hi)]"
-            aria-hidden
-          />
-          <div className="min-w-0 flex-1">
-            <p className="eyebrow">ДОЛЖНОСТЬ</p>
-            <h2 className="mt-1 text-xl font-black">
-              Рабочая должность
-            </h2>
-            <p className="mt-1 text-sm leading-6 text-[var(--bf-muted)]">
-              Определяет, какой чек-лист открытия и закрытия показывается в разделе «Смена».
-            </p>
-          </div>
-        </div>
-
-        <div
-          className="mt-4 grid grid-cols-2 gap-2"
-          role="radiogroup"
-          aria-label="Рабочая должность"
-        >
-          {POSITIONS.map((position) => {
-            const selected =
-              position === selectedPosition;
-
-            return (
-              <button
-                key={position}
-                type="button"
-                role="radio"
-                aria-checked={selected}
-                onClick={() => {
-                  setSelectedPosition(position);
-                  setMessage(null);
-                }}
-                className={cn(
-                  "relative min-h-14 rounded-xl border px-2 py-3 text-center text-sm font-extrabold outline-none transition-[background-color,border-color,transform] focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)] active:translate-y-px",
-                  selected
-                    ? "border-[var(--bf-copper-hi)] bg-[color:color-mix(in_srgb,var(--bf-copper),transparent_78%)] text-[var(--bf-cream)]"
-                    : "border-[var(--bf-line)] bg-[var(--bf-surface-2)] text-[var(--bf-muted)]"
-                )}
-              >
-                {selected ? (
-                  <Check
-                    className="absolute right-1.5 top-1.5 size-3.5 text-[var(--bf-copper-hi)]"
-                    aria-hidden
-                  />
-                ) : null}
-                {STAFF_POSITION_LABELS[position]}
-              </button>
-            );
-          })}
-        </div>
-
-        {!user.position_code ? (
-          <p className="mt-3 rounded-xl border border-[color:color-mix(in_srgb,var(--bf-gold),transparent_60%)] bg-[color:color-mix(in_srgb,var(--bf-gold),transparent_92%)] px-3 py-2 text-xs leading-5 text-[var(--bf-muted)]">
-            Пока должность не выбрана, позиционная смена недоступна.
-          </p>
-        ) : null}
-
-        <Button
-          type="button"
-          variant="primary"
-          className="mt-4 w-full"
-          disabled={!positionDirty || savingPosition}
-          onClick={savePosition}
-        >
-          {savingPosition ? (
-            <Loader2
-              className="size-4 animate-spin"
-              aria-hidden
-            />
-          ) : (
-            <BriefcaseBusiness
-              className="size-4"
-              aria-hidden
-            />
-          )}
-          {savingPosition
-            ? "Сохраняем…"
-            : "Сохранить должность"}
-        </Button>
-      </Surface>
-
-      <Surface className="mt-3 p-4">
-        <div className="flex items-start gap-3">
           <CalendarDays
             className="mt-0.5 size-5 shrink-0 text-[var(--bf-gold)]"
             aria-hidden
@@ -302,7 +263,7 @@ export function ProfilePage() {
               Для внутренних напоминаний
             </h2>
             <p className="mt-1 text-sm leading-6 text-[var(--bf-muted)]">
-              Используется для поздравлений и будущего блока «Сегодня» на главной.
+              Используется для поздравлений и блока «Сегодня» на главной.
             </p>
           </div>
         </div>
@@ -339,6 +300,100 @@ export function ProfilePage() {
           {savingBirthday
             ? "Сохраняем…"
             : "Сохранить дату рождения"}
+        </Button>
+
+        <div className="my-5 border-t border-[var(--bf-line)]" />
+
+        <div className="flex items-start gap-3">
+          <BriefcaseBusiness
+            className="mt-0.5 size-5 shrink-0 text-[var(--bf-copper-hi)]"
+            aria-hidden
+          />
+          <div className="min-w-0 flex-1">
+            <p className="eyebrow">ДОЛЖНОСТЬ</p>
+            <h2 className="mt-1 text-xl font-black">
+              Рабочая должность
+            </h2>
+            <p className="mt-1 text-sm leading-6 text-[var(--bf-muted)]">
+              Определяет чек-лист открытия и закрытия в разделе «Смена».
+            </p>
+          </div>
+        </div>
+
+        <div className="relative mt-4">
+          <select
+            value={selectedPosition || ""}
+            disabled={positionLocked || savingPosition}
+            aria-label="Рабочая должность"
+            onChange={(event) => {
+              setSelectedPosition(
+                event.target.value
+                  ? event.target.value as StaffPosition
+                  : null
+              );
+              setMessage(null);
+            }}
+            className="min-h-12 w-full appearance-none rounded-xl border border-[var(--bf-line-strong)] bg-[var(--bf-surface-2)] px-4 pr-12 text-base font-bold text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)] disabled:cursor-not-allowed disabled:opacity-55"
+          >
+            <option value="" disabled>
+              Не задана
+            </option>
+            {POSITIONS.map((position) => (
+              <option key={position} value={position}>
+                {STAFF_POSITION_LABELS[position]}
+              </option>
+            ))}
+          </select>
+          <ChevronDown
+            className="pointer-events-none absolute right-4 top-1/2 size-5 -translate-y-1/2 text-[var(--bf-muted)]"
+            aria-hidden
+          />
+        </div>
+
+        {positionLocked ? (
+          <p className="mt-3 rounded-xl border border-[color:color-mix(in_srgb,var(--bf-gold),transparent_60%)] bg-[color:color-mix(in_srgb,var(--bf-gold),transparent_92%)] px-3 py-2 text-xs leading-5 text-[var(--bf-muted)]">
+            {positionLockText}
+            {nextPositionChangeLabel
+              ? ` Следующая возможность: ${nextPositionChangeLabel}.`
+              : ""}
+          </p>
+        ) : !user.position_code ? (
+          <p className="mt-3 rounded-xl border border-[color:color-mix(in_srgb,var(--bf-gold),transparent_60%)] bg-[color:color-mix(in_srgb,var(--bf-gold),transparent_92%)] px-3 py-2 text-xs leading-5 text-[var(--bf-muted)]">
+            Пока должность не выбрана, позиционная смена недоступна.
+          </p>
+        ) : (
+          <p className="mt-3 text-xs leading-5 text-[var(--bf-dim)]">
+            Самостоятельно сменить должность можно один раз за рабочую смену.
+          </p>
+        )}
+
+        <Button
+          type="button"
+          variant="primary"
+          className="mt-3 w-full"
+          disabled={
+            !positionDirty ||
+            positionLocked ||
+            savingPosition
+          }
+          onClick={savePosition}
+        >
+          {savingPosition ? (
+            <Loader2
+              className="size-4 animate-spin"
+              aria-hidden
+            />
+          ) : (
+            <BriefcaseBusiness
+              className="size-4"
+              aria-hidden
+            />
+          )}
+          {savingPosition
+            ? "Сохраняем…"
+            : positionLocked
+              ? "Смена должности недоступна"
+              : "Сохранить должность"}
         </Button>
       </Surface>
 
