@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   BookOpen,
   ClipboardCheck,
@@ -40,6 +40,7 @@ const navItems = [
 ];
 
 export function AppShell() {
+  const isDashboard = useLocation().pathname === "/";
   useEffect(() => {
     const clear = () => {
       void clearPushBadge();
@@ -68,7 +69,7 @@ export function AppShell() {
   }, []);
 
   return (
-    <div className="bf-app-shell min-h-dvh pb-[calc(76px+env(safe-area-inset-bottom))]">
+    <div className={cn("bf-app-shell min-h-dvh", isDashboard ? "pb-[env(safe-area-inset-bottom)]" : "pb-[calc(76px+env(safe-area-inset-bottom))]")}>
       <a
         className="bf-skip-link"
         href="#mainContent"
@@ -84,7 +85,7 @@ export function AppShell() {
         <Outlet />
       </main>
 
-      <nav
+      {!isDashboard && <nav
         aria-label="Основная навигация"
         className="bf-bottom-nav fixed inset-x-0 bottom-0 z-50 pb-[env(safe-area-inset-bottom)]"
       >
@@ -117,7 +118,7 @@ export function AppShell() {
             )
           )}
         </div>
-      </nav>
+      </nav>}
     </div>
   );
 }
