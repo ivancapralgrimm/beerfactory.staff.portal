@@ -27,6 +27,7 @@ import {
   persistQuizResultRemote
 } from "@/features/attestation/attestation-history";
 import { CategoryMotionIcon } from "@/features/attestation/CategoryMotionIcon";
+import { PassedScoreConfetti } from "@/features/attestation/PassedScoreConfetti";
 import { useAttestationBank } from "@/features/attestation/use-attestation-bank";
 import type {
   QuizAttempt,
@@ -312,7 +313,10 @@ function ResultView({
 
   return (
     <section className="bf-result-page mx-auto max-w-3xl pb-7">
-      <div className="border-y border-[var(--bf-line)] py-7 text-center sm:py-9">
+      <div className="bf-result-celebration relative isolate border-y border-[var(--bf-line)] py-7 text-center sm:py-9">
+        {result.passed && result.total > 0 ? (
+          <PassedScoreConfetti />
+        ) : null}
         <p className="eyebrow">
           РЕЗУЛЬТАТ · {result.categoryLabel.toUpperCase()}
         </p>
@@ -321,7 +325,7 @@ function ResultView({
 
         <div
           className={cn(
-            "mt-3 text-[72px] font-black leading-none tracking-[-0.06em]",
+            "bf-result-score mt-3 text-[72px] font-black leading-none tracking-[-0.06em]",
             result.passed
               ? "text-[var(--bf-green)]"
               : "text-[#e99990]"
