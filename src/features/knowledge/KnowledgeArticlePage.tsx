@@ -40,6 +40,12 @@ function sectionTitle(
   return block.lines[0].match(/^\*\*([^*]+)\*\*$/u)?.[1] ?? null;
 }
 
+function normalizeTopic(value: string) {
+  return value.toLocaleLowerCase("ru-RU")
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .trim();
+}
+
 export function KnowledgeArticlePage() {
   const { articleId = "" } = useParams();
   const requestedId = safeDecode(articleId);
@@ -65,12 +71,23 @@ export function KnowledgeArticlePage() {
     () => (article ? parseKnowledgeMarkdown(article.body) : []),
     [article]
   );
+  const titleTopics = useMemo(
+    () => new Set(
+      (article?.title ?? "")
+        .split(/\s*,\s*/u)
+        .map(normalizeTopic)
+        .filter(Boolean)
+    ),
+    [article]
+  );
   const sections = useMemo(
     () => blocks.flatMap((block, index) => {
       const title = sectionTitle(block);
-      return title ? [{ index, title }] : [];
+      return title && titleTopics.has(normalizeTopic(title))
+        ? [{ index, title }]
+        : [];
     }),
-    [blocks]
+    [blocks, titleTopics]
   );
 
   const read = article
@@ -242,13 +259,13 @@ export function KnowledgeArticlePage() {
         </h1>
       </header>
 
-      {sections.length >= 3 ? (
-        <nav aria-label="Разделы статьи" className="mt-4 flex gap-2 overflow-x-auto pb-1">
+      {sections.length >= 2 ? (
+        <nav aria-label="Разделы статьи" className="mt-4 flex flex-wrap gap-2">
           {sections.map(({ index, title }) => (
             <button
               key={index}
               type="button"
-              className="min-h-11 shrink-0 rounded-full border border-[var(--bf-line)] bg-[var(--bf-surface)] px-4 text-xs font-bold text-[var(--bf-cream)] focus-visible:outline-2 focus-visible:outline-[var(--bf-copper-hi)]"
+              className="min-h-11 max-w-full rounded-full border border-[var(--bf-line)] bg-[var(--bf-surface)] px-3 text-[11px] font-bold text-[var(--bf-cream)] focus-visible:outline-2 focus-visible:outline-[var(--bf-copper-hi)]"
               onClick={() => document.getElementById(`knowledge-section-${index}`)?.scrollIntoView({
                 behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
                 block: "start"
@@ -264,9 +281,9 @@ export function KnowledgeArticlePage() {
         {blocks.map((block, index) => {
           if (block.type === "paragraph") {
             const standaloneTitle = sectionTitle(block);
-            if (standaloneTitle) {
+            if (standaloneTitle && titleTopics.has(normalizeTopic(standaloneTitle))) {
               return (
-                <h2 key={index} id={`knowledge-section-${index}`}>
+                <h2 key={index} id={`knowledge-section-${index}`} className="knowledge-chapter">
                   {standaloneTitle}
                 </h2>
               );
@@ -284,8 +301,13 @@ export function KnowledgeArticlePage() {
           }
 
           if (block.type === "heading") {
+            const chapter = titleTopics.has(normalizeTopic(block.text));
             return (
-              <h2 key={index} id={`knowledge-section-${index}`}>
+              <h2
+                key={index}
+                id={chapter ? `knowledge-section-${index}` : undefined}
+                className={chapter ? "knowledge-chapter" : undefined}
+              >
                 {renderKnowledgeInline(block.text)}
               </h2>
             );
