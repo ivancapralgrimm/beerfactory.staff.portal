@@ -20,6 +20,9 @@ export type StaffProfile = {
   position?: string | null;
   position_code?: StaffPosition | null;
   birth_date?: string | null;
+  position_change_allowed?: boolean | null;
+  position_change_available_at?: string | null;
+  position_change_reason?: "window_locked" | "already_changed" | null;
   recovery_configured?: boolean | null;
 };
 
