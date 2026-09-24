@@ -126,3 +126,24 @@ keep page titles below the top safe area and avoid a global brand header.
 
 Buttons retain the accessibility contract above. Dock links provide 44px or larger
 interactive regions, visible keyboard focus and bottom safe-area padding.
+
+## Internal recipe and article pages
+
+The approved extension to the four-screen reference uses the compact, continuous
+layout of option A. On mobile, the title is approximately 27–28px, content begins
+directly beneath the back action, and section labels are small copper uppercase text.
+Paragraphs are approximately 14px with a comfortable 1.65 line-height.
+
+Recipe ingredients are a single rounded, bordered surface with compact divided rows.
+Only show this surface when the source recipe has structured ingredients; an absent
+ingredient field is not represented by an empty panel. Method and serving remain
+readable sections using their real source values. Existing photographs and the
+calculator appear only where the recipe supplies them. Secondary recipe metadata is
+available through a compact disclosure.
+
+Articles retain their source headings, callouts, lists, images, read status and actions.
+Callouts use the same rounded surface as other content. The article title and vertical
+spacing follow the compact recipe rhythm. Images appear only when present in article
+content; the image dialog and read persistence remain functional. Articles with at
+least three real section headings show a compact, scrollable section navigator; its
+buttons lead to those headings and respect reduced-motion preferences.
