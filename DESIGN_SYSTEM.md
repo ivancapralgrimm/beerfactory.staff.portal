@@ -135,15 +135,26 @@ directly beneath the back action, and section labels are small copper uppercase 
 Paragraphs are approximately 14px with a comfortable 1.65 line-height.
 
 Recipe ingredients are a single rounded, bordered surface with compact divided rows.
-Only show this surface when the source recipe has structured ingredients; an absent
-ingredient field is not represented by an empty panel. Method and serving remain
-readable sections using their real source values. Existing photographs and the
-calculator appear only where the recipe supplies them. Secondary recipe metadata is
+Only show this surface when the source recipe supplies ingredient content; an absent
+ingredient list is not represented by an empty panel. When the source method begins
+with a separate `Состав:` line, its comma-separated items may populate the same
+surface without modifying source data; any remaining method text stays in its section.
+Method and serving remain readable sections using their real source values. Existing
+photographs and the calculator appear only where the recipe supplies them. Secondary recipe metadata is
 available through a compact disclosure.
 
 Articles retain their source headings, callouts, lists, images, read status and actions.
 Callouts use the same rounded surface as other content. The article title and vertical
 spacing follow the compact recipe rhythm. Images appear only when present in article
 content; the image dialog and read persistence remain functional. Articles with at
-least three real section headings show a compact, scrollable section navigator; its
-buttons lead to those headings and respect reduced-motion preferences.
+least three section headings (including standalone bold topic lines) show a compact,
+scrollable section navigator. Its buttons lead to those headings and respect
+reduced-motion preferences.
+
+## Attestation completion motion
+
+A server-independent result celebration plays once when the actual answer count meets
+the category's passing threshold (`result.passed`, normally 80% or higher). The trophy
+and result remain readable while a brief copper, gold, cream and green confetti burst
+passes behind them. Failed attempts have no confetti. Reduced-motion preference
+suppresses the particles entirely; the score and actions are still visible.
