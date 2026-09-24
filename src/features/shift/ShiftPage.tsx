@@ -161,7 +161,7 @@ function ChecklistRow({
       disabled={locked || pending}
       onClick={() => onToggle(row, !checked)}
       className={cn(
-        "grid min-h-[60px] w-full grid-cols-[30px_1fr_auto] items-center gap-3 rounded-2xl border px-3 py-3 text-left outline-none transition-[background-color,border-color,opacity,transform] focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)] active:translate-y-px disabled:cursor-default",
+        "bf-check-row grid min-h-[60px] w-full grid-cols-[30px_1fr_auto] items-center gap-3 rounded-2xl border px-3 py-3 text-left outline-none transition-[background-color,border-color,opacity,transform] focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)] active:translate-y-px disabled:cursor-default",
         checked
           ? "border-[color:color-mix(in_srgb,var(--bf-green),transparent_58%)] bg-[color:color-mix(in_srgb,var(--bf-green),transparent_91%)]"
           : row.critical
@@ -238,7 +238,7 @@ function ActivePhase({
     total > 0 && completed === total;
 
   return (
-    <section className="rounded-[22px] border border-[var(--bf-line)] bg-[var(--bf-surface)] p-4 sm:p-5">
+    <section className="bf-active-phase rounded-[22px] border border-[var(--bf-line)] bg-[var(--bf-surface)] p-4 sm:p-5">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="eyebrow">
@@ -688,7 +688,7 @@ export function ShiftPage() {
         : null;
 
   return (
-    <section className="mx-auto max-w-3xl pb-6">
+    <section className="bf-shift-page mx-auto max-w-3xl pb-6">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="eyebrow">
