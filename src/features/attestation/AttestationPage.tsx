@@ -311,6 +311,18 @@ function ResultView({
       : [{ question, chosenIndex: result.answers[index] }];
   });
 
+  const durationSeconds = Math.max(0, Math.floor((new Date(result.finishedAt).getTime() - new Date(result.startedAt).getTime()) / 1000));
+  const duration = Number.isFinite(durationSeconds)
+    ? `${String(Math.floor(durationSeconds / 3600)).padStart(2, "0")}:${String(Math.floor(durationSeconds % 3600 / 60)).padStart(2, "0")}:${String(durationSeconds % 60).padStart(2, "0")}`
+    : "—";
+  const date = new Date(result.finishedAt);
+  const completedDate = Number.isNaN(date.getTime()) ? "—" : new Intl.DateTimeFormat("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric" }).format(date);
+  const feedback = result.score === 100
+    ? ["Отличный результат!", "Ты отлично знаешь материал."]
+    : result.passed
+      ? ["Хороший результат!", "Аттестация пройдена. Продолжай учиться."]
+      : ["Повтори материал", "Изучи темы с ошибками и попробуй ещё раз."];
+
   return (
     <section className="bf-result-page mx-auto max-w-3xl pb-7">
       <div className="bf-result-celebration border-y border-[var(--bf-line)] py-7 text-center sm:py-9">
@@ -354,6 +366,15 @@ function ResultView({
           </p>
         </div>
 
+        <div className="bf-result-meta" aria-label="Сведения о попытке">
+          <div><strong>{result.categoryLabel}</strong><span>Категория</span></div>
+          <div><strong>{duration}</strong><span>Время</span></div>
+          <div><strong>{completedDate}</strong><span>Дата</span></div>
+        </div>
+        <div className={cn("bf-result-feedback", result.passed ? "bf-result-feedback-success" : "bf-result-feedback-failure")}>
+          {result.passed ? <CheckCircle2 aria-hidden className="size-5" /> : <CircleAlert aria-hidden className="size-5" />}
+          <span><strong>{feedback[0]}</strong><small>{feedback[1]}</small></span>
+        </div>
         <div className="mt-5 flex flex-wrap justify-center gap-2">
           <Button type="button" variant="primary" onClick={onRestart}>
             <RotateCcw className="size-4" aria-hidden />
