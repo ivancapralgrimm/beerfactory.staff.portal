@@ -173,11 +173,11 @@ export function DashboardPage() {
       </section>
 
       <div className="bf-dashboard-content">
-        <Link className="bf-day-status" to="/shift">
+        <Link to="/profile" className="bf-dashboard-profile"><UserRound aria-hidden className="size-4" /> Мой профиль <ChevronRight aria-hidden className="size-4" /></Link>
+        <div className="bf-day-status" role="status">
           <ClipboardCheck aria-hidden className="size-5" />
           <span><strong>{shiftStatus[0]}</strong><small>{shiftStatus[1]}</small></span>
-          <ChevronRight aria-hidden className="size-4" />
-        </Link>
+        </div>
 
         <div className="bf-dashboard-actions">
           {actions.map(({ to, title, text, icon: Icon }) => (
@@ -189,8 +189,6 @@ export function DashboardPage() {
           ))}
         </div>
         <Link to="/attestation" className="bf-dashboard-wide-action"><Star aria-hidden className="size-5" /><span><strong>Аттестация</strong><small>Проверь свои знания</small></span><ChevronRight aria-hidden className="size-4" /></Link>
-        <Button asChild variant="primary" className="bf-dashboard-primary"><Link to="/menu">Перейти к рецептам <ChevronRight aria-hidden className="size-4" /></Link></Button>
-        <Button asChild className="bf-dashboard-profile"><Link to="/profile"><UserRound aria-hidden className="size-4" /> Мой профиль <ChevronRight aria-hidden className="size-4" /></Link></Button>
       </div>
 
       {showBirthdaySection ? (
