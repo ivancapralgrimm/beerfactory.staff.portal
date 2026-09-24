@@ -225,12 +225,19 @@ a {
 }
 
 .knowledge-prose h2 {
-  margin: 24px 0 8px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 24px 0 12px;
+  padding: 9px 14px;
+  border: 1px solid var(--bf-line);
+  border-radius: 11px;
+  background: var(--bf-surface);
   color: var(--bf-cream);
   font-size: 18px;
   font-weight: 850;
   line-height: 1.2;
   letter-spacing: -0.02em;
+  scroll-margin-top: max(104px, calc(env(safe-area-inset-top) + 64px));
 }
 
 .knowledge-prose ul,
@@ -370,7 +377,8 @@ body { background: var(--bf-bg); }
 .bf-result-page > div:first-child { border-top: none; padding-top: 20px; }
 .bf-result-trophy { font-size: 35px; line-height: 1; margin-top: 24px; }
 .bf-result-score { font-size: 68px; }
-.bf-result-celebration > :not(.bf-result-confetti) { position: relative; z-index: 1; }
+.bf-result-stage { padding-bottom: 12px; }
+.bf-result-stage > :not(.bf-result-confetti) { position: relative; z-index: 1; }
 .bf-result-page h1 { font-size: 20px; }
 .bf-result-page button,.bf-result-page a { min-height: 44px; }
 .bf-check-row { border-radius: 8px; min-height: 46px; padding: 8px; }
