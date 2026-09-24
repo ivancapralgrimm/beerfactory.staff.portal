@@ -140,27 +140,53 @@ Deno.serve(async (req) => {
     return J({ error: "account_disabled" }, 403);
   }
 
+  const loadPositionContext = async () => {
+    const {
+      data,
+      error
+    } = await db.rpc(
+      "get_profile_position_self_service_context",
+      { p_profile_id: user.id }
+    );
+
+    if (error) {
+      return null;
+    }
+
+    return data as {
+      can_change?: boolean;
+      reason?: "window_locked" | "already_changed" | null;
+      next_open_at?: string | null;
+    } | null;
+  };
+
+  const withPositionContext = async (
+    currentProfile: Record<string, unknown>
+  ) => {
+    const context = await loadPositionContext();
+
+    return {
+      ...currentProfile,
+      position_change_allowed:
+        context?.can_change ?? false,
+      position_change_available_at:
+        context?.next_open_at ?? null,
+      position_change_reason:
+        context?.reason ?? "window_locked"
+    };
+  };
+
   if (req.method === "GET") {
-    return J({ profile });
+    return J({
+      profile: await withPositionContext(
+        profile as Record<string, unknown>
+      )
+    });
   }
 
   if (req.method === "PATCH") {
     try {
       const body = await req.json();
-      const patch: Record<string, unknown> = {
-        updated_at: new Date().toISOString()
-      };
-
-      if ("birth_date" in body) {
-        const birthDate =
-          String(body.birth_date || "").trim();
-
-        if (birthDate && !validBirthDate(birthDate)) {
-          return J({ error: "invalid_birth_date" }, 400);
-        }
-
-        patch.birth_date = birthDate || null;
-      }
 
       if ("position_code" in body) {
         const code =
@@ -170,31 +196,140 @@ Deno.serve(async (req) => {
           return J({ error: "invalid_position" }, 400);
         }
 
-        patch.position_code = code;
-        patch.position = POSITION_LABELS[code];
+        if (profile.position_code !== code) {
+          const {
+            error: positionError
+          } = await db.rpc(
+            "set_profile_position_self_service",
+            {
+              p_profile_id: user.id,
+              p_position_code: code
+            }
+          );
+
+          if (positionError) {
+            const message =
+              String(positionError.message || "");
+
+            if (
+              message.includes(
+                "position_change_window_locked"
+              )
+            ) {
+              return J(
+                { error: "position_change_window_locked" },
+                409
+              );
+            }
+
+            if (
+              message.includes(
+                "position_change_next_window"
+              )
+            ) {
+              return J(
+                { error: "position_change_next_window" },
+                409
+              );
+            }
+
+            return J({ error: "failed" }, 500);
+          }
+        }
       } else if ("position" in body) {
         const legacy =
           String(body.position || "")
             .trim()
             .slice(0, 80);
 
-        patch.position = legacy || null;
-        patch.position_code = positionFromLegacy(legacy);
+        const code = positionFromLegacy(legacy);
+
+        if (!code) {
+          return J({ error: "invalid_position" }, 400);
+        }
+
+        if (profile.position_code !== code) {
+          const {
+            error: positionError
+          } = await db.rpc(
+            "set_profile_position_self_service",
+            {
+              p_profile_id: user.id,
+              p_position_code: code
+            }
+          );
+
+          if (positionError) {
+            const message =
+              String(positionError.message || "");
+
+            if (
+              message.includes(
+                "position_change_window_locked"
+              )
+            ) {
+              return J(
+                { error: "position_change_window_locked" },
+                409
+              );
+            }
+
+            if (
+              message.includes(
+                "position_change_next_window"
+              )
+            ) {
+              return J(
+                { error: "position_change_next_window" },
+                409
+              );
+            }
+
+            return J({ error: "failed" }, 500);
+          }
+        }
+      }
+
+      if ("birth_date" in body) {
+        const birthDate =
+          String(body.birth_date || "").trim();
+
+        if (birthDate && !validBirthDate(birthDate)) {
+          return J({ error: "invalid_birth_date" }, 400);
+        }
+
+        const {
+          error: birthError
+        } = await db
+          .from("profiles")
+          .update({
+            birth_date: birthDate || null,
+            updated_at: new Date().toISOString()
+          })
+          .eq("id", user.id);
+
+        if (birthError) {
+          return J({ error: "failed" }, 500);
+        }
       }
 
       const {
         data: updated,
-        error
+        error: updatedError
       } = await db
         .from("profiles")
-        .update(patch)
-        .eq("id", user.id)
         .select(select)
+        .eq("id", user.id)
         .single();
 
-      return error
+      return updatedError
         ? J({ error: "failed" }, 500)
-        : J({ ok: true, profile: updated });
+        : J({
+            ok: true,
+            profile: await withPositionContext(
+              updated as Record<string, unknown>
+            )
+          });
     } catch {
       return J({ error: "invalid_request" }, 400);
     }
