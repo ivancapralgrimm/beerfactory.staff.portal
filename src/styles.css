@@ -198,13 +198,13 @@ a {
 
 .knowledge-prose {
   color: var(--bf-muted);
-  font-size: 17px;
-  line-height: 1.72;
+  font-size: 14px;
+  line-height: 1.65;
   overflow-wrap: anywhere;
 }
 
 .knowledge-prose p {
-  margin: 17px 0;
+  margin: 12px 0;
 }
 
 .knowledge-prose strong {
@@ -225,9 +225,9 @@ a {
 }
 
 .knowledge-prose h2 {
-  margin: 30px 0 10px;
+  margin: 24px 0 8px;
   color: var(--bf-cream);
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 850;
   line-height: 1.2;
   letter-spacing: -0.02em;
@@ -235,42 +235,43 @@ a {
 
 .knowledge-prose ul,
 .knowledge-prose ol {
-  margin: 18px 0;
+  margin: 12px 0;
   padding-left: 24px;
 }
 
 .knowledge-prose li {
-  margin: 8px 0;
+  margin: 6px 0;
   padding-left: 2px;
 }
 
 .knowledge-prose hr {
-  margin: 30px 0;
+  margin: 22px 0;
   border: 0;
   border-top: 1px solid var(--bf-line);
 }
 
 .knowledge-callout {
-  margin: 22px 0;
-  border-left: 3px solid var(--bf-copper-hi);
-  background: color-mix(in srgb, var(--bf-copper), transparent 91%);
-  padding: 14px 15px;
+  margin: 18px 0;
+  border: 1px solid var(--bf-line);
+  border-radius: 12px;
+  background: var(--bf-surface-2);
+  padding: 12px 14px;
   color: var(--bf-cream);
   line-height: 1.6;
 }
 
 .knowledge-figure {
-  margin: 26px 0;
+  margin: 18px 0;
 }
 
 .knowledge-image-button {
   display: grid;
   width: 100%;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 16 / 9;
   place-items: center;
   overflow: hidden;
   border: 1px solid var(--bf-line);
-  border-radius: 16px;
+  border-radius: 12px;
   background: var(--bf-surface);
   padding: 0;
   cursor: zoom-in;
