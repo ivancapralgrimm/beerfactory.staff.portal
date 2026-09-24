@@ -210,11 +210,7 @@ export function RecipeDetailPage() {
         </div>
       </div>
 
-      <div
-        role="status"
-        aria-live="polite"
-        className="min-h-5 text-right text-xs text-[var(--bf-muted)]"
-      >
+      <div role="status" aria-live="polite" className="text-right text-xs text-[var(--bf-muted)] empty:hidden">
         {shareStatus}
       </div>
 
@@ -239,23 +235,18 @@ export function RecipeDetailPage() {
         </div>
       ) : null}
 
-      <header className="mt-5 grid gap-5 md:grid-cols-[minmax(0,1.08fr)_minmax(280px,.92fr)] md:items-stretch">
-        <div className="flex min-h-[250px] flex-col justify-end border-y border-[var(--bf-line)] py-6 md:min-h-[330px]">
+      <header className="mt-6 grid gap-4 md:grid-cols-[minmax(0,1.08fr)_minmax(280px,.92fr)] md:items-start">
+        <div className="border-b border-[var(--bf-line)] pb-5">
           <p className="eyebrow">
             {categoryLabel(recipe.category).toUpperCase() || "МЕНЮ"}
+            {recipe.subcategory ? ` / ${recipe.subcategory.toUpperCase()}` : ""}
           </p>
-          <h1 className="mt-3 text-balance text-[clamp(40px,9vw,72px)] font-black leading-[0.92] tracking-[-0.055em]">
+          <h1 className="mt-3 text-balance text-[clamp(27px,7.2vw,38px)] font-black leading-[1.12] tracking-[-0.035em]">
             {recipe.name}
           </h1>
 
-          {recipe.subcategory ? (
-            <p className="mt-3 text-sm font-semibold text-[var(--bf-muted)]">
-              {recipe.subcategory}
-            </p>
-          ) : null}
-
           {recipe.tags.length ? (
-            <div className="mt-5 flex flex-wrap gap-2">
+            <div className="mt-3 flex flex-wrap gap-2">
               {recipe.tags.map((tag) => (
                 <span
                   key={tag}
@@ -271,7 +262,7 @@ export function RecipeDetailPage() {
         {recipe.photo && !photoFailed ? (
           <button
             type="button"
-            className="group relative grid min-h-[260px] aspect-[4/3] place-items-center overflow-hidden rounded-2xl border border-[var(--bf-line)] bg-[var(--bf-surface)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)] md:aspect-auto"
+            className="group relative grid aspect-[16/9] place-items-center overflow-hidden rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)] md:aspect-[4/3]"
             aria-label={`Открыть фото ${recipe.name}`}
             onClick={() => setPhotoOpen(true)}
           >
@@ -291,34 +282,23 @@ export function RecipeDetailPage() {
         ) : null}
       </header>
 
-      <div className="mt-7 grid gap-7 md:grid-cols-[minmax(0,1.35fr)_minmax(240px,.65fr)] md:items-start">
-        <div className="space-y-7">
-          <section aria-labelledby="ingredients-title">
-            <p className="eyebrow">СОСТАВ</p>
-            <h2
-              id="ingredients-title"
-              className="mt-1 text-2xl font-black tracking-[-0.025em]"
-            >
-              Техкарта
-            </h2>
-
-            <div className="mt-3 divide-y divide-[var(--bf-line)] border-y border-[var(--bf-line)]">
-              {recipe.ingredients.length ? (
-                recipe.ingredients.map((ingredient, index) => (
+      <div className="mt-5 grid gap-6 md:grid-cols-[minmax(0,1.35fr)_minmax(240px,.65fr)] md:items-start">
+        <div className="space-y-6">
+          {recipe.ingredients.length > 0 ? (
+            <section aria-labelledby="ingredients-title">
+              <h2 id="ingredients-title" className="eyebrow">СОСТАВ</h2>
+              <div className="mt-3 divide-y divide-[var(--bf-line)] overflow-hidden rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-4">
+                {recipe.ingredients.map((ingredient, index) => (
                   <div
                     key={`${ingredient}-${index}`}
-                    className="py-3 text-[15px] leading-6"
+                    className="py-3 text-[14px] leading-[1.5] text-[var(--bf-cream)]"
                   >
                     {ingredient}
                   </div>
-                ))
-              ) : (
-                <div className="py-3 text-sm text-[var(--bf-muted)]">
-                  Состав не заполнен.
-                </div>
-              )}
-            </div>
-          </section>
+                ))}
+              </div>
+            </section>
+          ) : null}
 
           {isCalculable(recipe) ? (
             <RecipeCalculator recipe={recipe} />
@@ -327,16 +307,10 @@ export function RecipeDetailPage() {
           {recipe.method ? (
             <section
               aria-labelledby="method-title"
-              className="border-t border-[var(--bf-line)] pt-5"
+              className="border-t border-[var(--bf-line)] pt-4"
             >
-              <p className="eyebrow">ПРИГОТОВЛЕНИЕ</p>
-              <h2
-                id="method-title"
-                className="mt-1 text-2xl font-black tracking-[-0.025em]"
-              >
-                Метод
-              </h2>
-              <p className="mt-3 whitespace-pre-wrap text-[15px] leading-7 text-[var(--bf-muted)]">
+              <h2 id="method-title" className="eyebrow">ПРИГОТОВЛЕНИЕ</h2>
+              <p className="mt-3 whitespace-pre-wrap text-[14px] leading-[1.65] text-[var(--bf-muted)]">
                 {recipe.method}
               </p>
             </section>
@@ -345,32 +319,25 @@ export function RecipeDetailPage() {
           {recipe.serving ? (
             <section
               aria-labelledby="serving-title"
-              className="border-t border-[var(--bf-line)] pt-5"
+              className="border-t border-[var(--bf-line)] pt-4"
             >
-              <p className="eyebrow">ПОДАЧА / ВЫХОД</p>
-              <h2
-                id="serving-title"
-                className="mt-1 text-2xl font-black tracking-[-0.025em]"
-              >
-                Финал
-              </h2>
-              <p className="mt-3 whitespace-pre-wrap text-[15px] leading-7 text-[var(--bf-muted)]">
+              <h2 id="serving-title" className="eyebrow">ПОДАЧА / ВЫХОД</h2>
+              <p className="mt-3 whitespace-pre-wrap text-[14px] leading-[1.65] text-[var(--bf-muted)]">
                 {recipe.serving}
               </p>
             </section>
           ) : null}
         </div>
 
-        <aside className="space-y-6 md:sticky md:top-24">
-          <section className="border-y border-[var(--bf-line)] py-4">
-            <p className="eyebrow">О РЕЦЕПТЕ</p>
-            <h2 className="mt-1 text-xl font-extrabold">Данные</h2>
-            <div className="mt-3">
+        <aside className="space-y-4 md:sticky md:top-6">
+          <details className="border-t border-[var(--bf-line)] pt-3">
+            <summary className="min-h-11 cursor-pointer py-3 text-sm font-bold text-[var(--bf-cream)] focus-visible:outline-2 focus-visible:outline-[var(--bf-copper-hi)]">Данные рецепта</summary>
+            <div className="pb-3">
               {metadata.map(([label, value]) => (
                 <MetaLine key={label} label={label} value={value} />
               ))}
             </div>
-          </section>
+          </details>
 
           {recipe.changeNote ? (
             <section className="border-t border-[var(--bf-line)] pt-4">
