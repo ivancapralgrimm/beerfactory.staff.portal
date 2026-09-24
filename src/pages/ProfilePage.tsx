@@ -163,7 +163,7 @@ export function ProfilePage() {
   }
 
   return (
-    <section className="mx-auto max-w-2xl pb-6">
+    <section className="bf-profile-page mx-auto max-w-2xl pb-6">
       <p className="eyebrow">ЛИЧНЫЙ ПРОФИЛЬ</p>
       <h1 className="mt-2 text-[34px] font-black leading-none tracking-[-0.04em]">
         {fullName || "Сотрудник"}

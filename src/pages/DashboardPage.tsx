@@ -1,10 +1,14 @@
 import { motion } from "motion/react";
+import { useAuth } from "@/features/auth/auth-context";
 import {
   BookOpen,
   Cake,
   ClipboardCheck,
-  Search,
-  StickyNote
+  StickyNote,
+  UtensilsCrossed,
+  Star,
+  ChevronRight,
+  UserRound
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Surface } from "@/components/ui/surface";
@@ -24,30 +28,10 @@ import {
 } from "@/types/auth";
 
 const actions = [
-  {
-    to: "/menu",
-    title: "Найти рецепт",
-    text: "Бар и кухня без смешивания источников.",
-    icon: Search
-  },
-  {
-    to: "/knowledge",
-    title: "Открыть знания",
-    text: "Статьи и сервисные материалы.",
-    icon: BookOpen
-  },
-  {
-    to: "/shift",
-    title: "Смена",
-    text: "Открытие и закрытие по рабочей должности.",
-    icon: ClipboardCheck
-  },
-  {
-    to: "/handover",
-    title: "Передача",
-    text: "Общие рабочие заметки всей команды.",
-    icon: StickyNote
-  }
+  { to: "/menu", title: "Рецепты", text: "Блюда, напитки, технологии", icon: UtensilsCrossed },
+  { to: "/knowledge", title: "Знания", text: "Обучение и статьи", icon: BookOpen },
+  { to: "/shift", title: "Смена", text: "Чек-листы и отчёты", icon: ClipboardCheck },
+  { to: "/handover", title: "Заметки", text: "Обмен информацией", icon: StickyNote }
 ];
 
 const BIRTHDAY_LABELS = {
@@ -106,6 +90,8 @@ function ageLabel(age: number) {
 }
 
 export function DashboardPage() {
+  const { state: auth } = useAuth();
+  const firstName = auth.status === "authenticated" ? auth.user.first_name : "";
   const {
     notes,
     loading,
@@ -152,38 +138,35 @@ export function DashboardPage() {
       }}
       className="space-y-5"
     >
-      <section className="py-2">
-        <p className="eyebrow">
-          BFSTAFF · R40.4
-        </p>
-
-        <h1 className="mt-2 max-w-[16ch] text-balance text-[38px] font-black leading-[0.98] tracking-[-0.045em]">
-          Рабочий портал команды
-        </h1>
-
-        <p className="mt-4 max-w-2xl text-pretty text-base leading-7 text-[var(--bf-muted)]">
-          Всё, что требует внимания
-          сегодня, плюс быстрый доступ
-          к рабочим разделам.
-        </p>
-
-        <div className="mt-5 flex flex-wrap gap-2">
-          <Button
-            asChild
-            variant="primary"
-          >
-            <Link to="/menu">
-              Рецепты
-            </Link>
-          </Button>
-
-          <Button asChild>
-            <Link to="/profile">
-              Мой профиль
-            </Link>
-          </Button>
-        </div>
+      <section className="bf-dashboard-hero">
+        <div className="bf-dashboard-brand">BEERFACTORY <span>STAFF PORTAL</span></div>
+        <Link to="/profile" className="bf-dashboard-avatar" aria-label="Открыть профиль">
+          <img src="/assets/icons/profile-avatar.png" alt="" />
+        </Link>
+        <h1>Привет{firstName ? `, ${firstName}` : ""}!</h1>
+        <p>Хорошего рабочего дня!<br />«Вкус начинается с команды»</p>
       </section>
+
+      <div className="bf-dashboard-content">
+        <Link className="bf-day-status" to="/shift">
+          <ClipboardCheck aria-hidden className="size-5" />
+          <span><strong>Смена</strong><small>Проверить чек-лист и статус смены</small></span>
+          <ChevronRight aria-hidden className="size-4" />
+        </Link>
+
+        <div className="bf-dashboard-actions">
+          {actions.map(({ to, title, text, icon: Icon }) => (
+            <Link key={to} to={to} className="bf-dashboard-action">
+              <Icon aria-hidden className="size-6" />
+              <ChevronRight aria-hidden className="bf-action-chevron size-4" />
+              <strong>{title}</strong><span>{text}</span>
+            </Link>
+          ))}
+        </div>
+        <Link to="/attestation" className="bf-dashboard-wide-action"><Star aria-hidden className="size-5" /><span><strong>Аттестация</strong><small>Проверь свои знания</small></span><ChevronRight aria-hidden className="size-4" /></Link>
+        <Button asChild variant="primary" className="bf-dashboard-primary"><Link to="/menu">Перейти к рецептам <ChevronRight aria-hidden className="size-4" /></Link></Button>
+        <Button asChild className="bf-dashboard-profile"><Link to="/profile"><UserRound aria-hidden className="size-4" /> Мой профиль <ChevronRight aria-hidden className="size-4" /></Link></Button>
+      </div>
 
       {showBirthdaySection ? (
         <section>
@@ -367,62 +350,6 @@ export function DashboardPage() {
         </section>
       ) : null}
 
-      <div className="grid gap-2.5 sm:grid-cols-2">
-        {actions.map(
-          (
-            {
-              to,
-              title,
-              text,
-              icon: Icon
-            },
-            index
-          ) => (
-            <motion.div
-              key={to}
-              initial={{
-                opacity: 0,
-                y: 6
-              }}
-              animate={{
-                opacity: 1,
-                y: 0
-              }}
-              transition={{
-                delay:
-                  0.04 * index,
-                duration: 0.18
-              }}
-            >
-              <Link
-                to={to}
-                className="block rounded-[22px] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
-              >
-                <Surface className="min-h-36 p-4 transition-colors hover:border-[var(--bf-line-strong)]">
-                  <div className="flex items-start justify-between gap-3">
-                    <Icon
-                      className="size-5 text-[var(--bf-copper-hi)]"
-                      aria-hidden
-                    />
-
-                    <span className="text-xs font-bold tracking-[0.11em] text-[var(--bf-dim)]">
-                      0{index + 1}
-                    </span>
-                  </div>
-
-                  <h2 className="mt-6 text-xl font-extrabold">
-                    {title}
-                  </h2>
-
-                  <p className="mt-1.5 text-sm leading-5 text-[var(--bf-muted)]">
-                    {text}
-                  </p>
-                </Surface>
-              </Link>
-            </motion.div>
-          )
-        )}
-      </div>
     </motion.div>
   );
 }
