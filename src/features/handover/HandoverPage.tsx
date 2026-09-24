@@ -184,7 +184,7 @@ export function HandoverPage() {
   }
 
   return (
-    <section className="mx-auto max-w-3xl pb-6">
+    <section className="bf-handover-page mx-auto max-w-3xl pb-6">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="eyebrow">
