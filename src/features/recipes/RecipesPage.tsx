@@ -239,9 +239,9 @@ export function RecipesPage() {
     : "";
 
   return (
-    <section className="pb-4">
+    <section className="bf-list-page bf-recipes-page pb-4">
       <div className="max-w-2xl">
-        <p className="eyebrow">РЕЦЕПТЫ · NOCODB</p>
+        <p className="eyebrow">РЕЦЕПТЫ</p>
         <h1 className="mt-2 text-[36px] font-black leading-none tracking-[-0.04em]">
           Рецепты
         </h1>
