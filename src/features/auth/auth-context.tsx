@@ -50,29 +50,51 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Carries the first-login requirement across Supabase auth events.
   // This avoids the old class of bugs where auth state changes faster than routing.
   const recoveryRequiredRef = useRef(false);
+  const hydrateGenerationRef = useRef(0);
 
   const hydrateSession = useCallback(async (session: Session | null) => {
+    const generation = ++hydrateGenerationRef.current;
     if (!session) {
       recoveryRequiredRef.current = false;
       setState({ status: "anonymous", session: null, user: null });
       return;
     }
 
+    let currentSession = session;
     try {
-      const profile = await fetchStaffProfile(session.access_token);
+      let profile;
+      try {
+        profile = await fetchStaffProfile(currentSession.access_token);
+      } catch (error) {
+        if ((error as { status?: number }).status !== 401) throw error;
+
+        // A profile request may finish with an old JWT after Supabase has
+        // already refreshed it. Retry before treating the session as lost.
+        const { data } = await supabase.auth.getSession();
+        if (generation !== hydrateGenerationRef.current) return;
+        const refreshed = data.session?.access_token !== currentSession.access_token
+          ? data.session
+          : (await supabase.auth.refreshSession()).data.session;
+        if (!refreshed) throw new Error("session_refresh_unavailable");
+        currentSession = refreshed;
+        profile = await fetchStaffProfile(currentSession.access_token);
+      }
+      if (generation !== hydrateGenerationRef.current) return;
       const recoveryRequired =
         recoveryRequiredRef.current || profile?.recovery_configured === false;
 
       setState({
         status: "authenticated",
-        session,
-        user: mergeUser(session, profile),
+        session: currentSession,
+        user: mergeUser(currentSession, profile),
         recoveryRequired
       });
     } catch (error) {
+      if (generation !== hydrateGenerationRef.current) return;
       const status = (error as { status?: number }).status;
       if (status === 401 || status === 403 || status === 404) {
         await supabase.auth.signOut();
+        if (generation !== hydrateGenerationRef.current) return;
         recoveryRequiredRef.current = false;
         setState({ status: "anonymous", session: null, user: null });
         return;
@@ -81,8 +103,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // A temporary profile/network outage must not destroy a valid Auth session.
       setState({
         status: "authenticated",
-        session,
-        user: session.user as AuthUser,
+        session: currentSession,
+        user: currentSession.user as AuthUser,
         recoveryRequired: recoveryRequiredRef.current
       });
     }
