@@ -369,7 +369,8 @@ body { background: var(--bf-bg); }
 .bf-category-option strong { font-size: 17px; }
 .bf-result-page > div:first-child { border-top: none; padding-top: 20px; }
 .bf-result-trophy { font-size: 35px; line-height: 1; margin-top: 24px; }
-.bf-result-page > div:first-child > div:nth-of-type(2) { font-size: 68px; }
+.bf-result-score { font-size: 68px; }
+.bf-result-celebration > :not(.bf-result-confetti) { position: relative; z-index: 1; }
 .bf-result-page h1 { font-size: 20px; }
 .bf-result-page button,.bf-result-page a { min-height: 44px; }
 .bf-check-row { border-radius: 8px; min-height: 46px; padding: 8px; }
