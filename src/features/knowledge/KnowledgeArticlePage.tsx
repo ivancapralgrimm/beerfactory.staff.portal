@@ -32,6 +32,14 @@ function safeDecode(value: string) {
   }
 }
 
+function sectionTitle(
+  block: ReturnType<typeof parseKnowledgeMarkdown>[number]
+) {
+  if (block.type === "heading") return block.text;
+  if (block.type !== "paragraph" || block.lines.length !== 1) return null;
+  return block.lines[0].match(/^\*\*([^*]+)\*\*$/u)?.[1] ?? null;
+}
+
 export function KnowledgeArticlePage() {
   const { articleId = "" } = useParams();
   const requestedId = safeDecode(articleId);
@@ -58,9 +66,10 @@ export function KnowledgeArticlePage() {
     [article]
   );
   const sections = useMemo(
-    () => blocks.flatMap((block, index) =>
-      block.type === "heading" ? [{ index, title: block.text }] : []
-    ),
+    () => blocks.flatMap((block, index) => {
+      const title = sectionTitle(block);
+      return title ? [{ index, title }] : [];
+    }),
     [blocks]
   );
 
@@ -254,6 +263,14 @@ export function KnowledgeArticlePage() {
       <div className="knowledge-prose py-4 sm:py-6">
         {blocks.map((block, index) => {
           if (block.type === "paragraph") {
+            const standaloneTitle = sectionTitle(block);
+            if (standaloneTitle) {
+              return (
+                <h2 key={index} id={`knowledge-section-${index}`}>
+                  {standaloneTitle}
+                </h2>
+              );
+            }
             return (
               <p key={index}>
                 {block.lines.map((line, lineIndex) => (
