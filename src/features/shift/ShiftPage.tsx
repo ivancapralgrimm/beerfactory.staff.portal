@@ -212,7 +212,6 @@ function ActivePhase({
   rows,
   completed,
   total,
-  percent,
   locked,
   pendingKeys,
   confirming,
@@ -223,7 +222,6 @@ function ActivePhase({
   rows: PositionShiftRow[];
   completed: number;
   total: number;
-  percent: number;
   locked: boolean;
   pendingKeys: ReadonlySet<string>;
   confirming: "open" | "close" | null;
@@ -253,21 +251,6 @@ function ActivePhase({
         <span className="shrink-0 rounded-full border border-[var(--bf-line)] px-3 py-2 text-xs font-black text-[var(--bf-cream)]">
           {completed}/{total}
         </span>
-      </div>
-
-      <div className="mt-4">
-        <ProgressBar
-          value={percent}
-          label={
-            opening
-              ? "Прогресс открытия смены"
-              : "Прогресс закрытия смены"
-          }
-        />
-        <div className="mt-2 flex justify-between text-[11px] text-[var(--bf-dim)]">
-          <span>Выполнено</span>
-          <span>{percent}%</span>
-        </div>
       </div>
 
       <div className="mt-4 grid gap-2">
@@ -771,68 +754,22 @@ export function ShiftPage() {
           </div>
         </div>
 
-        <div className="mt-4 grid grid-cols-3 gap-2">
-          <div className="rounded-xl border border-[var(--bf-line)] bg-[var(--bf-bg)] px-3 py-2">
-            <p className="text-[10px] uppercase tracking-[0.1em] text-[var(--bf-dim)]">
-              Открыта
-            </p>
-            <p className="mt-1 font-black">
-              {formatTime(
-                shift.opened_at,
-                context.venue_timezone
-              )}
-            </p>
-          </div>
-          <div className="rounded-xl border border-[var(--bf-line)] bg-[var(--bf-bg)] px-3 py-2">
-            <p className="text-[10px] uppercase tracking-[0.1em] text-[var(--bf-dim)]">
-              Закрыта
-            </p>
-            <p className="mt-1 font-black">
-              {formatTime(
-                shift.closed_at,
-                context.venue_timezone
-              )}
-            </p>
-          </div>
-          <div className="rounded-xl border border-[var(--bf-line)] bg-[var(--bf-bg)] px-3 py-2">
-            <p className="text-[10px] uppercase tracking-[0.1em] text-[var(--bf-dim)]">
-              Крайний срок
-            </p>
-            <p className="mt-1 font-black">
-              {formatTime(
-                context.closes_at,
-                context.venue_timezone
-              )}
-            </p>
-          </div>
-        </div>
+        {shift.status !== "not_started" ? (
+          <p className="mt-3 text-xs text-[var(--bf-muted)]">
+            Открыта {formatTime(shift.opened_at, context.venue_timezone)}
+            {shift.closed_at ? ` · закрыта ${formatTime(shift.closed_at, context.venue_timezone)}` : ""}
+            {context.closes_at ? ` · до ${formatTime(context.closes_at, context.venue_timezone)}` : ""}
+          </p>
+        ) : null}
       </div>
 
-      <div className="mt-3 grid gap-2 sm:grid-cols-2">
-        <div className="rounded-2xl border border-[var(--bf-line)] bg-[var(--bf-surface)] p-4">
-          <p className="eyebrow">ОТКРЫТИЕ</p>
-          <p className="mt-1 text-xl font-black">
-            {opening.completed}/{opening.total}
-          </p>
-          <div className="mt-3">
-            <ProgressBar
-              value={opening.percent}
-              label="Прогресс открытия"
-            />
-          </div>
+      <div className="bf-shift-summary mt-3 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] p-3">
+        <div className="flex justify-between gap-3 text-xs">
+          <span className="text-[var(--bf-muted)]">Выполнено пунктов</span>
+          <strong>{activePhase === "opening" ? opening.completed : closing.completed} из {activePhase === "opening" ? opening.total : closing.total}</strong>
         </div>
-
-        <div className="rounded-2xl border border-[var(--bf-line)] bg-[var(--bf-surface)] p-4">
-          <p className="eyebrow">ЗАКРЫТИЕ</p>
-          <p className="mt-1 text-xl font-black">
-            {closing.completed}/{closing.total}
-          </p>
-          <div className="mt-3">
-            <ProgressBar
-              value={closing.percent}
-              label="Прогресс закрытия"
-            />
-          </div>
+        <div className="mt-2">
+          <ProgressBar value={activePhase === "opening" ? opening.percent : closing.percent} label="Прогресс текущего этапа смены" />
         </div>
       </div>
 
@@ -843,7 +780,6 @@ export function ShiftPage() {
             rows={opening.list}
             completed={opening.completed}
             total={opening.total}
-            percent={opening.percent}
             locked={interactionLocked}
             pendingKeys={pendingKeys}
             confirming={confirming}
@@ -858,7 +794,6 @@ export function ShiftPage() {
             rows={closing.list}
             completed={closing.completed}
             total={closing.total}
-            percent={closing.percent}
             locked={interactionLocked}
             pendingKeys={pendingKeys}
             confirming={confirming}
