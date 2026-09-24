@@ -57,6 +57,12 @@ export function KnowledgeArticlePage() {
     () => (article ? parseKnowledgeMarkdown(article.body) : []),
     [article]
   );
+  const sections = useMemo(
+    () => blocks.flatMap((block, index) =>
+      block.type === "heading" ? [{ index, title: block.text }] : []
+    ),
+    [blocks]
+  );
 
   const read = article
     ? progress.state.readIds.has(article.id)
@@ -207,15 +213,11 @@ export function KnowledgeArticlePage() {
         </div>
       </div>
 
-      <div
-        role="status"
-        aria-live="polite"
-        className="min-h-5 text-right text-xs text-[var(--bf-muted)]"
-      >
+      <div role="status" aria-live="polite" className="text-right text-xs text-[var(--bf-muted)] empty:hidden">
         {shareStatus}
       </div>
 
-      <header className="mt-4 border-y border-[var(--bf-line)] py-7 sm:py-9">
+      <header className="mt-6 border-b border-[var(--bf-line)] pb-5">
         <div className="flex flex-wrap items-center gap-2">
           <span className="eyebrow">{article.category.toUpperCase()}</span>
           {read ? (
@@ -226,12 +228,30 @@ export function KnowledgeArticlePage() {
           ) : null}
         </div>
 
-        <h1 className="mt-3 text-balance text-[clamp(36px,8vw,58px)] font-black leading-[0.96] tracking-[-0.045em]">
+        <h1 className="mt-3 text-balance text-[clamp(27px,7.2vw,38px)] font-black leading-[1.12] tracking-[-0.035em]">
           {article.title}
         </h1>
       </header>
 
-      <div className="knowledge-prose py-5 sm:py-7">
+      {sections.length >= 3 ? (
+        <nav aria-label="Разделы статьи" className="mt-4 flex gap-2 overflow-x-auto pb-1">
+          {sections.map(({ index, title }) => (
+            <button
+              key={index}
+              type="button"
+              className="min-h-11 shrink-0 rounded-full border border-[var(--bf-line)] bg-[var(--bf-surface)] px-4 text-xs font-bold text-[var(--bf-cream)] focus-visible:outline-2 focus-visible:outline-[var(--bf-copper-hi)]"
+              onClick={() => document.getElementById(`knowledge-section-${index}`)?.scrollIntoView({
+                behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+                block: "start"
+              })}
+            >
+              {title}
+            </button>
+          ))}
+        </nav>
+      ) : null}
+
+      <div className="knowledge-prose py-4 sm:py-6">
         {blocks.map((block, index) => {
           if (block.type === "paragraph") {
             return (
@@ -248,7 +268,7 @@ export function KnowledgeArticlePage() {
 
           if (block.type === "heading") {
             return (
-              <h2 key={index}>
+              <h2 key={index} id={`knowledge-section-${index}`}>
                 {renderKnowledgeInline(block.text)}
               </h2>
             );
