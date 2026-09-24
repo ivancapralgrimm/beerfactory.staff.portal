@@ -149,12 +149,16 @@ spacing follow the compact recipe rhythm. Images appear only when present in art
 content; the image dialog and read persistence remain functional. Articles with at
 least three section headings (including standalone bold topic lines) show a compact,
 scrollable section navigator. Its buttons lead to those headings and respect
-reduced-motion preferences.
+reduced-motion preferences. Targets keep at least 104px of top clearance, including
+the mobile safe area, so the selected chapter title stays visible after navigation.
+The chapter titles are compact rounded surface labels within the article body.
 
 ## Attestation completion motion
 
 A server-independent result celebration plays once when the actual answer count meets
 the category's passing threshold (`result.passed`, normally 80% or higher). The trophy
-and result remain readable while a brief copper, gold, cream and green confetti burst
-passes behind them. Failed attempts have no confetti. Reduced-motion preference
+and result remain readable while two copper, gold, cream and green confetti jets
+fire outward and the pieces fall behind the result to the bottom of its information
+area over approximately 3–4 seconds. The floor is implied, not drawn. Failed
+attempts have no confetti. Reduced-motion preference
 suppresses the particles entirely; the score and actions are still visible.
