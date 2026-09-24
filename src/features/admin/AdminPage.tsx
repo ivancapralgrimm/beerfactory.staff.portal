@@ -237,7 +237,7 @@ export function AdminPage() {
   ];
 
   return (
-    <section className="mx-auto max-w-4xl pb-8">
+    <section className="bf-admin-page mx-auto max-w-4xl pb-8">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="eyebrow">АДМИНИСТРИРОВАНИЕ</p>
