@@ -158,15 +158,14 @@ export function KnowledgePage() {
   const from = `${location.pathname}${location.search}`;
 
   return (
-    <section className="pb-4">
+    <section className="bf-list-page bf-knowledge-page pb-4">
       <div className="max-w-2xl">
         <p className="eyebrow">БАЗА ЗНАНИЙ</p>
         <h1 className="mt-2 text-[36px] font-black leading-none tracking-[-0.04em]">
           Знания
         </h1>
         <p className="mt-3 text-pretty text-[15px] leading-6 text-[var(--bf-muted)]">
-          Рабочие материалы BeerFactory. Ищи по теме, слову или содержанию
-          статьи.
+          Развиваемся вместе. Ищи по теме, слову или содержанию статьи.
         </p>
 
         {state.status === "ready" ? (
