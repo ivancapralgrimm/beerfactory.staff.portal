@@ -313,44 +313,46 @@ function ResultView({
 
   return (
     <section className="bf-result-page mx-auto max-w-3xl pb-7">
-      <div className="bf-result-celebration relative isolate border-y border-[var(--bf-line)] py-7 text-center sm:py-9">
-        {result.passed && result.total > 0 ? (
-          <PassedScoreConfetti />
-        ) : null}
-        <p className="eyebrow">
-          РЕЗУЛЬТАТ · {result.categoryLabel.toUpperCase()}
-        </p>
+      <div className="bf-result-celebration border-y border-[var(--bf-line)] py-7 text-center sm:py-9">
+        <div className="bf-result-stage relative isolate overflow-hidden">
+          {result.passed && result.total > 0 ? (
+            <PassedScoreConfetti />
+          ) : null}
+          <p className="eyebrow">
+            РЕЗУЛЬТАТ · {result.categoryLabel.toUpperCase()}
+          </p>
 
-        <div className="bf-result-trophy" aria-hidden>{result.passed ? "🏆" : "✦"}</div>
+          <div className="bf-result-trophy" aria-hidden>{result.passed ? "🏆" : "✦"}</div>
 
-        <div
-          className={cn(
-            "bf-result-score mt-3 text-[72px] font-black leading-none tracking-[-0.06em]",
-            result.passed
-              ? "text-[var(--bf-green)]"
-              : "text-[#e99990]"
-          )}
-        >
-          {result.score}%
+          <div
+            className={cn(
+              "bf-result-score mt-3 text-[72px] font-black leading-none tracking-[-0.06em]",
+              result.passed
+                ? "text-[var(--bf-green)]"
+                : "text-[#e99990]"
+            )}
+          >
+            {result.score}%
+          </div>
+
+          <h1 className="mt-3 text-2xl font-black">
+            {result.passed
+              ? "Аттестация пройдена"
+              : "Нужно повторить материал"}
+          </h1>
+          <p className="mt-2 text-sm text-[var(--bf-muted)]">
+            {result.correct} из {result.total} · проходной порог{" "}
+            {result.passPercent}%
+          </p>
+
+          <p
+            className="mt-3 min-h-5 text-xs text-[var(--bf-dim)]"
+            role="status"
+            aria-live="polite"
+          >
+            {saveStatus}
+          </p>
         </div>
-
-        <h1 className="mt-3 text-2xl font-black">
-          {result.passed
-            ? "Аттестация пройдена"
-            : "Нужно повторить материал"}
-        </h1>
-        <p className="mt-2 text-sm text-[var(--bf-muted)]">
-          {result.correct} из {result.total} · проходной порог{" "}
-          {result.passPercent}%
-        </p>
-
-        <p
-          className="mt-3 min-h-5 text-xs text-[var(--bf-dim)]"
-          role="status"
-          aria-live="polite"
-        >
-          {saveStatus}
-        </p>
 
         <div className="mt-5 flex flex-wrap justify-center gap-2">
           <Button type="button" variant="primary" onClick={onRestart}>
