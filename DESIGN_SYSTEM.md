@@ -146,9 +146,10 @@ available through a compact disclosure.
 Articles retain their source headings, callouts, lists, images, read status and actions.
 Callouts use the same rounded surface as other content. The article title and vertical
 spacing follow the compact recipe rhythm. Images appear only when present in article
-content; the image dialog and read persistence remain functional. Articles with at
-least three section headings (including standalone bold topic lines) show a compact,
-scrollable section navigator. Its buttons lead to those headings and respect
+content; the image dialog and read persistence remain functional. The compact
+section navigator appears when at least two headings match complete topics from the
+article title. Standalone bold facts, subdivisions and long explanations never become
+navigation controls or chapter cards. Its buttons lead to those headings and respect
 reduced-motion preferences. Targets keep at least 104px of top clearance, including
 the mobile safe area, so the selected chapter title stays visible after navigation.
 The chapter titles are compact rounded surface labels within the article body.
