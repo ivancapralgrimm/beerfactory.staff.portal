@@ -175,6 +175,20 @@ export function RecipeDetailPage() {
   }
 
   const archived = isArchive(recipe);
+  const methodLines = recipe.method.split(/\r?\n/);
+  const inlineComposition =
+    recipe.ingredients.length === 0
+      ? methodLines[0]?.match(/^\s*Состав\s*:\s*(.+)\s*$/iu)
+      : null;
+  const displayIngredients = inlineComposition
+    ? inlineComposition[1]
+        .split(/[,;]+/u)
+        .map((part) => part.trim())
+        .filter(Boolean)
+    : recipe.ingredients;
+  const displayMethod = inlineComposition
+    ? methodLines.slice(1).join("\n").trim()
+    : recipe.method;
   const metadata = [
     ["Категория", categoryLabel(recipe.category) || "Меню"],
     recipe.subcategory
@@ -284,11 +298,11 @@ export function RecipeDetailPage() {
 
       <div className="mt-5 grid gap-6 md:grid-cols-[minmax(0,1.35fr)_minmax(240px,.65fr)] md:items-start">
         <div className="space-y-6">
-          {recipe.ingredients.length > 0 ? (
+          {displayIngredients.length > 0 ? (
             <section aria-labelledby="ingredients-title">
               <h2 id="ingredients-title" className="eyebrow">СОСТАВ</h2>
               <div className="mt-3 divide-y divide-[var(--bf-line)] overflow-hidden rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-4">
-                {recipe.ingredients.map((ingredient, index) => (
+                {displayIngredients.map((ingredient, index) => (
                   <div
                     key={`${ingredient}-${index}`}
                     className="py-3 text-[14px] leading-[1.5] text-[var(--bf-cream)]"
@@ -304,14 +318,14 @@ export function RecipeDetailPage() {
             <RecipeCalculator recipe={recipe} />
           ) : null}
 
-          {recipe.method ? (
+          {displayMethod ? (
             <section
               aria-labelledby="method-title"
               className="border-t border-[var(--bf-line)] pt-4"
             >
               <h2 id="method-title" className="eyebrow">ПРИГОТОВЛЕНИЕ</h2>
               <p className="mt-3 whitespace-pre-wrap text-[14px] leading-[1.65] text-[var(--bf-muted)]">
-                {recipe.method}
+                {displayMethod}
               </p>
             </section>
           ) : null}
