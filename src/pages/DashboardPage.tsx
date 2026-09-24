@@ -165,9 +165,6 @@ export function DashboardPage() {
     >
       <section className="bf-dashboard-hero">
         <div className="bf-dashboard-brand">BEERFACTORY <span>STAFF PORTAL</span></div>
-        <Link to="/profile" className="bf-dashboard-avatar" aria-label="Открыть профиль">
-          <img src="/assets/icons/profile-avatar.png" alt="" />
-        </Link>
         <h1>Привет{firstName ? `, ${firstName}` : ""}!</h1>
         <p>Хорошего рабочего дня!<br />«Вкус начинается с команды»</p>
       </section>
