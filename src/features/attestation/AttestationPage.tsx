@@ -311,11 +311,13 @@ function ResultView({
   });
 
   return (
-    <section className="mx-auto max-w-3xl pb-7">
+    <section className="bf-result-page mx-auto max-w-3xl pb-7">
       <div className="border-y border-[var(--bf-line)] py-7 text-center sm:py-9">
         <p className="eyebrow">
           РЕЗУЛЬТАТ · {result.categoryLabel.toUpperCase()}
         </p>
+
+        <div className="bf-result-trophy" aria-hidden>{result.passed ? "🏆" : "✦"}</div>
 
         <div
           className={cn(
@@ -326,20 +328,6 @@ function ResultView({
           )}
         >
           {result.score}%
-        </div>
-
-        <div className="mt-4 flex justify-center">
-          {result.passed ? (
-            <Trophy
-              className="size-7 text-[var(--bf-gold)]"
-              aria-hidden
-            />
-          ) : (
-            <CircleAlert
-              className="size-7 text-[#e99990]"
-              aria-hidden
-            />
-          )}
         </div>
 
         <h1 className="mt-3 text-2xl font-black">
@@ -625,7 +613,7 @@ export function AttestationPage() {
   }
 
   return (
-    <section className="mx-auto max-w-3xl pb-6">
+    <section className="bf-attestation-page mx-auto max-w-3xl pb-6">
       <div className="max-w-2xl">
         <p className="eyebrow">ПРОВЕРКА ЗНАНИЙ</p>
         <h1 className="mt-2 text-[36px] font-black leading-none tracking-[-0.04em]">
@@ -671,7 +659,7 @@ export function AttestationPage() {
             </h2>
 
             <div
-              className="mt-4 grid grid-cols-2 gap-2.5"
+              className="bf-category-grid mt-4 grid grid-cols-2 gap-2.5"
               role="group"
               aria-label="Категория вопросов"
             >
@@ -688,7 +676,7 @@ export function AttestationPage() {
                       setSelectedCategoryId(category.id)
                     }
                     className={cn(
-                      "grid min-h-[88px] grid-cols-[1fr_56px] items-center gap-3 rounded-2xl border p-4 text-left outline-none transition-[background-color,border-color,transform] focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)] active:translate-y-px",
+                      "bf-category-option grid min-h-[88px] grid-cols-[1fr_56px] items-center gap-3 rounded-2xl border p-4 text-left outline-none transition-[background-color,border-color,transform] focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)] active:translate-y-px",
                       selected
                         ? "border-[var(--bf-copper-hi)] bg-[color:color-mix(in_srgb,var(--bf-copper),transparent_82%)]"
                         : "border-[var(--bf-line)] bg-[var(--bf-surface)]"
