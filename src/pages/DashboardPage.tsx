@@ -1,4 +1,7 @@
 import { motion } from "motion/react";
+import { useEffect, useState } from "react";
+import { loadPositionShiftWorkflow } from "@/features/shift/shift-api";
+import type { PositionShiftWorkflow } from "@/features/shift/types";
 import { useAuth } from "@/features/auth/auth-context";
 import {
   BookOpen,
@@ -92,6 +95,28 @@ function ageLabel(age: number) {
 export function DashboardPage() {
   const { state: auth } = useAuth();
   const firstName = auth.status === "authenticated" ? auth.user.first_name : "";
+  const [shiftWorkflow, setShiftWorkflow] = useState<PositionShiftWorkflow | null>(null);
+
+  useEffect(() => {
+    if (auth.status !== "authenticated") return;
+    let active = true;
+    void loadPositionShiftWorkflow()
+      .then((data) => { if (active) setShiftWorkflow(data); })
+      .catch(() => { if (active) setShiftWorkflow(null); });
+    return () => { active = false; };
+  }, [auth.status]);
+
+  const shiftStatus = shiftWorkflow?.context.state === "locked"
+    ? ["Смена недоступна до 11:00", "Операционное окно закрыто"]
+    : shiftWorkflow?.context.state === "position_required"
+      ? ["Выберите должность", "Настройте чек-лист в профиле"]
+      : shiftWorkflow?.shift?.status === "not_started"
+        ? ["Смена не открыта", "Открой смену перед началом работы"]
+        : shiftWorkflow?.shift?.status === "active"
+          ? ["Смена открыта", "Проверь задачи текущей смены"]
+          : shiftWorkflow?.shift?.status === "closed"
+            ? ["Смена закрыта", "Все этапы зафиксированы"]
+            : ["Смена", "Проверить чек-лист и статус смены"];
   const {
     notes,
     loading,
@@ -150,7 +175,7 @@ export function DashboardPage() {
       <div className="bf-dashboard-content">
         <Link className="bf-day-status" to="/shift">
           <ClipboardCheck aria-hidden className="size-5" />
-          <span><strong>Смена</strong><small>Проверить чек-лист и статус смены</small></span>
+          <span><strong>{shiftStatus[0]}</strong><small>{shiftStatus[1]}</small></span>
           <ChevronRight aria-hidden className="size-4" />
         </Link>
 
