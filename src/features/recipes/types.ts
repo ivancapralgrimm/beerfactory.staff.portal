@@ -1,8 +1,11 @@
+export type RecipeVenue = "BF" | "BB";
+
 export type Recipe = {
   id: string;
   legacyId: string;
   recordId: string;
   source: string;
+  venue: RecipeVenue;
   name: string;
   category: string;
   subcategory: string;

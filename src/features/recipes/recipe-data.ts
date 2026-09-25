@@ -2,7 +2,8 @@ import { config } from "@/lib/config";
 import type {
   Recipe,
   RecipeCapabilities,
-  RecipeLoadResult
+  RecipeLoadResult,
+  RecipeVenue
 } from "@/features/recipes/types";
 
 const CACHE_KEY = "bf-recipes-r404-v1";
@@ -35,12 +36,9 @@ export function categoryLabel(value: string) {
 export function recipeStatusKind(value: string) {
   const status = clean(value).toLowerCase();
 
-  if (!status) return "current";
-  if (["актуальный", "current", "active", "published"].includes(status)) {
-    return "current";
+  if (["архив", "archive", "archived", "черновик", "draft"].includes(status)) {
+    return "archive";
   }
-  if (["архив", "archive", "archived"].includes(status)) return "archive";
-  if (["черновик", "draft"].includes(status)) return "draft";
 
   return "current";
 }
@@ -113,14 +111,19 @@ function normalizeSource(value: unknown) {
   return clean(value).toLowerCase();
 }
 
+function normalizeVenue(value: unknown): RecipeVenue {
+  return clean(value).toUpperCase() === "BB" ? "BB" : "BF";
+}
+
 function normalizeRow(
   row: UnknownRow,
   fallbackCategory = "Меню",
   sourceHint = ""
 ): Recipe {
-  const category =
+  let category =
     clean(get(row, "category", "Category", "Категория", "cat")) ||
     fallbackCategory;
+  const legacyCategory = category;
   const name =
     clean(get(row, "name", "Name", "Название", "Title")) || "Без названия";
   const subcategory = clean(
@@ -170,6 +173,14 @@ function normalizeRow(
     source = normalizeSource(category || fallbackCategory || "menu");
   }
 
+  const venue = normalizeVenue(
+    get(row, "venue", "Venue", "Заведение")
+  );
+
+  if (source === "kitchen") {
+    category = `Кухня ${venue}`;
+  }
+
   const id =
     source && recordId
       ? `${source}:${recordId}`
@@ -177,9 +188,10 @@ function normalizeRow(
 
   return {
     id,
-    legacyId: legacyRouteId(category, recordId || id, name),
+    legacyId: legacyRouteId(legacyCategory, recordId || id, name),
     recordId,
     source,
+    venue,
     name,
     category,
     subcategory,
@@ -201,15 +213,15 @@ function normalizeRow(
       get(row, "updated_by", "updatedBy", "Updated by", "Кем обновлено")
     ),
     changeNote: clean(
-      get(row, "change_note", "changeNote", "Change note", "Что изменено")
+      get(row, "change_note", "changeNote", "Change note", "Что изменено", "Что обновлено")
     )
   };
 }
 
 function staffVisible(recipes: Recipe[]) {
-  return recipes.filter(
-    (recipe) => recipeStatusKind(recipe.status) !== "draft"
-  );
+  // r40.4 v2 has only two recipe states: current and archive.
+  // Legacy "Черновик" values are normalized as archive by recipeStatusKind.
+  return recipes;
 }
 
 function payloadCapabilities(payload: unknown): RecipeCapabilities {

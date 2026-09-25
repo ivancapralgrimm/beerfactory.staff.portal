@@ -1,6 +1,7 @@
 import {
   Archive,
   ChevronRight,
+  Plus,
   RefreshCw,
   Search,
   WifiOff
@@ -8,7 +9,8 @@ import {
 import {
   useDeferredValue,
   useEffect,
-  useMemo
+  useMemo,
+  useState
 } from "react";
 import {
   Link,
@@ -18,6 +20,8 @@ import {
 } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/features/auth/auth-context";
+import { RecipeEditor } from "@/features/recipes/RecipeEditor";
 import {
   categoryLabel,
   isArchive
@@ -75,7 +79,7 @@ function RecipeRow({
       state={{ from }}
       onClick={onOpen}
       className={cn(
-        "group grid min-h-[88px] grid-cols-[1fr_auto] items-center gap-3 border-b border-[var(--bf-line)] py-3.5 outline-none transition-[background-color,color] duration-150 focus-visible:rounded-xl focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]",
+        "group grid min-h-[68px] grid-cols-[minmax(0,1fr)_32px] items-center gap-3 rounded-2xl border border-[var(--bf-line)] bg-[linear-gradient(135deg,var(--bf-surface)_0%,var(--bf-surface-2)_100%)] px-3.5 py-2.5 outline-none shadow-[0_8px_22px_rgba(0,0,0,.14)] transition-[border-color,background-color,transform] duration-150 focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)] active:translate-y-px",
         "recipe-list-row",
         archived
           ? "text-[var(--bf-muted)]"
@@ -84,10 +88,10 @@ function RecipeRow({
       aria-label={`Открыть рецепт ${recipe.name}${archived ? ", архив" : ""}`}
     >
       <div className="min-w-0">
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex min-h-4 flex-wrap items-center gap-1.5">
           <span
             className={cn(
-              "text-[10px] font-black uppercase tracking-[0.14em]",
+              "text-[9px] font-black uppercase leading-none tracking-[0.16em]",
               archived
                 ? "text-[var(--bf-dim)]"
                 : "text-[var(--bf-copper-hi)]"
@@ -96,33 +100,20 @@ function RecipeRow({
             {categoryLabel(recipe.category) || "Меню"}
           </span>
           {archived ? (
-            <span className="inline-flex min-h-6 items-center gap-1 rounded-full border border-[var(--bf-line)] px-2 text-[10px] font-bold uppercase tracking-[0.08em] text-[var(--bf-dim)]">
-              <Archive className="size-3" aria-hidden />
+            <span className="inline-flex h-5 items-center gap-1 rounded-full border border-[var(--bf-line)] px-1.5 text-[9px] font-bold uppercase tracking-[0.06em] text-[var(--bf-dim)]">
+              <Archive className="size-2.5" aria-hidden />
               Архив
             </span>
           ) : null}
         </div>
 
-        <h2 className="mt-1 text-[18px] font-extrabold leading-6 tracking-[-0.015em]">
+        <h2 className="mt-1.5 line-clamp-2 text-[16px] font-extrabold leading-[1.18] tracking-[-0.015em]">
           {recipe.name}
         </h2>
-
-        {recipe.tags.length ? (
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            {recipe.tags.slice(0, 4).map((tag) => (
-              <span
-                key={tag}
-                className="rounded-full border border-[color:color-mix(in_srgb,var(--bf-line),transparent_15%)] px-2 py-1 text-[10px] font-bold text-[var(--bf-muted)]"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        ) : null}
       </div>
 
-      <div className="grid size-9 place-items-center rounded-full border border-[var(--bf-line)] text-[var(--bf-copper-hi)] transition-[border-color,background-color] duration-150 group-hover:border-[var(--bf-line-strong)] group-hover:bg-[var(--bf-surface)]">
-        <ChevronRight className="size-5" aria-hidden />
+      <div className="grid size-8 place-items-center rounded-full border border-[var(--bf-line-strong)] bg-[color:color-mix(in_srgb,var(--bf-surface-2),transparent_6%)] text-[var(--bf-copper-hi)] transition-[border-color,background-color] duration-150 group-hover:border-[var(--bf-copper)] group-hover:bg-[var(--bf-surface)]">
+        <ChevronRight className="size-4.5" aria-hidden />
       </div>
     </Link>
   );
@@ -130,9 +121,16 @@ function RecipeRow({
 
 export function RecipesPage() {
   const { state, reload } = useRecipes();
+  const { state: authState } = useAuth();
+  const [createOpen, setCreateOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const [params, setParams] = useSearchParams();
+
+  const isAdmin =
+    authState.status === "authenticated" && authState.user.role === "admin";
+  const accessToken =
+    authState.status === "authenticated" ? authState.session.access_token : null;
 
   const query = params.get("q") || "";
   const deferredQuery = useDeferredValue(query.trim().toLowerCase());
@@ -240,15 +238,47 @@ export function RecipesPage() {
 
   return (
     <section className="bf-list-page bf-recipes-page pb-4">
-      <div className="max-w-2xl">
-        <p className="eyebrow">РЕЦЕПТЫ</p>
-        <h1 className="mt-2 text-[36px] font-black leading-none tracking-[-0.04em]">
-          Рецепты
-        </h1>
-        <p className="mt-3 text-pretty text-[15px] leading-6 text-[var(--bf-muted)]">
-          Найди блюдо или напиток по названию, составу или категории.
-        </p>
+      <div className="flex items-start justify-between gap-3">
+        <div className="max-w-2xl min-w-0">
+          <p className="eyebrow">РЕЦЕПТЫ</p>
+          <h1 className="mt-2 text-[36px] font-black leading-none tracking-[-0.04em]">
+            Рецепты
+          </h1>
+          <p className="mt-3 text-pretty text-[15px] leading-6 text-[var(--bf-muted)]">
+            Найди блюдо или напиток по названию, составу или категории.
+          </p>
+        </div>
+
+        {isAdmin && accessToken ? (
+          <Button
+            type="button"
+            variant="secondary"
+            size="icon"
+            className="mt-1 shrink-0"
+            aria-label="Создать рецепт"
+            aria-pressed={createOpen}
+            onClick={() => setCreateOpen((current) => !current)}
+          >
+            <Plus className="size-5" aria-hidden />
+          </Button>
+        ) : null}
       </div>
+
+      {createOpen && isAdmin && accessToken ? (
+        <div className="mt-5">
+          <RecipeEditor
+            accessToken={accessToken}
+            mode="create"
+            recipes={recipes}
+            onCancel={() => setCreateOpen(false)}
+            onSaved={async (recipeId) => {
+              setCreateOpen(false);
+              await reload();
+              navigate(`/menu/${encodeURIComponent(recipeId)}`, { replace: false });
+            }}
+          />
+        </div>
+      ) : null}
 
       <div className="relative mt-5">
         <Search
@@ -282,11 +312,11 @@ export function RecipesPage() {
       ) : null}
 
       {state.status === "loading" ? (
-        <div className="mt-6 space-y-0" aria-label="Загрузка рецептов">
+        <div className="mt-6 grid gap-2" aria-label="Загрузка рецептов">
           {Array.from({ length: 6 }, (_, index) => (
             <div
               key={index}
-              className="h-[88px] animate-pulse border-b border-[var(--bf-line)] bg-[linear-gradient(90deg,transparent,rgba(255,255,255,.025),transparent)]"
+              className="h-[68px] animate-pulse rounded-2xl border border-[var(--bf-line)] bg-[linear-gradient(90deg,var(--bf-surface),var(--bf-surface-2),var(--bf-surface))]"
             />
           ))}
         </div>
@@ -353,7 +383,7 @@ export function RecipesPage() {
             ) : null}
           </div>
 
-          <div className="mt-2 border-t border-[var(--bf-line)]">
+          <div className="mt-2 grid gap-2">
             {filtered.length ? (
               filtered.map((recipe) => (
                 <RecipeRow
@@ -373,7 +403,7 @@ export function RecipesPage() {
                 />
               ))
             ) : (
-              <div className="border-b border-[var(--bf-line)] py-8">
+              <div className="rounded-2xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-4 py-7">
                 <p className="font-extrabold">Ничего не найдено</p>
                 <p className="mt-1 text-sm text-[var(--bf-muted)]">
                   Попробуй убрать часть запроса или выбрать другую категорию.
