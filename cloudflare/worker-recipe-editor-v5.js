@@ -102,7 +102,13 @@ function visibleToStaff() {
 }
 
 function venueValue(row) {
-  return clean(row?.Заведение || row?.venue).toUpperCase() === "BB" ? "BB" : "BF";
+  const raw = clean(row?.Заведение || row?.venue)
+    .toUpperCase()
+    .replace(/\s+/g, "");
+
+  if (raw === "BB") return "BB";
+  if (raw === "BF/BB" || raw === "BB/BF") return "BF/BB";
+  return "BF";
 }
 
 function recordId(row) {
@@ -463,7 +469,15 @@ function normalizeEditorPayload(source, raw, creating) {
   const category = clean(raw?.category);
   const status = clean(raw?.status) || "Актуальный";
   const venueRaw = clean(raw?.venue) || "BF";
-  const venue = venueRaw.toUpperCase();
+  const normalizedVenue = venueRaw.toUpperCase().replace(/\s+/g, "");
+  const venue =
+    normalizedVenue === "BF"
+      ? "BF"
+      : normalizedVenue === "BB"
+        ? "BB"
+        : normalizedVenue === "BF/BB" || normalizedVenue === "BB/BF"
+          ? "BF/BB"
+          : "";
   const description = clean(raw?.description);
   const ingredients = clean(raw?.ingredients);
   const method = clean(raw?.method);
@@ -481,7 +495,7 @@ function normalizeEditorPayload(source, raw, creating) {
   if (!VALID_STATUSES.has(status)) {
     throw Object.assign(new Error("invalid_status"), { status: 400 });
   }
-  if (venue !== "BF" && venue !== "BB") {
+  if (!venue) {
     throw Object.assign(new Error("invalid_venue"), { status: 400 });
   }
   if (source === "bar" && !ingredients) {
