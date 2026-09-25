@@ -769,14 +769,21 @@ async function updateRecipe(request, config, source, id, actor) {
     }
   }
 
+  // NocoDB API v2 updates records through the collection endpoint.
+  // The primary key must be included in the JSON body. GET by /records/:id
+  // is supported, but PATCH to /records/:id is not reliable/currently rejected.
+  const numericId = Number(id);
+  const updateId = Number.isFinite(numericId) ? numericId : id;
+  const updatePayload = { Id: updateId, ...patch };
+
   const updated = await nocoRequest(
     config,
-    `/api/v2/tables/${encodeURIComponent(tableId)}/records/${encodeURIComponent(id)}`,
+    `/api/v2/tables/${encodeURIComponent(tableId)}/records`,
     {
       method: "PATCH",
       write: true,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(patch)
+      body: JSON.stringify(updatePayload)
     }
   );
 
@@ -924,6 +931,7 @@ export default {
         return json({
           ok: true,
           service: "beerfactory-menu-api",
+          version: "recipe-editor-v5.1",
           capabilities: capabilities(config)
         });
       }
