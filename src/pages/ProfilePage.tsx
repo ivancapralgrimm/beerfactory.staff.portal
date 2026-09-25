@@ -262,22 +262,26 @@ export function ProfilePage() {
           </div>
         </div>
 
-        <input
-          type="date"
-          value={birthDate}
-          max={new Date().toISOString().slice(0, 10)}
-          onChange={(event) => {
-            setBirthDate(event.target.value);
-            setMessage(null);
-          }}
-          className="mt-3 block h-11 min-h-11 w-full min-w-0 max-w-full rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3 text-sm font-bold text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
-          style={{
-            inlineSize: "100%",
-            maxInlineSize: "100%",
-            minInlineSize: 0,
-            boxSizing: "border-box"
-          }}
-        />
+        <div className="mt-3 h-10 w-full min-w-0 max-w-full overflow-hidden rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] focus-within:ring-2 focus-within:ring-[var(--bf-copper-hi)]">
+          <input
+            type="date"
+            aria-label="Дата рождения"
+            value={birthDate}
+            max={new Date().toISOString().slice(0, 10)}
+            onChange={(event) => {
+              setBirthDate(event.target.value);
+              setMessage(null);
+            }}
+            className="block h-full w-full min-w-0 max-w-full border-0 bg-transparent px-3 py-0 text-sm font-bold text-[var(--bf-cream)] outline-none"
+            style={{
+              width: "100%",
+              minWidth: 0,
+              maxWidth: "100%",
+              boxSizing: "border-box",
+              boxShadow: "none"
+            }}
+          />
+        </div>
 
         <Button
           type="button"
