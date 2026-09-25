@@ -19,6 +19,7 @@ import { Surface } from "@/components/ui/surface";
 import { Button } from "@/components/ui/button";
 import { HandoverNoteCard } from "@/features/handover/HandoverNoteCard";
 import { useHandoverFeed } from "@/features/handover/use-handover-feed";
+import { DashboardGlobalSearch } from "@/features/dashboard/DashboardGlobalSearch";
 import { useUpcomingBirthdays } from "@/features/dashboard/use-upcoming-birthdays";
 import {
   dashboardReadingDayKey,
@@ -150,6 +151,8 @@ export function DashboardPage() {
         <h1>Привет{firstName ? `, ${firstName}` : ""}!</h1>
         <p>Хорошего рабочего дня!<br />«Вкус начинается с команды»</p>
       </section>
+
+      <DashboardGlobalSearch />
 
       <div className="bf-dashboard-content">
         <Link to="/profile" className="bf-dashboard-profile"><UserRound aria-hidden className="size-4" /> Мой профиль <ChevronRight aria-hidden className="size-4" /></Link>
