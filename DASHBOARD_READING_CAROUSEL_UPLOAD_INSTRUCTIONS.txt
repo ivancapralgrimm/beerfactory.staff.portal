@@ -1,0 +1,33 @@
+BeerFactory r40.4 · Dashboard «Что почитать»
+
+BASE HEAD:
+948b743b3d934863d6895f71e510f56ff3ab67fc
+
+TARGET:
+r40.4-react
+
+REPLACE:
+- src/pages/DashboardPage.tsx
+
+ADD:
+- src/features/dashboard/dashboard-reading.ts
+- R40_4_DASHBOARD_READING_CAROUSEL.md
+- DASHBOARD_READING_CAROUSEL_UPLOAD_INSTRUCTIONS.txt
+
+No backend changes.
+No Supabase migration.
+No operational writes.
+
+After upload verify:
+1. manifest/blob hashes
+2. Typecheck
+3. Build
+4. exact-head Vercel Preview
+5. Dashboard at ~390px
+6. six cards when Knowledge has >= 6 materials
+7. horizontal swipe
+8. correct article navigation
+9. correct read-state badge
+10. stable same-day selection
+11. rotation after the 11:00 recommendation boundary
+12. Birthday/Handover remain higher priority

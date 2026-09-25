@@ -1,43 +1,30 @@
 {
-  "package": "BFStaff_r40.4_PROFILE_COMBINED_SHIFT_WINDOW",
-  "replaces": "BFStaff_r40.4_PROFILE_COMBINED_COOLDOWN",
-  "base_head": "8fa4b65cef2c1905cb3c1f6dcf40f2ee50bb70ee",
+  "package": "BFStaff_r40.4_DASHBOARD_READING_CAROUSEL",
+  "base_head": "948b743b3d934863d6895f71e510f56ff3ab67fc",
   "files": {
-    "PROFILE_COMBINED_SHIFT_WINDOW_UPLOAD_INSTRUCTIONS.txt": {
+    "DASHBOARD_READING_CAROUSEL_UPLOAD_INSTRUCTIONS.txt": {
       "action": "ADD",
-      "bytes": 1188,
-      "sha256": "8a4cf88da7bdd4cb8b0d734b53114cc5b2ae4b943d4f9ff1136240bf2dcb033d",
-      "git_blob_sha1": "e517cdd0779495e33ee090db9512903c5abf2272"
+      "bytes": 756,
+      "sha256": "28b490c5a66324be6a56c1f6b8f0f0ba1d3f2df52698de4d16a36ffd0754333f",
+      "git_blob_sha1": "c5b469ea119dbbd3da34e4e40a5fa4049db9eb0a"
     },
-    "R40_4_PROFILE_COMBINED_SHIFT_WINDOW.md": {
+    "R40_4_DASHBOARD_READING_CAROUSEL.md": {
       "action": "ADD",
-      "bytes": 2024,
-      "sha256": "38924d75631c5bdd57487e63a288ad80567c8eaa6a3bdd19d38b959459475644",
-      "git_blob_sha1": "676ffbe82c3be3f930153e4b111e4f7b73cf36da"
+      "bytes": 1539,
+      "sha256": "777697220b0a3f8f3e112163190a119c5aaacb8de204d4054faff02cc8f63500",
+      "git_blob_sha1": "6ab3ecf16f1d60b7485aa542737b37406ae1277f"
     },
-    "src/pages/ProfilePage.tsx": {
-      "action": "REPLACE",
-      "bytes": 13513,
-      "sha256": "84eb0bac7e06ba824e956673dfa8bb903092fa50e5d369495522211e9f81eb7a",
-      "git_blob_sha1": "558fb24613f3a6f6e069bc057e3ef436e05976bd"
-    },
-    "src/types/auth.ts": {
-      "action": "REPLACE",
-      "bytes": 1196,
-      "sha256": "133a1bc4818f906d1180917fe11e8982ed12177acaedee293acd07bbdeea1843",
-      "git_blob_sha1": "0a95f9e66726830a9ae29db9d9644519ed07551c"
-    },
-    "supabase/functions/staff-profile/index.ts": {
-      "action": "REPLACE",
-      "bytes": 7759,
-      "sha256": "2d72526c03e48c6e9be45574789eb4aa9a79c94fbccf5d120831357a0a91b153",
-      "git_blob_sha1": "7b7690454ab0a0af34ecd02c7f0bda7a38b34ce3"
-    },
-    "supabase/migrations/20260924182000_add_profile_position_shift_window_limit.sql": {
+    "src/features/dashboard/dashboard-reading.ts": {
       "action": "ADD",
-      "bytes": 5382,
-      "sha256": "fe45b8f7cd06835b3c206af14e5f32fd29a36fbd104a1e4769fe4dde4bad10ce",
-      "git_blob_sha1": "d713def6cb70f9c0627d08050aae34e0f68e0731"
+      "bytes": 4677,
+      "sha256": "c78798d348b9cf4ad095a9d4143d12b6beb86672988b863085b2ad74777e6019",
+      "git_blob_sha1": "ea1a57f2b4c45e237d4a3ced7989e4de2a8f6850"
+    },
+    "src/pages/DashboardPage.tsx": {
+      "action": "REPLACE",
+      "bytes": 15011,
+      "sha256": "7512ffd3bd757de8a18106b6ec1116df83b384f0114e385d80abecea5884335f",
+      "git_blob_sha1": "250b72dee997e7dcfd59a6b849d7986ea5285219"
     }
   }
 }
