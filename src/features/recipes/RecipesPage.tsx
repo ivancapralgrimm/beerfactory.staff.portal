@@ -238,30 +238,32 @@ export function RecipesPage() {
 
   return (
     <section className="bf-list-page bf-recipes-page pb-4">
-      <div className="flex items-start justify-between gap-3">
-        <div className="max-w-2xl min-w-0">
-          <p className="eyebrow">РЕЦЕПТЫ</p>
-          <h1 className="mt-2 text-[36px] font-black leading-none tracking-[-0.04em]">
+      <div className="max-w-2xl">
+        <p className="eyebrow">РЕЦЕПТЫ</p>
+
+        <div className="mt-2 flex items-end justify-between gap-3">
+          <h1 className="min-w-0 text-[36px] font-black leading-none tracking-[-0.04em]">
             Рецепты
           </h1>
-          <p className="mt-3 text-pretty text-[15px] leading-6 text-[var(--bf-muted)]">
-            Найди блюдо или напиток по названию, составу или категории.
-          </p>
+
+          {isAdmin && accessToken ? (
+            <Button
+              type="button"
+              variant="secondary"
+              size="icon"
+              className="mb-0 shrink-0"
+              aria-label="Создать рецепт"
+              aria-pressed={createOpen}
+              onClick={() => setCreateOpen((current) => !current)}
+            >
+              <Plus className="size-5" aria-hidden />
+            </Button>
+          ) : null}
         </div>
 
-        {isAdmin && accessToken ? (
-          <Button
-            type="button"
-            variant="secondary"
-            size="icon"
-            className="mt-1 shrink-0"
-            aria-label="Создать рецепт"
-            aria-pressed={createOpen}
-            onClick={() => setCreateOpen((current) => !current)}
-          >
-            <Plus className="size-5" aria-hidden />
-          </Button>
-        ) : null}
+        <p className="mt-3 text-pretty text-[15px] leading-6 text-[var(--bf-muted)]">
+          Найди блюдо или напиток по названию, составу или категории.
+        </p>
       </div>
 
       {createOpen && isAdmin && accessToken ? (
