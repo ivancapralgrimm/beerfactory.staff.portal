@@ -1,20 +1,39 @@
-BeerFactory r40.4 · Profile birth date iOS fix
+BFStaff r40.4 · Admin Recipe Editor v1
 
-BASE HEAD:
-36eb884a5b97737930b27e16de5d0e52f2f43620
+BASE HEAD
+20e2f1a103ed05a0055cdc744fae9756ee0c1182
 
-TARGET BRANCH:
-r40.4-react
+UPLOAD TO GITHUB BRANCH r40.4-react ONLY
 
-REPLACE ONLY:
-- src/pages/ProfilePage.tsx
+REPLACE
+src/features/admin/AdminPage.tsx
 
-Changes:
-- visible date-field frame is now owned by a 100% width wrapper, so iOS Safari cannot draw it past the Profile card edge;
-- wrapper clips any native WebKit intrinsic overflow;
-- visible control height reduced to 40px;
-- native input remains type=date and keeps existing save/backend behavior.
+ADD
+src/features/admin/AdminRecipesPanel.tsx
+src/features/admin/recipe-admin-api.ts
+R40_4_ADMIN_RECIPE_EDITOR.md
 
-No backend, Supabase, Shift, Handover, Recipes, auth, roles, or user-data changes.
+DO NOT upload cloudflare/worker-recipe-editor-v3.js as if it automatically deploys the Worker.
+It is a reviewed deployment candidate kept in the package for the separate Cloudflare step.
 
-After upload verify exact HEAD, manifest/blob SHA, Typecheck, Build, Vercel preview, then Profile at 390px/iPhone.
+AFTER FRONTEND UPLOAD
+1. Read new HEAD.
+2. Verify file/blob hashes against MANIFEST.json.
+3. GitHub Actions Typecheck + Build must pass.
+4. Verify exact-head Vercel status.
+5. Login as existing admin.
+6. Open Profile -> Управление персоналом -> Рецепты.
+7. Visual QA only: do not press final Create/Save on real NocoDB during ordinary QA.
+8. Verify form:
+   - Бар/Кухня source selector;
+   - status defaults to Актуальный;
+   - BAR requires Состав;
+   - KITCHEN requires Описание;
+   - photo text says JPEG or PNG · до 1 МБ;
+   - >1 MiB and non-JPEG/PNG are rejected client-side;
+   - editing locks source.
+
+WORKER STEP (SEPARATE)
+Compare cloudflare/worker-recipe-editor-v3.js with the CURRENT live Worker source before deployment.
+Prefer a separate r40.4 preview Worker and Vercel Preview env override.
+Do not replace stable production Worker until release gate.

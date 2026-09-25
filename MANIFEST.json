@@ -1,14 +1,52 @@
 {
-  "package": "BFStaff_r40.4_PROFILE_BIRTHDATE_IOS_FIX",
-  "base_head": "36eb884a5b97737930b27e16de5d0e52f2f43620",
-  "scope": "UI-only; Profile birth date control alignment/height on iOS",
-  "files": {
-    "src/pages/ProfilePage.tsx": {
+  "package": "BFStaff_r40.4_ADMIN_RECIPE_EDITOR_V1",
+  "branch": "r40.4-react",
+  "base_head": "20e2f1a103ed05a0055cdc744fae9756ee0c1182",
+  "admin_page_expected_old_blob": "dbedb9464562388d8206688edbb0ed670ccbec3b",
+  "scope": "Frontend admin recipe editor + separate Cloudflare Worker deployment candidate",
+  "backend_live_mutations_performed": false,
+  "files": [
+    {
+      "path": "R40_4_ADMIN_RECIPE_EDITOR.md",
+      "action": "ADD",
+      "git_blob_sha": "4f82d29e706532355edcd3c3aa1f6e5b676dbe26",
+      "sha256": "f7515f91c957bb11597d12541a3e6951a3649e08bcb16efe197842cce2b3cf8c",
+      "bytes": 4193
+    },
+    {
+      "path": "UPLOAD_INSTRUCTIONS.txt",
+      "action": "ADD",
+      "git_blob_sha": "17fb65fde7a1630560e5698490b62fb361c15eca",
+      "sha256": "19ab558b54b0dd5d558501f9dbab9ebee8456bb17305350495d88a899c35277d",
+      "bytes": 1407
+    },
+    {
+      "path": "cloudflare/worker-recipe-editor-v3.js",
+      "action": "REFERENCE_DEPLOYMENT_CANDIDATE",
+      "git_blob_sha": "c7a02174095d3876136c8f5bb645311828aa787c",
+      "sha256": "20486cc7215aac6439ec7cdc9c7224bbafd48cb08ae2ac52953d7584d4ce7c57",
+      "bytes": 23453
+    },
+    {
+      "path": "src/features/admin/AdminPage.tsx",
       "action": "REPLACE",
-      "base_git_blob_sha1": "0faa02012286d5f8d94cf254959113322cd536e5",
-      "bytes": 13357,
-      "sha256": "76e0abe6e8ddce46b3e2373f18c93a75a5ec0d2b416bca0cda96653044c0cee8",
-      "git_blob_sha1": "1749bb1c0617a788af199abb29acea9e3f6158a8"
+      "git_blob_sha": "63f426c77e66219e0b203efdafef6c2af52a2df7",
+      "sha256": "5e1d94fcf185a544166cd5627ef00c417a9f56660aa99f39e810e1ef5bfb9192",
+      "bytes": 13497
+    },
+    {
+      "path": "src/features/admin/AdminRecipesPanel.tsx",
+      "action": "ADD",
+      "git_blob_sha": "abfce67d5d842dd99215b660053f363e9e368962",
+      "sha256": "46f3b1783408a731f7d572fbf509e421df8d6f899afc2ee79abb91143f97b7c6",
+      "bytes": 28809
+    },
+    {
+      "path": "src/features/admin/recipe-admin-api.ts",
+      "action": "ADD",
+      "git_blob_sha": "5714210235d3589750b93a355b71acbb59e2413e",
+      "sha256": "1a98a82ce461ea9dcc942caa9fa3f66de2a230c65209d7541de98e396e1230da",
+      "bytes": 4306
     }
-  }
+  ]
 }
