@@ -1,30 +1,38 @@
 {
-  "package": "BFStaff_r40.4_DASHBOARD_READING_CAROUSEL",
-  "base_head": "948b743b3d934863d6895f71e510f56ff3ab67fc",
+  "package": "BFStaff_r40.4_PROFILE_CAROUSEL_ALIGNMENT_FIX",
+  "base_head": "bbfd1a889584b2def0e5a53453d843f186f74ce5",
   "files": {
-    "DASHBOARD_READING_CAROUSEL_UPLOAD_INSTRUCTIONS.txt": {
-      "action": "ADD",
-      "bytes": 756,
-      "sha256": "28b490c5a66324be6a56c1f6b8f0f0ba1d3f2df52698de4d16a36ffd0754333f",
-      "git_blob_sha1": "c5b469ea119dbbd3da34e4e40a5fa4049db9eb0a"
-    },
-    "R40_4_DASHBOARD_READING_CAROUSEL.md": {
-      "action": "ADD",
-      "bytes": 1539,
-      "sha256": "777697220b0a3f8f3e112163190a119c5aaacb8de204d4054faff02cc8f63500",
-      "git_blob_sha1": "6ab3ecf16f1d60b7485aa542737b37406ae1277f"
-    },
-    "src/features/dashboard/dashboard-reading.ts": {
-      "action": "ADD",
-      "bytes": 4677,
-      "sha256": "c78798d348b9cf4ad095a9d4143d12b6beb86672988b863085b2ad74777e6019",
-      "git_blob_sha1": "ea1a57f2b4c45e237d4a3ced7989e4de2a8f6850"
+    "src/pages/ProfilePage.tsx": {
+      "action": "REPLACE",
+      "bytes": 13148,
+      "sha256": "8504dd9b18359d2d0a66071c876969f5db339e185da76084213b31ad877e8eec",
+      "git_blob_sha1": "0faa02012286d5f8d94cf254959113322cd536e5",
+      "expected_base_git_blob_sha1": "558fb24613f3a6f6e069bc057e3ef436e05976bd"
     },
     "src/pages/DashboardPage.tsx": {
       "action": "REPLACE",
       "bytes": 15011,
-      "sha256": "7512ffd3bd757de8a18106b6ec1116df83b384f0114e385d80abecea5884335f",
-      "git_blob_sha1": "250b72dee997e7dcfd59a6b849d7986ea5285219"
+      "sha256": "009f3936b03682eefc48926797e3527dc6c6f92e79404ea422dbda499238eb51",
+      "git_blob_sha1": "8b42006c76713ee0770a6c05c05f03f8046af371",
+      "expected_base_git_blob_sha1": "250b72dee997e7dcfd59a6b849d7986ea5285219"
+    },
+    "R40_4_PROFILE_CAROUSEL_ALIGNMENT_FIX.md": {
+      "action": "ADD",
+      "bytes": 1086,
+      "sha256": "b1f231dc11cf727ea48a770794428c40c3a354179ba43c1ea22b66e26308ed52",
+      "git_blob_sha1": "6db95df55bc57208db02b10abfd51051ce9c88f3"
+    },
+    "UPLOAD_INSTRUCTIONS.txt": {
+      "action": "ADD",
+      "bytes": 1006,
+      "sha256": "a850939bc439eb10e5880a28ae1f641bcafb3abe96e1817e1d091bcc16ce31a1",
+      "git_blob_sha1": "2ad901062de8429e1a81fa8bc48ace3afad9d82f"
+    },
+    "CHANGES.diff": {
+      "action": "ADD",
+      "bytes": 4565,
+      "sha256": "424cc3bf8c7fc114a8e1bb2583aace99811fee5e34c5a65b85a50858fbfee18f",
+      "git_blob_sha1": "69824dfc3b5a5ddc6d3c8abac0aae5f3b443b43e"
     }
   }
 }

@@ -1,31 +1,34 @@
-BeerFactory Staff Portal · r40.4 Phase 4 Attestation · refined UI + semantic motion
+BeerFactory r40.4 · PROFILE + CAROUSEL ALIGNMENT FIX
+
+BASE HEAD:
+bbfd1a889584b2def0e5a53453d843f186f74ce5
 
 TARGET BRANCH:
 r40.4-react
 
-DO NOT upload to main.
-
-UPLOAD NEW FILES preserving paths:
-- src/features/attestation/types.ts
-- src/features/attestation/attestation-data.ts
-- src/features/attestation/attestation-history.ts
-- src/features/attestation/use-attestation-bank.ts
-- src/features/attestation/AttestationPage.tsx
-- src/features/attestation/CategoryMotionIcon.tsx
-- R40_4_ATTESTATION_MIGRATION.md
-
 REPLACE:
-- src/app/App.tsx
+- src/pages/ProfilePage.tsx
+- src/pages/DashboardPage.tsx
 
-CLEANUP:
-- delete accidental 1-byte file: src/features/knowledge/Txt.txt
+ADD (documentation/audit only):
+- R40_4_PROFILE_CAROUSEL_ALIGNMENT_FIX.md
+- UPLOAD_INSTRUCTIONS.txt
+- CHANGES.diff
+- MANIFEST.json
 
-No CSS file changes are required in this phase.
+IMPORTANT:
+- Do not upload to main.
+- No backend/Supabase changes are included.
+- The patch expects the target branch to still be at the BASE HEAD above before upload.
 
-Commit:
-feat: migrate Attestation to React
-
-After commit:
-- GitHub Actions runs automatically
-- Vercel Preview deploys automatically
-- do not modify main
+After upload verify:
+1. new exact HEAD
+2. manifest/blob hashes
+3. GitHub Actions Typecheck
+4. GitHub Actions Build
+5. exact-head Vercel Preview
+6. Profile at ~390px on iPhone/Safari: date input stays fully inside card
+7. label reads «ДАТА РОЖДЕНИЯ» and helper copy is gone
+8. position helper copy is gone; native select is compact
+9. Dashboard: first «Что почитать» card aligns with the common left content edge
+10. horizontal swipe and partial next-card peek remain intact
