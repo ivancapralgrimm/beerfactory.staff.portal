@@ -1,15 +1,16 @@
 import { config } from "@/lib/config";
 import { loadRecipes } from "@/features/recipes/recipe-data";
-import type { Recipe } from "@/features/recipes/types";
+import type { Recipe, RecipeVenue } from "@/features/recipes/types";
 
 export type AdminRecipeSource = "bar" | "kitchen";
-export type AdminRecipeStatus = "Актуальный" | "Архив" | "Черновик";
+export type AdminRecipeStatus = "Актуальный" | "Архив";
 
 export type AdminRecipeInput = {
   source: AdminRecipeSource;
   name: string;
   category: string;
   status: AdminRecipeStatus;
+  venue: RecipeVenue;
   description: string;
   ingredients: string;
   method: string;
@@ -17,10 +18,6 @@ export type AdminRecipeInput = {
   tags: string;
   changeNote: string;
   removePhoto?: boolean;
-};
-
-export type AdminRecipeListResponse = {
-  recipes: Recipe[];
 };
 
 export type AdminRecipeMutationResponse = {
@@ -51,49 +48,16 @@ async function jsonOrEmpty(response: Response) {
 }
 
 function authHeaders(accessToken: string) {
-  return {
-    Authorization: `Bearer ${accessToken}`
-  };
+  return { Authorization: `Bearer ${accessToken}` };
 }
 
-export async function loadAdminRecipes(
-  accessToken: string
-): Promise<AdminRecipeListResponse> {
-  const response = await fetch(
-    `${config.recipeApiBase}/admin/recipes`,
-    {
-      headers: authHeaders(accessToken),
-      cache: "no-store"
-    }
-  );
-
-  const data = await jsonOrEmpty(response);
-
-  // The frontend package may be previewed before the Worker extension is
-  // deployed. Fall back to the existing public menu for read-only visual QA.
-  if (response.status === 404 || response.status === 405) {
-    const publicData = await loadRecipes({ force: true });
-    return { recipes: publicData.recipes };
-  }
-
-  if (!response.ok) {
-    throw new AdminRecipeApiError(
-      String(data.error || "admin_recipes_load_failed"),
-      data
-    );
-  }
-
-  const recipes = Array.isArray(data.recipes)
-    ? data.recipes as unknown as Recipe[]
-    : [];
-
-  return { recipes };
+function errorCode(response: Response, data: Record<string, unknown>) {
+  return response.status === 404 || response.status === 405
+    ? "worker_recipe_editor_unavailable"
+    : String(data.error || "admin_recipe_write_failed");
 }
 
-function mutationForm(
-  input: AdminRecipeInput,
-  photo?: File | null
-) {
+function mutationForm(input: AdminRecipeInput, photo?: File | null) {
   const form = new FormData();
 
   form.set(
@@ -102,6 +66,7 @@ function mutationForm(
       name: input.name.trim(),
       category: input.category.trim(),
       status: input.status,
+      venue: input.venue,
       description: input.description.trim(),
       ingredients: input.ingredients.trim(),
       method: input.method.trim(),
@@ -112,10 +77,7 @@ function mutationForm(
     })
   );
 
-  if (photo) {
-    form.set("photo", photo, photo.name);
-  }
-
+  if (photo) form.set("photo", photo, photo.name);
   return form;
 }
 
@@ -127,10 +89,7 @@ async function mutateRecipe(
   photo?: File | null,
   recordId?: string
 ) {
-  const suffix = recordId
-    ? `/${encodeURIComponent(recordId)}`
-    : "";
-
+  const suffix = recordId ? `/${encodeURIComponent(recordId)}` : "";
   const response = await fetch(
     `${config.recipeApiBase}/admin/recipes/${source}${suffix}`,
     {
@@ -141,20 +100,11 @@ async function mutateRecipe(
   );
 
   const data = await jsonOrEmpty(response);
-
   if (!response.ok || data.ok !== true) {
-    throw new AdminRecipeApiError(
-      response.status === 404 || response.status === 405
-        ? "worker_recipe_editor_unavailable"
-        : String(data.error || "admin_recipe_write_failed"),
-      data
-    );
+    throw new AdminRecipeApiError(errorCode(response, data), data);
   }
 
-  // Keep the ordinary Recipes cache coherent after an admin mutation.
-  // Failure here does not turn a confirmed server write into a false error.
   void loadRecipes({ force: true }).catch(() => undefined);
-
   return data as unknown as AdminRecipeMutationResponse;
 }
 
@@ -163,13 +113,7 @@ export function createAdminRecipe(
   input: AdminRecipeInput,
   photo?: File | null
 ) {
-  return mutateRecipe(
-    accessToken,
-    "POST",
-    input.source,
-    input,
-    photo
-  );
+  return mutateRecipe(accessToken, "POST", input.source, input, photo);
 }
 
 export function updateAdminRecipe(
@@ -186,4 +130,59 @@ export function updateAdminRecipe(
     photo,
     recordId
   );
+}
+
+export async function setAdminRecipeStatus(
+  accessToken: string,
+  source: AdminRecipeSource,
+  recordId: string,
+  status: AdminRecipeStatus
+) {
+  const response = await fetch(
+    `${config.recipeApiBase}/admin/recipes/${source}/${encodeURIComponent(recordId)}`,
+    {
+      method: "PATCH",
+      headers: {
+        ...authHeaders(accessToken),
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        status,
+        change_note:
+          status === "Архив"
+            ? "Перемещён в архив"
+            : "Возвращён из архива"
+      })
+    }
+  );
+
+  const data = await jsonOrEmpty(response);
+  if (!response.ok || data.ok !== true) {
+    throw new AdminRecipeApiError(errorCode(response, data), data);
+  }
+
+  void loadRecipes({ force: true }).catch(() => undefined);
+  return data as unknown as AdminRecipeMutationResponse;
+}
+
+export async function deleteAdminRecipe(
+  accessToken: string,
+  source: AdminRecipeSource,
+  recordId: string
+) {
+  const response = await fetch(
+    `${config.recipeApiBase}/admin/recipes/${source}/${encodeURIComponent(recordId)}`,
+    {
+      method: "DELETE",
+      headers: authHeaders(accessToken)
+    }
+  );
+
+  const data = await jsonOrEmpty(response);
+  if (!response.ok || data.ok !== true) {
+    throw new AdminRecipeApiError(errorCode(response, data), data);
+  }
+
+  void loadRecipes({ force: true }).catch(() => undefined);
+  return data;
 }

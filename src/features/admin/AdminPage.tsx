@@ -9,7 +9,6 @@ import {
   RefreshCw,
   Search,
   ScrollText,
-  UtensilsCrossed,
   UsersRound
 } from "lucide-react";
 import { Navigate } from "react-router-dom";
@@ -30,9 +29,6 @@ import {
   AdminConfirmDialog
 } from "@/features/admin/AdminConfirmDialog";
 import {
-  AdminRecipesPanel
-} from "@/features/admin/AdminRecipesPanel";
-import {
   AdminUserCard
 } from "@/features/admin/AdminUserCard";
 import type {
@@ -43,7 +39,7 @@ import type {
 import { useAuth } from "@/features/auth/auth-context";
 import { cn } from "@/lib/utils";
 
-type Tab = "team" | "recipes" | "attempts" | "audit";
+type Tab = "team" | "attempts" | "audit";
 
 type ConfirmState =
   | {
@@ -129,6 +125,7 @@ export function AdminPage() {
   useEffect(() => {
     void load(false);
   }, [load]);
+
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -228,11 +225,6 @@ export function AdminPage() {
       icon: UsersRound
     },
     {
-      value: "recipes",
-      label: "Рецепты",
-      icon: UtensilsCrossed
-    },
-    {
       value: "attempts",
       label: "Аттестации",
       icon: ClipboardCheck
@@ -274,7 +266,7 @@ export function AdminPage() {
         </Button>
       </div>
 
-      <div className="mt-5 grid grid-cols-4 gap-1.5 rounded-2xl border border-[var(--bf-line)] bg-[var(--bf-surface)] p-1.5">
+      <div className="mt-5 grid grid-cols-3 gap-1.5 rounded-2xl border border-[var(--bf-line)] bg-[var(--bf-surface)] p-1.5">
         {tabs.map(({ value, label, icon: Icon }) => (
           <button
             key={value}
@@ -387,11 +379,6 @@ export function AdminPage() {
         </div>
       ) : null}
 
-      {tab === "recipes" && accessToken ? (
-        <div className="mt-2">
-          <AdminRecipesPanel accessToken={accessToken} />
-        </div>
-      ) : null}
 
       {tab === "attempts" ? (
         <div className="mt-2">
