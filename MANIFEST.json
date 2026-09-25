@@ -1,38 +1,14 @@
 {
-  "package": "BFStaff_r40.4_PROFILE_CAROUSEL_ALIGNMENT_FIX",
-  "base_head": "bbfd1a889584b2def0e5a53453d843f186f74ce5",
+  "package": "BFStaff_r40.4_PROFILE_BIRTHDATE_IOS_FIX",
+  "base_head": "36eb884a5b97737930b27e16de5d0e52f2f43620",
+  "scope": "UI-only; Profile birth date control alignment/height on iOS",
   "files": {
     "src/pages/ProfilePage.tsx": {
       "action": "REPLACE",
-      "bytes": 13148,
-      "sha256": "8504dd9b18359d2d0a66071c876969f5db339e185da76084213b31ad877e8eec",
-      "git_blob_sha1": "0faa02012286d5f8d94cf254959113322cd536e5",
-      "expected_base_git_blob_sha1": "558fb24613f3a6f6e069bc057e3ef436e05976bd"
-    },
-    "src/pages/DashboardPage.tsx": {
-      "action": "REPLACE",
-      "bytes": 15011,
-      "sha256": "009f3936b03682eefc48926797e3527dc6c6f92e79404ea422dbda499238eb51",
-      "git_blob_sha1": "8b42006c76713ee0770a6c05c05f03f8046af371",
-      "expected_base_git_blob_sha1": "250b72dee997e7dcfd59a6b849d7986ea5285219"
-    },
-    "R40_4_PROFILE_CAROUSEL_ALIGNMENT_FIX.md": {
-      "action": "ADD",
-      "bytes": 1086,
-      "sha256": "b1f231dc11cf727ea48a770794428c40c3a354179ba43c1ea22b66e26308ed52",
-      "git_blob_sha1": "6db95df55bc57208db02b10abfd51051ce9c88f3"
-    },
-    "UPLOAD_INSTRUCTIONS.txt": {
-      "action": "ADD",
-      "bytes": 1006,
-      "sha256": "a850939bc439eb10e5880a28ae1f641bcafb3abe96e1817e1d091bcc16ce31a1",
-      "git_blob_sha1": "2ad901062de8429e1a81fa8bc48ace3afad9d82f"
-    },
-    "CHANGES.diff": {
-      "action": "ADD",
-      "bytes": 4565,
-      "sha256": "424cc3bf8c7fc114a8e1bb2583aace99811fee5e34c5a65b85a50858fbfee18f",
-      "git_blob_sha1": "69824dfc3b5a5ddc6d3c8abac0aae5f3b443b43e"
+      "base_git_blob_sha1": "0faa02012286d5f8d94cf254959113322cd536e5",
+      "bytes": 13357,
+      "sha256": "76e0abe6e8ddce46b3e2373f18c93a75a5ec0d2b416bca0cda96653044c0cee8",
+      "git_blob_sha1": "1749bb1c0617a788af199abb29acea9e3f6158a8"
     }
   }
 }

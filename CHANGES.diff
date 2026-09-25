@@ -1,74 +1,45 @@
---- /mnt/data/bfstaff-baseline/src/pages/ProfilePage.tsx	2026-09-25 11:08:50.048990773 +0000
-+++ /mnt/data/BFStaff_r40.4_PROFILE_CAROUSEL_ALIGNMENT_FIX/src/pages/ProfilePage.tsx	2026-09-25 11:08:12.281812840 +0000
-@@ -258,13 +258,7 @@
-             aria-hidden
-           />
-           <div className="min-w-0 flex-1">
--            <p className="eyebrow">ДЕНЬ РОЖДЕНИЯ</p>
--            <h2 className="mt-1 text-xl font-black">
--              Для внутренних напоминаний
--            </h2>
--            <p className="mt-1 text-sm leading-6 text-[var(--bf-muted)]">
--              Используется для поздравлений и блока «Сегодня» на главной.
--            </p>
-+            <p className="eyebrow">ДАТА РОЖДЕНИЯ</p>
+--- a/src/pages/ProfilePage.tsx
++++ b/src/pages/ProfilePage.tsx
+@@ -262,22 +262,26 @@
            </div>
          </div>
  
-@@ -276,7 +270,13 @@
-             setBirthDate(event.target.value);
-             setMessage(null);
-           }}
--          className="mt-4 min-h-12 w-full rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3 text-sm font-bold text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
-+          className="mt-3 block h-11 min-h-11 w-full min-w-0 max-w-full rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3 text-sm font-bold text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
-+          style={{
-+            inlineSize: "100%",
-+            maxInlineSize: "100%",
-+            minInlineSize: 0,
-+            boxSizing: "border-box"
-+          }}
-         />
+-        <input
+-          type="date"
+-          value={birthDate}
+-          max={new Date().toISOString().slice(0, 10)}
+-          onChange={(event) => {
+-            setBirthDate(event.target.value);
+-            setMessage(null);
+-          }}
+-          className="mt-3 block h-11 min-h-11 w-full min-w-0 max-w-full rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3 text-sm font-bold text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
+-          style={{
+-            inlineSize: "100%",
+-            maxInlineSize: "100%",
+-            minInlineSize: 0,
+-            boxSizing: "border-box"
+-          }}
+-        />
++        <div className="mt-3 h-10 w-full min-w-0 max-w-full overflow-hidden rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] focus-within:ring-2 focus-within:ring-[var(--bf-copper-hi)]">
++          <input
++            type="date"
++            aria-label="Дата рождения"
++            value={birthDate}
++            max={new Date().toISOString().slice(0, 10)}
++            onChange={(event) => {
++              setBirthDate(event.target.value);
++              setMessage(null);
++            }}
++            className="block h-full w-full min-w-0 max-w-full border-0 bg-transparent px-3 py-0 text-sm font-bold text-[var(--bf-cream)] outline-none"
++            style={{
++              width: "100%",
++              minWidth: 0,
++              maxWidth: "100%",
++              boxSizing: "border-box",
++              boxShadow: "none"
++            }}
++          />
++        </div>
  
          <Button
-@@ -314,13 +314,10 @@
-             <h2 className="mt-1 text-xl font-black">
-               Рабочая должность
-             </h2>
--            <p className="mt-1 text-sm leading-6 text-[var(--bf-muted)]">
--              Определяет чек-лист открытия и закрытия в разделе «Смена».
--            </p>
-           </div>
-         </div>
- 
--        <div className="relative mt-4">
-+        <div className="relative mt-3">
-           <select
-             value={selectedPosition || ""}
-             disabled={positionLocked || savingPosition}
-@@ -333,7 +330,7 @@
-               );
-               setMessage(null);
-             }}
--            className="min-h-12 w-full appearance-none rounded-xl border border-[var(--bf-line-strong)] bg-[var(--bf-surface-2)] px-4 pr-12 text-base font-bold text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)] disabled:cursor-not-allowed disabled:opacity-55"
-+            className="h-11 min-h-11 w-full appearance-none rounded-xl border border-[var(--bf-line-strong)] bg-[var(--bf-surface-2)] px-4 pr-12 text-base font-bold text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)] disabled:cursor-not-allowed disabled:opacity-55"
-           >
-             <option value="" disabled>
-               Не задана
---- /mnt/data/bfstaff-baseline/src/pages/DashboardPage.tsx	2026-09-25 11:08:50.049241400 +0000
-+++ /mnt/data/BFStaff_r40.4_PROFILE_CAROUSEL_ALIGNMENT_FIX/src/pages/DashboardPage.tsx	2026-09-25 11:08:12.282744892 +0000
-@@ -254,13 +254,13 @@
-           <h2 id="dashboard-reading-title" className="text-[28px] font-black leading-none tracking-[-0.035em]">Что почитать</h2>
- 
-           {readingLoading ? (
--            <div className="bf-scrollbar-none -mx-4 mt-4 flex gap-3 overflow-x-auto px-4 pb-1" aria-label="Загрузка подборки статей">
-+            <div className="bf-scrollbar-none -mr-4 mt-4 flex gap-3 overflow-x-auto pr-4 pb-1" aria-label="Загрузка подборки статей">
-               {Array.from({ length: 3 }, (_, index) => (
-                 <div key={index} className="h-[188px] w-[156px] shrink-0 animate-pulse rounded-[18px] border border-[var(--bf-line)] bg-[var(--bf-surface)]" />
-               ))}
-             </div>
-           ) : (
--            <div className="bf-scrollbar-none -mx-4 mt-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2" aria-label="Подборка статей">
-+            <div className="bf-scrollbar-none -mr-4 mt-4 flex snap-x snap-mandatory gap-3 overflow-x-auto pr-4 pb-2" aria-label="Подборка статей">
-               {readingArticles.map((article) => {
-                 const image = knowledgeArticleImage(article);
-                 const read = knowledgeProgress.state.readIds.has(article.id);
+           type="button"

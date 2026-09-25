@@ -1,34 +1,20 @@
-BeerFactory r40.4 · PROFILE + CAROUSEL ALIGNMENT FIX
+BeerFactory r40.4 · Profile birth date iOS fix
 
 BASE HEAD:
-bbfd1a889584b2def0e5a53453d843f186f74ce5
+36eb884a5b97737930b27e16de5d0e52f2f43620
 
 TARGET BRANCH:
 r40.4-react
 
-REPLACE:
+REPLACE ONLY:
 - src/pages/ProfilePage.tsx
-- src/pages/DashboardPage.tsx
 
-ADD (documentation/audit only):
-- R40_4_PROFILE_CAROUSEL_ALIGNMENT_FIX.md
-- UPLOAD_INSTRUCTIONS.txt
-- CHANGES.diff
-- MANIFEST.json
+Changes:
+- visible date-field frame is now owned by a 100% width wrapper, so iOS Safari cannot draw it past the Profile card edge;
+- wrapper clips any native WebKit intrinsic overflow;
+- visible control height reduced to 40px;
+- native input remains type=date and keeps existing save/backend behavior.
 
-IMPORTANT:
-- Do not upload to main.
-- No backend/Supabase changes are included.
-- The patch expects the target branch to still be at the BASE HEAD above before upload.
+No backend, Supabase, Shift, Handover, Recipes, auth, roles, or user-data changes.
 
-After upload verify:
-1. new exact HEAD
-2. manifest/blob hashes
-3. GitHub Actions Typecheck
-4. GitHub Actions Build
-5. exact-head Vercel Preview
-6. Profile at ~390px on iPhone/Safari: date input stays fully inside card
-7. label reads «ДАТА РОЖДЕНИЯ» and helper copy is gone
-8. position helper copy is gone; native select is compact
-9. Dashboard: first «Что почитать» card aligns with the common left content edge
-10. horizontal swipe and partial next-card peek remain intact
+After upload verify exact HEAD, manifest/blob SHA, Typecheck, Build, Vercel preview, then Profile at 390px/iPhone.
