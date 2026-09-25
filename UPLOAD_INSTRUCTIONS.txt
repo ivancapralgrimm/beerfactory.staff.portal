@@ -1,50 +1,22 @@
-BFStaff r40.4 · RECIPE MANAGEMENT V4 · CUMULATIVE
+BFStaff r40.4 · Recipe Management V4.1 HOTFIX
 
-TARGET BRANCH:
+TARGET:
 r40.4-react ONLY
 
 BASE HEAD:
-d59180238883488f9235c8550b633c5dbaf5f9c6
+c7b1f4ebcd1ecd0e50729142341d92d1f09358c0
 
-This package supersedes the not-yet-installed V2/V3 ZIPs.
-Do NOT install V2 or V3 first.
+Upload preserving paths and REPLACE:
+src/features/admin/AdminRecipesPanel.tsx
 
-FRONTEND / DOCS
-Replace/add files from this archive preserving paths.
-Delete from the branch:
-- src/features/admin/AdminRecipesPanel.tsx
-- cloudflare/worker-recipe-editor-v3.js
+Why:
+GitHub web ZIP upload did not delete the old file. AdminPage already removed the Recipes tab,
+but TypeScript still compiles the stale file and fails on removed Черновик / old API types.
 
-Do not touch main.
-Do not deploy cloudflare/worker-recipe-editor-v5.js over the shared Worker yet.
+After upload verify:
+1. new HEAD
+2. npm run typecheck
+3. npm run build
+4. Vercel Preview
 
-NOCODB ONE-TIME SETUP BEFORE WORKER V5
-Add `Заведение` to BAR and KITCHEN:
-- Single Select
-- BF
-- BB
-- default BF
-
-No mass rewrite is required for old rows: blank legacy values are read as BF.
-Target status choices are only Актуальный / Архив.
-
-POST-INSTALL CHECKS
-1. exact new HEAD
-2. manifest / Git blob hashes
-3. npm run typecheck
-4. npm run build
-5. exact-head Vercel Preview
-6. ~390 px Recipes cards
-7. admin create button on /menu for every filter
-8. non-admin create button absent
-9. admin pencil beside Share on recipe page
-10. inline edit opens inside the recipe page
-11. Data recipe current/archive copy
-12. archive/restore controls admin-only
-13. delete confirmation admin-only
-14. Admin panel no longer contains Recipes tab/editor
-15. source-aware BAR/KITCHEN regression
-
-WRITE QA
-Do not mutate a real recipe during ordinary visual QA.
-After Worker v5 and NocoDB schema are ready, use a specifically authorized test record for create/edit/archive/restore/delete/photo smoke.
+No backend, NocoDB, Supabase or live data changes.

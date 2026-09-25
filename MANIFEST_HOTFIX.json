@@ -1,0 +1,14 @@
+{
+  "package": "BFStaff_r40.4_RECIPE_MANAGEMENT_V4_1_HOTFIX",
+  "branch": "r40.4-react",
+  "base_head": "c7b1f4ebcd1ecd0e50729142341d92d1f09358c0",
+  "reason": "Neutralize stale AdminRecipesPanel.tsx left behind by GitHub web upload. The new AdminPage no longer imports or uses it, but TypeScript still compiles every src file.",
+  "files": [
+    {
+      "path": "src/features/admin/AdminRecipesPanel.tsx",
+      "action": "REPLACE",
+      "bytes": 452,
+      "sha256": "812cde81ccf6d55bff6bd8e422de7a38637190c526dcb40b5e6709de7b546f23"
+    }
+  ]
+}
