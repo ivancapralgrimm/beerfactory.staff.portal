@@ -5,7 +5,7 @@ Both BAR and KITCHEN should expose the same governance fields where applicable.
 | Field | Type | Values / purpose |
 |---|---|---|
 | Статус | Single Select | Актуальный / Архив |
-| Заведение | Single Select | BF / BB; default BF |
+| Заведение | Single Select | BF / BB / BF/BB; default BF |
 | Версия | Number or Single line text | 1, 2, 3… |
 | Обновлено | DateTime | server timestamp of last managed change |
 | Кем обновлено | Single line text | authenticated admin display name |
@@ -15,7 +15,7 @@ Rules:
 1. Product status has only `Актуальный` and `Архив`.
 2. Blank legacy status is treated as `Актуальный`.
 3. Legacy `Черновик` is treated as `Архив` until manually reviewed.
-4. `Заведение` accepts only `BF` / `BB`; blank legacy value is treated as BF.
+4. `Заведение` accepts `BF` / `BB` / `BF/BB`; legacy `BB/BF` is read as the same common position, blank legacy value is treated as BF.
 5. New recipes default to BF.
 6. Archive is the reversible way to remove a position from the current menu.
 7. Delete is destructive and removes the full NocoDB row; it is admin-only and confirmation-gated.

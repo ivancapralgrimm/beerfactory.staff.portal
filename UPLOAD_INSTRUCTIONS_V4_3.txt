@@ -1,0 +1,33 @@
+BFStaff r40.4 · COMMON POSITION + GLOBAL SEARCH V4.3
+
+TARGET BRANCH:
+r40.4-react ONLY
+
+BASE HEAD:
+52f4a6eaaa318c2f0e2d051862cefa4f30c876f4
+
+Upload all files from this archive preserving paths.
+Do not touch main.
+
+NocoDB before Worker v5 deploy:
+1. BAR -> Заведение -> Single Select -> BF, BB, BF/BB -> default BF
+2. KITCHEN -> Заведение -> Single Select -> BF, BB, BF/BB -> default BF
+3. Existing blank rows may stay blank; portal treats them as BF.
+4. Existing BB/BF is tolerated as common, but canonical editor write is BF/BB.
+
+Frontend behavior:
+- BF/BB kitchen recipe appears in both Кухня BF and Кухня BB.
+- Editor offers Общая позиция · BF/BB.
+- Dashboard gets Product/main-style global search for Recipes + Knowledge.
+
+Worker:
+The archive updates cloudflare/worker-recipe-editor-v5.js.
+Do NOT deploy v5 until the NocoDB field/choices above exist.
+
+Post-upload checks:
+1. GitHub Actions typecheck/build
+2. Vercel Preview
+3. Dashboard search: recipe by name, ingredient; Knowledge by title/body
+4. Kitchen BF/BB common-position filtering with a controlled test record
+5. Admin editor venue selector BF / BB / BF/BB
+6. Worker v5 node syntax / controlled write QA before production deployment

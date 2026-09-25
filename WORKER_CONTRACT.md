@@ -16,7 +16,7 @@ Worker preserves the existing menu payload and normalizes:
 }
 ```
 
-BAR keeps its product category from NocoDB. KITCHEN visible category is `Кухня BF` / `Кухня BB` from `Заведение`.
+BAR keeps its product category from NocoDB. KITCHEN visible category is derived from `Заведение`. A common `BF/BB` position is included in both `Кухня BF` and `Кухня BB` filters in the React portal.
 
 ## Status semantics
 
@@ -29,7 +29,8 @@ Blank = `Актуальный`. Legacy `Черновик` is read conservatively
 ## Venue
 
 NocoDB field: `Заведение`.
-Allowed: `BF`, `BB`.
+Allowed canonical values: `BF`, `BB`, `BF/BB`.
+Legacy `BB/BF` is read as the same common position and normalized to `BF/BB` on editor save.
 Blank legacy value = `BF`.
 New recipes default to `BF`.
 
