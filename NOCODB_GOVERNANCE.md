@@ -1,32 +1,31 @@
 # NocoDB · Recipe Governance
 
-Добавить одинаковые поля в обе таблицы: BAR и KITCHEN.
+Both BAR and KITCHEN should expose the same governance fields where applicable.
 
-| Поле | Тип | Значение |
+| Field | Type | Values / purpose |
 |---|---|---|
-| Статус | Single Select | Черновик / Актуальный / Архив |
-| Версия | Number или Single line text | 1, 2, 3… |
-| Обновлено | DateTime | дата последнего изменения |
-| Кем обновлено | Single line text | имя ответственного |
-| Что изменено | Long text | короткое описание изменения |
+| Статус | Single Select | Актуальный / Архив |
+| Заведение | Single Select | BF / BB; default BF |
+| Версия | Number or Single line text | 1, 2, 3… |
+| Обновлено | DateTime | server timestamp of last managed change |
+| Кем обновлено | Single line text | authenticated admin display name |
+| Что изменено / Что обновлено | Long text | short change note |
 
-Порядок:
-1. Создать 5 governance-полей.
-2. Существующие рабочие рецепты можно оставить с пустым `Статус`: на переходном этапе пустой статус трактуется как `Актуальный`.
-3. Позиции, снятые с меню, помечать `Архив`.
-4. Новые/незавершённые позиции помечать `Черновик`.
-5. Когда миграция закончена, пустые статусы можно массово заменить на `Актуальный`.
+Rules:
+1. Product status has only `Актуальный` and `Архив`.
+2. Blank legacy status is treated as `Актуальный`.
+3. Legacy `Черновик` is treated as `Архив` until manually reviewed.
+4. `Заведение` accepts only `BF` / `BB`; blank legacy value is treated as BF.
+5. New recipes default to BF.
+6. Archive is the reversible way to remove a position from the current menu.
+7. Delete is destructive and removes the full NocoDB row; it is admin-only and confirmation-gated.
+8. Content edit and status change increment recipe version; server stamps update time/actor.
 
-Поведение портала:
-- `Актуальный` и пустой статус: обычный список/категории.
-- `Архив`: отдельная псевдокатегория `Архив`.
-- Архив не появляется в обычном списке `Все` без поискового запроса.
-- Общий поиск из `Все` находит и актуальные, и архивные позиции; актуальные выводятся первыми.
-- `Черновик`: персоналу не показывается.
+Portal behavior:
+- current positions appear in normal categories;
+- archive appears in pseudocategory `Архив`;
+- KITCHEN visible categories are `Кухня BF` / `Кухня BB`;
+- BAR keeps its product categories and stores venue separately;
+- recipe cards use source-aware IDs `bar:<Id>` / `kitchen:<Id>`.
 
-
-Безопасная идентификация записей:
-- `Id` в BAR и KITCHEN может совпадать; это нормально для разных таблиц.
-- портал использует `bar:<Id>` и `kitchen:<Id>` как собственные ID;
-- административная запись всегда передаёт одновременно `source` и `recordId`;
-- поиск записи по одному `Id` сразу в двух таблицах запрещён.
+Never resolve an admin mutation by numeric ID without the source/table.

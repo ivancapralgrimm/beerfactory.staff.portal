@@ -1,39 +1,50 @@
-BFStaff r40.4 · Admin Recipe Editor v1
+BFStaff r40.4 · RECIPE MANAGEMENT V4 · CUMULATIVE
 
-BASE HEAD
-20e2f1a103ed05a0055cdc744fae9756ee0c1182
+TARGET BRANCH:
+r40.4-react ONLY
 
-UPLOAD TO GITHUB BRANCH r40.4-react ONLY
+BASE HEAD:
+d59180238883488f9235c8550b633c5dbaf5f9c6
 
-REPLACE
-src/features/admin/AdminPage.tsx
+This package supersedes the not-yet-installed V2/V3 ZIPs.
+Do NOT install V2 or V3 first.
 
-ADD
-src/features/admin/AdminRecipesPanel.tsx
-src/features/admin/recipe-admin-api.ts
-R40_4_ADMIN_RECIPE_EDITOR.md
+FRONTEND / DOCS
+Replace/add files from this archive preserving paths.
+Delete from the branch:
+- src/features/admin/AdminRecipesPanel.tsx
+- cloudflare/worker-recipe-editor-v3.js
 
-DO NOT upload cloudflare/worker-recipe-editor-v3.js as if it automatically deploys the Worker.
-It is a reviewed deployment candidate kept in the package for the separate Cloudflare step.
+Do not touch main.
+Do not deploy cloudflare/worker-recipe-editor-v5.js over the shared Worker yet.
 
-AFTER FRONTEND UPLOAD
-1. Read new HEAD.
-2. Verify file/blob hashes against MANIFEST.json.
-3. GitHub Actions Typecheck + Build must pass.
-4. Verify exact-head Vercel status.
-5. Login as existing admin.
-6. Open Profile -> Управление персоналом -> Рецепты.
-7. Visual QA only: do not press final Create/Save on real NocoDB during ordinary QA.
-8. Verify form:
-   - Бар/Кухня source selector;
-   - status defaults to Актуальный;
-   - BAR requires Состав;
-   - KITCHEN requires Описание;
-   - photo text says JPEG or PNG · до 1 МБ;
-   - >1 MiB and non-JPEG/PNG are rejected client-side;
-   - editing locks source.
+NOCODB ONE-TIME SETUP BEFORE WORKER V5
+Add `Заведение` to BAR and KITCHEN:
+- Single Select
+- BF
+- BB
+- default BF
 
-WORKER STEP (SEPARATE)
-Compare cloudflare/worker-recipe-editor-v3.js with the CURRENT live Worker source before deployment.
-Prefer a separate r40.4 preview Worker and Vercel Preview env override.
-Do not replace stable production Worker until release gate.
+No mass rewrite is required for old rows: blank legacy values are read as BF.
+Target status choices are only Актуальный / Архив.
+
+POST-INSTALL CHECKS
+1. exact new HEAD
+2. manifest / Git blob hashes
+3. npm run typecheck
+4. npm run build
+5. exact-head Vercel Preview
+6. ~390 px Recipes cards
+7. admin create button on /menu for every filter
+8. non-admin create button absent
+9. admin pencil beside Share on recipe page
+10. inline edit opens inside the recipe page
+11. Data recipe current/archive copy
+12. archive/restore controls admin-only
+13. delete confirmation admin-only
+14. Admin panel no longer contains Recipes tab/editor
+15. source-aware BAR/KITCHEN regression
+
+WRITE QA
+Do not mutate a real recipe during ordinary visual QA.
+After Worker v5 and NocoDB schema are ready, use a specifically authorized test record for create/edit/archive/restore/delete/photo smoke.
