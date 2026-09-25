@@ -258,13 +258,7 @@ export function ProfilePage() {
             aria-hidden
           />
           <div className="min-w-0 flex-1">
-            <p className="eyebrow">ДЕНЬ РОЖДЕНИЯ</p>
-            <h2 className="mt-1 text-xl font-black">
-              Для внутренних напоминаний
-            </h2>
-            <p className="mt-1 text-sm leading-6 text-[var(--bf-muted)]">
-              Используется для поздравлений и блока «Сегодня» на главной.
-            </p>
+            <p className="eyebrow">ДАТА РОЖДЕНИЯ</p>
           </div>
         </div>
 
@@ -276,7 +270,13 @@ export function ProfilePage() {
             setBirthDate(event.target.value);
             setMessage(null);
           }}
-          className="mt-4 min-h-12 w-full rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3 text-sm font-bold text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
+          className="mt-3 block h-11 min-h-11 w-full min-w-0 max-w-full rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3 text-sm font-bold text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
+          style={{
+            inlineSize: "100%",
+            maxInlineSize: "100%",
+            minInlineSize: 0,
+            boxSizing: "border-box"
+          }}
         />
 
         <Button
@@ -314,13 +314,10 @@ export function ProfilePage() {
             <h2 className="mt-1 text-xl font-black">
               Рабочая должность
             </h2>
-            <p className="mt-1 text-sm leading-6 text-[var(--bf-muted)]">
-              Определяет чек-лист открытия и закрытия в разделе «Смена».
-            </p>
           </div>
         </div>
 
-        <div className="relative mt-4">
+        <div className="relative mt-3">
           <select
             value={selectedPosition || ""}
             disabled={positionLocked || savingPosition}
@@ -333,7 +330,7 @@ export function ProfilePage() {
               );
               setMessage(null);
             }}
-            className="min-h-12 w-full appearance-none rounded-xl border border-[var(--bf-line-strong)] bg-[var(--bf-surface-2)] px-4 pr-12 text-base font-bold text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)] disabled:cursor-not-allowed disabled:opacity-55"
+            className="h-11 min-h-11 w-full appearance-none rounded-xl border border-[var(--bf-line-strong)] bg-[var(--bf-surface-2)] px-4 pr-12 text-base font-bold text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)] disabled:cursor-not-allowed disabled:opacity-55"
           >
             <option value="" disabled>
               Не задана

@@ -254,13 +254,13 @@ export function DashboardPage() {
           <h2 id="dashboard-reading-title" className="text-[28px] font-black leading-none tracking-[-0.035em]">Что почитать</h2>
 
           {readingLoading ? (
-            <div className="bf-scrollbar-none -mx-4 mt-4 flex gap-3 overflow-x-auto px-4 pb-1" aria-label="Загрузка подборки статей">
+            <div className="bf-scrollbar-none -mr-4 mt-4 flex gap-3 overflow-x-auto pr-4 pb-1" aria-label="Загрузка подборки статей">
               {Array.from({ length: 3 }, (_, index) => (
                 <div key={index} className="h-[188px] w-[156px] shrink-0 animate-pulse rounded-[18px] border border-[var(--bf-line)] bg-[var(--bf-surface)]" />
               ))}
             </div>
           ) : (
-            <div className="bf-scrollbar-none -mx-4 mt-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2" aria-label="Подборка статей">
+            <div className="bf-scrollbar-none -mr-4 mt-4 flex snap-x snap-mandatory gap-3 overflow-x-auto pr-4 pb-2" aria-label="Подборка статей">
               {readingArticles.map((article) => {
                 const image = knowledgeArticleImage(article);
                 const read = knowledgeProgress.state.readIds.has(article.id);
