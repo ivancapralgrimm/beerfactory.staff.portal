@@ -1,22 +1,18 @@
-BFStaff r40.4 · Recipe Management V4.1 HOTFIX
+BFStaff r40.4 · Recipe UI V4.2
 
-TARGET:
-r40.4-react ONLY
+TARGET: r40.4-react ONLY
+BASE HEAD: 2b9cc57b45f086e2c186990aab254676fc2035e7
 
-BASE HEAD:
-c7b1f4ebcd1ecd0e50729142341d92d1f09358c0
+Replace:
+src/features/recipes/RecipesPage.tsx
 
-Upload preserving paths and REPLACE:
-src/features/admin/AdminRecipesPanel.tsx
+This patch only moves the admin '+' button so its bottom edge aligns with the bottom
+of the 'Рецепты' heading.
 
-Why:
-GitHub web ZIP upload did not delete the old file. AdminPage already removed the Recipes tab,
-but TypeScript still compiles the stale file and fails on removed Черновик / old API types.
+IMPORTANT:
+Create/edit is already implemented in frontend, but the live Worker must be upgraded
+to cloudflare/worker-recipe-editor-v5.js. Before deploying v5, add NocoDB field:
+Заведение · Single Select · BF / BB · default BF
+to both BAR and KITCHEN.
 
-After upload verify:
-1. new HEAD
-2. npm run typecheck
-3. npm run build
-4. Vercel Preview
-
-No backend, NocoDB, Supabase or live data changes.
+Do not deploy Worker v5 before that NocoDB field exists.

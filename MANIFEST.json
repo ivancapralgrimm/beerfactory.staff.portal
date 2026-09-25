@@ -1,128 +1,18 @@
 {
-  "package": "BFStaff_r40.4_RECIPE_MANAGEMENT_V4",
+  "package": "BFStaff_r40.4_RECIPE_UI_V4_2",
   "branch": "r40.4-react",
-  "base_head": "d59180238883488f9235c8550b633c5dbaf5f9c6",
-  "scope": "Cumulative Recipe Management: V3 compact cards + inline create/edit + BF/BB + archive/restore/delete + remove recipe editor from Admin",
-  "live_data_mutation": false,
-  "worker_deployed": false,
-  "nocodb_schema_applied": false,
+  "base_head": "2b9cc57b45f086e2c186990aab254676fc2035e7",
+  "scope": "UI-only: align admin create-recipe + button with the bottom line of the Recipes heading",
   "files": [
-    {
-      "path": "src/features/admin/AdminPage.tsx",
-      "action": "REPLACE",
-      "bytes": 13133,
-      "sha256": "e009957e542e06cc129fa43e9dfa3b8f42bbf162ef4c2613b8f2d790d120915a",
-      "git_blob_sha": "e1cd7068c16ef00c36a8c53b95733d80b65dbbf6"
-    },
-    {
-      "path": "src/features/admin/recipe-admin-api.ts",
-      "action": "REPLACE",
-      "bytes": 4732,
-      "sha256": "0fd7b466419f36c60247a158a83d3eaaf72e63a7bb982d826f327158ca0e0d67",
-      "git_blob_sha": "453ce8abb4856cd221e9be5998dbeac40d22ea3e"
-    },
-    {
-      "path": "src/features/recipes/RecipeEditor.tsx",
-      "action": "ADD",
-      "bytes": 20291,
-      "sha256": "ef2ea5c4f1103a9204abbea4122a2b583efdf7f4311187b8708ff696c5190b8e",
-      "git_blob_sha": "f8a5baf84fe4ff9c8ec280c6d9de076d1dbe6de9"
-    },
-    {
-      "path": "src/features/recipes/RecipeDetailPage.tsx",
-      "action": "REPLACE",
-      "bytes": 19432,
-      "sha256": "5ea16872c5c0136566bf5d0e17ebb9c6e35f1fcaf9e7d782bb4feccaefbc6d1f",
-      "git_blob_sha": "8548e1b6e0d167317ed7efe485aa38ab6945f40b"
-    },
     {
       "path": "src/features/recipes/RecipesPage.tsx",
       "action": "REPLACE",
-      "bytes": 14183,
-      "sha256": "30872120475df4764b25f4f7c765e1aad04c0cbe3c358c1c7334e82de9fb10f1",
-      "git_blob_sha": "f8e86ed0afe3d2168924d0a85ab640e2b252fb05"
-    },
-    {
-      "path": "src/features/recipes/recipe-data.ts",
-      "action": "REPLACE",
-      "bytes": 12880,
-      "sha256": "38fd2113fe6695ebc70b045bbdb0725ad7ca37e11072b8843f3444f1faa2398f",
-      "git_blob_sha": "8d87bd2b2f918204541b167ac887159543286e99"
-    },
-    {
-      "path": "src/features/recipes/types.ts",
-      "action": "REPLACE",
-      "bytes": 800,
-      "sha256": "5fa9ef2897d23995e5f6bc540b490df7ae03c68a9ddd56b317d28ffd9388eb6c",
-      "git_blob_sha": "0461c402287783850d280b22b9fe4f2cbc5a2deb"
-    },
-    {
-      "path": "cloudflare/worker-recipe-editor-v5.js",
-      "action": "ADD",
-      "bytes": 26111,
-      "sha256": "bf7af1458f9be9b96045dd3feb01889558abd2a53c1adf6b82a7ddfface4a927",
-      "git_blob_sha": "ea862bf6da45826a2d6776a3563440ec179b1b58"
-    },
-    {
-      "path": "NOCODB_GOVERNANCE.md",
-      "action": "REPLACE",
-      "bytes": 1590,
-      "sha256": "0a3a43a1e1ae1a5dab99790171593879b77fed8bebec23b2609aeab30b9fe44a",
-      "git_blob_sha": "36230eefa4df1607473f78003a2fed69461b3af0"
-    },
-    {
-      "path": "NOCODB_VENUE_SETUP.md",
-      "action": "ADD",
-      "bytes": 1528,
-      "sha256": "ac3f340368c6f7ad60a1f787940525753d99c656ca76c37267eeda84f76b127f",
-      "git_blob_sha": "2f381d92a7f712cb26e385df9886c24056a90521"
-    },
-    {
-      "path": "WORKER_CONTRACT.md",
-      "action": "REPLACE",
-      "bytes": 2017,
-      "sha256": "131128e61bae61992c153049e77af79ea4768a7ed126277d61ad67b3ce7e798c",
-      "git_blob_sha": "1451cc5d7e87461bc781ddf70f5f4051a3a9d3cb"
-    },
-    {
-      "path": "R40_4_ADMIN_RECIPE_EDITOR.md",
-      "action": "REPLACE",
-      "bytes": 310,
-      "sha256": "98a7a1bfcaeadb70d7fd83fe999e8fcae77f5a042836f2d8259f61d5488dca88",
-      "git_blob_sha": "30ab5092d485bb54b2a795b02a0357d8a36b231c"
-    },
-    {
-      "path": "R40_4_ADMIN_RECIPE_EDITOR_V4.md",
-      "action": "ADD",
-      "bytes": 1364,
-      "sha256": "6e956a2d223484f43b0f80f658615722efaed4954a1412f2c8e3049ca129681f",
-      "git_blob_sha": "b9f6bcdbebe3335a6a25e5a989cff99623f2aff7"
-    },
-    {
-      "path": "UPLOAD_INSTRUCTIONS.txt",
-      "action": "REPLACE",
-      "bytes": 1518,
-      "sha256": "e3dec56a7261810edd0fe3fb7acde1d7f7c0bf19f338c8d72860454bfe73e6fe",
-      "git_blob_sha": "5d538f878253feb2ae69f7fd3930ef59e12ef271"
+      "sha256": "1f2b287ada066d16fe903c847e8fe911654cadd8977781731a8e7b1f1984b9ee",
+      "bytes": 14201
     }
   ],
-  "delete_paths": [
-    "src/features/admin/AdminRecipesPanel.tsx",
-    "cloudflare/worker-recipe-editor-v3.js"
-  ],
-  "post_upload_checks": [
-    "exact HEAD",
-    "manifest/blob hashes",
-    "npm run typecheck",
-    "npm run build",
-    "exact-head Vercel Preview",
-    "390px Recipes/RecipeDetail visual QA",
-    "admin/non-admin control visibility"
-  ],
-  "notes": [
-    "Supersedes not-installed V2/V3 archives.",
-    "Do not touch main.",
-    "Do not deploy worker v5 before NocoDB Заведение schema is ready and controlled write QA is approved.",
-    "Destructive delete is admin-only, confirmation-gated and source-aware."
-  ]
+  "backend_required_for_writes": {
+    "nocodb": "Add Заведение Single Select (BF/BB, default BF) to BAR and KITCHEN",
+    "cloudflare": "Deploy cloudflare/worker-recipe-editor-v5.js after NocoDB setup"
+  }
 }
