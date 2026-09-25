@@ -9,7 +9,7 @@ import {
   RefreshCw,
   Search,
   ScrollText,
-  ShieldCheck,
+  UtensilsCrossed,
   UsersRound
 } from "lucide-react";
 import { Navigate } from "react-router-dom";
@@ -30,6 +30,9 @@ import {
   AdminConfirmDialog
 } from "@/features/admin/AdminConfirmDialog";
 import {
+  AdminRecipesPanel
+} from "@/features/admin/AdminRecipesPanel";
+import {
   AdminUserCard
 } from "@/features/admin/AdminUserCard";
 import type {
@@ -40,7 +43,7 @@ import type {
 import { useAuth } from "@/features/auth/auth-context";
 import { cn } from "@/lib/utils";
 
-type Tab = "team" | "attempts" | "audit";
+type Tab = "team" | "recipes" | "attempts" | "audit";
 
 type ConfirmState =
   | {
@@ -225,6 +228,11 @@ export function AdminPage() {
       icon: UsersRound
     },
     {
+      value: "recipes",
+      label: "Рецепты",
+      icon: UtensilsCrossed
+    },
+    {
       value: "attempts",
       label: "Аттестации",
       icon: ClipboardCheck
@@ -266,21 +274,21 @@ export function AdminPage() {
         </Button>
       </div>
 
-      <div className="mt-5 grid grid-cols-3 gap-2 rounded-2xl border border-[var(--bf-line)] bg-[var(--bf-surface)] p-1.5">
+      <div className="mt-5 grid grid-cols-4 gap-1.5 rounded-2xl border border-[var(--bf-line)] bg-[var(--bf-surface)] p-1.5">
         {tabs.map(({ value, label, icon: Icon }) => (
           <button
             key={value}
             type="button"
             onClick={() => setTab(value)}
             className={cn(
-              "flex min-h-12 items-center justify-center gap-1.5 rounded-xl border px-2 text-xs font-black",
+              "flex min-h-12 min-w-0 items-center justify-center gap-1 rounded-xl border px-1.5 text-[10px] font-black sm:text-xs",
               tab === value
                 ? "border-[var(--bf-copper-hi)] bg-[var(--bf-surface-2)] text-[var(--bf-cream)]"
                 : "border-transparent text-[var(--bf-dim)]"
             )}
           >
-            <Icon className="size-4" aria-hidden />
-            {label}
+            <Icon className="size-4 shrink-0" aria-hidden />
+            <span className="truncate">{label}</span>
           </button>
         ))}
       </div>
@@ -376,6 +384,12 @@ export function AdminPage() {
               Сотрудники по этому запросу не найдены.
             </Surface>
           )}
+        </div>
+      ) : null}
+
+      {tab === "recipes" && accessToken ? (
+        <div className="mt-2">
+          <AdminRecipesPanel accessToken={accessToken} />
         </div>
       ) : null}
 
