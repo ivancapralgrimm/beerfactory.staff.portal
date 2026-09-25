@@ -278,7 +278,10 @@ export function RecipeDetailPage() {
     : recipe.method;
   const metadata = [
     ["Категория", categoryLabel(recipe.category) || "Меню"],
-    ["Заведение", recipe.venue],
+    [
+      "Заведение",
+      recipe.venue === "BF/BB" ? "BF / BB · общая позиция" : recipe.venue
+    ],
     recipe.subcategory ? ["Подкатегория", recipe.subcategory] : null,
     recipe.version ? ["Версия", recipe.version] : null,
     recipe.updatedAt ? ["Обновлено", recipe.updatedAt] : null,

@@ -24,7 +24,8 @@ import { useAuth } from "@/features/auth/auth-context";
 import { RecipeEditor } from "@/features/recipes/RecipeEditor";
 import {
   categoryLabel,
-  isArchive
+  isArchive,
+  recipeVenueMatches
 } from "@/features/recipes/recipe-data";
 import { useRecipes } from "@/features/recipes/use-recipes";
 import type { Recipe } from "@/features/recipes/types";
@@ -39,6 +40,8 @@ function searchableText(recipe: Recipe) {
     categoryLabel(recipe.category),
     recipe.subcategory,
     recipe.desc,
+    recipe.venue,
+    recipe.venue === "BF/BB" ? "общая позиция bf bb" : "",
     ...recipe.ingredients,
     ...recipe.tags
   ]
@@ -155,14 +158,36 @@ export function RecipesPage() {
   const recipes = data?.recipes || [];
 
   const categories = useMemo(() => {
-    const unique = new Set(
-      recipes
-        .filter((recipe) => !isArchive(recipe))
-        .map((recipe) => recipe.category)
-        .filter(Boolean)
+    const current = recipes.filter((recipe) => !isArchive(recipe));
+    const barCategories = Array.from(
+      new Set(
+        current
+          .filter((recipe) => recipe.source !== "kitchen")
+          .map((recipe) => recipe.category)
+          .filter(Boolean)
+      )
     );
 
-    const values = ["Все", ...unique];
+    const values = ["Все", ...barCategories];
+
+    if (
+      current.some(
+        (recipe) =>
+          recipe.source === "kitchen" && recipeVenueMatches(recipe, "BF")
+      )
+    ) {
+      values.push("Кухня BF");
+    }
+
+    if (
+      current.some(
+        (recipe) =>
+          recipe.source === "kitchen" && recipeVenueMatches(recipe, "BB")
+      )
+    ) {
+      values.push("Кухня BB");
+    }
+
     if (recipes.some(isArchive)) values.push("Архив");
     return values;
   }, [recipes]);
@@ -182,7 +207,15 @@ export function RecipesPage() {
             ? deferredQuery
               ? true
               : !archived
-            : !archived && recipe.category === category;
+            : category === "Кухня BF"
+              ? !archived &&
+                recipe.source === "kitchen" &&
+                recipeVenueMatches(recipe, "BF")
+              : category === "Кухня BB"
+                ? !archived &&
+                  recipe.source === "kitchen" &&
+                  recipeVenueMatches(recipe, "BB")
+                : !archived && recipe.category === category;
 
       if (!categoryMatch) return false;
       if (!deferredQuery) return true;

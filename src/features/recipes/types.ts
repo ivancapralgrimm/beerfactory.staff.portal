@@ -1,4 +1,4 @@
-export type RecipeVenue = "BF" | "BB";
+export type RecipeVenue = "BF" | "BB" | "BF/BB";
 
 export type Recipe = {
   id: string;

@@ -128,7 +128,7 @@ function recipeErrorText(error: unknown) {
     case "invalid_status":
       return "Выбран неизвестный статус.";
     case "invalid_venue":
-      return "Выберите заведение BF или BB.";
+      return "Выберите BF, BB или общую позицию.";
     case "photo_too_large":
       return "Фото больше 1 МБ.";
     case "photo_type_not_allowed":
@@ -403,12 +403,17 @@ export function RecipeEditor({
                 value={editor.venue}
                 onChange={(event) => updateEditor(
                   "venue",
-                  event.target.value === "BB" ? "BB" : "BF"
+                  event.target.value === "BB"
+                    ? "BB"
+                    : event.target.value === "BF/BB"
+                      ? "BF/BB"
+                      : "BF"
                 )}
                 className={fieldClass()}
               >
                 <option value="BF">BeerFactory · BF</option>
                 <option value="BB">BeerBistro · BB</option>
+                <option value="BF/BB">Общая позиция · BF/BB</option>
               </select>
             </label>
           </div>

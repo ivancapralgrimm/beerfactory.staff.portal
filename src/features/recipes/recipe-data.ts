@@ -112,7 +112,18 @@ function normalizeSource(value: unknown) {
 }
 
 function normalizeVenue(value: unknown): RecipeVenue {
-  return clean(value).toUpperCase() === "BB" ? "BB" : "BF";
+  const raw = clean(value).toUpperCase().replace(/\s+/g, "");
+
+  if (raw === "BB") return "BB";
+  if (raw === "BF/BB" || raw === "BB/BF") return "BF/BB";
+  return "BF";
+}
+
+export function recipeVenueMatches(
+  recipe: Pick<Recipe, "venue">,
+  venue: "BF" | "BB"
+) {
+  return recipe.venue === venue || recipe.venue === "BF/BB";
 }
 
 function normalizeRow(
