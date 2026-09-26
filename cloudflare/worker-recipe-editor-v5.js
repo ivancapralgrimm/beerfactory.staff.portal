@@ -1,5 +1,5 @@
 /**
- * BeerFactory menu worker · recipe editor v5
+ * BeerFactory menu worker · recipe editor v5.5
  *
  * Designed as a full replacement candidate for the current beerfactory-menu-api
  * after manual comparison with the live Worker. It preserves public /menu reads,
@@ -14,7 +14,9 @@
  *
  * Photo upload uses NocoDB's /api/v2/storage/upload endpoint, then stores the
  * attachment metadata in BAR.Фото or KITCHEN.Фотка and the direct URL in
- * Фото-ссылка. The NocoDB write token never reaches the browser.
+ * Фото-ссылка. BAR and KITCHEN field mappings are explicitly allowlisted in
+ * NOCODB_SCHEMA; unknown columns remain untouched by partial PATCH updates.
+ * The NocoDB write token never reaches the browser.
  */
 
 const DEFAULT_BAR_TABLE_ID = "mqo5ga1nk6h8lv8";
@@ -22,6 +24,51 @@ const DEFAULT_KITCHEN_TABLE_ID = "mc7m3sa4m2x12dd";
 const MAX_PHOTO_BYTES = 1024 * 1024;
 const PHOTO_MIME_TYPES = new Set(["image/jpeg", "image/png"]);
 const VALID_STATUSES = new Set(["Актуальный", "Архив"]);
+
+// Live NocoDB schema snapshot verified against /menu on 2026-09-26.
+// Unknown future columns are intentionally preserved because PATCH writes only
+// this allowlisted recipe payload. System columns are never written by Worker.
+const NOCODB_SCHEMA = Object.freeze({
+  bar: Object.freeze({
+    system: Object.freeze(["Id", "CreatedAt", "UpdatedAt"]),
+    legacyReadOnly: Object.freeze(["Tittle", "Подача", "Вес"]),
+    business: Object.freeze([
+      "Фото-ссылка",
+      "Название",
+      "Состав",
+      "Метод",
+      "Теги",
+      "Фото",
+      "Категория",
+      "Статус",
+      "Версия",
+      "Обновлено",
+      "Кем обновлено",
+      "Что изменено",
+      "Заведение",
+      "Граммовка"
+    ])
+  }),
+  kitchen: Object.freeze({
+    system: Object.freeze(["Id", "CreatedAt", "UpdatedAt"]),
+    legacyReadOnly: Object.freeze([]),
+    business: Object.freeze([
+      "Название",
+      "Описание",
+      "Граммовка",
+      "Фотка",
+      "Фото-ссылка",
+      "Состав",
+      "Теги",
+      "Статус",
+      "Версия",
+      "Обновлено",
+      "Кем обновлено",
+      "Что обновлено",
+      "Заведение"
+    ])
+  })
+});
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -32,6 +79,41 @@ const CORS_HEADERS = {
 
 function clean(value) {
   return String(value ?? "").trim();
+}
+
+function redactSensitiveText(value) {
+  return clean(value)
+    .replace(/Bearer\s+[A-Za-z0-9._~+\/-]+/gi, "Bearer [redacted]")
+    .replace(/(?:xc-token|x-auth-token|authorization)\s*[:=]\s*[^\s,;]+/gi, "$1=[redacted]")
+    .replace(/\beyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\b/g, "[redacted-jwt]")
+    .replace(/\bnc_[A-Za-z0-9_-]{12,}\b/g, "[redacted-token]")
+    .replace(/\s+/g, " ")
+    .slice(0, 700);
+}
+
+function safeUpstreamMessage(data) {
+  if (typeof data === "string") return redactSensitiveText(data);
+  if (!data || typeof data !== "object") return "";
+
+  const candidates = [
+    data.message,
+    data.msg,
+    typeof data.error === "string" ? data.error : null,
+    data.error?.message,
+    Array.isArray(data.errors) ? data.errors[0]?.message : null
+  ];
+
+  return redactSensitiveText(candidates.find((value) => clean(value)) || "");
+}
+
+function safeUpstreamCode(data) {
+  if (!data || typeof data !== "object") return "";
+  return redactSensitiveText(
+    data.code ||
+    data.errorCode ||
+    data.error?.code ||
+    (Array.isArray(data.errors) ? data.errors[0]?.code : "")
+  ).slice(0, 120);
 }
 
 function json(data, status = 200, extra = {}) {
@@ -83,6 +165,28 @@ function attachmentFieldForSource(source) {
 
 function changeNoteFieldForSource(source) {
   return source === "kitchen" ? "Что обновлено" : "Что изменено";
+}
+
+function expectedNocoFields(source) {
+  const schema = NOCODB_SCHEMA[source];
+  if (!schema) return [];
+  return [...schema.system, ...schema.business];
+}
+
+function attachmentUrl(row, source) {
+  const field = attachmentFieldForSource(source);
+  const value = row?.[field];
+  const files = Array.isArray(value) ? value : value ? [value] : [];
+  const first = files[0];
+  if (!first || typeof first !== "object") return "";
+
+  return clean(
+    first.url ||
+    first.signedUrl ||
+    first.signedPath ||
+    first.path ||
+    first.downloadUrl
+  );
 }
 
 function statusValue(row) {
@@ -145,9 +249,9 @@ function canonicalRecipe(row, source) {
     : clean(row?.Метод || row?.Описание);
   const serving = isKitchen
     ? clean(row?.Граммовка)
-    : clean(row?.Подача || row?.Граммовка || row?.Вес);
+    : clean(row?.Граммовка || row?.Подача || row?.Вес);
   const ingredients = lineArray(row?.Состав);
-  const photo = clean(row?.["Фото-ссылка"]);
+  const photo = clean(row?.["Фото-ссылка"]) || attachmentUrl(row, source);
   const venue = venueValue(row);
   const category = isKitchen
     ? `Кухня ${venue}`
@@ -162,7 +266,7 @@ function canonicalRecipe(row, source) {
     recordId: id,
     source,
     venue,
-    name: clean(row?.Название) || "Без названия",
+    name: clean(row?.Название || (source === "bar" ? row?.Tittle : "")) || "Без названия",
     category,
     subcategory: clean(row?.Подкатегория),
     desc:
@@ -193,7 +297,13 @@ function publicRow(row, source) {
       : canonical.recordId,
     source,
     venue: canonical.venue,
+    name: canonical.name,
     category: canonical.category,
+    ingredients: canonical.ingredients,
+    method: canonical.method,
+    serving: canonical.serving,
+    photo: canonical.photo,
+    tags: canonical.tags,
     status: canonical.status,
     version: canonical.version,
     updatedAt: canonical.updatedAt,
@@ -207,7 +317,10 @@ async function nocoRequest(config, path, options = {}) {
     method = "GET",
     write = false,
     body,
-    headers = {}
+    headers = {},
+    authMode = "xc-token",
+    operation = write ? "nocodb_write" : "nocodb_read",
+    context = {}
   } = options;
 
   const token = write ? config.writeToken : config.readToken;
@@ -217,10 +330,14 @@ async function nocoRequest(config, path, options = {}) {
       : "nocodb_read_unavailable");
   }
 
+  const authHeaders = authMode === "bearer"
+    ? { Authorization: `Bearer ${token}` }
+    : { "xc-token": token };
+
   const response = await fetch(`${config.baseUrl}${path}`, {
     method,
     headers: {
-      "xc-token": token,
+      ...authHeaders,
       ...headers
     },
     body
@@ -243,6 +360,18 @@ async function nocoRequest(config, path, options = {}) {
     );
     error.status = response.status;
     error.detail = data;
+    error.exposeDiagnostic = write;
+    error.safeDiagnostic = {
+      upstream_status: response.status,
+      upstream_method: method,
+      upstream_path: path.split("?")[0],
+      operation,
+      auth_mode: authMode,
+      ...(clean(context.source) ? { source: clean(context.source) } : {}),
+      ...(clean(context.recordId) ? { record_id: clean(context.recordId) } : {}),
+      ...(safeUpstreamCode(data) ? { upstream_code: safeUpstreamCode(data) } : {}),
+      ...(safeUpstreamMessage(data) ? { upstream_message: safeUpstreamMessage(data) } : {})
+    };
     throw error;
   }
 
@@ -286,7 +415,10 @@ function capabilities(config) {
     recipe_admin_create: Boolean(config.writeToken),
     recipe_photo_upload: Boolean(config.writeToken),
     recipe_admin_delete: Boolean(config.writeToken),
-    recipe_venue: true
+    recipe_venue: true,
+    recipe_write_diagnostics: true,
+    recipe_schema_complete: true,
+    recipe_schema_diagnostics: true
   };
 }
 
@@ -347,32 +479,52 @@ async function requireAdmin(request, config) {
     throw Object.assign(new Error("unauthorized"), { status: 401 });
   }
 
-  const profileUrl = new URL(`${config.supabaseUrl}/rest/v1/profiles`);
-  profileUrl.searchParams.set("id", `eq.${userId}`);
-  profileUrl.searchParams.set(
-    "select",
-    "id,first_name,last_name,role,is_active,is_owner"
-  );
-  profileUrl.searchParams.set("limit", "1");
-
-  const profileResponse = await fetch(profileUrl.toString(), {
-    headers: {
-      apikey: config.supabaseAnonKey,
-      Authorization: `Bearer ${token}`
+  // Do not query role/is_active/is_owner directly from public.profiles here.
+  // The staff-directory hardening intentionally grants authenticated users
+  // column-level SELECT only for non-sensitive directory fields. A direct
+  // PostgREST select of admin fields therefore returns 403 before RLS runs.
+  //
+  // The SECURITY DEFINER RPC below is narrowly scoped to auth.uid() and returns
+  // only the current user's access verdict plus display name. This preserves
+  // the hardening and avoids putting a Supabase service-role secret in Worker.
+  const accessResponse = await fetch(
+    `${config.supabaseUrl}/rest/v1/rpc/recipe_editor_access_context`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: config.supabaseAnonKey,
+        Authorization: `Bearer ${token}`
+      },
+      body: "{}"
     }
-  });
+  );
 
-  if (!profileResponse.ok) {
-    throw Object.assign(new Error("admin_profile_failed"), { status: 403 });
+  if (!accessResponse.ok) {
+    const text = await accessResponse.text();
+    let detail = text;
+    try { detail = text ? JSON.parse(text) : null; } catch {}
+
+    throw Object.assign(new Error("admin_profile_failed"), {
+      status: accessResponse.status === 401 ? 401 : 403,
+      exposeDiagnostic: true,
+      safeDiagnostic: {
+        operation: "supabase_recipe_access_context",
+        upstream_status: accessResponse.status,
+        upstream_message: safeUpstreamMessage(detail),
+        upstream_code: safeUpstreamCode(detail)
+      }
+    });
   }
 
-  const profiles = await profileResponse.json();
-  const profile = Array.isArray(profiles) ? profiles[0] : null;
+  const accessRows = await accessResponse.json();
+  const access = Array.isArray(accessRows) ? accessRows[0] : accessRows;
 
   if (
-    !profile ||
-    profile.is_active === false ||
-    (profile.role !== "admin" && profile.is_owner !== true)
+    !access ||
+    clean(access.user_id) !== userId ||
+    access.is_active !== true ||
+    access.can_manage_recipes !== true
   ) {
     throw Object.assign(new Error("admin_required"), { status: 403 });
   }
@@ -380,12 +532,8 @@ async function requireAdmin(request, config) {
   return {
     token,
     userId,
-    profile,
-    displayName:
-      [profile.first_name, profile.last_name]
-        .map(clean)
-        .filter(Boolean)
-        .join(" ") || "Администратор"
+    profile: access,
+    displayName: clean(access.display_name) || "Администратор"
   };
 }
 
@@ -549,13 +697,16 @@ async function uploadPhoto(config, photo) {
       {
         method: "POST",
         write: true,
-        body: form
+        body: form,
+        operation: "recipe_photo_upload"
       }
     );
   } catch (error) {
     const wrapped = new Error("nocodb_photo_upload_failed");
     wrapped.status = error?.status || 502;
     wrapped.detail = error?.detail;
+    wrapped.exposeDiagnostic = error?.exposeDiagnostic === true;
+    wrapped.safeDiagnostic = error?.safeDiagnostic;
     throw wrapped;
   }
 
@@ -605,7 +756,8 @@ function baseRecordForEditor(source, input, actorName, version, changeNote) {
     return {
       ...common,
       "Категория": input.category,
-      "Метод": input.method || null
+      "Метод": input.method || null,
+      "Граммовка": input.serving || null
     };
   }
 
@@ -665,7 +817,9 @@ async function createRecipe(request, config, source, actor) {
       method: "POST",
       write: true,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(row)
+      body: JSON.stringify(row),
+      operation: "recipe_create",
+      context: { source }
     }
   );
 
@@ -783,7 +937,9 @@ async function updateRecipe(request, config, source, id, actor) {
       method: "PATCH",
       write: true,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updatePayload)
+      body: JSON.stringify(updatePayload),
+      operation: editorMode ? "recipe_update" : "recipe_governance_update",
+      context: { source, recordId: id }
     }
   );
 
@@ -833,7 +989,9 @@ async function deleteRecipe(config, source, id, actor) {
       method: "DELETE",
       write: true,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify([{ Id: deleteId }])
+      body: JSON.stringify([{ Id: deleteId }]),
+      operation: "recipe_delete",
+      context: { source, recordId: id }
     }
   );
 
@@ -870,6 +1028,103 @@ async function adminRecipes(config) {
   };
 }
 
+async function probeWriteToken(config, source, authMode) {
+  const tableId = tableIdForSource(config, source);
+
+  try {
+    await nocoRequest(
+      config,
+      `/api/v2/tables/${encodeURIComponent(tableId)}/records?limit=1`,
+      {
+        method: "GET",
+        write: true,
+        authMode,
+        operation: "write_token_probe",
+        context: { source }
+      }
+    );
+
+    return {
+      ok: true,
+      source,
+      auth_mode: authMode,
+      table_id: tableId
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      source,
+      auth_mode: authMode,
+      table_id: tableId,
+      error: clean(error?.message) || "probe_failed",
+      ...(error?.safeDiagnostic || {})
+    };
+  }
+}
+
+async function adminDiagnostics(config) {
+  const probes = await Promise.all([
+    probeWriteToken(config, "bar", "xc-token"),
+    probeWriteToken(config, "kitchen", "xc-token"),
+    probeWriteToken(config, "bar", "bearer"),
+    probeWriteToken(config, "kitchen", "bearer")
+  ]);
+
+  const modeWorks = (mode) =>
+    probes
+      .filter((probe) => probe.auth_mode === mode)
+      .every((probe) => probe.ok === true);
+
+  const recommendedAuthMode = modeWorks("xc-token")
+    ? "xc-token"
+    : modeWorks("bearer")
+      ? "bearer"
+      : null;
+
+  return {
+    ok: Boolean(recommendedAuthMode),
+    worker_version: "recipe-editor-v5.5",
+    write_token_configured: Boolean(config.writeToken),
+    recommended_auth_mode: recommendedAuthMode,
+    probes
+  };
+}
+
+async function adminSchemaDiagnostics(config) {
+  const inspect = async (source) => {
+    const tableId = tableIdForSource(config, source);
+    const data = await nocoRequest(
+      config,
+      `/api/v2/tables/${encodeURIComponent(tableId)}/records?limit=1`
+    );
+    const row = listFromResponse(data)[0] || {};
+    const observed = Object.keys(row);
+    const expected = expectedNocoFields(source);
+    const legacy = NOCODB_SCHEMA[source]?.legacyReadOnly || [];
+
+    return {
+      source,
+      table_id: tableId,
+      expected,
+      legacy_read_only: legacy,
+      observed,
+      missing_expected: expected.filter((field) => !observed.includes(field)),
+      unexpected: observed.filter(
+        (field) => !expected.includes(field) && !legacy.includes(field)
+      )
+    };
+  };
+
+  const [bar, kitchen] = await Promise.all([inspect("bar"), inspect("kitchen")]);
+  return {
+    ok: true,
+    worker_version: "recipe-editor-v5.5",
+    schema_snapshot: "2026-09-26",
+    bar,
+    kitchen
+  };
+}
+
 function parseAdminRecipeRoute(pathname) {
   const parts = pathname.split("/").filter(Boolean);
 
@@ -880,6 +1135,12 @@ function parseAdminRecipeRoute(pathname) {
   }
 
   if (parts.length === 3) {
+    if (parts[2] === "diagnostics") {
+      return { kind: "diagnostics" };
+    }
+    if (parts[2] === "schema") {
+      return { kind: "schema" };
+    }
     if (parts[2] === "bar" || parts[2] === "kitchen") {
       return { kind: "source", source: parts[2] };
     }
@@ -914,9 +1175,30 @@ function errorResponse(error) {
     500
   );
 
-  console.error("BeerFactory worker error", code, error?.detail || "");
+  const diagnosticId = typeof crypto?.randomUUID === "function"
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  const diagnostic = error?.exposeDiagnostic === true
+    ? error?.safeDiagnostic || null
+    : null;
 
-  return json({ ok: false, error: code }, status);
+  console.error(
+    "BeerFactory worker error",
+    JSON.stringify({
+      diagnostic_id: diagnosticId,
+      code,
+      status,
+      diagnostic
+    })
+  );
+
+  return json({
+    ok: false,
+    error: code,
+    worker_version: "recipe-editor-v5.5",
+    diagnostic_id: diagnosticId,
+    ...(diagnostic ? { diagnostic } : {})
+  }, status);
 }
 
 export default {
@@ -931,7 +1213,7 @@ export default {
         return json({
           ok: true,
           service: "beerfactory-menu-api",
-          version: "recipe-editor-v5.1",
+          version: "recipe-editor-v5.5",
           capabilities: capabilities(config)
         });
       }
@@ -961,6 +1243,20 @@ export default {
         }
 
         const actor = await requireAdmin(request, config);
+
+        if (
+          request.method === "GET" &&
+          adminRoute.kind === "diagnostics"
+        ) {
+          return json(await adminDiagnostics(config));
+        }
+
+        if (
+          request.method === "GET" &&
+          adminRoute.kind === "schema"
+        ) {
+          return json(await adminSchemaDiagnostics(config));
+        }
 
         if (
           request.method === "GET" &&
