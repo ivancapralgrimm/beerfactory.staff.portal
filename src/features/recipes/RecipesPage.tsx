@@ -25,6 +25,8 @@ import { RecipeEditor } from "@/features/recipes/RecipeEditor";
 import {
   categoryLabel,
   isArchive,
+  recipeMatchesVenueCategory,
+  recipeVenueCategory,
   recipeVenueMatches
 } from "@/features/recipes/recipe-data";
 import { useRecipes } from "@/features/recipes/use-recipes";
@@ -41,6 +43,12 @@ function searchableText(recipe: Recipe) {
     recipe.subcategory,
     recipe.desc,
     recipe.venue,
+    recipeVenueMatches(recipe, "BF")
+      ? categoryLabel(recipeVenueCategory(recipe, "BF"))
+      : "",
+    recipeVenueMatches(recipe, "BB")
+      ? categoryLabel(recipeVenueCategory(recipe, "BB"))
+      : "",
     recipe.venue === "BF/BB" ? "общая позиция bf bb" : "",
     ...recipe.ingredients,
     ...recipe.tags
@@ -159,34 +167,31 @@ export function RecipesPage() {
 
   const categories = useMemo(() => {
     const current = recipes.filter((recipe) => !isArchive(recipe));
-    const barCategories = Array.from(
-      new Set(
-        current
-          .filter((recipe) => recipe.source !== "kitchen")
-          .map((recipe) => recipe.category)
-          .filter(Boolean)
-      )
-    );
+    const venueCategories = new Set<string>();
 
-    const values = ["Все", ...barCategories];
+    current.forEach((recipe) => {
+      if (recipeVenueMatches(recipe, "BF")) {
+        venueCategories.add(recipeVenueCategory(recipe, "BF"));
+      }
 
-    if (
-      current.some(
-        (recipe) =>
-          recipe.source === "kitchen" && recipeVenueMatches(recipe, "BF")
-      )
-    ) {
-      values.push("Кухня BF");
-    }
+      if (recipeVenueMatches(recipe, "BB")) {
+        venueCategories.add(recipeVenueCategory(recipe, "BB"));
+      }
+    });
 
-    if (
-      current.some(
-        (recipe) =>
-          recipe.source === "kitchen" && recipeVenueMatches(recipe, "BB")
-      )
-    ) {
-      values.push("Кухня BB");
-    }
+    const values = [
+      "Все",
+      ...Array.from(venueCategories).sort((a, b) => {
+        const aLabel = categoryLabel(a);
+        const bLabel = categoryLabel(b);
+        const aBase = aLabel.replace(/\s+(?:BF|BB)$/i, "");
+        const bBase = bLabel.replace(/\s+(?:BF|BB)$/i, "");
+        const baseOrder = aBase.localeCompare(bBase, "ru");
+
+        if (baseOrder !== 0) return baseOrder;
+        return a.endsWith(" BF") ? -1 : b.endsWith(" BF") ? 1 : 0;
+      })
+    ];
 
     if (recipes.some(isArchive)) values.push("Архив");
     return values;
@@ -207,15 +212,7 @@ export function RecipesPage() {
             ? deferredQuery
               ? true
               : !archived
-            : category === "Кухня BF"
-              ? !archived &&
-                recipe.source === "kitchen" &&
-                recipeVenueMatches(recipe, "BF")
-              : category === "Кухня BB"
-                ? !archived &&
-                  recipe.source === "kitchen" &&
-                  recipeVenueMatches(recipe, "BB")
-                : !archived && recipe.category === category;
+            : !archived && recipeMatchesVenueCategory(recipe, category);
 
       if (!categoryMatch) return false;
       if (!deferredQuery) return true;

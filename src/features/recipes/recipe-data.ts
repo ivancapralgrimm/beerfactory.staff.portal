@@ -30,7 +30,14 @@ let memory: RecipeLoadResult | null = null;
 let inflight: Promise<RecipeLoadResult> | null = null;
 
 export function categoryLabel(value: string) {
-  return /^лимонад$/i.test(clean(value)) ? "Б/А напитки" : clean(value);
+  const normalized = clean(value);
+  const venueMatch = normalized.match(/^(.*)\s+(BF\/BB|BB\/BF|BF|BB)$/i);
+  const base = clean(venueMatch ? venueMatch[1] : normalized);
+  const label = /^лимонад$/i.test(base) ? "Б/А напитки" : base;
+
+  return venueMatch
+    ? `${label} ${venueMatch[2].toUpperCase()}`
+    : label;
 }
 
 export function recipeStatusKind(value: string) {
@@ -124,6 +131,40 @@ export function recipeVenueMatches(
   venue: "BF" | "BB"
 ) {
   return recipe.venue === venue || recipe.venue === "BF/BB";
+}
+
+export function recipeBaseCategory(
+  recipe: Pick<Recipe, "source" | "category">
+) {
+  if (recipe.source === "kitchen") return "Кухня";
+
+  return (
+    clean(recipe.category).replace(/\s+(?:BF\/BB|BB\/BF|BF|BB)$/i, "") ||
+    "Меню"
+  );
+}
+
+export function recipeVenueCategory(
+  recipe: Pick<Recipe, "source" | "category">,
+  venue: "BF" | "BB"
+) {
+  return `${recipeBaseCategory(recipe)} ${venue}`;
+}
+
+export function recipeMatchesVenueCategory(
+  recipe: Pick<Recipe, "source" | "category" | "venue">,
+  category: string
+) {
+  const match = clean(category).match(/^(.*)\s+(BF|BB)$/i);
+  if (!match) return false;
+
+  const baseCategory = clean(match[1]).toLowerCase();
+  const venue = match[2].toUpperCase() as "BF" | "BB";
+
+  return (
+    recipeBaseCategory(recipe).toLowerCase() === baseCategory &&
+    recipeVenueMatches(recipe, venue)
+  );
 }
 
 function normalizeRow(
