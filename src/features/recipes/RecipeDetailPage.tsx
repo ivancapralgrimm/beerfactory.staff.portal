@@ -125,7 +125,9 @@ export function RecipeDetailPage() {
     window.scrollTo(0, 0);
     setEditOpen(false);
     setAdminMessage("");
-  }, [requestedId]);
+    setPhotoFailed(false);
+    setPhotoOpen(false);
+  }, [requestedId, recipe?.photo]);
 
   const backTarget =
     location.state &&
@@ -406,7 +408,10 @@ export function RecipeDetailPage() {
               className="h-full max-h-[430px] w-full object-contain transition-transform duration-200 group-hover:scale-[1.01]"
               loading="eager"
               fetchPriority="high"
-              onError={() => setPhotoFailed(true)}
+              onError={() => {
+                setPhotoFailed(true);
+                setPhotoOpen(false);
+              }}
             />
             <span className="absolute bottom-3 right-3 inline-flex items-center gap-1 rounded-full border border-white/15 bg-black/55 px-2.5 py-1.5 text-xs font-bold text-white backdrop-blur">
               <ExternalLink className="size-3.5" aria-hidden />
