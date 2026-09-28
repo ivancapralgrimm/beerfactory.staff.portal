@@ -1,18 +1,71 @@
 {
-  "package": "BFStaff_r40.4_RECIPE_UI_V4_2",
-  "branch": "r40.4-react",
-  "base_head": "2b9cc57b45f086e2c186990aab254676fc2035e7",
-  "scope": "UI-only: align admin create-recipe + button with the bottom line of the Recipes heading",
-  "files": [
-    {
-      "path": "src/features/recipes/RecipesPage.tsx",
-      "action": "REPLACE",
-      "sha256": "1f2b287ada066d16fe903c847e8fe911654cadd8977781731a8e7b1f1984b9ee",
-      "bytes": 14201
+  "name": "BFStaff r40.4 MEGA FEED + SHIFT v1",
+  "target_branch": "r40.4-react",
+  "expected_base_head": "cf491189a6c6a108708966dbf82eb588fde66959",
+  "main_touched": false,
+  "features": {
+    "feed": {
+      "route": "/feed",
+      "legacy_redirect": "/handover -> /feed",
+      "create_fields": [
+        "subject",
+        "body"
+      ],
+      "priorities": [
+        "normal",
+        "critical"
+      ],
+      "notification_targets": [
+        "all",
+        "staff_positions"
+      ],
+      "acknowledgement": true,
+      "resolved_state": true,
+      "dashboard_max_active": 6,
+      "dashboard_vertical_scroll": true
+    },
+    "shift": {
+      "timezone": "Asia/Novosibirsk",
+      "window_open": "11:00",
+      "window_close": "03:00",
+      "early_closing_unlock": true,
+      "opening_remains_editable_after_unlock": true,
+      "final_close_requires_opening_confirmation": true,
+      "compact_0300_audit": true
+    },
+    "manager": {
+      "real_checklist": true,
+      "groups": [
+        "BF",
+        "BB"
+      ],
+      "group_toggle_transactional": true,
+      "opening_items": {
+        "BF": 6,
+        "BB": 8
+      },
+      "closing_items": {
+        "BF": 9,
+        "BB": 9
+      }
+    },
+    "waiter": {
+      "real_checklist": true,
+      "opening_items": 8,
+      "closing_items": 5
+    },
+    "general_cleaning": {
+      "foundation": true,
+      "weekday": "Sunday operational date",
+      "iso_weekday": 7,
+      "appears_above_opening_closing": true,
+      "task_rows_seeded": false
+    },
+    "bartender": {
+      "replaced": false
+    },
+    "hostess": {
+      "replaced": false
     }
-  ],
-  "backend_required_for_writes": {
-    "nocodb": "Add Заведение Single Select (BF/BB, default BF) to BAR and KITCHEN",
-    "cloudflare": "Deploy cloudflare/worker-recipe-editor-v5.js after NocoDB setup"
   }
 }
