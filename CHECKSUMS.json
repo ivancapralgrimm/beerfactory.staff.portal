@@ -1,6 +1,8 @@
 {
-  "README_UPLOAD.txt": "9eb09b937e759cb60f603495dfca693a875e33c930e8c60145e2d74976e1ee08",
-  "src/app/App.tsx": "f1ec212b5cbc6e0e2fba4f4458dca0d49894ee0a95583204712109d544207487",
-  "src/components/layout/AppShell.tsx": "89b9ac670b9bfe1a621f4a4fc9aec23d8dc96d1b298e6e75aff7836ddf7ddc9e",
-  "src/pages/DashboardPage.tsx": "7ea7ecd1e741e91aaf3908fc6fb4cefe4fec9bca61faf2d071f20a3edc58d599"
+  "README_UPLOAD.txt": "a4dc7648e36b63091d40cddae9f44e0136bfe8451db92cd1b8138f683502a3f1",
+  "VERSION_SYNC_REPORT.json": "36723aae441fff68bf6b3e3b4d7d96e41269dbcd21a3d2022556bea26d110538",
+  "public/push-sw.js": "51b48dd259af4d5f7b53e4b56891c66ebc1695adbe8e6b66aba1d4d336f3545d",
+  "src/features/feed/feed-api.ts": "167271b51cb5ec6224aaba57daaaee77d515ea594927a6209decca3c4d5011b3",
+  "supabase/functions/handover-push/deno.json": "8c4645dd23ca5ea7c7d365aa9e7392c106ed1139d11e5560221cd518e8f3697b",
+  "supabase/functions/handover-push/index.ts": "7b34e68b9ea7580636ea40a77fd8df4dba1ab7e61a6d445cd07e1757fdff088e"
 }

@@ -1,0 +1,32 @@
+{
+  "name": "BFStaff r40.4 FEED V6 SYNC HOTFIX v2",
+  "replaces": "BFStaff_r40.4_FEED_WRITE_HOTFIX_v1",
+  "replace_files": [
+    "src/features/feed/feed-api.ts",
+    "supabase/functions/handover-push/index.ts",
+    "public/push-sw.js"
+  ],
+  "included_unchanged_context_file": [
+    "supabase/functions/handover-push/deno.json"
+  ],
+  "checked_no_change_needed": [
+    "src/lib/config.ts",
+    "src/features/notifications/notification-api.ts",
+    "src/features/feed/FeedPage.tsx",
+    "src/features/feed/DashboardFeedSection.tsx",
+    "vite.config.ts",
+    "scripts/sync-public.mjs"
+  ],
+  "live_contract": {
+    "edge_function": "handover-push",
+    "active_version": 6,
+    "verify_jwt": true,
+    "actions": [
+      "create",
+      "resolve",
+      "notify_created",
+      "notify_resolved"
+    ],
+    "get_vapid_public_key": true
+  }
+}
