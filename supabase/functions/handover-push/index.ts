@@ -418,7 +418,7 @@ Deno.serve(async (req) => {
   }
 
   let body: {
-    action?: "create" | "resolve";
+    action?: "create" | "resolve" | "notify_created" | "notify_resolved";
     note_id?: string;
     subject?: string;
     body?: string;
@@ -441,7 +441,9 @@ Deno.serve(async (req) => {
 
   if (
     action !== "create" &&
-    action !== "resolve"
+    action !== "resolve" &&
+    action !== "notify_created" &&
+    action !== "notify_resolved"
   ) {
     return J({
       error: "invalid_action"
@@ -463,6 +465,166 @@ Deno.serve(async (req) => {
       }
     }
   );
+
+  if (action === "notify_created") {
+    const noteId =
+      String(body.note_id || "").trim();
+
+    if (!noteId) {
+      return J({
+        error: "note_id_required"
+      }, 400);
+    }
+
+    const {
+      data: existing,
+      error: existingError
+    } = await userDb
+      .from("notes")
+      .select(
+        "id,author_id,subject,body,priority,notify_all,notify_positions"
+      )
+      .eq("id", noteId)
+      .maybeSingle();
+
+    if (
+      existingError ||
+      !existing
+    ) {
+      return J({
+        error: "feed_post_not_found"
+      }, 404);
+    }
+
+    if (existing.author_id !== user.id) {
+      return J({
+        error: "forbidden"
+      }, 403);
+    }
+
+    const audience: Audience = {
+      notifyAll:
+        existing.notify_all !== false,
+      positions:
+        normalizePositions(
+          existing.notify_positions
+        )
+    };
+
+    const push =
+      await sendToAudience(
+        admin,
+        vapid,
+        user.id,
+        audience,
+        {
+          title:
+            existing.priority === "critical"
+              ? `Критично · ${excerpt(existing.subject, 90)}`
+              : excerpt(existing.subject, 100),
+          body:
+            excerpt(existing.body, 150),
+          icon:
+            "/assets/icons/icon-192.png",
+          badge:
+            "/assets/icons/icon-192.png",
+          url:
+            "/#/feed",
+          tag:
+            `feed-created:${existing.id}`,
+          event:
+            "created"
+        }
+      );
+
+    return J({
+      ok: true,
+      note: existing,
+      push
+    });
+  }
+
+  if (action === "notify_resolved") {
+    const noteId =
+      String(body.note_id || "").trim();
+
+    if (!noteId) {
+      return J({
+        error: "note_id_required"
+      }, 400);
+    }
+
+    const {
+      data: existing,
+      error: existingError
+    } = await userDb
+      .from("notes")
+      .select(
+        "id,subject,body,priority,status,notify_all,notify_positions,resolved_by"
+      )
+      .eq("id", noteId)
+      .maybeSingle();
+
+    if (
+      existingError ||
+      !existing
+    ) {
+      return J({
+        error: "feed_post_not_found"
+      }, 404);
+    }
+
+    if (
+      existing.status !== "resolved" ||
+      existing.resolved_by !== user.id
+    ) {
+      return J({
+        error: "forbidden"
+      }, 403);
+    }
+
+    const audience: Audience = {
+      notifyAll:
+        existing.notify_all !== false,
+      positions:
+        normalizePositions(
+          existing.notify_positions
+        )
+    };
+
+    const actor =
+      personName(profile);
+
+    const push =
+      await sendToAudience(
+        admin,
+        vapid,
+        user.id,
+        audience,
+        {
+          title:
+            `Решено · ${excerpt(existing.subject, 90)}`,
+          body:
+            `${actor} отметил запись как решённую.`,
+          icon:
+            "/assets/icons/icon-192.png",
+          badge:
+            "/assets/icons/icon-192.png",
+          url:
+            "/#/feed",
+          tag:
+            `feed-resolved:${existing.id}`,
+          event:
+            "resolved"
+        }
+      );
+
+    return J({
+      ok: true,
+      note: existing,
+      push
+    });
+  }
 
   if (action === "resolve") {
     const noteId =
