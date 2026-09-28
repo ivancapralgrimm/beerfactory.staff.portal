@@ -1,4 +1,3 @@
-import { config, edgeFunctions } from "@/lib/config";
 import { supabase } from "@/lib/supabase";
 import type { StaffPosition } from "@/types/auth";
 import type {
@@ -108,36 +107,32 @@ export async function createFeedPost(input: {
   notifyAll: boolean;
   notifyPositions: StaffPosition[];
 }) {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) throw new Error("unauthorized");
+  const { data: note, error } = await supabase.rpc(
+    "create_feed_post",
+    {
+      p_subject: input.subject,
+      p_body: input.body,
+      p_priority: input.priority,
+      p_notify_all: input.notifyAll,
+      p_notify_positions:
+        input.notifyAll ? [] : input.notifyPositions
+    }
+  );
 
-  const response = await fetch(edgeFunctions.handoverPush, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      apikey: config.supabasePublishableKey,
-      Authorization: `Bearer ${session.access_token}`
-    },
-    body: JSON.stringify({
-      action: "create",
-      subject: input.subject,
-      body: input.body,
-      priority: input.priority,
-      notify_all: input.notifyAll,
-      notify_positions: input.notifyAll ? [] : input.notifyPositions
-    })
-  });
-
-  const data = (await response.json().catch(() => ({}))) as {
-    ok?: boolean;
-    note?: unknown;
-    error?: string;
-  };
-
-  if (!response.ok || !data.ok || !data.note) {
-    throw new Error(data.error || "feed_create_failed");
+  if (error || !note) {
+    throw error || new Error("feed_create_failed");
   }
-  return data.note;
+
+  void supabase.functions
+    .invoke("handover-push", {
+      body: {
+        action: "notify_created",
+        note_id: note.id
+      }
+    })
+    .catch(() => undefined);
+
+  return note;
 }
 
 export async function acknowledgeFeedPost(noteId: string) {
@@ -150,32 +145,25 @@ export async function acknowledgeFeedPost(noteId: string) {
 }
 
 export async function resolveFeedPost(noteId: string) {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) throw new Error("unauthorized");
+  const { data: note, error } = await supabase.rpc(
+    "resolve_handover",
+    { p_note_id: noteId }
+  );
 
-  const response = await fetch(edgeFunctions.handoverPush, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      apikey: config.supabasePublishableKey,
-      Authorization: `Bearer ${session.access_token}`
-    },
-    body: JSON.stringify({
-      action: "resolve",
-      note_id: noteId
-    })
-  });
-
-  const data = (await response.json().catch(() => ({}))) as {
-    ok?: boolean;
-    note?: unknown;
-    error?: string;
-  };
-
-  if (!response.ok || !data.ok || !data.note) {
-    throw new Error(data.error || "feed_resolve_failed");
+  if (error || !note) {
+    throw error || new Error("feed_resolve_failed");
   }
-  return data.note;
+
+  void supabase.functions
+    .invoke("handover-push", {
+      body: {
+        action: "notify_resolved",
+        note_id: noteId
+      }
+    })
+    .catch(() => undefined);
+
+  return note;
 }
 
 export function subscribeToFeed(onChange: () => void) {
