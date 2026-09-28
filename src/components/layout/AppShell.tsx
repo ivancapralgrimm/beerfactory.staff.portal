@@ -33,8 +33,8 @@ const navItems = [
     icon: ClipboardCheck
   },
   {
-    to: "/handover",
-    label: "Передача",
+    to: "/feed",
+    label: "Лента",
     icon: StickyNote
   }
 ];
