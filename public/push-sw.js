@@ -15,19 +15,19 @@ self.addEventListener("push", (event) => {
     payload = event.data ? event.data.json() : {};
   } catch {
     payload = {
-      title: "BeerFactory · Новая передача",
-      body: "В Handover появилась новая заметка.",
-      url: "/#/handover"
+      title: "BeerFactory · Новая запись",
+      body: "В Ленте появилась новая запись.",
+      url: "/#/feed"
     };
   }
 
-  const title = payload.title || "BeerFactory · Новая передача";
+  const title = payload.title || "BeerFactory · Новая запись";
   const options = {
-    body: payload.body || "Откройте передачу смены.",
+    body: payload.body || "Откройте Ленту.",
     icon: payload.icon || "/assets/icons/icon-192.png",
     badge: payload.badge || "/assets/icons/icon-192.png",
-    tag: payload.tag || "bfstaff-handover",
-    data: { url: payload.url || "/#/handover" },
+    tag: payload.tag || "bfstaff-feed",
+    data: { url: payload.url || "/#/feed" },
     renotify: true,
     silent: false,
     vibrate: [160, 80, 180]
@@ -38,19 +38,29 @@ self.addEventListener("push", (event) => {
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const relative = event.notification?.data?.url || "/#/handover";
+  const relative = event.notification?.data?.url || "/#/feed";
   const targetUrl = new URL(relative, self.location.origin).href;
 
   event.waitUntil((async () => {
     await clearAppBadge();
-    const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+
+    const windows = await self.clients.matchAll({
+      type: "window",
+      includeUncontrolled: true
+    });
+
     for (const client of windows) {
       if (new URL(client.url).origin === self.location.origin) {
-        if ("navigate" in client) await client.navigate(targetUrl);
+        if ("navigate" in client) {
+          await client.navigate(targetUrl);
+        }
         return client.focus();
       }
     }
-    if (self.clients.openWindow) return self.clients.openWindow(targetUrl);
+
+    if (self.clients.openWindow) {
+      return self.clients.openWindow(targetUrl);
+    }
   })());
 });
 
