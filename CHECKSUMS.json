@@ -1,22 +1,6 @@
 {
-  "CHECKLIST_CONTENT.md": "1236387e4a1ce192043de235a710ba3c81d49b67dcfbfd9b252f9214c844f183",
-  "INTEGRATION_PATCH.diff": "7fdd22b53e8359e53d4fa851286f8760d376839e021cc6f356ee6328061ceba5",
-  "MANIFEST.json": "4ca2584f79d5a0d657215d2337b974c221849fbd18a6672a2f3fb7eae3fba423",
-  "QA_REPORT.md": "c3d11cd9adc41878bac14cd079651b8e16b706ee0610e0d0bac9edd582112d9c",
-  "README_INSTALL.md": "eb9c766757de3ee8fea9daf8db4f78936bc46fdeef68ea9b4eedd4ba29670860",
-  "UPLOAD_MAP.md": "2e44532722cd08b2438838b4f5f44a45ce98f428717aee0e9ad0e30ae2983b81",
-  "src/features/admin/AdminAuditPanel.tsx": "a58f6ccb25dc40bb090cd0b1985574df2c70bf20920ab1fe9e34cceafdfaf4f4",
-  "src/features/feed/DashboardFeedSection.tsx": "81c714c63559e8d1bed282ea254c7bdfd446c9a2543d73de1af705df2c4987e8",
-  "src/features/feed/FeedPage.tsx": "922d1a422489ce8b6326799f72b71aefdbc8ee954eeda8814838a8dd13870ebf",
-  "src/features/feed/FeedPostCard.tsx": "2bee00146c39ca0b009ece77d1e43bf72e291a463c06c32afe202a171a6331a3",
-  "src/features/feed/feed-api.ts": "55df1fbbfa895ec259c6d5df4ca2f7423cac7263ede6bb794272dbac06c70be8",
-  "src/features/feed/types.ts": "484852bf13dced4cb4a88d881822c889acfee305b1e338a4b24b9213173b2213",
-  "src/features/feed/use-feed.ts": "d75f210adc574477dce34484977367dd4fe7f28462ae81e9abb96f3653e2d9b8",
-  "src/features/shift/ShiftPage.tsx": "08033195e54b39eb235b9f32e8669e1915d6a24038c62e9fdda02d8bfe0ffa63",
-  "src/features/shift/shift-api.ts": "9aff31cf35e309243aebd6bf23ff7b110e23a7f3058800f2d45accb2ff89ed5a",
-  "src/features/shift/types.ts": "ca665d17d2f5ad3701119744a5a97308a2b2986267889ea643348e40120ebf2a",
-  "supabase/functions/handover-push/deno.json": "8c4645dd23ca5ea7c7d365aa9e7392c106ed1139d11e5560221cd518e8f3697b",
-  "supabase/functions/handover-push/index.ts": "8917d96a91dc453728bd2e60ad60cad0c506b3fcc7738a746620025e7b8b30e8",
-  "supabase/migrations/20260928230000_bfstaff_feed_shift_megapack.sql": "0b9331cf0c914205252a15c24de37cf138d23567376288965ae6a72c7781becf",
-  "tools/apply_megapack.py": "17deeee9f07cd1a930df5372f9eb172aa7626f4f2f2532aeb4dcc736cbd46beb"
+  "README_UPLOAD.txt": "9eb09b937e759cb60f603495dfca693a875e33c930e8c60145e2d74976e1ee08",
+  "src/app/App.tsx": "f1ec212b5cbc6e0e2fba4f4458dca0d49894ee0a95583204712109d544207487",
+  "src/components/layout/AppShell.tsx": "89b9ac670b9bfe1a621f4a4fc9aec23d8dc96d1b298e6e75aff7836ddf7ddc9e",
+  "src/pages/DashboardPage.tsx": "7ea7ecd1e741e91aaf3908fc6fb4cefe4fec9bca61faf2d071f20a3edc58d599"
 }
