@@ -72,11 +72,11 @@ const ShiftPage = lazy(() =>
   )
 );
 
-const HandoverPage = lazy(() =>
+const FeedPage = lazy(() =>
   import(
-    "@/features/handover/HandoverPage"
+    "@/features/feed/FeedPage"
   ).then((module) => ({
-    default: module.HandoverPage
+    default: module.FeedPage
   }))
 );
 
@@ -321,11 +321,21 @@ export function App() {
         />
 
         <Route
-          path="handover"
+          path="feed"
           element={
             <LazyRoute>
-              <HandoverPage />
+              <FeedPage />
             </LazyRoute>
+          }
+        />
+
+        <Route
+          path="handover"
+          element={
+            <Navigate
+              to="/feed"
+              replace
+            />
           }
         />
 
