@@ -9,9 +9,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Surface } from "@/components/ui/surface";
-import {
-  loadAdminAudit
-} from "@/features/admin/admin-api";
+import { loadAdminAudit } from "@/features/admin/admin-api";
 import type {
   AdminAuditRow,
   AdminUser
@@ -25,8 +23,7 @@ const ACTION_LABELS: Record<string, string> = {
   profile_activation_update: "Доступ",
   credential_reset: "Безопасность",
   profile_delete: "Удаление",
-  position_shift_open: "Открытие смены",
-  position_shift_close: "Закрытие смены"
+  position_shift_window_summary: "Итог смены"
 };
 
 function formatDateTime(value: string) {
@@ -44,7 +41,64 @@ function formatDateTime(value: string) {
   }
 }
 
+function asNumber(value: unknown) {
+  const result = Number(value);
+  return Number.isFinite(result) ? result : 0;
+}
+
+function stringList(value: unknown) {
+  return Array.isArray(value)
+    ? value.map((item) => String(item))
+    : [];
+}
+
+function shiftSummary(row: AdminAuditRow) {
+  const opening =
+    typeof row.after_data.opening === "object" &&
+    row.after_data.opening
+      ? row.after_data.opening as Record<string, unknown>
+      : {};
+
+  const closing =
+    typeof row.after_data.closing === "object" &&
+    row.after_data.closing
+      ? row.after_data.closing as Record<string, unknown>
+      : {};
+
+  const cleaning =
+    typeof row.after_data.general_cleaning === "object" &&
+    row.after_data.general_cleaning
+      ? row.after_data.general_cleaning as Record<string, unknown>
+      : null;
+
+  const parts = [
+    `Открытие ${asNumber(opening.completed)}/${asNumber(opening.total)}`,
+    `Закрытие ${asNumber(closing.completed)}/${asNumber(closing.total)}`
+  ];
+
+  if (cleaning) {
+    parts.unshift(
+      `Генуборка ${asNumber(cleaning.completed)}/${asNumber(cleaning.total)}`
+    );
+  }
+
+  const missing = [
+    ...stringList(row.metadata.general_cleaning_missing),
+    ...stringList(row.metadata.opening_missing),
+    ...stringList(row.metadata.closing_missing)
+  ];
+
+  return {
+    headline: parts.join(" · "),
+    missing
+  };
+}
+
 function detail(row: AdminAuditRow) {
+  if (row.entity_type === "position_shift_window_summary") {
+    return shiftSummary(row).headline;
+  }
+
   if (row.action === "profile_role_update") {
     return `Роль: ${String(row.before_data.role || "—")} → ${String(row.after_data.role || "—")}`;
   }
@@ -109,10 +163,13 @@ export function AdminAuditPanel({
     void load();
   }, []);
 
+  const actionKey = (row: AdminAuditRow) =>
+    row.entity_type === "position_shift_window_summary"
+      ? "position_shift_window_summary"
+      : row.action;
+
   const groups = useMemo(
-    () => [
-      ...new Set(rows.map((row) => row.action))
-    ],
+    () => [...new Set(rows.map(actionKey))],
     [rows]
   );
 
@@ -120,7 +177,7 @@ export function AdminAuditPanel({
     () =>
       filter === "all"
         ? rows
-        : rows.filter((row) => row.action === filter),
+        : rows.filter((row) => actionKey(row) === filter),
     [rows, filter]
   );
 
@@ -133,6 +190,7 @@ export function AdminAuditPanel({
             Административные действия
           </h2>
         </div>
+
         <Button
           type="button"
           variant="secondary"
@@ -164,6 +222,7 @@ export function AdminAuditPanel({
         >
           Все
         </button>
+
         {groups.map((action) => (
           <button
             key={action}
@@ -200,11 +259,17 @@ export function AdminAuditPanel({
             const actor = row.actor_id
               ? userMap.get(row.actor_id)
               : null;
+
             const actorName = actor
               ? [actor.first_name, actor.last_name]
                   .filter(Boolean)
                   .join(" ")
-              : "Система / удалённый пользователь";
+              : "Система";
+
+            const summary =
+              row.entity_type === "position_shift_window_summary"
+                ? shiftSummary(row)
+                : null;
 
             return (
               <Surface key={row.id} className="p-4">
@@ -215,23 +280,44 @@ export function AdminAuditPanel({
                       aria-hidden
                     />
                   </div>
+
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-xs font-black uppercase tracking-[0.08em] text-[var(--bf-copper-hi)]">
-                        {ACTION_LABELS[row.action] || row.action}
+                        {ACTION_LABELS[actionKey(row)] || actionKey(row)}
                       </span>
                       <span className="text-[10px] text-[var(--bf-dim)]">
                         {formatDateTime(row.created_at)}
                       </span>
                     </div>
+
                     <p className="mt-1 text-sm font-black text-[var(--bf-cream)]">
                       {row.entity_name || row.entity_type}
                     </p>
+
                     <p className="mt-1 text-xs leading-5 text-[var(--bf-muted)]">
                       {detail(row)}
                     </p>
+
+                    {summary?.missing.length ? (
+                      <div className="mt-2 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-bg)] px-3 py-2">
+                        <p className="text-[10px] font-black uppercase tracking-[0.08em] text-[var(--bf-dim)]">
+                          Не завершено
+                        </p>
+                        <p className="mt-1 text-xs leading-5 text-[var(--bf-muted)]">
+                          {summary.missing.join(" · ")}
+                        </p>
+                      </div>
+                    ) : summary ? (
+                      <p className="mt-2 text-xs font-bold text-[#9dd0a0]">
+                        Незавершённых пунктов нет.
+                      </p>
+                    ) : null}
+
                     <p className="mt-2 text-[10px] text-[var(--bf-dim)]">
-                      Выполнил: {actorName}
+                      {row.entity_type === "position_shift_window_summary"
+                        ? "Сформировано сервером после закрытия рабочего окна"
+                        : `Выполнил: ${actorName}`}
                     </p>
                   </div>
                 </div>
