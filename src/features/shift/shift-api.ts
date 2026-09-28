@@ -14,7 +14,6 @@ function errorText(error: unknown) {
   ) {
     return error.message;
   }
-
   return String(error || "");
 }
 
@@ -36,6 +35,9 @@ export function shiftErrorMessage(error: unknown) {
   if (message.includes("closing_incomplete")) {
     return "Сначала отметьте все пункты закрытия.";
   }
+  if (message.includes("opening_not_confirmed")) {
+    return "Закрытие можно подготовить заранее, но подтвердить его можно только после подтверждения открытия.";
+  }
   if (message.includes("shift_not_open")) {
     return "Смена ещё не открыта.";
   }
@@ -46,7 +48,10 @@ export function shiftErrorMessage(error: unknown) {
     return "Открытие уже зафиксировано.";
   }
   if (message.includes("closing_locked")) {
-    return "Закрытие доступно только после открытия смены.";
+    return "Закрытие ещё не разблокировано.";
+  }
+  if (message.includes("invalid_group")) {
+    return "Эта группа чек-листа больше не активна. Обновите страницу.";
   }
   if (message.includes("invalid_check")) {
     return "Этот пункт чек-листа больше не активен. Обновите страницу.";
@@ -89,6 +94,39 @@ export async function setPositionShiftCheck(input: {
   }
 
   return data as PositionShiftCheck;
+}
+
+export async function setPositionShiftCheckGroup(input: {
+  checkType: ShiftCheckType;
+  groupKey: string;
+  completed: boolean;
+}) {
+  const { data, error } = await supabase.rpc(
+    "set_position_shift_check_group",
+    {
+      p_check_type: input.checkType,
+      p_group_key: input.groupKey,
+      p_completed: input.completed
+    }
+  );
+
+  if (error || !data) {
+    throw error || new Error("shift_group_unavailable");
+  }
+
+  return data as PositionShiftCheck[];
+}
+
+export async function unlockPositionShiftClosing() {
+  const { data, error } = await supabase.rpc(
+    "unlock_position_shift_closing"
+  );
+
+  if (error || !data) {
+    throw error || new Error("shift_unlock_unavailable");
+  }
+
+  return data;
 }
 
 export async function confirmPositionShift(

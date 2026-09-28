@@ -9,6 +9,7 @@ import {
   Loader2,
   LockKeyhole,
   RefreshCw,
+  Sparkles,
   StickyNote
 } from "lucide-react";
 import {
@@ -16,7 +17,8 @@ import {
   useEffect,
   useMemo,
   useRef,
-  useState
+  useState,
+  type ReactNode
 } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -24,9 +26,12 @@ import {
   confirmPositionShift,
   loadPositionShiftWorkflow,
   setPositionShiftCheck,
-  shiftErrorMessage
+  setPositionShiftCheckGroup,
+  shiftErrorMessage,
+  unlockPositionShiftClosing
 } from "@/features/shift/shift-api";
 import type {
+  PositionShiftCheck,
   PositionShiftRow,
   PositionShiftWorkflow,
   ShiftCheckType
@@ -43,6 +48,12 @@ type StatusMessage = {
   tone: "success" | "error";
 };
 
+type RowGroup = {
+  key: string;
+  label: string;
+  rows: PositionShiftRow[];
+};
+
 function formatDate(value: string) {
   try {
     return new Intl.DateTimeFormat("ru-RU", {
@@ -55,12 +66,8 @@ function formatDate(value: string) {
   }
 }
 
-function formatTime(
-  value: string | null,
-  timeZone: string
-) {
+function formatTime(value: string | null, timeZone: string) {
   if (!value) return "—";
-
   try {
     return new Intl.DateTimeFormat("ru-RU", {
       hour: "2-digit",
@@ -72,12 +79,8 @@ function formatTime(
   }
 }
 
-function formatDateTime(
-  value: string | null,
-  timeZone: string
-) {
+function formatDateTime(value: string | null, timeZone: string) {
   if (!value) return "11:00";
-
   try {
     return new Intl.DateTimeFormat("ru-RU", {
       day: "2-digit",
@@ -95,12 +98,8 @@ function phaseProgress(
   rows: PositionShiftRow[],
   type: ShiftCheckType
 ) {
-  const list = rows.filter(
-    (row) => row.check_type === type
-  );
-  const completed = list.filter(
-    (row) => row.check?.completed
-  ).length;
+  const list = rows.filter((row) => row.check_type === type);
+  const completed = list.filter((row) => row.check?.completed).length;
 
   return {
     list,
@@ -161,13 +160,12 @@ function ChecklistRow({
       disabled={locked || pending}
       onClick={() => onToggle(row, !checked)}
       className={cn(
-        "bf-check-row grid min-h-[60px] w-full grid-cols-[30px_1fr_auto] items-center gap-3 rounded-2xl border px-3 py-3 text-left outline-none transition-[background-color,border-color,opacity,transform] focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)] active:translate-y-px disabled:cursor-default",
+        "grid min-h-[58px] w-full grid-cols-[30px_1fr_auto] items-center gap-3 rounded-2xl border px-3 py-3 text-left outline-none transition-[background-color,border-color,opacity,transform] focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)] active:translate-y-px disabled:cursor-default",
         checked
           ? "border-[color:color-mix(in_srgb,var(--bf-green),transparent_58%)] bg-[color:color-mix(in_srgb,var(--bf-green),transparent_91%)]"
-          : row.critical
-            ? "border-[color:color-mix(in_srgb,var(--bf-gold),transparent_72%)] bg-[var(--bf-surface)]"
-            : "border-[var(--bf-line)] bg-[var(--bf-surface)]",
-        pending && "opacity-85"
+          : "border-[var(--bf-line)] bg-[var(--bf-surface)]",
+        pending && "opacity-85",
+        locked && "opacity-65"
       )}
     >
       <span
@@ -186,16 +184,9 @@ function ChecklistRow({
         ) : null}
       </span>
 
-      <span className="min-w-0">
-        <strong className="block text-[14px] leading-5 text-[var(--bf-cream)]">
-          {row.label}
-        </strong>
-        {row.critical ? (
-          <span className="mt-0.5 block text-[10px] font-bold uppercase tracking-[0.08em] text-[var(--bf-gold)]">
-            Критичный пункт
-          </span>
-        ) : null}
-      </span>
+      <strong className="block min-w-0 text-[14px] leading-5 text-[var(--bf-cream)]">
+        {row.label}
+      </strong>
 
       {checked ? (
         <CheckCircle2
@@ -207,123 +198,252 @@ function ChecklistRow({
   );
 }
 
-function ActivePhase({
-  type,
-  rows,
-  completed,
-  total,
+function splitGroups(rows: PositionShiftRow[]) {
+  const groups = new Map<string, RowGroup>();
+  const ungrouped: PositionShiftRow[] = [];
+
+  rows.forEach((row) => {
+    if (!row.group_key) {
+      ungrouped.push(row);
+      return;
+    }
+
+    const current = groups.get(row.group_key);
+    if (current) {
+      current.rows.push(row);
+    } else {
+      groups.set(row.group_key, {
+        key: row.group_key,
+        label: row.group_label || row.group_key.toUpperCase(),
+        rows: [row]
+      });
+    }
+  });
+
+  return {
+    groups: [...groups.values()],
+    ungrouped
+  };
+}
+
+function GroupBlock({
+  group,
   locked,
   pendingKeys,
-  confirming,
+  groupPending,
   onToggle,
-  onConfirm
+  onToggleGroup
 }: {
-  type: ShiftCheckType;
-  rows: PositionShiftRow[];
-  completed: number;
-  total: number;
+  group: RowGroup;
   locked: boolean;
   pendingKeys: ReadonlySet<string>;
-  confirming: "open" | "close" | null;
+  groupPending: boolean;
   onToggle: (
     row: PositionShiftRow,
     completed: boolean
   ) => void;
-  onConfirm: () => void;
+  onToggleGroup: (
+    group: RowGroup,
+    completed: boolean
+  ) => void;
 }) {
-  const opening = type === "opening";
+  const completed = group.rows.filter(
+    (row) => row.check?.completed
+  ).length;
   const allDone =
-    total > 0 && completed === total;
+    group.rows.length > 0 &&
+    completed === group.rows.length;
+  const mixed = completed > 0 && !allDone;
 
   return (
-    <section className="bf-active-phase rounded-[22px] border border-[var(--bf-line)] bg-[var(--bf-surface)] p-4 sm:p-5">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="eyebrow">
-            {opening ? "ОТКРЫТИЕ" : "ЗАКРЫТИЕ"}
-          </p>
-          <h2 className="mt-1 text-2xl font-black">
-            {opening
-              ? "Чек-лист открытия смены"
-              : "Чек-лист закрытия смены"}
-          </h2>
-        </div>
-        <span className="shrink-0 rounded-full border border-[var(--bf-line)] px-3 py-2 text-xs font-black text-[var(--bf-cream)]">
-          {completed}/{total}
+    <div className="rounded-[20px] border border-[var(--bf-line)] bg-[var(--bf-bg)] p-2.5">
+      <button
+        type="button"
+        role="checkbox"
+        aria-checked={mixed ? "mixed" : allDone}
+        disabled={locked || groupPending}
+        onClick={() => onToggleGroup(group, !allDone)}
+        className="flex min-h-12 w-full items-center gap-3 rounded-xl px-2 text-left outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)] disabled:opacity-65"
+      >
+        <span
+          className={cn(
+            "grid size-7 place-items-center rounded-lg border",
+            allDone
+              ? "border-[color:color-mix(in_srgb,var(--bf-green),transparent_35%)] bg-[color:color-mix(in_srgb,var(--bf-green),transparent_76%)] text-[#b7e3ba]"
+              : mixed
+                ? "border-[var(--bf-copper-hi)] bg-[color:color-mix(in_srgb,var(--bf-copper),transparent_80%)] text-[var(--bf-cream)]"
+                : "border-[var(--bf-line-strong)] bg-[var(--bf-surface-2)] text-[var(--bf-dim)]"
+          )}
+          aria-hidden
+        >
+          {groupPending ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : allDone ? (
+            <Check className="size-4" />
+          ) : mixed ? (
+            <span className="h-0.5 w-3 rounded-full bg-current" />
+          ) : null}
         </span>
-      </div>
 
-      <div className="mt-4 grid gap-2">
-        {rows.map((row) => {
-          const key =
-            `${row.check_type}:${row.item_key}`;
+        <span className="min-w-0 flex-1">
+          <strong className="block text-base font-black text-[var(--bf-cream)]">
+            {group.label}
+          </strong>
+          <span className="text-[11px] text-[var(--bf-dim)]">
+            {completed}/{group.rows.length} пунктов
+          </span>
+        </span>
+      </button>
 
+      <div className="mt-1.5 grid gap-2 pl-1">
+        {group.rows.map((row) => {
+          const key = `${row.check_type}:${row.item_key}`;
           return (
             <ChecklistRow
               key={key}
               row={row}
-              locked={locked}
+              locked={locked || groupPending}
               pending={pendingKeys.has(key)}
               onToggle={onToggle}
             />
           );
         })}
       </div>
+    </div>
+  );
+}
 
-      <Button
-        type="button"
-        variant="primary"
-        size="lg"
-        className="mt-4 w-full"
-        disabled={
-          !allDone ||
-          locked ||
-          confirming !== null ||
-          pendingKeys.size > 0
-        }
-        onClick={onConfirm}
-      >
-        {confirming ? (
-          <Loader2
-            className="size-4 animate-spin"
-            aria-hidden
-          />
-        ) : (
-          <ClipboardCheck
-            className="size-4"
-            aria-hidden
-          />
-        )}
-        {confirming
-          ? opening
-            ? "Открываем…"
-            : "Закрываем…"
-          : opening
-            ? "Подтвердить открытие смены"
-            : "Подтвердить закрытие смены"}
-      </Button>
+function ChecklistBody({
+  rows,
+  locked,
+  pendingKeys,
+  pendingGroups,
+  onToggle,
+  onToggleGroup
+}: {
+  rows: PositionShiftRow[];
+  locked: boolean;
+  pendingKeys: ReadonlySet<string>;
+  pendingGroups: ReadonlySet<string>;
+  onToggle: (
+    row: PositionShiftRow,
+    completed: boolean
+  ) => void;
+  onToggleGroup: (
+    group: RowGroup,
+    completed: boolean
+  ) => void;
+}) {
+  const { groups, ungrouped } = splitGroups(rows);
 
-      {!allDone ? (
-        <p className="mt-2 text-center text-xs leading-5 text-[var(--bf-dim)]">
-          Сначала выполните все активные пункты чек-листа.
-        </p>
-      ) : null}
+  return (
+    <div className="mt-4 grid gap-2">
+      {groups.map((group) => (
+        <GroupBlock
+          key={group.key}
+          group={group}
+          locked={locked}
+          pendingKeys={pendingKeys}
+          groupPending={pendingGroups.has(`${group.rows[0]?.check_type}:${group.key}`)}
+          onToggle={onToggle}
+          onToggleGroup={onToggleGroup}
+        />
+      ))}
+
+      {ungrouped.map((row) => {
+        const key = `${row.check_type}:${row.item_key}`;
+        return (
+          <ChecklistRow
+            key={key}
+            row={row}
+            locked={locked}
+            pending={pendingKeys.has(key)}
+            onToggle={onToggle}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+function PhaseSection({
+  title,
+  eyebrow,
+  rows,
+  completed,
+  total,
+  percent,
+  locked,
+  pendingKeys,
+  pendingGroups,
+  onToggle,
+  onToggleGroup,
+  footer
+}: {
+  title: string;
+  eyebrow: string;
+  rows: PositionShiftRow[];
+  completed: number;
+  total: number;
+  percent: number;
+  locked: boolean;
+  pendingKeys: ReadonlySet<string>;
+  pendingGroups: ReadonlySet<string>;
+  onToggle: (
+    row: PositionShiftRow,
+    completed: boolean
+  ) => void;
+  onToggleGroup: (
+    group: RowGroup,
+    completed: boolean
+  ) => void;
+  footer?: ReactNode;
+}) {
+  return (
+    <section className="rounded-[22px] border border-[var(--bf-line)] bg-[var(--bf-surface)] p-4 sm:p-5">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="eyebrow">{eyebrow}</p>
+          <h2 className="mt-1 text-2xl font-black">{title}</h2>
+        </div>
+        <span className="shrink-0 rounded-full border border-[var(--bf-line)] px-3 py-2 text-xs font-black text-[var(--bf-cream)]">
+          {completed}/{total}
+        </span>
+      </div>
+
+      <div className="mt-4">
+        <ProgressBar value={percent} label={`Прогресс: ${title}`} />
+      </div>
+
+      <ChecklistBody
+        rows={rows}
+        locked={locked}
+        pendingKeys={pendingKeys}
+        pendingGroups={pendingGroups}
+        onToggle={onToggle}
+        onToggleGroup={onToggleGroup}
+      />
+
+      {footer}
     </section>
   );
 }
+
 
 export function ShiftPage() {
   const [view, setView] = useState<ViewState>({
     status: "loading"
   });
-  const [refreshing, setRefreshing] =
-    useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [pendingKeys, setPendingKeys] =
+    useState<Set<string>>(() => new Set());
+  const [pendingGroups, setPendingGroups] =
     useState<Set<string>>(() => new Set());
   const pendingKeysRef = useRef<Set<string>>(new Set());
   const mutationVersionRef = useRef(0);
   const [confirming, setConfirming] =
     useState<"open" | "close" | null>(null);
+  const [unlocking, setUnlocking] = useState(false);
   const [message, setMessage] =
     useState<StatusMessage | null>(null);
 
@@ -334,8 +454,7 @@ export function ShiftPage() {
     else setView({ status: "loading" });
 
     try {
-      const data =
-        await loadPositionShiftWorkflow();
+      const data = await loadPositionShiftWorkflow();
 
       if (versionAtStart === mutationVersionRef.current) {
         setView({ status: "ready", data });
@@ -389,12 +508,7 @@ export function ShiftPage() {
     () =>
       data
         ? phaseProgress(data.rows, "opening")
-        : {
-            list: [],
-            completed: 0,
-            total: 0,
-            percent: 0
-          },
+        : { list: [], completed: 0, total: 0, percent: 0 },
     [data]
   );
 
@@ -402,18 +516,48 @@ export function ShiftPage() {
     () =>
       data
         ? phaseProgress(data.rows, "closing")
-        : {
-            list: [],
-            completed: 0,
-            total: 0,
-            percent: 0
-          },
+        : { list: [], completed: 0, total: 0, percent: 0 },
+    [data]
+  );
+
+  const cleaning = useMemo(
+    () =>
+      data
+        ? phaseProgress(data.rows, "general_cleaning")
+        : { list: [], completed: 0, total: 0, percent: 0 },
     [data]
   );
 
   const interactionLocked =
     refreshing ||
-    confirming !== null;
+    confirming !== null ||
+    unlocking;
+
+  function patchChecks(updated: PositionShiftCheck[]) {
+    setView((current) => {
+      if (current.status !== "ready") return current;
+
+      const map = new Map(
+        updated.map((item) => [
+          `${item.check_type}:${item.item_key}`,
+          item
+        ])
+      );
+
+      return {
+        status: "ready",
+        data: {
+          ...current.data,
+          rows: current.data.rows.map((row) => {
+            const next = map.get(
+              `${row.check_type}:${row.item_key}`
+            );
+            return next ? { ...row, check: next } : row;
+          })
+        }
+      };
+    });
+  }
 
   async function toggleCheck(
     row: PositionShiftRow,
@@ -432,36 +576,13 @@ export function ShiftPage() {
     setMessage(null);
 
     try {
-      const updated =
-        await setPositionShiftCheck({
-          checkType: row.check_type,
-          itemKey: row.item_key,
-          completed
-        });
-
-      setView((current) => {
-        if (current.status !== "ready") {
-          return current;
-        }
-
-        return {
-          status: "ready",
-          data: {
-            ...current.data,
-            rows: current.data.rows.map((item) =>
-              item.check_type === updated.check_type &&
-              item.item_key === updated.item_key
-                ? { ...item, check: updated }
-                : item
-            )
-          }
-        };
+      const updated = await setPositionShiftCheck({
+        checkType: row.check_type,
+        itemKey: row.item_key,
+        completed
       });
 
-      setMessage({
-        tone: "success",
-        text: "Сохранено."
-      });
+      patchChecks([updated]);
     } catch (error) {
       setMessage({
         tone: "error",
@@ -474,23 +595,96 @@ export function ShiftPage() {
     }
   }
 
-  async function confirmCurrentPhase() {
+  async function toggleGroup(
+    group: RowGroup,
+    completed: boolean
+  ) {
     if (
-      !data?.shift ||
-      interactionLocked ||
-      pendingKeys.size > 0
+      !data ||
+      interactionLocked
     ) {
       return;
     }
 
-    const action =
-      data.shift.status === "not_started"
-        ? "open"
-        : data.shift.status === "active"
-          ? "close"
-          : null;
+    const checkType = group.rows[0]?.check_type;
+    if (!checkType) return;
 
-    if (!action) return;
+    const pendingGroupKey =
+      `${checkType}:${group.key}`;
+
+    if (pendingGroups.has(pendingGroupKey)) {
+      return;
+    }
+
+    mutationVersionRef.current += 1;
+    setPendingGroups((current) => {
+      const next = new Set(current);
+      next.add(pendingGroupKey);
+      return next;
+    });
+    setMessage(null);
+
+    try {
+      const updated =
+        await setPositionShiftCheckGroup({
+          checkType,
+          groupKey: group.key,
+          completed
+        });
+
+      patchChecks(updated);
+    } catch (error) {
+      setMessage({
+        tone: "error",
+        text: shiftErrorMessage(error)
+      });
+    } finally {
+      mutationVersionRef.current += 1;
+      setPendingGroups((current) => {
+        const next = new Set(current);
+        next.delete(pendingGroupKey);
+        return next;
+      });
+    }
+  }
+
+  async function unlockClosing() {
+    if (!data?.shift || interactionLocked) return;
+
+    mutationVersionRef.current += 1;
+    setUnlocking(true);
+    setMessage(null);
+
+    try {
+      await unlockPositionShiftClosing();
+      const fresh = await loadPositionShiftWorkflow();
+      setView({ status: "ready", data: fresh });
+      setMessage({
+        tone: "success",
+        text: "Закрытие разблокировано. Открытие остаётся доступным до подтверждения."
+      });
+    } catch (error) {
+      setMessage({
+        tone: "error",
+        text: shiftErrorMessage(error)
+      });
+    } finally {
+      mutationVersionRef.current += 1;
+      setUnlocking(false);
+    }
+  }
+
+  async function confirmPhase(
+    action: "open" | "close"
+  ) {
+    if (
+      !data?.shift ||
+      interactionLocked ||
+      pendingKeys.size > 0 ||
+      pendingGroups.size > 0
+    ) {
+      return;
+    }
 
     mutationVersionRef.current += 1;
     setConfirming(action);
@@ -498,17 +692,15 @@ export function ShiftPage() {
 
     try {
       await confirmPositionShift(action);
-
-      const fresh =
-        await loadPositionShiftWorkflow();
+      const fresh = await loadPositionShiftWorkflow();
       setView({ status: "ready", data: fresh });
 
       setMessage({
         tone: "success",
         text:
           action === "open"
-            ? "Смена этой должности открыта и зафиксирована сервером."
-            : "Смена этой должности закрыта и зафиксирована сервером."
+            ? "Открытие смены подтверждено."
+            : "Закрытие смены подтверждено."
       });
     } catch (error) {
       setMessage({
@@ -546,8 +738,7 @@ export function ShiftPage() {
               aria-hidden
             />
             <p className="text-sm leading-6 text-[var(--bf-muted)]">
-              {view.message} Локальная копия не выдаётся за актуальное
-              состояние смены.
+              {view.message}
             </p>
           </div>
 
@@ -582,8 +773,7 @@ export function ShiftPage() {
             aria-hidden
           />
           <p className="mt-3 text-sm leading-6 text-[var(--bf-muted)]">
-            Выберите должность в вашем профиле. После этого здесь появится
-            соответствующий чек-лист смены: Бармен, Официант, Менеджер или Хостес.
+            После выбора должности здесь появится её рабочий чек-лист.
           </p>
 
           <Button
@@ -592,10 +782,6 @@ export function ShiftPage() {
             className="mt-4"
           >
             <Link to="/profile">
-              <BriefcaseBusiness
-                className="size-4"
-                aria-hidden
-              />
               Открыть профиль
             </Link>
           </Button>
@@ -623,8 +809,8 @@ export function ShiftPage() {
             До 11:00 новая смена заблокирована
           </h2>
           <p className="mt-2 text-sm leading-6 text-[var(--bf-muted)]">
-            Рабочее окно: с 11:00 до 03:00 следующего дня. После 03:00
-            незавершённая смена больше не доступна для изменения.
+            Единое рабочее окно для открытия, закрытия и Генуборки:
+            с 11:00 до 03:00 следующего дня.
           </p>
           <p className="mt-3 text-sm font-bold text-[var(--bf-cream)]">
             Следующее открытие:{" "}
@@ -647,31 +833,23 @@ export function ShiftPage() {
         <h1 className="mt-2 text-[34px] font-black leading-none tracking-[-0.04em]">
           Чек-лист пока не настроен
         </h1>
-
-        <div className="mt-5 rounded-[22px] border border-[var(--bf-line)] bg-[var(--bf-surface)] p-5">
-          <ClipboardCheck
-            className="size-6 text-[var(--bf-copper-hi)]"
-            aria-hidden
-          />
-          <p className="mt-3 text-sm leading-6 text-[var(--bf-muted)]">
-            Для должности «{context.position_label}» пока нет активных
-            пунктов открытия и закрытия. Никакие универсальные пункты
-            автоматически не подставляются.
-          </p>
-        </div>
       </section>
     );
   }
 
-  const activePhase =
-    shift.status === "not_started"
-      ? "opening"
-      : shift.status === "active"
-        ? "closing"
-        : null;
+  const openingEditable =
+    shift.status === "not_started";
+
+  const closingUnlocked =
+    shift.status === "active" ||
+    Boolean(shift.closing_unlocked_at);
+
+  const closingEditable =
+    shift.status !== "closed" &&
+    closingUnlocked;
 
   return (
-    <section className="bf-shift-page mx-auto max-w-3xl pb-6">
+    <section className="mx-auto max-w-3xl pb-6">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="eyebrow">
@@ -681,7 +859,7 @@ export function ShiftPage() {
             Чек-листы и контроль
           </h1>
           <p className="mt-2 text-sm text-[var(--bf-muted)]">
-            Рабочее окно 11:00–03:00.
+            Единое серверное окно 11:00–03:00.
           </p>
         </div>
 
@@ -690,10 +868,7 @@ export function ShiftPage() {
           variant="secondary"
           size="icon"
           aria-label="Обновить состояние смены"
-          disabled={
-            interactionLocked ||
-            pendingKeys.size > 0
-          }
+          disabled={interactionLocked}
           onClick={() => void load(true)}
         >
           <RefreshCw
@@ -733,13 +908,8 @@ export function ShiftPage() {
             </div>
 
             <p className="mt-2 text-sm leading-6 text-[var(--bf-muted)]">
-              {shift.status === "not_started"
-                ? "Выполните пункты открытия."
-                : shift.status === "active"
-                  ? "До 03:00 выполните закрытие и подтвердите его."
-                  : shift.status === "closed"
-                    ? "Обе фазы зафиксированы сервером."
-                    : "Операционное окно этой смены закончилось."}
+              Итог открытия, закрытия и воскресной Генуборки фиксируется
+              единым серверным итогом после завершения окна.
             </p>
           </div>
 
@@ -754,72 +924,205 @@ export function ShiftPage() {
           </div>
         </div>
 
-        {shift.status !== "not_started" ? (
+        {shift.opened_at || shift.closed_at ? (
           <p className="mt-3 text-xs text-[var(--bf-muted)]">
-            Открыта {formatTime(shift.opened_at, context.venue_timezone)}
-            {shift.closed_at ? ` · закрыта ${formatTime(shift.closed_at, context.venue_timezone)}` : ""}
-            {context.closes_at ? ` · до ${formatTime(context.closes_at, context.venue_timezone)}` : ""}
+            {shift.opened_at
+              ? `Открыта ${formatTime(shift.opened_at, context.venue_timezone)}`
+              : "Открытие не подтверждено"}
+            {shift.closed_at
+              ? ` · закрыта ${formatTime(shift.closed_at, context.venue_timezone)}`
+              : ""}
+            {context.closes_at
+              ? ` · окно до ${formatTime(context.closes_at, context.venue_timezone)}`
+              : ""}
           </p>
         ) : null}
       </div>
 
-      <div className="bf-shift-summary mt-3 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] p-3">
-        <div className="flex justify-between gap-3 text-xs">
-          <span className="text-[var(--bf-muted)]">Выполнено пунктов</span>
-          <strong>{activePhase === "opening" ? opening.completed : closing.completed} из {activePhase === "opening" ? opening.total : closing.total}</strong>
+
+      {context.general_cleaning_day ? (
+        <div className="mt-4">
+          {cleaning.total ? (
+            <PhaseSection
+              eyebrow="ВОСКРЕСЕНЬЕ · ГЕНУБОРКА"
+              title="Генуборка"
+              rows={cleaning.list}
+              completed={cleaning.completed}
+              total={cleaning.total}
+              percent={cleaning.percent}
+              locked={interactionLocked}
+              pendingKeys={pendingKeys}
+              pendingGroups={pendingGroups}
+              onToggle={toggleCheck}
+              onToggleGroup={toggleGroup}
+            />
+          ) : (
+            <section className="rounded-[22px] border border-[color:color-mix(in_srgb,var(--bf-gold),transparent_60%)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--bf-gold),transparent_92%),transparent_55%),var(--bf-surface)] p-4 sm:p-5">
+              <div className="flex items-start gap-3">
+                <Sparkles
+                  className="mt-0.5 size-5 shrink-0 text-[var(--bf-gold)]"
+                  aria-hidden
+                />
+                <div>
+                  <p className="eyebrow">
+                    ВОСКРЕСЕНЬЕ · ГЕНУБОРКА
+                  </p>
+                  <h2 className="mt-1 text-2xl font-black">
+                    Генуборка
+                  </h2>
+                  <p className="mt-2 text-sm leading-6 text-[var(--bf-muted)]">
+                    Воскресный блок уже привязан к тому же окну 11:00–03:00.
+                    Пункты для этой должности будут добавлены следующим небольшим обновлением.
+                  </p>
+                </div>
+              </div>
+            </section>
+          )}
         </div>
-        <div className="mt-2">
-          <ProgressBar value={activePhase === "opening" ? opening.percent : closing.percent} label="Прогресс текущего этапа смены" />
-        </div>
+      ) : null}
+
+      <div className="mt-4">
+        <PhaseSection
+          eyebrow="ОТКРЫТИЕ"
+          title="Открытие"
+          rows={opening.list}
+          completed={opening.completed}
+          total={opening.total}
+          percent={opening.percent}
+          locked={!openingEditable || interactionLocked}
+          pendingKeys={pendingKeys}
+          pendingGroups={pendingGroups}
+          onToggle={toggleCheck}
+          onToggleGroup={toggleGroup}
+          footer={
+            shift.status === "not_started" ? (
+              <Button
+                type="button"
+                variant="primary"
+                size="lg"
+                className="mt-4 w-full"
+                disabled={
+                  opening.total === 0 ||
+                  opening.completed !== opening.total ||
+                  interactionLocked ||
+                  pendingKeys.size > 0 ||
+                  pendingGroups.size > 0
+                }
+                onClick={() => void confirmPhase("open")}
+              >
+                {confirming === "open" ? (
+                  <Loader2
+                    className="size-4 animate-spin"
+                    aria-hidden
+                  />
+                ) : (
+                  <ClipboardCheck
+                    className="size-4"
+                    aria-hidden
+                  />
+                )}
+                Подтвердить открытие
+              </Button>
+            ) : (
+              <p className="mt-4 text-xs font-bold text-[#9dd0a0]">
+                Открытие подтверждено.
+              </p>
+            )
+          }
+        />
       </div>
 
       <div className="mt-4">
-        {activePhase === "opening" ? (
-          <ActivePhase
-            type="opening"
-            rows={opening.list}
-            completed={opening.completed}
-            total={opening.total}
-            locked={interactionLocked}
-            pendingKeys={pendingKeys}
-            confirming={confirming}
-            onToggle={toggleCheck}
-            onConfirm={confirmCurrentPhase}
-          />
-        ) : null}
+        {!closingUnlocked &&
+        shift.status === "not_started" ? (
+          <section className="rounded-[22px] border border-[var(--bf-line)] bg-[var(--bf-surface)] p-4 sm:p-5">
+            <p className="eyebrow">ЗАКРЫТИЕ</p>
+            <h2 className="mt-1 text-2xl font-black">
+              Закрытие
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-[var(--bf-muted)]">
+              Обычно закрытие станет доступно после подтверждения открытия.
+              Если часть задач закрытия нужно выполнить раньше, его можно
+              сознательно разблокировать. Открытие при этом останется доступным.
+            </p>
 
-        {activePhase === "closing" ? (
-          <ActivePhase
-            type="closing"
+            <Button
+              type="button"
+              variant="secondary"
+              size="lg"
+              className="mt-4 w-full"
+              disabled={interactionLocked}
+              onClick={() => void unlockClosing()}
+            >
+              {unlocking ? (
+                <Loader2
+                  className="size-4 animate-spin"
+                  aria-hidden
+                />
+              ) : (
+                <LockKeyhole
+                  className="size-4"
+                  aria-hidden
+                />
+              )}
+              Разблокировать закрытие
+            </Button>
+          </section>
+        ) : (
+          <PhaseSection
+            eyebrow="ЗАКРЫТИЕ"
+            title="Закрытие"
             rows={closing.list}
             completed={closing.completed}
             total={closing.total}
-            locked={interactionLocked}
+            percent={closing.percent}
+            locked={!closingEditable || interactionLocked}
             pendingKeys={pendingKeys}
-            confirming={confirming}
+            pendingGroups={pendingGroups}
             onToggle={toggleCheck}
-            onConfirm={confirmCurrentPhase}
-          />
-        ) : null}
-
-        {shift.status === "closed" ? (
-          <div className="rounded-[22px] border border-[color:color-mix(in_srgb,var(--bf-green),transparent_62%)] bg-[color:color-mix(in_srgb,var(--bf-green),transparent_92%)] p-5">
-            <div className="flex items-start gap-3">
-              <CheckCircle2
-                className="mt-0.5 size-6 shrink-0 text-[var(--bf-green)]"
-                aria-hidden
-              />
-              <div>
-                <h2 className="text-xl font-black">
-                  Смена должности полностью зафиксирована
-                </h2>
-                <p className="mt-1 text-sm leading-6 text-[var(--bf-muted)]">
-                  Повторное редактирование этой смены недоступно.
+            onToggleGroup={toggleGroup}
+            footer={
+              shift.status === "active" ? (
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="lg"
+                  className="mt-4 w-full"
+                  disabled={
+                    closing.total === 0 ||
+                    closing.completed !== closing.total ||
+                    interactionLocked ||
+                    pendingKeys.size > 0 ||
+                    pendingGroups.size > 0
+                  }
+                  onClick={() => void confirmPhase("close")}
+                >
+                  {confirming === "close" ? (
+                    <Loader2
+                      className="size-4 animate-spin"
+                      aria-hidden
+                    />
+                  ) : (
+                    <ClipboardCheck
+                      className="size-4"
+                      aria-hidden
+                    />
+                  )}
+                  Подтвердить закрытие
+                </Button>
+              ) : shift.status === "not_started" ? (
+                <p className="mt-4 text-xs leading-5 text-[var(--bf-dim)]">
+                  Пункты закрытия можно подготовить заранее, но подтвердить
+                  закрытие можно только после подтверждения открытия.
                 </p>
-              </div>
-            </div>
-          </div>
-        ) : null}
+              ) : (
+                <p className="mt-4 text-xs font-bold text-[#9dd0a0]">
+                  Закрытие подтверждено.
+                </p>
+              )
+            }
+          />
+        )}
       </div>
 
       <p
@@ -842,12 +1145,12 @@ export function ShiftPage() {
             aria-hidden
           />
           <div className="min-w-0 flex-1">
-            <p className="eyebrow">ПЕРЕДАЧА</p>
+            <p className="eyebrow">ЛЕНТА</p>
             <h2 className="mt-1 text-lg font-black">
-              Есть проблема, которую нельзя потерять?
+              Есть информация, которую нельзя потерять?
             </h2>
             <p className="mt-1 text-sm leading-6 text-[var(--bf-muted)]">
-              Передайте её следующей смене отдельно от чек-листа.
+              Опубликуйте её для команды отдельно от чек-листа.
             </p>
 
             <Button
@@ -855,29 +1158,13 @@ export function ShiftPage() {
               variant="secondary"
               className="mt-3"
             >
-              <Link to="/handover">
-                <StickyNote
-                  className="size-4"
-                  aria-hidden
-                />
-                Открыть передачу смены
+              <Link to="/feed">
+                Открыть Ленту
               </Link>
             </Button>
           </div>
         </div>
       </section>
-
-      <div className="mt-4 flex items-start gap-2 text-xs leading-5 text-[var(--bf-dim)]">
-        <LockKeyhole
-          className="mt-0.5 size-4 shrink-0"
-          aria-hidden
-        />
-        <p>
-          Просмотр страницы не создаёт смену. Операционная запись появляется
-          только после первого сохранённого действия и считается выполненной
-          только после ответа сервера.
-        </p>
-      </div>
     </section>
   );
 }

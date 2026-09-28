@@ -1,6 +1,10 @@
 import type { StaffPosition } from "@/types/auth";
 
-export type ShiftCheckType = "opening" | "closing";
+export type ShiftCheckType =
+  | "general_cleaning"
+  | "opening"
+  | "closing";
+
 export type PositionShiftStatus =
   | "not_started"
   | "active"
@@ -18,6 +22,8 @@ export interface PositionShiftContext {
   venue_timezone: string;
   server_now: string;
   operational_date: string | null;
+  operational_iso_weekday: number | null;
+  general_cleaning_day: boolean;
   closes_at: string | null;
   next_open_at: string | null;
   position_code: StaffPosition | null;
@@ -37,6 +43,9 @@ export interface PositionShift {
   closed_at: string | null;
   expired_at: string | null;
   created_at: string | null;
+  closing_unlocked_at: string | null;
+  closing_unlocked_by: string | null;
+  final_audit_logged_at: string | null;
 }
 
 export interface PositionShiftCheck {
@@ -56,6 +65,9 @@ export interface PositionShiftRow {
   sort_order: number;
   critical: boolean;
   is_active: boolean;
+  active_iso_weekdays: number[];
+  group_key: string | null;
+  group_label: string | null;
   check: PositionShiftCheck | null;
 }
 
