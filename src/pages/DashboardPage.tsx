@@ -16,9 +16,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Surface } from "@/components/ui/surface";
-import { Button } from "@/components/ui/button";
-import { HandoverNoteCard } from "@/features/handover/HandoverNoteCard";
-import { useHandoverFeed } from "@/features/handover/use-handover-feed";
+import { DashboardFeedSection } from "@/features/feed/DashboardFeedSection";
 import { DashboardGlobalSearch } from "@/features/dashboard/DashboardGlobalSearch";
 import { useUpcomingBirthdays } from "@/features/dashboard/use-upcoming-birthdays";
 import {
@@ -37,7 +35,7 @@ const actions = [
   { to: "/menu", title: "Рецепты", text: "Блюда, напитки, технологии", icon: UtensilsCrossed },
   { to: "/knowledge", title: "Знания", text: "Обучение и статьи", icon: BookOpen },
   { to: "/shift", title: "Смена", text: "Чек-листы и отчёты", icon: ClipboardCheck },
-  { to: "/handover", title: "Заметки", text: "Обмен информацией", icon: StickyNote }
+  { to: "/feed", title: "Лента", text: "Новости и сообщения", icon: StickyNote }
 ];
 
 const BIRTHDAY_LABELS = {
@@ -91,7 +89,6 @@ export function DashboardPage() {
             ? ["Смена закрыта", "Все этапы зафиксированы"]
             : ["Смена", "Проверить чек-лист и статус смены"];
 
-  const { notes, loading, error } = useHandoverFeed();
   const {
     birthdays,
     loading: birthdaysLoading,
@@ -101,10 +98,7 @@ export function DashboardPage() {
   const knowledge = useKnowledgeArticles();
   const knowledgeProgress = useKnowledgeProgress(userId);
 
-  const activeNotes = notes.filter((note) => note.status !== "resolved");
-  const activeCount = activeNotes.length;
   const showBirthdaySection = birthdaysLoading || Boolean(birthdaysError) || birthdays.length > 0;
-  const showHandoverSection = loading || Boolean(error) || activeNotes.length > 0;
 
   const readingDayKey = useMemo(
     () => dashboardReadingDayKey(
@@ -219,38 +213,7 @@ export function DashboardPage() {
         </section>
       ) : null}
 
-      {showHandoverSection ? (
-        <section>
-          <div className="flex items-end justify-between gap-3">
-            <div>
-              <p className="eyebrow">СЕГОДНЯ · ПЕРЕДАЧА</p>
-              <h2 className="mt-1 text-2xl font-black">Активные передачи</h2>
-            </div>
-            <Button asChild variant="secondary">
-              <Link to="/handover"><StickyNote className="size-4" aria-hidden />Открыть</Link>
-            </Button>
-          </div>
-
-          <div className="mt-3 flex items-center gap-2 text-xs text-[var(--bf-dim)]">
-            <span className="rounded-full border border-[var(--bf-line)] bg-[var(--bf-surface)] px-2.5 py-1.5 font-black text-[var(--bf-cream)]">{activeCount} активных</span>
-            <span>Только то, что ещё требует внимания</span>
-          </div>
-
-          {loading ? (
-            <div className="mt-3 grid gap-2">
-              {[0, 1].map((item) => <div key={item} className="h-28 animate-pulse rounded-[20px] bg-[var(--bf-surface)]" />)}
-            </div>
-          ) : error ? (
-            <Surface className="mt-3 p-4">
-              <p className="text-sm leading-6 text-[var(--bf-muted)]">Передача сейчас не загрузилась. Остальные разделы портала продолжают работать.</p>
-            </Surface>
-          ) : (
-            <div className="mt-3 grid gap-2">
-              {activeNotes.map((note) => <HandoverNoteCard key={note.id} note={note} compact />)}
-            </div>
-          )}
-        </section>
-      ) : null}
+      <DashboardFeedSection />
 
       {showReadingSection ? (
         <section aria-labelledby="dashboard-reading-title">
