@@ -100,12 +100,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      // A temporary profile/network outage must not destroy a valid Auth session.
-      setState({
-        status: "authenticated",
-        session: currentSession,
-        user: currentSession.user as AuthUser,
-        recoveryRequired: recoveryRequiredRef.current
+      // A temporary profile/network outage must not destroy a valid Auth session
+      // or erase the last known profile-based permissions from the UI.
+      setState((current) => {
+        const previousUser =
+          current.status === "authenticated" &&
+          current.user.id === currentSession.user.id
+            ? current.user
+            : null;
+
+        return {
+          status: "authenticated",
+          session: currentSession,
+          user: previousUser ?? (currentSession.user as AuthUser),
+          recoveryRequired:
+            current.status === "authenticated"
+              ? current.recoveryRequired
+              : recoveryRequiredRef.current
+        };
       });
     }
   }, []);
@@ -132,6 +144,66 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       listener.subscription.unsubscribe();
     };
   }, [hydrateSession]);
+
+  // Roles and positions are stored in the live profile, not in JWT claims.
+  // Refresh them while the app is active so access changes made by an admin
+  // appear without requiring the employee to sign out and sign back in.
+  useEffect(() => {
+    if (state.status !== "authenticated") return;
+
+    let active = true;
+    let refreshing = false;
+
+    const refresh = async () => {
+      if (
+        !active ||
+        refreshing ||
+        document.visibilityState === "hidden"
+      ) {
+        return;
+      }
+
+      refreshing = true;
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (active && data.session) {
+          await hydrateSession(data.session);
+        }
+      } finally {
+        refreshing = false;
+      }
+    };
+
+    const onFocus = () => {
+      void refresh();
+    };
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        void refresh();
+      }
+    };
+
+    const onOnline = () => {
+      void refresh();
+    };
+
+    const interval = window.setInterval(() => {
+      void refresh();
+    }, 30_000);
+
+    window.addEventListener("focus", onFocus);
+    window.addEventListener("online", onOnline);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
+    return () => {
+      active = false;
+      window.clearInterval(interval);
+      window.removeEventListener("focus", onFocus);
+      window.removeEventListener("online", onOnline);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+  }, [state.status, hydrateSession]);
 
   const login = useCallback(
     async (input: LoginInput) => {
