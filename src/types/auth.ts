@@ -1,14 +1,30 @@
 import type { Session, User } from "@supabase/supabase-js";
 
 export type StaffRole = "staff" | "senior" | "manager" | "admin";
-export type StaffPosition = "bartender" | "waiter" | "manager" | "hostess";
+export type AssignableStaffRole = Exclude<StaffRole, "manager">;
+
+export type StaffPosition =
+  | "bartender"
+  | "waiter"
+  | "bartender_bb"
+  | "waiter_bb"
+  | "manager"
+  | "hostess";
 
 export const STAFF_POSITION_LABELS: Record<StaffPosition, string> = {
-  bartender: "Бармен",
-  waiter: "Официант",
+  bartender: "Бармен BF",
+  waiter: "Официант BF",
+  bartender_bb: "Бармен BB",
+  waiter_bb: "Официант BB",
   manager: "Менеджер",
   hostess: "Хостес"
 };
+
+export const ASSIGNABLE_STAFF_ROLES: AssignableStaffRole[] = [
+  "staff",
+  "senior",
+  "admin"
+];
 
 export type StaffProfile = {
   id: string;
@@ -25,6 +41,68 @@ export type StaffProfile = {
   position_change_reason?: "window_locked" | "already_changed" | null;
   recovery_configured?: boolean | null;
 };
+
+export type AccessSubject = Pick<
+  StaffProfile,
+  "role" | "is_owner" | "position_code"
+>;
+
+export function staffAccessLabel(
+  subject: AccessSubject
+) {
+  if (subject.is_owner) return "Владелец";
+  if (subject.role === "admin") return "Администратор";
+
+  if (subject.role === "senior") {
+    if (
+      subject.position_code === "waiter" ||
+      subject.position_code === "waiter_bb"
+    ) {
+      return "Старший официант";
+    }
+
+    if (subject.position_code === "hostess") {
+      return "Старший хостес";
+    }
+
+    return "Старший сотрудник";
+  }
+
+  return "Сотрудник";
+}
+
+export function canManageStaffClient(subject: AccessSubject) {
+  return subject.is_owner === true || subject.role === "admin";
+}
+
+export function canManageRecipesClient(subject: AccessSubject) {
+  return (
+    subject.is_owner === true ||
+    subject.role === "admin" ||
+    (
+      subject.role === "senior" &&
+      (
+        subject.position_code === "waiter" ||
+        subject.position_code === "waiter_bb"
+      )
+    )
+  );
+}
+
+export function canManageChecklistsClient(subject: AccessSubject) {
+  return (
+    subject.is_owner === true ||
+    subject.role === "admin" ||
+    (
+      subject.role === "senior" &&
+      (
+        subject.position_code === "waiter" ||
+        subject.position_code === "waiter_bb" ||
+        subject.position_code === "hostess"
+      )
+    )
+  );
+}
 
 export type AuthUser = User & Partial<StaffProfile>;
 
