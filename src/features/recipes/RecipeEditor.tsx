@@ -112,9 +112,9 @@ function recipeErrorText(error: unknown) {
     case "admin_required":
       return "Недостаточно прав для изменения рецептов.";
     case "recipe_admin_write_unavailable":
-      return "Запись рецептов на сервере сейчас недоступна.";
     case "worker_recipe_editor_unavailable":
-      return "Редактор установлен, но серверная часть ещё не обновлена.";
+    case "nocodb_write_failed":
+      return "Не удалось сохранить рецепт.";
     case "invalid_source":
       return "Выбран неизвестный раздел рецептов.";
     case "invalid_name":
@@ -134,9 +134,7 @@ function recipeErrorText(error: unknown) {
     case "photo_type_not_allowed":
       return "Фото должно быть JPEG или PNG.";
     case "nocodb_photo_upload_failed":
-      return "NocoDB не принял фотографию.";
-    case "nocodb_write_failed":
-      return "NocoDB не сохранил рецепт.";
+      return "Не удалось загрузить фотографию.";
     default:
       return "Изменение не применено. Проверьте поля и повторите.";
   }
@@ -326,14 +324,7 @@ export function RecipeEditor({
             {mode === "create" ? "Создать техкарту" : recipe?.name}
           </h2>
         </div>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          aria-label="Закрыть редактор"
-          disabled={saving}
-          onClick={onCancel}
-        >
+        <Button type="button" variant="ghost" size="icon" aria-label="Закрыть редактор" disabled={saving} onClick={onCancel}>
           <X className="size-4" aria-hidden />
         </Button>
       </div>
@@ -344,272 +335,44 @@ export function RecipeEditor({
             <FieldLabel required>Раздел</FieldLabel>
             <div className="grid grid-cols-2 gap-2" role="group" aria-label="Раздел рецепта">
               {(["bar", "kitchen"] as AdminRecipeSource[]).map((source) => (
-                <button
-                  key={source}
-                  type="button"
-                  disabled={mode === "edit"}
-                  aria-pressed={editor.source === source}
-                  onClick={() => changeSource(source)}
-                  className={cn(
-                    "min-h-11 rounded-xl border px-3 text-sm font-black",
-                    editor.source === source
-                      ? "border-[var(--bf-copper-hi)] bg-[var(--bf-surface-2)] text-[var(--bf-cream)]"
-                      : "border-[var(--bf-line)] bg-[var(--bf-surface)] text-[var(--bf-muted)]",
-                    mode === "edit" && "cursor-not-allowed opacity-70"
-                  )}
-                >
-                  {sourceLabel(source)}
-                </button>
+                <button key={source} type="button" disabled={mode === "edit"} aria-pressed={editor.source === source} onClick={() => changeSource(source)} className={cn("min-h-11 rounded-xl border px-3 text-sm font-black", editor.source === source ? "border-[var(--bf-copper-hi)] bg-[var(--bf-surface-2)] text-[var(--bf-cream)]" : "border-[var(--bf-line)] bg-[var(--bf-surface)] text-[var(--bf-muted)]", mode === "edit" && "cursor-not-allowed opacity-70")}>{sourceLabel(source)}</button>
               ))}
             </div>
           </div>
 
-          <label>
-            <FieldLabel required>Название</FieldLabel>
-            <input
-              value={editor.name}
-              maxLength={180}
-              onChange={(event) => updateEditor("name", event.target.value)}
-              className={fieldClass()}
-              placeholder="Название позиции"
-              required
-            />
-          </label>
+          <label><FieldLabel required>Название</FieldLabel><input value={editor.name} maxLength={180} onChange={(event) => updateEditor("name", event.target.value)} className={fieldClass()} placeholder="Название позиции" required /></label>
 
           <div className="grid grid-cols-2 gap-2">
-            <label>
-              <FieldLabel required>Категория</FieldLabel>
-              <select
-                value={editor.category}
-                onChange={(event) => updateEditor("category", event.target.value)}
-                className={fieldClass()}
-                required
-              >
-                {editor.source === "bar" ? (
-                  barCategories.map((category) => (
-                    <option key={category} value={category}>
-                      {categoryLabel(category)}
-                    </option>
-                  ))
-                ) : (
-                  <option value="Кухня">Кухня</option>
-                )}
-              </select>
-            </label>
-
-            <label>
-              <FieldLabel required>Заведение</FieldLabel>
-              <select
-                value={editor.venue}
-                onChange={(event) => updateEditor(
-                  "venue",
-                  event.target.value === "BB"
-                    ? "BB"
-                    : event.target.value === "BF/BB"
-                      ? "BF/BB"
-                      : "BF"
-                )}
-                className={fieldClass()}
-              >
-                <option value="BF">BeerFactory · BF</option>
-                <option value="BB">BeerBistro · BB</option>
-                <option value="BF/BB">Общая позиция · BF/BB</option>
-              </select>
-            </label>
+            <label><FieldLabel required>Категория</FieldLabel><select value={editor.category} onChange={(event) => updateEditor("category", event.target.value)} className={fieldClass()} required>{editor.source === "bar" ? barCategories.map((category) => <option key={category} value={category}>{categoryLabel(category)}</option>) : <option value="Кухня">Кухня</option>}</select></label>
+            <label><FieldLabel required>Заведение</FieldLabel><select value={editor.venue} onChange={(event) => updateEditor("venue", event.target.value === "BB" ? "BB" : event.target.value === "BF/BB" ? "BF/BB" : "BF")} className={fieldClass()}><option value="BF">BeerFactory · BF</option><option value="BB">BeerBistro · BB</option><option value="BF/BB">Общая позиция · BF/BB</option></select></label>
           </div>
 
-          <label>
-            <FieldLabel>Статус</FieldLabel>
-            <select
-              value={editor.status}
-              onChange={(event) => updateEditor(
-                "status",
-                event.target.value as AdminRecipeStatus
-              )}
-              className={fieldClass()}
-            >
-              {STATUS_OPTIONS.map((status) => (
-                <option key={status} value={status}>{status}</option>
-              ))}
-            </select>
-          </label>
+          <label><FieldLabel>Статус</FieldLabel><select value={editor.status} onChange={(event) => updateEditor("status", event.target.value as AdminRecipeStatus)} className={fieldClass()}>{STATUS_OPTIONS.map((status) => <option key={status} value={status}>{status}</option>)}</select></label>
 
           <div>
             <FieldLabel>Фото</FieldLabel>
             <div className="overflow-hidden rounded-2xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)]">
-              {activePhoto ? (
-                <div className="relative aspect-[16/9] overflow-hidden border-b border-[var(--bf-line)]">
-                  <img
-                    src={activePhoto}
-                    alt="Предпросмотр фото рецепта"
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-              ) : (
-                <div className="grid min-h-24 place-items-center text-[var(--bf-dim)]">
-                  <ImagePlus className="size-7" aria-hidden />
-                </div>
-              )}
-
+              {activePhoto ? <div className="relative aspect-[16/9] overflow-hidden border-b border-[var(--bf-line)]"><img src={activePhoto} alt="Предпросмотр фото рецепта" className="h-full w-full object-cover" /></div> : <div className="grid min-h-24 place-items-center text-[var(--bf-dim)]"><ImagePlus className="size-7" aria-hidden /></div>}
               <div className="flex flex-wrap items-center justify-between gap-2 p-3">
-                <div>
-                  <p className="text-xs font-black text-[var(--bf-cream)]">
-                    JPEG или PNG · до 1 МБ
-                  </p>
-                  {photo ? (
-                    <p className="mt-1 max-w-[210px] truncate text-[10px] text-[var(--bf-dim)]">
-                      {photo.name}
-                    </p>
-                  ) : null}
-                </div>
-
-                <div className="flex gap-2">
-                  {activePhoto ? (
-                    <Button type="button" variant="ghost" onClick={removeCurrentPhoto}>
-                      <Trash2 className="size-4" aria-hidden />
-                      Убрать
-                    </Button>
-                  ) : null}
-
-                  <label className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-xl border border-[var(--bf-line-strong)] bg-[var(--bf-surface)] px-3 text-xs font-black text-[var(--bf-cream)]">
-                    <ImagePlus className="size-4" aria-hidden />
-                    {activePhoto ? "Заменить" : "Добавить"}
-                    <input
-                      type="file"
-                      accept="image/jpeg,image/png,.jpg,.jpeg,.png"
-                      className="sr-only"
-                      onChange={choosePhoto}
-                    />
-                  </label>
-                </div>
+                <div><p className="text-xs font-black text-[var(--bf-cream)]">JPEG или PNG · до 1 МБ</p>{photo ? <p className="mt-1 max-w-[210px] truncate text-[10px] text-[var(--bf-dim)]">{photo.name}</p> : null}</div>
+                <div className="flex gap-2">{activePhoto ? <Button type="button" variant="ghost" onClick={removeCurrentPhoto}><Trash2 className="size-4" aria-hidden />Убрать</Button> : null}<label className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-xl border border-[var(--bf-line-strong)] bg-[var(--bf-surface)] px-3 text-xs font-black text-[var(--bf-cream)]"><ImagePlus className="size-4" aria-hidden />{activePhoto ? "Заменить" : "Добавить"}<input type="file" accept="image/jpeg,image/png,.jpg,.jpeg,.png" className="sr-only" onChange={choosePhoto} /></label></div>
               </div>
             </div>
-            {photoError ? (
-              <p className="mt-1.5 text-xs font-bold text-[#e99990]" role="alert">
-                {photoError}
-              </p>
-            ) : null}
+            {photoError ? <p className="mt-1.5 text-xs font-bold text-[#e99990]" role="alert">{photoError}</p> : null}
           </div>
 
-          {editor.source === "bar" ? (
-            <>
-              <label>
-                <FieldLabel required>Состав</FieldLabel>
-                <textarea
-                  value={editor.ingredients}
-                  rows={7}
-                  onChange={(event) => updateEditor("ingredients", event.target.value)}
-                  className={cn(fieldClass(), "resize-y py-3 leading-5")}
-                  placeholder={'Каждый ингредиент с новой строки\nНапример: Джин 40 мл'}
-                  required
-                />
-              </label>
+          {editor.source === "bar" ? <><label><FieldLabel required>Состав</FieldLabel><textarea value={editor.ingredients} rows={7} onChange={(event) => updateEditor("ingredients", event.target.value)} className={cn(fieldClass(), "resize-y py-3 leading-5")} placeholder={'Каждый ингредиент с новой строки\nНапример: Джин 40 мл'} required /></label><label><FieldLabel>Приготовление / метод</FieldLabel><textarea value={editor.method} rows={5} onChange={(event) => updateEditor("method", event.target.value)} className={cn(fieldClass(), "resize-y py-3 leading-5")} placeholder="Как приготовить" /></label></> : <><label><FieldLabel required>Описание</FieldLabel><textarea value={editor.description} rows={6} onChange={(event) => updateEditor("description", event.target.value)} className={cn(fieldClass(), "resize-y py-3 leading-5")} placeholder="Описание блюда / технология" required /></label><label><FieldLabel>Состав</FieldLabel><textarea value={editor.ingredients} rows={5} onChange={(event) => updateEditor("ingredients", event.target.value)} className={cn(fieldClass(), "resize-y py-3 leading-5")} placeholder="Состав блюда" /></label></>}
 
-              <label>
-                <FieldLabel>Приготовление / метод</FieldLabel>
-                <textarea
-                  value={editor.method}
-                  rows={5}
-                  onChange={(event) => updateEditor("method", event.target.value)}
-                  className={cn(fieldClass(), "resize-y py-3 leading-5")}
-                  placeholder="Как приготовить"
-                />
-              </label>
-            </>
-          ) : (
-            <>
-              <label>
-                <FieldLabel required>Описание</FieldLabel>
-                <textarea
-                  value={editor.description}
-                  rows={6}
-                  onChange={(event) => updateEditor("description", event.target.value)}
-                  className={cn(fieldClass(), "resize-y py-3 leading-5")}
-                  placeholder="Описание блюда / технология"
-                  required
-                />
-              </label>
-
-              <label>
-                <FieldLabel>Состав</FieldLabel>
-                <textarea
-                  value={editor.ingredients}
-                  rows={5}
-                  onChange={(event) => updateEditor("ingredients", event.target.value)}
-                  className={cn(fieldClass(), "resize-y py-3 leading-5")}
-                  placeholder="Состав блюда"
-                />
-              </label>
-            </>
-          )}
-
-          <label>
-            <FieldLabel>
-              {editor.source === "kitchen" ? "Граммовка / выход" : "Подача / выход"}
-            </FieldLabel>
-            <input
-              value={editor.serving}
-              onChange={(event) => updateEditor("serving", event.target.value)}
-              className={fieldClass()}
-              placeholder={editor.source === "kitchen" ? "Например: 250 г" : "Например: 350 мл"}
-            />
-          </label>
-
-          <label>
-            <FieldLabel>Теги</FieldLabel>
-            <input
-              value={editor.tags}
-              onChange={(event) => updateEditor("tags", event.target.value)}
-              className={fieldClass()}
-              placeholder="Через пробел или запятую"
-            />
-          </label>
-
-          {mode === "edit" ? (
-            <label>
-              <FieldLabel>Что изменилось</FieldLabel>
-              <input
-                value={editor.changeNote}
-                onChange={(event) => updateEditor("changeNote", event.target.value)}
-                className={fieldClass()}
-                placeholder="Коротко, необязательно"
-              />
-            </label>
-          ) : null}
+          <label><FieldLabel>{editor.source === "kitchen" ? "Граммовка / выход" : "Подача / выход"}</FieldLabel><input value={editor.serving} onChange={(event) => updateEditor("serving", event.target.value)} className={fieldClass()} placeholder={editor.source === "kitchen" ? "Например: 250 г" : "Например: 350 мл"} /></label>
+          <label><FieldLabel>Теги</FieldLabel><input value={editor.tags} onChange={(event) => updateEditor("tags", event.target.value)} className={fieldClass()} placeholder="Через пробел или запятую" /></label>
+          {mode === "edit" ? <label><FieldLabel>Что изменилось</FieldLabel><input value={editor.changeNote} onChange={(event) => updateEditor("changeNote", event.target.value)} className={fieldClass()} placeholder="Коротко, необязательно" /></label> : null}
         </fieldset>
 
-        {formError ? (
-          <div
-            className="rounded-xl border border-[#75443d] bg-[#36231f80] px-3 py-2 text-xs font-bold leading-5 text-[#e99990]"
-            role="alert"
-          >
-            {formError}
-          </div>
-        ) : null}
+        {formError ? <div className="rounded-xl border border-[#75443d] bg-[#36231f80] px-3 py-2 text-xs font-bold leading-5 text-[#e99990]" role="alert">{formError}</div> : null}
 
         <div className="grid grid-cols-[auto_1fr] gap-2">
-          <Button type="button" variant="secondary" disabled={saving} onClick={onCancel}>
-            Отмена
-          </Button>
-          <Button
-            type="submit"
-            variant="primary"
-            size="lg"
-            disabled={saving || Boolean(photoError)}
-          >
-            {saving ? (
-              <Loader2 className="size-4 animate-spin" aria-hidden />
-            ) : mode === "create" ? (
-              <Plus className="size-4" aria-hidden />
-            ) : (
-              <Pencil className="size-4" aria-hidden />
-            )}
-            {saving
-              ? "Сохраняем…"
-              : mode === "create"
-                ? "Создать рецепт"
-                : "Сохранить изменения"}
-          </Button>
+          <Button type="button" variant="secondary" disabled={saving} onClick={onCancel}>Отмена</Button>
+          <Button type="submit" variant="primary" size="lg" disabled={saving || Boolean(photoError)}>{saving ? <Loader2 className="size-4 animate-spin" aria-hidden /> : mode === "create" ? <Plus className="size-4" aria-hidden /> : <Pencil className="size-4" aria-hidden />}{saving ? "Сохраняем…" : mode === "create" ? "Создать рецепт" : "Сохранить изменения"}</Button>
         </div>
       </form>
     </Surface>

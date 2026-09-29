@@ -61,9 +61,9 @@ function searchableText(recipe: Recipe) {
 function syncLabel(source: string, syncedAt: number | null) {
   if (source !== "cache-offline" && source !== "legacy-cache") return "";
 
-  if (!syncedAt) return "Нет связи с сервером · показана сохранённая версия";
+  if (!syncedAt) return "Нет связи · показана сохранённая версия";
 
-  return `Нет связи с сервером · сохранено ${new Intl.DateTimeFormat(
+  return `Нет связи · версия от ${new Intl.DateTimeFormat(
     "ru-RU",
     {
       day: "2-digit",
@@ -278,19 +278,39 @@ export function RecipesPage() {
             Рецепты
           </h1>
 
-          {canManageRecipes && accessToken ? (
+          <div className="flex shrink-0 items-center gap-2">
             <Button
               type="button"
               variant="secondary"
               size="icon"
-              className="mb-0 shrink-0"
-              aria-label="Создать рецепт"
-              aria-pressed={createOpen}
-              onClick={() => setCreateOpen((current) => !current)}
+              className="size-9 min-h-9 rounded-full p-0"
+              aria-label="Обновить рецепты"
+              disabled={state.status === "loading"}
+              onClick={() => void reload()}
             >
-              <Plus className="size-5" aria-hidden />
+              <RefreshCw
+                className={cn(
+                  "size-3.5",
+                  state.status === "loading" && "animate-spin"
+                )}
+                aria-hidden
+              />
             </Button>
-          ) : null}
+
+            {canManageRecipes && accessToken ? (
+              <Button
+                type="button"
+                variant="secondary"
+                size="icon"
+                className="mb-0 shrink-0"
+                aria-label="Создать рецепт"
+                aria-pressed={createOpen}
+                onClick={() => setCreateOpen((current) => !current)}
+              >
+                <Plus className="size-5" aria-hidden />
+              </Button>
+            ) : null}
+          </div>
         </div>
 
         <p className="mt-3 text-pretty text-[15px] leading-6 text-[var(--bf-muted)]">
@@ -362,9 +382,7 @@ export function RecipesPage() {
             Рецепты сейчас недоступны
           </p>
           <p className="mt-1 max-w-lg text-sm leading-6 text-[var(--bf-muted)]">
-            Сервер не ответил, а сохранённой версии на этом устройстве ещё нет.
-            После первого успешного открытия рецепты будут доступны и при
-            временной потере сети.
+            Проверьте подключение и попробуйте ещё раз.
           </p>
           <Button className="mt-4" onClick={reload}>
             <RefreshCw className="size-4" aria-hidden />

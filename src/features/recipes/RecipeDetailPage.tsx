@@ -76,11 +76,11 @@ function adminActionError(error: unknown) {
     case "admin_required":
       return "Недостаточно прав для изменения рецепта.";
     case "worker_recipe_editor_unavailable":
-      return "Серверная часть редактора ещё не обновлена.";
+      return "Не удалось сохранить изменения.";
     case "recipe_admin_write_unavailable":
-      return "Запись рецептов на сервере сейчас недоступна.";
+      return "Не удалось сохранить изменения.";
     case "nocodb_write_failed":
-      return "NocoDB не применил изменение.";
+      return "Не удалось сохранить изменения.";
     default:
       return "Изменение не применено.";
   }
@@ -366,7 +366,7 @@ export function RecipeDetailPage() {
               Архив
             </strong>
             <p className="mt-1 text-sm leading-5 text-[var(--bf-muted)]">
-              Позиции уже нет в текущем меню. Техкарта сохранена для истории и справки.
+              Позиция находится в архиве.
             </p>
           </div>
         </div>
@@ -542,7 +542,7 @@ export function RecipeDetailPage() {
       <AdminConfirmDialog
         open={deleteConfirmOpen}
         title={`Удалить «${recipe.name}»?`}
-        description="Строка рецепта будет удалена из NocoDB и исчезнет из портала. Для временного снятия с меню используйте архив."
+        description="Рецепт будет удалён. Для временного скрытия используйте архив."
         confirmLabel="Удалить рецепт"
         requirePhrase="УДАЛИТЬ"
         pending={actionPending === "delete"}
