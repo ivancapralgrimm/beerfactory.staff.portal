@@ -11,6 +11,7 @@ import {
 } from "react-router-dom";
 import { AppShell } from "@/components/layout/AppShell";
 import { useAuth } from "@/features/auth/auth-context";
+import { canManageChecklistsClient } from "@/types/auth";
 import { LoginPage } from "@/features/auth/LoginPage";
 import { RecoveryPage } from "@/features/auth/RecoveryPage";
 import { RecoverySetupPage } from "@/features/auth/RecoverySetupPage";
@@ -70,6 +71,14 @@ const ShiftPage = lazy(() =>
       default: module.ShiftPage
     })
   )
+);
+
+const ChecklistEditorPage = lazy(() =>
+  import(
+    "@/features/shift/ChecklistEditorPage"
+  ).then((module) => ({
+    default: module.ChecklistEditorPage
+  }))
 );
 
 const FeedPage = lazy(() =>
@@ -179,6 +188,27 @@ function PublicOnly({
         replace
       />
     );
+  }
+
+  return children;
+}
+
+
+function ChecklistEditorOnly({
+  children
+}: {
+  children: ReactNode;
+}) {
+  const { state } = useAuth();
+
+  if (state.status !== "authenticated") {
+    return <Navigate to="/login" replace />;
+  }
+
+  const canManage = canManageChecklistsClient(state.user);
+
+  if (!canManage) {
+    return <Navigate to="/shift" replace />;
   }
 
   return children;
@@ -317,6 +347,16 @@ export function App() {
             <LazyRoute>
               <ShiftPage />
             </LazyRoute>
+          }
+        />
+        <Route
+          path="shift/editor"
+          element={
+            <ChecklistEditorOnly>
+              <LazyRoute>
+                <ChecklistEditorPage />
+              </LazyRoute>
+            </ChecklistEditorOnly>
           }
         />
 
