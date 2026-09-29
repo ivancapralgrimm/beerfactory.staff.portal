@@ -32,6 +32,8 @@ type StatusFilter = "active" | "resolved" | "all";
 const STAFF_POSITIONS: StaffPosition[] = [
   "bartender",
   "waiter",
+  "bartender_bb",
+  "waiter_bb",
   "manager",
   "hostess"
 ];
