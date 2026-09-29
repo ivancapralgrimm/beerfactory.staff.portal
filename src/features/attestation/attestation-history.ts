@@ -19,6 +19,19 @@ type LocalLearningRecord = {
   }>;
 };
 
+type RecentTeamAttempt = {
+  id: string;
+  user_id: string;
+  display_name: string;
+  category: string;
+  category_id: string | null;
+  score: number;
+  passed: boolean;
+  total_questions: number;
+  correct_answers: number;
+  attempted_at: string;
+};
+
 function storageKey(userId: string) {
   return `bf-learning-r18:${userId || "guest"}`;
 }
@@ -45,37 +58,6 @@ function writeLocalRecord(userId: string, record: LocalLearningRecord) {
   }
 }
 
-function localHistory(userId: string, limit = 5): QuizHistoryItem[] {
-  const record = readLocalRecord(userId);
-
-  return (record.history || [])
-    .slice(-limit)
-    .reverse()
-    .flatMap((item) => {
-      if (
-        item.time == null ||
-        typeof item.correct !== "number" ||
-        typeof item.total !== "number" ||
-        typeof item.score !== "number" ||
-        typeof item.passed !== "boolean"
-      ) {
-        return [];
-      }
-
-      return [
-        {
-          category: item.category || "Общий тест",
-          categoryId: item.categoryId || null,
-          time: item.time,
-          correct: item.correct,
-          total: item.total,
-          score: item.score,
-          passed: item.passed
-        }
-      ];
-    });
-}
-
 export async function getQuizHistory(
   userId: string,
   limit = 5
@@ -84,33 +66,25 @@ export async function getQuizHistory(
   source: QuizHistorySource;
 }> {
   if (!userId) {
-    return {
-      items: localHistory(userId, limit),
-      source: "device"
-    };
+    return { items: [], source: "profile" };
   }
 
-  const { data, error } = await supabase
-    .from("quiz_attempts")
-    .select(
-      "category,category_id,score,passed,total_questions,correct_answers,created_at,finished_at"
-    )
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false })
-    .limit(limit);
+  const { data, error } = await supabase.rpc(
+    "get_recent_attestation_attempts",
+    { p_limit: limit }
+  );
 
   if (error) {
-    return {
-      items: localHistory(userId, limit),
-      source: "device"
-    };
+    return { items: [], source: "profile" };
   }
 
+  const attempts = (data || []) as RecentTeamAttempt[];
+
   return {
-    items: (data || []).map((item) => ({
-      category: item.category || "Общий тест",
+    items: attempts.map((item) => ({
+      category: `${item.display_name} · ${item.category || "Общий тест"}`,
       categoryId: item.category_id,
-      time: item.finished_at || item.created_at,
+      time: item.attempted_at,
       correct: item.correct_answers,
       total: item.total_questions,
       score: item.score,
