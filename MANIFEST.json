@@ -1,47 +1,43 @@
 {
-  "package": "BFStaff_r40.4_SHIFT_COMPACT_MANAGER_GROUP_v2",
+  "package": "BFStaff_r40.4_MOBILE_INPUT_ZOOM_GUARD_v1",
   "target_branch": "r40.4-react",
-  "expected_base_head": "dd884f5990c64d5a6b7a04608204a59d2755ae2e",
-  "replaces": [
-    "BFStaff_r40.4_SHIFT_COMPACT_VISUAL_v1"
-  ],
-  "scope": "Shift visual compact + checklist manager grouping UX",
+  "expected_base_head": "37752f461b6e88aed056987b8ff1059f974ccffe",
+  "scope": "mobile form controls only",
   "files": [
-    "src/features/shift/ShiftPage.tsx",
-    "src/features/shift/ChecklistEditorPage.tsx",
-    "src/features/shift/checklist-editor-api.ts",
-    "supabase/migrations/20260929121014_normalize_checklist_groups_by_position.sql"
+    "src/main.tsx",
+    "src/mobile-input-guard.css"
   ],
-  "changes": {
-    "shift_compact_visual": true,
-    "manager_group_ui": {
-      "old_group_field_removed": true,
-      "old_group_label_field_removed": true,
-      "new_field": "Заведение",
-      "options": [
-        "Без группы",
-        "BF",
-        "BB"
-      ],
-      "visible_only_for_position": "manager"
-    },
-    "backend_group_rules": {
-      "manager": "only null/bf/bb; group_label generated automatically",
-      "all_other_positions": "group_key/group_label forced to null"
-    }
-  },
-  "live_migration": {
-    "version": "20260929121014",
-    "name": "normalize_checklist_groups_by_position",
-    "already_applied": true
-  },
-  "verification": {
-    "typescript_syntax": "PASS",
-    "old_group_ui_absent": true,
-    "manager_venue_selector_present": true,
-    "backend_manager_bf_normalization": "PASS",
-    "backend_non_manager_group_forced_null": "PASS",
-    "backend_invalid_group_rejected": "PASS",
-    "security_advisor_new_categories": "none"
+  "behavior": {
+    "mobile_text_controls_min_font_px": 16,
+    "covers": [
+      "text",
+      "search",
+      "email",
+      "password",
+      "tel",
+      "url",
+      "number",
+      "date",
+      "time",
+      "datetime-local",
+      "textarea",
+      "select"
+    ],
+    "excluded": [
+      "checkbox",
+      "radio",
+      "range",
+      "file",
+      "color",
+      "button",
+      "submit",
+      "reset",
+      "hidden"
+    ],
+    "iphone_safari_pwa": true,
+    "android_mobile": true,
+    "landscape_touch_devices": true,
+    "user_pinch_zoom_remains_enabled": true,
+    "viewport_changed": false
   }
 }

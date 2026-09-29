@@ -1,8 +1,6 @@
 {
-  "MANIFEST.json": "b2620a78884673f1d8c0e262a94a9613a155fe30d4291e7bf1fef7f90ece0cac",
-  "README_UPLOAD.txt": "b0d5fa7df80b640c28f1dc97e4f232f534d41e5811a512bd7df3c8b1dafd7220",
-  "src/features/shift/ChecklistEditorPage.tsx": "6279bf113060d54abf83e5b656de76bdb9882356d4f822514c38f0369f85952e",
-  "src/features/shift/ShiftPage.tsx": "5f1561278499b7d2fad89f6e0d0857ae87b5bdd9752e251c19a9d78e12305893",
-  "src/features/shift/checklist-editor-api.ts": "c23a82a4a6538b3ac0d640325d0bda713eef1b17e3da5c74a220dee0084e3666",
-  "supabase/migrations/20260929121014_normalize_checklist_groups_by_position.sql": "2d5e0a45f22464d64b58691a227f2278a04645a9df9e2971e1536d280ecdee92"
+  "MANIFEST.json": "b47fcee62f39abc8e79a2f3cc6dde36fc9f33c890ca2a7e1803fe09868644381",
+  "README_UPLOAD.txt": "ea2010a4eaf880b953c99dad3d242a9d63b8c4b5d7bd7e4d1b20212ed20f6401",
+  "src/main.tsx": "cb33a83b89585240412b2a4b050c3d313354cbc6067d6e4b939fe7c1f68af366",
+  "src/mobile-input-guard.css": "202f8dfccd6d444891187fccf010b2da68b906ebb3a6742479d45760ad3da1b1"
 }
