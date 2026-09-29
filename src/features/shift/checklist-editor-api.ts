@@ -66,7 +66,10 @@ export function checklistEditorError(error: unknown) {
   const message = errorMessage(error);
 
   if (message.includes("checklist_revision_conflict")) {
-    return "Этот пункт уже изменил другой сотрудник. Обновите список и повторите правку.";
+    return "Этот пункт уже изменён. Обновите список и повторите.";
+  }
+  if (message.includes("checklist_item_not_found")) {
+    return "Пункт уже удалён. Обновите список.";
   }
   if (message.includes("checklist_order_stale")) {
     return "Порядок уже изменился на другом устройстве. Обновите список и повторите.";
@@ -81,7 +84,7 @@ export function checklistEditorError(error: unknown) {
     return "Текст пункта должен быть от 1 до 500 символов.";
   }
   if (message.includes("forbidden")) {
-    return "У этого профиля нет права редактировать выбранный чек-лист.";
+    return "Недостаточно прав.";
   }
   return "Не удалось сохранить изменения. Обновите данные и повторите.";
 }
@@ -140,6 +143,27 @@ export async function reorderChecklistDefinitions(input: {
 
   if (error || !data) {
     throw error || new Error("checklist_editor_reorder_failed");
+  }
+
+  return data;
+}
+
+export async function deleteChecklistDefinition(input: {
+  positionCode: StaffPosition;
+  itemKey: string;
+  expectedRevision?: number | null;
+}) {
+  const { data, error } = await supabase.rpc(
+    "delete_checklist_definition",
+    {
+      p_position_code: input.positionCode,
+      p_item_key: input.itemKey,
+      p_expected_revision: input.expectedRevision ?? null
+    }
+  );
+
+  if (error || !data) {
+    throw error || new Error("checklist_editor_delete_failed");
   }
 
   return data;

@@ -1,11 +1,10 @@
 import {
-  AlertTriangle,
   Archive,
   ArrowDown,
   ArrowLeft,
   ArrowUp,
   Check,
-  Copy,
+  ChevronDown,
   Loader2,
   Pencil,
   Plus,
@@ -14,6 +13,7 @@ import {
   Save,
   Settings2,
   Sparkles,
+  Trash2,
   X
 } from "lucide-react";
 import {
@@ -28,6 +28,7 @@ import { Surface } from "@/components/ui/surface";
 import { useAuth } from "@/features/auth/auth-context";
 import {
   checklistEditorError,
+  deleteChecklistDefinition,
   loadChecklistEditorSnapshot,
   reorderChecklistDefinitions,
   saveChecklistDefinition,
@@ -236,18 +237,6 @@ export function ChecklistEditorPage() {
     setMessage(null);
   }
 
-  function openCopy(row: ChecklistEditorRow) {
-    const next = rowDraft(row);
-    setDraft({
-      ...next,
-      itemKey: null,
-      revision: null,
-      isActive: true,
-      label: `${row.label} (копия)`
-    });
-    setMessage(null);
-  }
-
   async function saveDraft() {
     if (!draft || !selectedPosition || saving) return;
     if (!draft.label.trim()) {
@@ -342,6 +331,39 @@ export function ChecklistEditorPage() {
     }
   }
 
+  async function deleteRow(row: ChecklistEditorRow) {
+    if (pendingKey) return;
+
+    const confirmed = window.confirm(
+      `Удалить пункт «${row.label}»? Это действие нельзя отменить.`
+    );
+    if (!confirmed) return;
+
+    setPendingKey(row.item_key);
+    setMessage(null);
+
+    try {
+      await deleteChecklistDefinition({
+        positionCode: row.position_code,
+        itemKey: row.item_key,
+        expectedRevision: row.revision
+      });
+      if (draft?.itemKey === row.item_key) {
+        setDraft(null);
+      }
+      setMessage({ tone: "success", text: "Пункт удалён." });
+      await load(true);
+    } catch (error) {
+      setMessage({
+        tone: "error",
+        text: checklistEditorError(error)
+      });
+      await load(true);
+    } finally {
+      setPendingKey(null);
+    }
+  }
+
   async function moveRow(row: ChecklistEditorRow, delta: -1 | 1) {
     if (!selectedPosition || pendingKey) return;
     const index = activeRows.findIndex(
@@ -383,7 +405,7 @@ export function ChecklistEditorPage() {
         </h1>
         <Surface className="mt-5 p-5">
           <p className="text-sm leading-6 text-[var(--bf-muted)]">
-            У этого профиля нет права редактировать чек-листы.
+            Редактор недоступен.
           </p>
           <Button asChild variant="secondary" className="mt-4">
             <Link to="/shift">Вернуться к смене</Link>
@@ -411,10 +433,6 @@ export function ChecklistEditorPage() {
           <h1 className="mt-2 text-[34px] font-black leading-none tracking-[-0.04em]">
             Редактор чек-листов
           </h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--bf-muted)]">
-            Изменения сохраняются в Supabase, фиксируются в журнале и сразу становятся рабочими.
-            Удаление здесь означает архивирование, а не потерю истории.
-          </p>
         </div>
 
         <div className="flex shrink-0 gap-2">
@@ -442,52 +460,66 @@ export function ChecklistEditorPage() {
       <Surface className="mt-5 p-3 sm:p-4">
         <div className="flex items-center gap-2">
           <Settings2 className="size-5 text-[var(--bf-copper-hi)]" aria-hidden />
-          <strong className="text-sm">Должность</strong>
+          <strong className="text-sm">Выбор чек-листа</strong>
         </div>
 
-        <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-          {snapshot?.positions.map((position) => (
-            <button
-              key={position.code}
-              type="button"
-              onClick={() => {
-                setSelectedPosition(position.code);
+        <label className="mt-3 grid gap-1.5">
+          <span className="text-[11px] font-black uppercase tracking-[0.1em] text-[var(--bf-dim)]">
+            Должность
+          </span>
+          <div className="relative">
+            <select
+              value={selectedPosition || ""}
+              aria-label="Должность"
+              onChange={(event) => {
+                setSelectedPosition(event.target.value as StaffPosition);
                 setDraft(null);
+                setShowArchived(false);
                 setMessage(null);
               }}
-              className={cn(
-                "min-h-10 shrink-0 rounded-xl border px-3 text-xs font-black",
-                selectedPosition === position.code
-                  ? "border-[var(--bf-copper-hi)] bg-[color:color-mix(in_srgb,var(--bf-copper),transparent_82%)] text-[var(--bf-cream)]"
-                  : "border-[var(--bf-line)] text-[var(--bf-muted)]"
-              )}
+              className="h-11 min-h-11 w-full appearance-none rounded-xl border border-[var(--bf-line-strong)] bg-[var(--bf-surface-2)] px-4 pr-12 text-base font-bold text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
             >
-              {position.label}
-            </button>
-          ))}
-        </div>
+              {snapshot?.positions.map((position) => (
+                <option key={position.code} value={position.code}>
+                  {position.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown
+              className="pointer-events-none absolute right-4 top-1/2 size-5 -translate-y-1/2 text-[var(--bf-muted)]"
+              aria-hidden
+            />
+          </div>
+        </label>
 
-        <div className="mt-3 grid grid-cols-3 gap-2">
-          {TYPE_OPTIONS.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => {
-                setSelectedType(option.value);
+        <label className="mt-3 grid gap-1.5">
+          <span className="text-[11px] font-black uppercase tracking-[0.1em] text-[var(--bf-dim)]">
+            Чек-лист
+          </span>
+          <div className="relative">
+            <select
+              value={selectedType}
+              aria-label="Тип чек-листа"
+              onChange={(event) => {
+                setSelectedType(event.target.value as ChecklistEditorCheckType);
                 setDraft(null);
+                setShowArchived(false);
                 setMessage(null);
               }}
-              className={cn(
-                "min-h-11 rounded-xl border px-2 text-xs font-black",
-                selectedType === option.value
-                  ? "border-[var(--bf-copper-hi)] bg-[var(--bf-surface-2)] text-[var(--bf-cream)]"
-                  : "border-[var(--bf-line)] text-[var(--bf-muted)]"
-              )}
+              className="h-11 min-h-11 w-full appearance-none rounded-xl border border-[var(--bf-line-strong)] bg-[var(--bf-surface-2)] px-4 pr-12 text-base font-bold text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
             >
-              {option.label}
-            </button>
-          ))}
-        </div>
+              {TYPE_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown
+              className="pointer-events-none absolute right-4 top-1/2 size-5 -translate-y-1/2 text-[var(--bf-muted)]"
+              aria-hidden
+            />
+          </div>
+        </label>
       </Surface>
 
       <div className="mt-3 flex items-center justify-between gap-3">
@@ -580,11 +612,11 @@ export function ChecklistEditorPage() {
 
             <label className="grid gap-1.5">
               <span className="text-[11px] font-black uppercase tracking-[0.1em] text-[var(--bf-dim)]">
-                Группа, ключ
+                Группа
               </span>
               <input
                 value={draft.groupKey}
-                placeholder="Например bf или bb"
+                placeholder="BF или BB"
                 onChange={(event) =>
                   setDraft((current) =>
                     current ? { ...current, groupKey: event.target.value } : current
@@ -601,7 +633,7 @@ export function ChecklistEditorPage() {
             </span>
             <input
               value={draft.groupLabel}
-              placeholder="Например BF или BB. Оставьте пустым без группы."
+              placeholder="Например BF или BB"
               onChange={(event) =>
                 setDraft((current) =>
                   current ? { ...current, groupLabel: event.target.value } : current
@@ -704,7 +736,7 @@ export function ChecklistEditorPage() {
           <Sparkles className="mx-auto size-6 text-[var(--bf-dim)]" aria-hidden />
           <p className="mt-2 text-sm font-bold">Пунктов пока нет</p>
           <p className="mt-1 text-xs leading-5 text-[var(--bf-dim)]">
-            Добавьте первый пункт. Данные сразу сохранятся в Supabase.
+            Добавьте первый пункт.
           </p>
         </Surface>
       ) : (
@@ -804,13 +836,17 @@ export function ChecklistEditorPage() {
                   </Button>
                   <Button
                     type="button"
-                    variant="secondary"
+                    variant="danger"
                     size="icon"
-                    aria-label="Создать копию пункта"
+                    aria-label="Удалить пункт"
                     disabled={Boolean(pendingKey)}
-                    onClick={() => openCopy(row)}
+                    onClick={() => void deleteRow(row)}
                   >
-                    <Copy className="size-4" aria-hidden />
+                    {busy ? (
+                      <Loader2 className="size-4 animate-spin" aria-hidden />
+                    ) : (
+                      <Trash2 className="size-4" aria-hidden />
+                    )}
                   </Button>
                   <Button
                     type="button"
@@ -845,15 +881,6 @@ export function ChecklistEditorPage() {
         </button>
       ) : null}
 
-      <div className="mt-4 rounded-2xl border border-[color:color-mix(in_srgb,var(--bf-gold),transparent_60%)] bg-[color:color-mix(in_srgb,var(--bf-gold),transparent_92%)] p-3">
-        <div className="flex items-start gap-2">
-          <AlertTriangle className="mt-0.5 size-4 shrink-0 text-[var(--bf-gold)]" aria-hidden />
-          <p className="text-xs leading-5 text-[var(--bf-muted)]">
-            Изменения применяются сразу к рабочему определению чек-листа. Все правки записываются в audit_log,
-            а архивные пункты остаются в базе и могут быть восстановлены.
-          </p>
-        </div>
-      </div>
     </section>
   );
 }
