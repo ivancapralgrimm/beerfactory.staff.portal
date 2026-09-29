@@ -1,0 +1,24 @@
+BeerFactory Staff Portal · r40.4
+Profile/Admin compact UI patch
+
+TARGET: r40.4-react
+
+REPLACE:
+- src/components/layout/AppShell.tsx
+- src/features/admin/AdminUserCard.tsx
+- R40_4_PROFILE_ADMIN_MANIFEST.json
+
+ADD:
+- src/features/admin/AdminSecurityDialog.tsx
+- PROFILE_ADMIN_COMPACT_UI_INSTRUCTIONS.txt
+
+CHANGES:
+- header profile control is now an explicit icon + "Профиль" pill;
+- admin employee cards no longer show password/recovery forms permanently;
+- one visible Security Mode button opens a compact modal;
+- account role/position controls are unchanged;
+- owner/admin protections are unchanged;
+- no backend changes are required.
+
+DO NOT run SQL.
+DO NOT redeploy Edge Functions.

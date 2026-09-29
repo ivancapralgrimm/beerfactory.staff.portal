@@ -1,0 +1,35 @@
+BeerFactory r40.4 · Combined Profile block + next-shift position rule
+
+THIS PACKAGE REPLACES THE PREVIOUS 24-HOUR COOLDOWN PACKAGE.
+Do not upload/apply both.
+
+BASE HEAD:
+8fa4b65cef2c1905cb3c1f6dcf40f2ee50bb70ee
+
+TARGET:
+r40.4-react
+
+Upload all files preserving paths.
+
+After upload:
+1. Verify manifest against repository blobs.
+2. Run Typecheck + Build.
+3. Apply ONLY the new migration:
+   20260924182000_add_profile_position_shift_window_limit.sql
+4. Deploy updated Edge Function:
+   staff-profile
+5. Verify exact-head Vercel preview.
+6. Visual check at ~390px.
+7. Controlled functional checks:
+   - Birthday and Position are one card.
+   - Birthday is above Position.
+   - Native position select opens correctly.
+   - Outside 03:00-10:59 selection is locked.
+   - First self-service change in an open operational window succeeds.
+   - Second change in same operational date is rejected server-side.
+   - Next change becomes available at next 11:00 operational window.
+   - 00:00-02:59 correctly belongs to previous operational date.
+   - Admin position management remains unaffected.
+   - Shift uses the saved position checklist.
+
+Do not rerun older migrations marked ALREADY APPLIED.

@@ -1,0 +1,135 @@
+{
+  "package": "BFStaff_r40.4_COMMON_POSITION_GLOBAL_SEARCH_V4_3",
+  "branch": "r40.4-react",
+  "base_head": "52f4a6eaaa318c2f0e2d051862cefa4f30c876f4",
+  "base_state": "GitHub Actions success; Vercel success",
+  "scope": "Common BF/BB recipe venue + Product/main-style React Dashboard global search",
+  "live_data_mutation": false,
+  "worker_deployed": false,
+  "nocodb_schema_applied": false,
+  "validation": {
+    "typescript_syntax_files": 7,
+    "typescript_syntax_errors": 0,
+    "worker_node_check": "passed"
+  },
+  "files": [
+    {
+      "path": "CHANGES_V4_3.diff",
+      "action": "ADD",
+      "base_git_blob_sha1": null,
+      "bytes": 20821,
+      "sha256": "f6cce23597d7bac9a4a200a53cfadad838c79ac1c71af193d0d0e2855f257f6c",
+      "git_blob_sha1": "6132d059359cba89ddc39ada06b5ad3336ec7d31"
+    },
+    {
+      "path": "NOCODB_GOVERNANCE.md",
+      "action": "REPLACE",
+      "base_git_blob_sha1": "36230eefa4df1607473f78003a2fed69461b3af0",
+      "bytes": 1655,
+      "sha256": "763084dba6d4f5e8854ecc0e729641cd635ab6bc21467673a78e00610708e5d7",
+      "git_blob_sha1": "7bc6fc60efed481e8cc07648a019307f663c6936"
+    },
+    {
+      "path": "NOCODB_VENUE_SETUP.md",
+      "action": "REPLACE",
+      "base_git_blob_sha1": "2f381d92a7f712cb26e385df9886c24056a90521",
+      "bytes": 1978,
+      "sha256": "c00ea4357f6809b90bbada67ef64d9832fb7cda9d6c77da0de5d902fb539606a",
+      "git_blob_sha1": "225b0036033a391e6ba56bfb17a3703819100b24"
+    },
+    {
+      "path": "R40_4_COMMON_POSITION_GLOBAL_SEARCH.md",
+      "action": "ADD",
+      "base_git_blob_sha1": null,
+      "bytes": 1739,
+      "sha256": "840545ac1c50a9213f5d5ca8d3a514541a91496c60f3681e95e7e16db80de3c8",
+      "git_blob_sha1": "7dfffd0b76e22f20ab21368560e9eb52afaca16e"
+    },
+    {
+      "path": "UPLOAD_INSTRUCTIONS_V4_3.txt",
+      "action": "ADD",
+      "base_git_blob_sha1": null,
+      "bytes": 1238,
+      "sha256": "bed44f905077c6e2c0dc0a163aa6345c7350966752ceea739b395b722df362a3",
+      "git_blob_sha1": "ef940add0daae77dadd481bd5ea7fe7c560f1435"
+    },
+    {
+      "path": "WORKER_CONTRACT.md",
+      "action": "REPLACE",
+      "base_git_blob_sha1": "1451cc5d7e87461bc781ddf70f5f4051a3a9d3cb",
+      "bytes": 2221,
+      "sha256": "6aefb91611aee67c613d678ce1e42bd4d574d0deef83aa7c327b2f5b71e85234",
+      "git_blob_sha1": "44feefea4ca6daa6d121effdf0398f24e6844524"
+    },
+    {
+      "path": "cloudflare/worker-recipe-editor-v5.js",
+      "action": "REPLACE",
+      "base_git_blob_sha1": "ea862bf6da45826a2d6776a3563440ec179b1b58",
+      "bytes": 26445,
+      "sha256": "52794f119dbeca8edca474a00b59e877dafe19fb778989e35a24a8cde2453368",
+      "git_blob_sha1": "92f067eeba0a581b84e3bee1b0af0a4fd64d0f7e"
+    },
+    {
+      "path": "src/features/dashboard/DashboardGlobalSearch.tsx",
+      "action": "ADD",
+      "base_git_blob_sha1": null,
+      "bytes": 7452,
+      "sha256": "06b46c7c12f91ab05f0185fee204b354f174aa02d0a3fd0d4113aae7aa1f0e5d",
+      "git_blob_sha1": "df41f5ae4aa526afa3337f32ce74aa4d68aaefe6"
+    },
+    {
+      "path": "src/features/recipes/RecipeDetailPage.tsx",
+      "action": "REPLACE",
+      "base_git_blob_sha1": "8548e1b6e0d167317ed7efe485aa38ab6945f40b",
+      "bytes": 19518,
+      "sha256": "db9659e8139447c507aaeba103509fec508cf22cd140c167fba1c21ac6685d77",
+      "git_blob_sha1": "720d74720bda88c18fe1d920fff51640a69582f9"
+    },
+    {
+      "path": "src/features/recipes/RecipeEditor.tsx",
+      "action": "REPLACE",
+      "base_git_blob_sha1": "f8a5baf84fe4ff9c8ec280c6d9de076d1dbe6de9",
+      "bytes": 20508,
+      "sha256": "2fa6190990c102fcc88a85a23385c5814ed59aac8f54ac87435a1a31154b0976",
+      "git_blob_sha1": "9470dce30a0a26821f90bfc2b765b982c30b2e03"
+    },
+    {
+      "path": "src/features/recipes/RecipesPage.tsx",
+      "action": "REPLACE",
+      "base_git_blob_sha1": "4dc71df555aa222b76c7d486e317fd7287362b61",
+      "bytes": 15150,
+      "sha256": "664f118f5f916b1ccce94abd0815847bc4b45b0a4b0949d25816c72ba1f9b8bd",
+      "git_blob_sha1": "f1e2bed257664bff556d137b1dbb70098ff0924d"
+    },
+    {
+      "path": "src/features/recipes/recipe-data.ts",
+      "action": "REPLACE",
+      "base_git_blob_sha1": "8d87bd2b2f918204541b167ac887159543286e99",
+      "bytes": 13147,
+      "sha256": "78d78490f57bdd76496378eddd09ec2c8a07d3946bd57d3b25dfafbe896f68dc",
+      "git_blob_sha1": "040b02f10c8de5632b24883a3c5df8459d9fd662"
+    },
+    {
+      "path": "src/features/recipes/types.ts",
+      "action": "REPLACE",
+      "base_git_blob_sha1": "0461c402287783850d280b22b9fe4f2cbc5a2deb",
+      "bytes": 810,
+      "sha256": "c93c9023ffaa0fc0f16106317876210550f97770b228936666c5fad914c5db60",
+      "git_blob_sha1": "3769534aad8ef7d8003ff518a1f1e7b33582860e"
+    },
+    {
+      "path": "src/pages/DashboardPage.tsx",
+      "action": "REPLACE",
+      "base_git_blob_sha1": "8b42006c76713ee0770a6c05c05f03f8046af371",
+      "bytes": 15128,
+      "sha256": "e552c1ca9b3b63df5a9b857725dfda87bf9a8a77ef556218806f80625f69baf4",
+      "git_blob_sha1": "ace0a17b86e926aec6040eeb9392474d8472c91a"
+    }
+  ],
+  "notes": [
+    "BF/BB is canonical common venue; BB/BF is read as the same value.",
+    "KITCHEN common recipes belong to both Kitchen BF and Kitchen BB filters.",
+    "Dashboard search mirrors main scope: Recipes + Knowledge.",
+    "Do not deploy Worker v5 before NocoDB Заведение includes BF/BB."
+  ]
+}

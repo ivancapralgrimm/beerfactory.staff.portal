@@ -1,0 +1,43 @@
+{
+  "package": "BFStaff_r40.4_MOBILE_INPUT_ZOOM_GUARD_v1",
+  "target_branch": "r40.4-react",
+  "expected_base_head": "37752f461b6e88aed056987b8ff1059f974ccffe",
+  "scope": "mobile form controls only",
+  "files": [
+    "src/main.tsx",
+    "src/mobile-input-guard.css"
+  ],
+  "behavior": {
+    "mobile_text_controls_min_font_px": 16,
+    "covers": [
+      "text",
+      "search",
+      "email",
+      "password",
+      "tel",
+      "url",
+      "number",
+      "date",
+      "time",
+      "datetime-local",
+      "textarea",
+      "select"
+    ],
+    "excluded": [
+      "checkbox",
+      "radio",
+      "range",
+      "file",
+      "color",
+      "button",
+      "submit",
+      "reset",
+      "hidden"
+    ],
+    "iphone_safari_pwa": true,
+    "android_mobile": true,
+    "landscape_touch_devices": true,
+    "user_pinch_zoom_remains_enabled": true,
+    "viewport_changed": false
+  }
+}

@@ -1,0 +1,532 @@
+### types.ts
+--- /mnt/data/v4tmp/src/features/recipes/types.ts	2026-09-25 14:17:36.000000000 +0000
++++ /mnt/data/bf_v43_work/src/features/recipes/types.ts	2026-09-25 16:44:26.858172881 +0000
+@@ -1,4 +1,4 @@
+-export type RecipeVenue = "BF" | "BB";
++export type RecipeVenue = "BF" | "BB" | "BF/BB";
+ 
+ export type Recipe = {
+   id: string;
+### recipe-data.ts
+--- /mnt/data/v4tmp/src/features/recipes/recipe-data.ts	2026-09-25 14:20:48.000000000 +0000
++++ /mnt/data/bf_v43_work/src/features/recipes/recipe-data.ts	2026-09-25 16:44:26.858353232 +0000
+@@ -112,7 +112,18 @@
+ }
+ 
+ function normalizeVenue(value: unknown): RecipeVenue {
+-  return clean(value).toUpperCase() === "BB" ? "BB" : "BF";
++  const raw = clean(value).toUpperCase().replace(/\s+/g, "");
++
++  if (raw === "BB") return "BB";
++  if (raw === "BF/BB" || raw === "BB/BF") return "BF/BB";
++  return "BF";
++}
++
++export function recipeVenueMatches(
++  recipe: Pick<Recipe, "venue">,
++  venue: "BF" | "BB"
++) {
++  return recipe.venue === venue || recipe.venue === "BF/BB";
+ }
+ 
+ function normalizeRow(
+### RecipesPage.tsx
+--- /mnt/data/bfstaff_recipe_v4_2/src/features/recipes/RecipesPage.tsx	2026-09-25 16:15:22.599760290 +0000
++++ /mnt/data/bf_v43_work/src/features/recipes/RecipesPage.tsx	2026-09-25 16:44:26.859264994 +0000
+@@ -24,7 +24,8 @@
+ import { RecipeEditor } from "@/features/recipes/RecipeEditor";
+ import {
+   categoryLabel,
+-  isArchive
++  isArchive,
++  recipeVenueMatches
+ } from "@/features/recipes/recipe-data";
+ import { useRecipes } from "@/features/recipes/use-recipes";
+ import type { Recipe } from "@/features/recipes/types";
+@@ -39,6 +40,8 @@
+     categoryLabel(recipe.category),
+     recipe.subcategory,
+     recipe.desc,
++    recipe.venue,
++    recipe.venue === "BF/BB" ? "общая позиция bf bb" : "",
+     ...recipe.ingredients,
+     ...recipe.tags
+   ]
+@@ -155,14 +158,36 @@
+   const recipes = data?.recipes || [];
+ 
+   const categories = useMemo(() => {
+-    const unique = new Set(
+-      recipes
+-        .filter((recipe) => !isArchive(recipe))
+-        .map((recipe) => recipe.category)
+-        .filter(Boolean)
++    const current = recipes.filter((recipe) => !isArchive(recipe));
++    const barCategories = Array.from(
++      new Set(
++        current
++          .filter((recipe) => recipe.source !== "kitchen")
++          .map((recipe) => recipe.category)
++          .filter(Boolean)
++      )
+     );
+ 
+-    const values = ["Все", ...unique];
++    const values = ["Все", ...barCategories];
++
++    if (
++      current.some(
++        (recipe) =>
++          recipe.source === "kitchen" && recipeVenueMatches(recipe, "BF")
++      )
++    ) {
++      values.push("Кухня BF");
++    }
++
++    if (
++      current.some(
++        (recipe) =>
++          recipe.source === "kitchen" && recipeVenueMatches(recipe, "BB")
++      )
++    ) {
++      values.push("Кухня BB");
++    }
++
+     if (recipes.some(isArchive)) values.push("Архив");
+     return values;
+   }, [recipes]);
+@@ -182,7 +207,15 @@
+             ? deferredQuery
+               ? true
+               : !archived
+-            : !archived && recipe.category === category;
++            : category === "Кухня BF"
++              ? !archived &&
++                recipe.source === "kitchen" &&
++                recipeVenueMatches(recipe, "BF")
++              : category === "Кухня BB"
++                ? !archived &&
++                  recipe.source === "kitchen" &&
++                  recipeVenueMatches(recipe, "BB")
++                : !archived && recipe.category === category;
+ 
+       if (!categoryMatch) return false;
+       if (!deferredQuery) return true;
+### RecipeEditor.tsx
+--- /mnt/data/v4tmp/src/features/recipes/RecipeEditor.tsx	2026-09-25 15:10:50.000000000 +0000
++++ /mnt/data/bf_v43_work/src/features/recipes/RecipeEditor.tsx	2026-09-25 16:44:26.859616463 +0000
+@@ -128,7 +128,7 @@
+     case "invalid_status":
+       return "Выбран неизвестный статус.";
+     case "invalid_venue":
+-      return "Выберите заведение BF или BB.";
++      return "Выберите BF, BB или общую позицию.";
+     case "photo_too_large":
+       return "Фото больше 1 МБ.";
+     case "photo_type_not_allowed":
+@@ -403,12 +403,17 @@
+                 value={editor.venue}
+                 onChange={(event) => updateEditor(
+                   "venue",
+-                  event.target.value === "BB" ? "BB" : "BF"
++                  event.target.value === "BB"
++                    ? "BB"
++                    : event.target.value === "BF/BB"
++                      ? "BF/BB"
++                      : "BF"
+                 )}
+                 className={fieldClass()}
+               >
+                 <option value="BF">BeerFactory · BF</option>
+                 <option value="BB">BeerBistro · BB</option>
++                <option value="BF/BB">Общая позиция · BF/BB</option>
+               </select>
+             </label>
+           </div>
+### RecipeDetailPage.tsx
+--- /mnt/data/v4tmp/src/features/recipes/RecipeDetailPage.tsx	2026-09-25 15:12:32.000000000 +0000
++++ /mnt/data/bf_v43_work/src/features/recipes/RecipeDetailPage.tsx	2026-09-25 16:44:26.859730976 +0000
+@@ -278,7 +278,10 @@
+     : recipe.method;
+   const metadata = [
+     ["Категория", categoryLabel(recipe.category) || "Меню"],
+-    ["Заведение", recipe.venue],
++    [
++      "Заведение",
++      recipe.venue === "BF/BB" ? "BF / BB · общая позиция" : recipe.venue
++    ],
+     recipe.subcategory ? ["Подкатегория", recipe.subcategory] : null,
+     recipe.version ? ["Версия", recipe.version] : null,
+     recipe.updatedAt ? ["Обновлено", recipe.updatedAt] : null,
+### DashboardPage.tsx
+--- /mnt/data/dashboard_src/BFStaff_r40.4_PROFILE_CAROUSEL_ALIGNMENT_FIX/src/pages/DashboardPage.tsx	2026-09-25 11:08:12.000000000 +0000
++++ /mnt/data/bf_v43_work/src/pages/DashboardPage.tsx	2026-09-25 16:45:00.152785382 +0000
+@@ -19,6 +19,7 @@
+ import { Button } from "@/components/ui/button";
+ import { HandoverNoteCard } from "@/features/handover/HandoverNoteCard";
+ import { useHandoverFeed } from "@/features/handover/use-handover-feed";
++import { DashboardGlobalSearch } from "@/features/dashboard/DashboardGlobalSearch";
+ import { useUpcomingBirthdays } from "@/features/dashboard/use-upcoming-birthdays";
+ import {
+   dashboardReadingDayKey,
+@@ -151,6 +152,8 @@
+         <p>Хорошего рабочего дня!<br />«Вкус начинается с команды»</p>
+       </section>
+ 
++      <DashboardGlobalSearch />
++
+       <div className="bf-dashboard-content">
+         <Link to="/profile" className="bf-dashboard-profile"><UserRound aria-hidden className="size-4" /> Мой профиль <ChevronRight aria-hidden className="size-4" /></Link>
+         <div className="bf-day-status" role="status">
+### DashboardGlobalSearch.tsx
+--- /dev/null	2026-09-25 13:23:05.319218874 +0000
++++ /mnt/data/bf_v43_work/src/features/dashboard/DashboardGlobalSearch.tsx	2026-09-25 16:45:48.466997865 +0000
+@@ -0,0 +1,234 @@
++import {
++  BookOpen,
++  ChevronRight,
++  Search,
++  UtensilsCrossed
++} from "lucide-react";
++import { useDeferredValue, useEffect, useMemo, useState } from "react";
++import { Link } from "react-router-dom";
++import { Input } from "@/components/ui/input";
++import { Surface } from "@/components/ui/surface";
++import { useKnowledgeArticles } from "@/features/knowledge/use-knowledge";
++import {
++  categoryLabel,
++  isArchive,
++  loadRecipes
++} from "@/features/recipes/recipe-data";
++import type { Recipe } from "@/features/recipes/types";
++
++const MAX_RESULTS = 8;
++
++function normalize(value: string) {
++  return String(value ?? "")
++    .toLocaleLowerCase("ru-RU")
++    .replace(/\s+/g, " ")
++    .trim();
++}
++
++function recipeSearchText(recipe: Recipe) {
++  return normalize([
++    recipe.name,
++    recipe.category,
++    categoryLabel(recipe.category),
++    recipe.subcategory,
++    recipe.desc,
++    recipe.method,
++    recipe.serving,
++    recipe.venue,
++    recipe.venue === "BF/BB" ? "общая позиция bf bb" : "",
++    ...recipe.ingredients,
++    ...recipe.tags
++  ].join(" "));
++}
++
++function score(title: string, category: string, haystack: string, query: string) {
++  const normalizedTitle = normalize(title);
++  const normalizedCategory = normalize(category);
++
++  if (normalizedTitle === query) return 0;
++  if (normalizedTitle.startsWith(query)) return 1;
++  if (normalizedTitle.includes(query)) return 2;
++  if (normalizedCategory.includes(query)) return 3;
++  if (haystack.includes(query)) return 4;
++  return Number.POSITIVE_INFINITY;
++}
++
++export function DashboardGlobalSearch() {
++  const [query, setQuery] = useState("");
++  const deferredQuery = useDeferredValue(normalize(query));
++  const knowledge = useKnowledgeArticles();
++  const active = deferredQuery.length >= 2;
++  const [recipeState, setRecipeState] = useState<{
++    status: "idle" | "loading" | "ready" | "error";
++    recipes: Recipe[];
++  }>({ status: "idle", recipes: [] });
++
++  useEffect(() => {
++    if (!active) return;
++
++    let alive = true;
++    setRecipeState((current) =>
++      current.status === "ready"
++        ? current
++        : { status: "loading", recipes: current.recipes }
++    );
++
++    void loadRecipes()
++      .then((data) => {
++        if (alive) {
++          setRecipeState({ status: "ready", recipes: data.recipes });
++        }
++      })
++      .catch(() => {
++        if (alive) {
++          setRecipeState((current) => ({
++            status: "error",
++            recipes: current.recipes
++          }));
++        }
++      });
++
++    return () => {
++      alive = false;
++    };
++  }, [active, deferredQuery]);
++
++  const results = useMemo(() => {
++    if (!active) return [];
++
++    const items: Array<{
++      key: string;
++      href: string;
++      title: string;
++      kicker: string;
++      kind: "recipe" | "knowledge";
++      score: number;
++    }> = [];
++
++    if (recipeState.status === "ready") {
++      for (const recipe of recipeState.recipes) {
++        const haystack = recipeSearchText(recipe);
++        if (!haystack.includes(deferredQuery)) continue;
++
++        items.push({
++          key: `recipe:${recipe.id}`,
++          href: `/menu/${encodeURIComponent(recipe.id)}`,
++          title: recipe.name,
++          kicker: `Рецепты · ${categoryLabel(recipe.category) || "Меню"}${
++            isArchive(recipe) ? " · Архив" : ""
++          }`,
++          kind: "recipe",
++          score: score(
++            recipe.name,
++            recipe.category,
++            haystack,
++            deferredQuery
++          )
++        });
++      }
++    }
++
++    if (knowledge.state.status === "ready") {
++      for (const article of knowledge.state.articles) {
++        const haystack = normalize([
++          article.title,
++          article.category,
++          article.excerpt,
++          article.body
++        ].join(" "));
++        if (!haystack.includes(deferredQuery)) continue;
++
++        items.push({
++          key: `knowledge:${article.id}`,
++          href: `/knowledge/${encodeURIComponent(article.id)}`,
++          title: article.title,
++          kicker: `Знания · ${article.category}`,
++          kind: "knowledge",
++          score: score(
++            article.title,
++            article.category,
++            haystack,
++            deferredQuery
++          )
++        });
++      }
++    }
++
++    return items
++      .sort((a, b) => a.score - b.score || a.title.localeCompare(b.title, "ru"))
++      .slice(0, MAX_RESULTS);
++  }, [active, deferredQuery, knowledge.state, recipeState]);
++
++  const loading =
++    active &&
++    (recipeState.status === "loading" || knowledge.state.status === "loading");
++  const unavailable =
++    active &&
++    recipeState.status === "error" &&
++    knowledge.state.status === "error";
++
++  return (
++    <Surface className="p-3.5" aria-label="Быстрый поиск по порталу">
++      <label htmlFor="dashboard-global-search" className="block">
++        <span className="eyebrow">БЫСТРЫЙ ПОИСК</span>
++        <div className="relative mt-2">
++          <Search
++            className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-[var(--bf-dim)]"
++            aria-hidden
++          />
++          <Input
++            id="dashboard-global-search"
++            type="search"
++            autoComplete="off"
++            value={query}
++            onChange={(event) => setQuery(event.target.value)}
++            placeholder="Рецепт, ингредиент, инструкция…"
++            className="pl-10"
++          />
++        </div>
++      </label>
++
++      {active ? (
++        <div className="mt-2 grid gap-1.5" aria-live="polite">
++          {results.length ? (
++            results.map((item) => {
++              const Icon = item.kind === "recipe" ? UtensilsCrossed : BookOpen;
++
++              return (
++                <Link
++                  key={item.key}
++                  to={item.href}
++                  state={{ from: "/" }}
++                  className="flex min-h-14 items-center gap-3 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3 py-2 outline-none transition-[border-color,transform] focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)] active:translate-y-px"
++                >
++                  <div className="grid size-9 shrink-0 place-items-center rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] text-[var(--bf-copper-hi)]">
++                    <Icon className="size-4" aria-hidden />
++                  </div>
++                  <span className="min-w-0 flex-1">
++                    <small className="block truncate text-[9px] font-black uppercase tracking-[0.1em] text-[var(--bf-dim)]">
++                      {item.kicker}
++                    </small>
++                    <strong className="mt-0.5 block truncate text-sm text-[var(--bf-cream)]">
++                      {item.title}
++                    </strong>
++                  </span>
++                  <ChevronRight className="size-4 shrink-0 text-[var(--bf-copper-hi)]" aria-hidden />
++                </Link>
++              );
++            })
++          ) : loading ? (
++            <p className="px-1 py-2 text-xs text-[var(--bf-dim)]">Ищем…</p>
++          ) : unavailable ? (
++            <p className="px-1 py-2 text-xs text-[var(--bf-muted)]">
++              Поиск сейчас недоступен.
++            </p>
++          ) : (
++            <p className="px-1 py-2 text-xs text-[var(--bf-dim)]">
++              Ничего не найдено.
++            </p>
++          )}
++        </div>
++      ) : null}
++    </Surface>
++  );
++}
+### worker-recipe-editor-v5.js
+--- /mnt/data/v4tmp/cloudflare/worker-recipe-editor-v5.js	2026-09-25 15:13:32.000000000 +0000
++++ /mnt/data/bf_v43_work/cloudflare/worker-recipe-editor-v5.js	2026-09-25 16:44:26.860535236 +0000
+@@ -102,7 +102,13 @@
+ }
+ 
+ function venueValue(row) {
+-  return clean(row?.Заведение || row?.venue).toUpperCase() === "BB" ? "BB" : "BF";
++  const raw = clean(row?.Заведение || row?.venue)
++    .toUpperCase()
++    .replace(/\s+/g, "");
++
++  if (raw === "BB") return "BB";
++  if (raw === "BF/BB" || raw === "BB/BF") return "BF/BB";
++  return "BF";
+ }
+ 
+ function recordId(row) {
+@@ -463,7 +469,15 @@
+   const category = clean(raw?.category);
+   const status = clean(raw?.status) || "Актуальный";
+   const venueRaw = clean(raw?.venue) || "BF";
+-  const venue = venueRaw.toUpperCase();
++  const normalizedVenue = venueRaw.toUpperCase().replace(/\s+/g, "");
++  const venue =
++    normalizedVenue === "BF"
++      ? "BF"
++      : normalizedVenue === "BB"
++        ? "BB"
++        : normalizedVenue === "BF/BB" || normalizedVenue === "BB/BF"
++          ? "BF/BB"
++          : "";
+   const description = clean(raw?.description);
+   const ingredients = clean(raw?.ingredients);
+   const method = clean(raw?.method);
+@@ -481,7 +495,7 @@
+   if (!VALID_STATUSES.has(status)) {
+     throw Object.assign(new Error("invalid_status"), { status: 400 });
+   }
+-  if (venue !== "BF" && venue !== "BB") {
++  if (!venue) {
+     throw Object.assign(new Error("invalid_venue"), { status: 400 });
+   }
+   if (source === "bar" && !ingredients) {
+### NOCODB_VENUE_SETUP.md
+--- /mnt/data/v4tmp/NOCODB_VENUE_SETUP.md	2026-09-25 16:40:50.237146833 +0000
++++ /mnt/data/bf_v43_work/NOCODB_VENUE_SETUP.md	2026-09-25 16:44:26.860861097 +0000
+@@ -5,9 +5,11 @@
+ Рекомендуемая конфигурация:
+ - Field name: `Заведение`
+ - Type: `Single Select`
+-- Choices: `BF`, `BB`
++- Choices: `BF`, `BB`, `BF/BB`
+ - Default value: `BF`
+ 
++`BF/BB` — каноническое значение для общей позиции. Если в старой строке уже записано `BB/BF`, frontend и Worker тоже читают её как общую позицию, но редактор при следующем сохранении пишет каноническое `BF/BB`.
++
+ NocoDB default применяется к новым строкам и не обязан автоматически заполнить старые строки. Это нормально: frontend и Worker считают пустое старое значение `BF`.
+ 
+ Также в поле `Статус` оставить только варианты:
+@@ -17,7 +19,7 @@
+ Если в базе реально существуют строки со старым значением `Черновик`, не публиковать их автоматически: Worker v5 временно трактует их как `Архив`. Массовую правку реальных записей выполнять отдельно после проверки списка.
+ 
+ После создания поля проверить на одной тестовой/безопасной записи:
+-1. чтение `/menu` возвращает `venue: "BF"` или `venue: "BB"`;
+-2. KITCHEN получает category `Кухня BF` / `Кухня BB`;
+-3. admin PATCH сохраняет `Заведение`;
++1. чтение `/menu` возвращает `venue: "BF"`, `"BB"` или `"BF/BB"`;
++2. KITCHEN с `BF/BB` показывается и в `Кухня BF`, и в `Кухня BB`;
++3. admin create/PATCH сохраняет `Заведение` и для общей позиции пишет `BF/BB`;
+ 4. BAR/KITCHEN source-aware IDs не меняются.
+### NOCODB_GOVERNANCE.md
+--- /mnt/data/v4tmp/NOCODB_GOVERNANCE.md	2026-09-25 16:40:49.941141193 +0000
++++ /mnt/data/bf_v43_work/NOCODB_GOVERNANCE.md	2026-09-25 16:44:26.861185385 +0000
+@@ -5,7 +5,7 @@
+ | Field | Type | Values / purpose |
+ |---|---|---|
+ | Статус | Single Select | Актуальный / Архив |
+-| Заведение | Single Select | BF / BB; default BF |
++| Заведение | Single Select | BF / BB / BF/BB; default BF |
+ | Версия | Number or Single line text | 1, 2, 3… |
+ | Обновлено | DateTime | server timestamp of last managed change |
+ | Кем обновлено | Single line text | authenticated admin display name |
+@@ -15,7 +15,7 @@
+ 1. Product status has only `Актуальный` and `Архив`.
+ 2. Blank legacy status is treated as `Актуальный`.
+ 3. Legacy `Черновик` is treated as `Архив` until manually reviewed.
+-4. `Заведение` accepts only `BF` / `BB`; blank legacy value is treated as BF.
++4. `Заведение` accepts `BF` / `BB` / `BF/BB`; legacy `BB/BF` is read as the same common position, blank legacy value is treated as BF.
+ 5. New recipes default to BF.
+ 6. Archive is the reversible way to remove a position from the current menu.
+ 7. Delete is destructive and removes the full NocoDB row; it is admin-only and confirmation-gated.
+### WORKER_CONTRACT.md
+--- /mnt/data/v4tmp/WORKER_CONTRACT.md	2026-09-25 16:40:50.237146833 +0000
++++ /mnt/data/bf_v43_work/WORKER_CONTRACT.md	2026-09-25 16:44:26.861625016 +0000
+@@ -16,7 +16,7 @@
+ }
+ ```
+ 
+-BAR keeps its product category from NocoDB. KITCHEN visible category is `Кухня BF` / `Кухня BB` from `Заведение`.
++BAR keeps its product category from NocoDB. KITCHEN visible category is derived from `Заведение`. A common `BF/BB` position is included in both `Кухня BF` and `Кухня BB` filters in the React portal.
+ 
+ ## Status semantics
+ 
+@@ -29,7 +29,8 @@
+ ## Venue
+ 
+ NocoDB field: `Заведение`.
+-Allowed: `BF`, `BB`.
++Allowed canonical values: `BF`, `BB`, `BF/BB`.
++Legacy `BB/BF` is read as the same common position and normalized to `BF/BB` on editor save.
+ Blank legacy value = `BF`.
+ New recipes default to `BF`.
+ 

@@ -1,0 +1,70 @@
+diff --git a/src/app/App.tsx b/src/app/App.tsx
+--- a/src/app/App.tsx
++++ b/src/app/App.tsx
+@@
+-const HandoverPage = lazy(() =>
++const FeedPage = lazy(() =>
+   import(
+-    "@/features/handover/HandoverPage"
++    "@/features/feed/FeedPage"
+   ).then((module) => ({
+-    default: module.HandoverPage
++    default: module.FeedPage
+   }))
+ );
+@@
+         <Route
+-          path="handover"
++          path="feed"
+           element={
+             <LazyRoute>
+-              <HandoverPage />
++              <FeedPage />
+             </LazyRoute>
+           }
+         />
++
++        <Route
++          path="handover"
++          element={
++            <Navigate
++              to="/feed"
++              replace
++            />
++          }
++        />
+
+diff --git a/src/components/layout/AppShell.tsx b/src/components/layout/AppShell.tsx
+--- a/src/components/layout/AppShell.tsx
++++ b/src/components/layout/AppShell.tsx
+@@
+   {
+-    to: "/handover",
+-    label: "Передача",
++    to: "/feed",
++    label: "Лента",
+     icon: StickyNote
+   }
+
+diff --git a/src/pages/DashboardPage.tsx b/src/pages/DashboardPage.tsx
+--- a/src/pages/DashboardPage.tsx
++++ b/src/pages/DashboardPage.tsx
+@@
+-import { HandoverNoteCard } from "@/features/handover/HandoverNoteCard";
+-import { useHandoverFeed } from "@/features/handover/use-handover-feed";
++import { DashboardFeedSection } from "@/features/feed/DashboardFeedSection";
+@@
+-  { to: "/handover", title: "Заметки", text: "Обмен информацией", icon: StickyNote }
++  { to: "/feed", title: "Лента", text: "Новости и сообщения", icon: StickyNote }
+@@
+-  const { notes, loading, error } = useHandoverFeed();
+@@
+-  const activeNotes = notes.filter((note) => note.status !== "resolved");
+-  const activeCount = activeNotes.length;
+   const showBirthdaySection = birthdaysLoading || Boolean(birthdaysError) || birthdays.length > 0;
+-  const showHandoverSection = loading || Boolean(error) || activeNotes.length > 0;
+@@
+-      {showHandoverSection ? (
+-        ...old Handover dashboard section...
+-      ) : null}
++      <DashboardFeedSection />

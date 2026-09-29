@@ -1,0 +1,18 @@
+BFStaff r40.4 · Recipe UI V4.2
+
+TARGET: r40.4-react ONLY
+BASE HEAD: 2b9cc57b45f086e2c186990aab254676fc2035e7
+
+Replace:
+src/features/recipes/RecipesPage.tsx
+
+This patch only moves the admin '+' button so its bottom edge aligns with the bottom
+of the 'Рецепты' heading.
+
+IMPORTANT:
+Create/edit is already implemented in frontend, but the live Worker must be upgraded
+to cloudflare/worker-recipe-editor-v5.js. Before deploying v5, add NocoDB field:
+Заведение · Single Select · BF / BB · default BF
+to both BAR and KITCHEN.
+
+Do not deploy Worker v5 before that NocoDB field exists.

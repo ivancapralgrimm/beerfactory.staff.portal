@@ -1,0 +1,21 @@
+BeerFactory Staff Portal · r40.4
+Dashboard / Day Hub birthdays + age patch
+
+IMPORTANT:
+This package supersedes BeerFactory_r40.4_DAY_HUB_BIRTHDAYS.zip.
+Upload this package instead of the older one.
+
+TARGET:
+r40.4-react
+
+The package is cumulative and includes:
+- birthdays today / tomorrow / day after tomorrow;
+- age only on the actual birthday;
+- active-only Handover on Dashboard;
+- source migrations and updated documentation.
+
+Supabase migrations in this package are ALREADY APPLIED live:
+- 20260923225425_add_dashboard_upcoming_birthdays_rpc
+- 20260923230336_extend_dashboard_birthdays_with_age
+
+Do NOT run SQL manually.

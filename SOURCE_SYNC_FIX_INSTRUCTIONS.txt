@@ -1,0 +1,17 @@
+BeerFactory r40.4 · Handover source sync fix
+
+TARGET:
+r40.4-react
+
+REPLACE:
+- supabase/functions/handover-push/index.ts
+- R40_4_HANDOVER_MANIFEST.json
+
+WHY:
+The uploaded GitHub copy of handover-push v2 accidentally contains double-escaped regex backslashes in whitespace/Bearer parsing. The live Supabase Edge Function v2 is already correct and working.
+
+This patch changes repository source only.
+DO NOT redeploy Supabase manually.
+DO NOT run SQL.
+
+After upload, verify GitHub Typecheck/Build and Vercel.
