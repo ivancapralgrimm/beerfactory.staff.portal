@@ -75,15 +75,32 @@ export function canManageStaffClient(subject: AccessSubject) {
   return subject.is_owner === true || subject.role === "admin";
 }
 
+const SENIOR_RECIPE_POSITIONS = new Set<StaffPosition>([
+  "bartender",
+  "bartender_bb",
+  "waiter",
+  "waiter_bb",
+  "manager"
+]);
+
+const SENIOR_CHECKLIST_POSITIONS = new Set<StaffPosition>([
+  "bartender",
+  "bartender_bb",
+  "waiter",
+  "waiter_bb",
+  "manager",
+  "hostess"
+]);
+
 export function canManageRecipesClient(subject: AccessSubject) {
   return (
     subject.is_owner === true ||
     subject.role === "admin" ||
     (
       subject.role === "senior" &&
-      (
-        subject.position_code === "waiter" ||
-        subject.position_code === "waiter_bb"
+      Boolean(
+        subject.position_code &&
+        SENIOR_RECIPE_POSITIONS.has(subject.position_code)
       )
     )
   );
@@ -95,10 +112,9 @@ export function canManageChecklistsClient(subject: AccessSubject) {
     subject.role === "admin" ||
     (
       subject.role === "senior" &&
-      (
-        subject.position_code === "waiter" ||
-        subject.position_code === "waiter_bb" ||
-        subject.position_code === "hostess"
+      Boolean(
+        subject.position_code &&
+        SENIOR_CHECKLIST_POSITIONS.has(subject.position_code)
       )
     )
   );
