@@ -125,14 +125,14 @@ export function NotificationSettingsCard({
             {loading ? "Проверяем устройство…" : title}
           </h2>
           <p className="mt-1 text-sm leading-6 text-[var(--bf-muted)]">
-            Новая запись в Ленте может прийти системным push-уведомлением со звуком, даже когда BFStaff закрыт.
+            Получайте уведомления о новых записях в Ленте.
           </p>
         </div>
       </div>
 
       {!loading && !state.supported ? (
         <p className="mt-3 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3 py-2 text-xs leading-5 text-[var(--bf-muted)]">
-          Этот браузер не поддерживает Web Push.
+          Уведомления на этом устройстве не поддерживаются.
         </p>
       ) : null}
 
@@ -141,7 +141,7 @@ export function NotificationSettingsCard({
           <div className="flex items-start gap-2">
             <Smartphone className="mt-0.5 size-4 shrink-0 text-[var(--bf-gold)]" aria-hidden />
             <span>
-              На iPhone push работает для BFStaff, установленного на экран «Домой». Откройте Safari → Поделиться → «На экран Домой», затем включите уведомления уже внутри установленного приложения.
+              На iPhone сначала добавьте BFStaff на экран «Домой», затем включите уведомления.
             </span>
           </div>
         </div>
@@ -149,7 +149,7 @@ export function NotificationSettingsCard({
 
       {!loading && state.permission === "denied" ? (
         <p className="mt-3 rounded-xl border border-[color:color-mix(in_srgb,var(--bf-red),transparent_58%)] bg-[color:color-mix(in_srgb,var(--bf-red),transparent_92%)] px-3 py-2 text-xs leading-5 text-[#e99990]">
-          Разрешение на уведомления запрещено системой. Его нужно вернуть в настройках устройства или браузера.
+          Уведомления запрещены в настройках устройства.
         </p>
       ) : null}
 
@@ -180,7 +180,7 @@ export function NotificationSettingsCard({
       ) : null}
 
       <p className="mt-3 min-h-5 text-xs leading-5 text-[var(--bf-dim)]" role="status" aria-live="polite">
-        {message || (state.subscribed ? "Push активен только на этом устройстве. Автор собственной записи в Ленте уведомление не получает." : "")}
+        {message || ""}
       </p>
     </Surface>
   );
