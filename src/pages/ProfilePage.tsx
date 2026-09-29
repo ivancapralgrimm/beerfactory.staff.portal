@@ -27,6 +27,8 @@ import {
 } from "@/features/notifications/NotificationSettingsCard";
 import {
   STAFF_POSITION_LABELS,
+  staffAccessLabel,
+  canManageStaffClient,
   type StaffPosition
 } from "@/types/auth";
 import { cn } from "@/lib/utils";
@@ -34,17 +36,6 @@ import { cn } from "@/lib/utils";
 const POSITIONS = (
   Object.keys(STAFF_POSITION_LABELS) as StaffPosition[]
 );
-
-function accessLabel(
-  role: string | null | undefined,
-  isOwner: boolean | null | undefined
-) {
-  if (isOwner) return "Владелец";
-  if (role === "admin") return "Администратор";
-  if (role === "manager") return "Менеджерские права";
-  if (role === "senior") return "Старший сотрудник";
-  return "Сотрудник";
-}
 
 function formatPositionChangeTime(
   value: string | null | undefined
@@ -226,13 +217,13 @@ export function ProfilePage() {
           <div className="min-w-0 flex-1">
             <p className="eyebrow">ДОСТУП</p>
             <p className="mt-1 text-lg font-black text-[var(--bf-cream)]">
-              {accessLabel(user.role, user.is_owner)}
+              {staffAccessLabel(user)}
             </p>
             <p className="mt-1 text-sm leading-6 text-[var(--bf-muted)]">
-              Права доступа и рабочая должность разделены. Выбор должности не выдаёт административные права.
+              Права доступа и рабочая должность разделены. Выбор должности сам по себе не выдаёт административные права.
             </p>
 
-            {user.role === "admin" ? (
+            {canManageStaffClient(user) ? (
               <Button
                 asChild
                 variant="secondary"
