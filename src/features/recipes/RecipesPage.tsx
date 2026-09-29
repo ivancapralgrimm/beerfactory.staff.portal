@@ -31,6 +31,7 @@ import {
 } from "@/features/recipes/recipe-data";
 import { useRecipes } from "@/features/recipes/use-recipes";
 import type { Recipe } from "@/features/recipes/types";
+import { canManageRecipesClient } from "@/types/auth";
 import { cn } from "@/lib/utils";
 
 const SCROLL_KEY = "bf-r404-recipes-scroll";
@@ -138,8 +139,9 @@ export function RecipesPage() {
   const location = useLocation();
   const [params, setParams] = useSearchParams();
 
-  const isAdmin =
-    authState.status === "authenticated" && authState.user.role === "admin";
+  const canManageRecipes =
+    authState.status === "authenticated" &&
+    canManageRecipesClient(authState.user);
   const accessToken =
     authState.status === "authenticated" ? authState.session.access_token : null;
 
@@ -276,7 +278,7 @@ export function RecipesPage() {
             Рецепты
           </h1>
 
-          {isAdmin && accessToken ? (
+          {canManageRecipes && accessToken ? (
             <Button
               type="button"
               variant="secondary"
@@ -296,7 +298,7 @@ export function RecipesPage() {
         </p>
       </div>
 
-      {createOpen && isAdmin && accessToken ? (
+      {createOpen && canManageRecipes && accessToken ? (
         <div className="mt-5">
           <RecipeEditor
             accessToken={accessToken}

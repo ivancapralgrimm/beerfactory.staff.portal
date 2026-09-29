@@ -39,6 +39,7 @@ import {
 import { RecipeEditor } from "@/features/recipes/RecipeEditor";
 import { RecipePhotoDialog } from "@/features/recipes/recipe-photo-dialog";
 import { useRecipes } from "@/features/recipes/use-recipes";
+import { canManageRecipesClient } from "@/types/auth";
 
 function safeDecode(value: string) {
   try {
@@ -108,7 +109,7 @@ export function RecipeDetailPage() {
 
   const canManageRecipes =
     authState.status === "authenticated" &&
-    (authState.user.role === "admin" || authState.user.is_owner === true);
+    canManageRecipesClient(authState.user);
   const accessToken =
     authState.status === "authenticated" ? authState.session.access_token : null;
 
