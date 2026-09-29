@@ -13,10 +13,12 @@ const J = (body: unknown, status = 200) =>
 
 const codeOk = (value: string) => /^\d{4,12}$/.test(value);
 
-const ACCESS_ROLES = ["staff", "senior", "manager", "admin"] as const;
+const ACCESS_ROLES = ["staff", "senior", "admin"] as const;
 const POSITION_LABELS = {
-  bartender: "Бармен",
-  waiter: "Официант",
+  bartender: "Бармен BF",
+  waiter: "Официант BF",
+  bartender_bb: "Бармен BB",
+  waiter_bb: "Официант BB",
   manager: "Менеджер",
   hostess: "Хостес"
 } as const;
@@ -78,7 +80,7 @@ Deno.serve(async (req) => {
     meError ||
     !me ||
     !me.is_active ||
-    me.role !== "admin"
+    (me.role !== "admin" && me.is_owner !== true)
   ) {
     return J({ error: "forbidden" }, 403);
   }
@@ -118,21 +120,6 @@ Deno.serve(async (req) => {
       });
 
     return !error;
-  };
-
-  const requireOwnerForAdminTarget = (
-    targetRole: string,
-    targetId: string
-  ) => {
-    if (
-      targetRole === "admin" &&
-      targetId !== user.id &&
-      !me.is_owner
-    ) {
-      return true;
-    }
-
-    return false;
   };
 
   if (req.method === "GET") {
@@ -201,14 +188,6 @@ Deno.serve(async (req) => {
 
       if (userId === user.id && role !== "admin") {
         return J({ error: "cannot_demote_self" }, 400);
-      }
-
-      if (
-        !me.is_owner &&
-        userId !== user.id &&
-        (target.role === "admin" || role === "admin")
-      ) {
-        return J({ error: "owner_required" }, 403);
       }
 
       if (target.role === role) {
@@ -318,15 +297,6 @@ Deno.serve(async (req) => {
         return J({ error: "cannot_disable_self" }, 400);
       }
 
-      if (
-        requireOwnerForAdminTarget(
-          target.role,
-          userId
-        )
-      ) {
-        return J({ error: "owner_required" }, 403);
-      }
-
       if (Boolean(target.is_active) === next) {
         return J({
           ok: true,
@@ -364,15 +334,6 @@ Deno.serve(async (req) => {
     }
 
     if (action === "set_password") {
-      if (
-        requireOwnerForAdminTarget(
-          target.role,
-          userId
-        )
-      ) {
-        return J({ error: "owner_required" }, 403);
-      }
-
       const code = String(body?.password || "").trim();
 
       if (!codeOk(code)) {
@@ -418,15 +379,6 @@ Deno.serve(async (req) => {
     }
 
     if (action === "set_secret") {
-      if (
-        requireOwnerForAdminTarget(
-          target.role,
-          userId
-        )
-      ) {
-        return J({ error: "owner_required" }, 403);
-      }
-
       const code = String(body?.secret_code || "").trim();
 
       if (!codeOk(code)) {
@@ -485,15 +437,6 @@ Deno.serve(async (req) => {
 
       if (target.is_owner) {
         return J({ error: "owner_protected" }, 403);
-      }
-
-      if (
-        requireOwnerForAdminTarget(
-          target.role,
-          userId
-        )
-      ) {
-        return J({ error: "owner_required" }, 403);
       }
 
       const {
