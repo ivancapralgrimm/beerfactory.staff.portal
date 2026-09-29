@@ -1,79 +1,47 @@
 {
-  "package": "BFStaff_r40.4_UI_COPY_REFRESH_CHECKLIST_v3_AUDITED",
+  "package": "BFStaff_r40.4_SHIFT_COMPACT_MANAGER_GROUP_v2",
   "target_branch": "r40.4-react",
-  "expected_base_head": "d77b4e02fb645dae6b82cdd34710775a05ddd709",
-  "scope": "frontend + one synchronized Supabase migration",
-  "backend_changes": false,
-  "supabase_changes": true,
-  "edge_function_changes": false,
-  "migration_changes": true,
-  "changes": {
-    "ui_copy_cleanup": true,
-    "recipes_manual_refresh": true,
-    "knowledge_manual_refresh": true,
-    "attestation_manual_refresh": true,
-    "feed_placeholders_preserved": true
-  },
-  "replace_files": [
-    "src/features/recipes/RecipesPage.tsx",
-    "src/features/recipes/RecipeDetailPage.tsx",
-    "src/features/recipes/RecipeEditor.tsx",
+  "expected_base_head": "dd884f5990c64d5a6b7a04608204a59d2755ae2e",
+  "replaces": [
+    "BFStaff_r40.4_SHIFT_COMPACT_VISUAL_v1"
+  ],
+  "scope": "Shift visual compact + checklist manager grouping UX",
+  "files": [
     "src/features/shift/ShiftPage.tsx",
     "src/features/shift/ChecklistEditorPage.tsx",
     "src/features/shift/checklist-editor-api.ts",
-    "src/features/knowledge/KnowledgePage.tsx",
-    "src/features/attestation/AttestationPage.tsx",
-    "src/features/notifications/NotificationSettingsCard.tsx",
-    "src/features/feed/FeedPage.tsx",
-    "src/features/admin/AdminPage.tsx",
-    "src/pages/ProfilePage.tsx",
-    "src/pages/DashboardPage.tsx"
+    "supabase/migrations/20260929121014_normalize_checklist_groups_by_position.sql"
   ],
+  "changes": {
+    "shift_compact_visual": true,
+    "manager_group_ui": {
+      "old_group_field_removed": true,
+      "old_group_label_field_removed": true,
+      "new_field": "Заведение",
+      "options": [
+        "Без группы",
+        "BF",
+        "BB"
+      ],
+      "visible_only_for_position": "manager"
+    },
+    "backend_group_rules": {
+      "manager": "only null/bf/bb; group_label generated automatically",
+      "all_other_positions": "group_key/group_label forced to null"
+    }
+  },
+  "live_migration": {
+    "version": "20260929121014",
+    "name": "normalize_checklist_groups_by_position",
+    "already_applied": true
+  },
   "verification": {
-    "base_head": "d77b4e02fb645dae6b82cdd34710775a05ddd709",
-    "zip_checksums": "PASS",
-    "v1_content_preserved_except_checklist_editor_files": "PASS",
-    "typescript_transpile_files": 13,
-    "typescript_syntax_errors": 0,
-    "technical_copy_scan": "PASS",
-    "recipe_refresh_force_network": "PASS",
-    "app_route_shift_editor": "PASS",
-    "app_shell_editor_entry": "PASS",
-    "feed_route_preserved": "PASS",
-    "hard_delete_permissions_rollback": "PASS",
-    "hard_delete_immediate_workflow_removal": "PASS",
-    "deleted_text_not_retained_in_audit": "PASS",
-    "inactive_demo_definitions_after_purge": 0,
-    "active_definitions_after_purge": 116
-  },
-  "replaces": [
-    "BFStaff_r40.4_UI_COPY_REFRESH_HOTFIX_v1",
-    "BFStaff_r40.4_UI_COPY_REFRESH_CHECKLIST_v2"
-  ],
-  "migration": [
-    "20260929102044_add_checklist_hard_delete_and_purge_demo_definitions.sql",
-    "20260929113745_minimize_checklist_delete_audit_payload.sql"
-  ],
-  "checklist_editor_v2": {
-    "position_picker": "native select styled like Profile position picker",
-    "check_type_picker": "native select styled like Profile position picker",
-    "copy_action_removed": true,
-    "hard_delete_added": true,
-    "archive_kept": true,
-    "demo_inactive_definitions_purged": 46,
-    "historical_position_shift_checks_preserved": true,
-    "server_scope_enforced": true
-  },
-  "checklist_editor_v3": {
-    "position_picker": "native select styled like Profile position picker",
-    "check_type_picker": "native select styled like Profile position picker",
-    "copy_action_removed": true,
-    "hard_delete_added": true,
-    "archive_kept": true,
-    "demo_inactive_definitions_purged": 46,
-    "historical_position_shift_checks_preserved": true,
-    "server_scope_enforced": true,
-    "deleted_text_retained_in_audit_log": false,
-    "delete_effective_immediately_in_open_shift": true
+    "typescript_syntax": "PASS",
+    "old_group_ui_absent": true,
+    "manager_venue_selector_present": true,
+    "backend_manager_bf_normalization": "PASS",
+    "backend_non_manager_group_forced_null": "PASS",
+    "backend_invalid_group_rejected": "PASS",
+    "security_advisor_new_categories": "none"
   }
 }

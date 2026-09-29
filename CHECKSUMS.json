@@ -1,19 +1,8 @@
 {
-  "MANIFEST.json": "2ca4acc451aa39db201c3c7df5467baee8305ae414171d0741f2dd6688618a12",
-  "README_UPLOAD.txt": "e9f55a7898fe24ee8b0c0a2cdca6b3401c34d1b4088402756bf9f57323ebd0ca",
-  "src/features/admin/AdminPage.tsx": "8c402c3453e3811c4cb66638e55b6b62b67c180abc28e8b83009d5eece2a2706",
-  "src/features/attestation/AttestationPage.tsx": "1ea33ea34c00ee8b349dd18d62c69ae6c82daf0a78640226d7cc6f5e17ba08a8",
-  "src/features/feed/FeedPage.tsx": "ae4403d4e4419af5309a8764884a5f58c016d1167cdc098a65611c56df56b24b",
-  "src/features/knowledge/KnowledgePage.tsx": "e05b71d398f9beb827f9d330e16492fe3fd174b50327d545f9e0e4af2d3f6a40",
-  "src/features/notifications/NotificationSettingsCard.tsx": "dfc28d547b66b48e14328f392b454c6293b0baa722ee11b38163e33cde195139",
-  "src/features/recipes/RecipeDetailPage.tsx": "27b7cefff5d8b5640272ce164223a10e006cc182d9d559dbd5d4a7c058c83a2f",
-  "src/features/recipes/RecipeEditor.tsx": "237c5cc2ee76b02bbaabdcd330e9cf259b00fc460f4271ed07fd243e16657be3",
-  "src/features/recipes/RecipesPage.tsx": "c9fda29ede6821b38a1b8dce33538fa27f8cfc6499deedf73800c3996456a8b2",
-  "src/features/shift/ChecklistEditorPage.tsx": "7da468461bc4d16b6c03d64bf5e10ad5f9913ee841ad2d6fe17cac80f410186a",
-  "src/features/shift/ShiftPage.tsx": "6448c1338fb4d67913b43307f38565b206e05a6fddd88e1e442c8198c468968c",
-  "src/features/shift/checklist-editor-api.ts": "1847378afab9df8e6b19df74cdb64fe33c350d75adc581e020ffd5421a0b52e2",
-  "src/pages/DashboardPage.tsx": "9d56508ab90fb458f4377116c2e54a95174605e6e1038737d61525be861702eb",
-  "src/pages/ProfilePage.tsx": "7de83698fdfe82359cd7b43233037ccc553c8cb2aaa9b88a2e5d9f2203097cd3",
-  "supabase/migrations/20260929102044_add_checklist_hard_delete_and_purge_demo_definitions.sql": "d1ca6f627b36724e5db6ae348b59744bb68462a04dd576a1635c10eb396bca94",
-  "supabase/migrations/20260929113745_minimize_checklist_delete_audit_payload.sql": "bf90860dcd9adb49a7c98758933e6bfeb8effe0a0c483117f67906ab4850607f"
+  "MANIFEST.json": "b2620a78884673f1d8c0e262a94a9613a155fe30d4291e7bf1fef7f90ece0cac",
+  "README_UPLOAD.txt": "b0d5fa7df80b640c28f1dc97e4f232f534d41e5811a512bd7df3c8b1dafd7220",
+  "src/features/shift/ChecklistEditorPage.tsx": "6279bf113060d54abf83e5b656de76bdb9882356d4f822514c38f0369f85952e",
+  "src/features/shift/ShiftPage.tsx": "5f1561278499b7d2fad89f6e0d0857ae87b5bdd9752e251c19a9d78e12305893",
+  "src/features/shift/checklist-editor-api.ts": "c23a82a4a6538b3ac0d640325d0bda713eef1b17e3da5c74a220dee0084e3666",
+  "supabase/migrations/20260929121014_normalize_checklist_groups_by_position.sql": "2d5e0a45f22464d64b58691a227f2278a04645a9df9e2971e1536d280ecdee92"
 }

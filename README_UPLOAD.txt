@@ -1,114 +1,67 @@
-BFStaff r40.4 · UI COPY + REFRESH + CHECKLIST EDITOR · v3 AUDITED
+BFStaff r40.4 · SHIFT COMPACT + MANAGER GROUP UI · v2
 
-УСТАНАВЛИВАТЬ ТОЛЬКО ЭТОТ ПАКЕТ.
-v1 и v2 отдельно НЕ загружать.
+Устанавливать поверх уже установленного v3.
+Отдельный SHIFT_COMPACT_VISUAL_v1 после этого НЕ нужен.
 
-Проверен для:
+Проверенная база:
 - branch: r40.4-react
-- base HEAD: d77b4e02fb645dae6b82cdd34710775a05ddd709
+- HEAD: dd884f5990c64d5a6b7a04608204a59d2755ae2e
 
-ЧТО ВНУТРИ
+Что меняется
 
-1. UI COPY CLEANUP
-Убраны пользовательские технические тексты:
-Supabase / NocoDB / PWA / Web Push / серверные и операционные объяснения.
-Полезные placeholders «Тема» и «Сообщение» в Ленте сохранены.
+1. Экран «Смена»
+Включена ранее подготовленная компактная визуальная правка:
+- дата + календарь в одну горизонтальную строку;
+- пункты чек-листа компактнее;
+- шрифт и вертикальные отступы меньше;
+- логика смены не меняется.
 
-2. ОБНОВЛЕНИЕ ДАННЫХ
-Добавлены компактные круглые кнопки RefreshCw:
-- Рецепты
-- Знания
-- Аттестация
+2. Редактор чек-листов
+Старые два поля:
+- «Группа»
+- «Название группы»
 
-Рецепты:
-reload() -> loadRecipes({ force: true }) -> fetch cache:no-store.
-То есть кнопка реально делает сетевую попытку получить свежие данные.
+полностью убраны из интерфейса.
 
-3. РЕДАКТОР ЧЕК-ЛИСТОВ
-- горизонтальный выбор должности удалён;
-- вместо него native select как в Профиле;
-- Генуборка / Открытие / Закрытие тоже native select;
-- Copy удалён;
-- вместо Copy: Trash2 «Удалить пункт»;
-- перед удалением короткое confirm;
-- Архив / Восстановить остаётся отдельной функцией.
+Для Менеджера появляется одно понятное поле:
+«Заведение»
+- Без группы
+- BF
+- BB
 
-4. HARD DELETE
-Удаление физически удаляет строку definition.
-Revision conflict protection сохранён.
-Прямой DELETE браузеру не выдан.
+Система сама сохраняет:
+BF -> group_key=bf, group_label=BF
+BB -> group_key=bb, group_label=BB
+Без группы -> оба null
 
-Права:
-- staff: forbidden
-- senior waiter BF: только waiter
-- senior waiter BB: только waiter_bb
-- senior hostess: только hostess
-- admin / owner: все доступные позиции
+Для остальных должностей поле «Заведение» вообще не показывается.
 
-5. ИСТОРИЯ СМЕН
-Исторические position_shift_checks сохраняются.
-Это snapshots фактических действий прошлых/текущих смен и не являются
-definition, поэтому журнал смен не ломается.
+3. Серверная защита
+Backend не доверяет только интерфейсу:
+- manager: разрешены только BF / BB / без группы;
+- bartender / bartender_bb / waiter / waiter_bb / hostess:
+  group_key и group_label всегда принудительно null.
 
-Если definition удалить во время открытой смены:
-- до delete он присутствует в workflow;
-- после delete исчезает из workflow сразу;
-- confirm/finalizer считают только актуальные active definitions.
+Это предотвращает случайные группы у должностей,
+которым они не нужны.
 
-6. DEMO CLEANUP
-Физически удалены 46 старых inactive demo definitions.
-Live после очистки:
-- active definitions: 116
-- archived/inactive definitions: 0
+Live migration:
+20260929121014_normalize_checklist_groups_by_position
 
-7. DELETE AUDIT PRIVACY
-Первая migration добавляет hard delete.
-Вторая live migration исправляет аудит удаления:
-- сам факт удаления остаётся;
-- полный текст удалённого пункта в audit_log НЕ сохраняется;
-- entity_name = null;
-- before_data хранит только revision;
-- metadata хранит position/check_type.
+Проверки:
+- Manager + BF -> bf/BF: PASS
+- non-manager + BB -> null/null: PASS
+- unknown manager group -> invalid_group: PASS
+- TS/TSX syntax: PASS
+- старые поля «Группа»/«Название группы» в форме: отсутствуют
+- Security Advisor: новых категорий проблем нет
 
-Live migrations:
-- 20260929102044_add_checklist_hard_delete_and_purge_demo_definitions
-- 20260929113745_minimize_checklist_delete_audit_payload
-
-8. ПРОВЕРКИ
-- ZIP checksums: PASS
-- base HEAD совпадает: PASS
-- v2 сохраняет весь v1 UI hotfix: PASS
-- 13 TS/TSX files transpile: 0 syntax errors
-- старой Copy-кнопки в checklist editor нет
-- два требуемых select есть
-- Trash2 + delete RPC есть
-- technical copy scan: PASS
-- recipe force refresh: PASS
-- /shift/editor route уже существует
-- AppShell editor entry уже существует
-- /feed сохранён
-- delete permissions rollback: PASS
-- staff delete -> forbidden
-- senior own -> deleted
-- senior foreign -> forbidden
-- test rows after rollback -> 0
-- delete during open workflow -> disappears immediately
-- deleted text retained in audit -> false
-- Supabase Security Advisor: новых категорий проблем не добавлено;
-  authenticated SECURITY DEFINER warning для editor RPC остаётся намеренным,
-  потому что функция сама проверяет scope пользователя.
-
-ПОСЛЕ ЗАГРУЗКИ
-1. Проверить новый HEAD.
-2. GitHub Actions: Typecheck + Build.
-3. Vercel success.
-4. Smoke на iPhone:
-   - Рецепты -> Refresh
-   - редактор чек-листов -> оба picker
-   - edit
-   - archive / restore
-   - delete + confirm
-   - reorder
-5. Role smoke отдельно для Staff / Senior / Admin / Owner.
-
-До зелёного Typecheck + Build после фактической загрузки пакет не считать release-ready для main.
+После загрузки:
+1. GitHub Typecheck + Build
+2. Vercel success
+3. Проверить на iPhone:
+   - Менеджер -> «Заведение» видно
+   - другая должность -> «Заведение» скрыто
+   - создание BF/BB-пункта Менеджера
+   - редактирование существующего BF/BB-пункта
+   - компактный экран Смена
