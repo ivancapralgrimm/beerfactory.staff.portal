@@ -12,8 +12,10 @@ const J = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: H });
 
 const POSITION_LABELS = {
-  bartender: "Бармен",
-  waiter: "Официант",
+  bartender: "Бармен BF",
+  waiter: "Официант BF",
+  bartender_bb: "Бармен BB",
+  waiter_bb: "Официант BB",
   manager: "Менеджер",
   hostess: "Хостес"
 } as const;
@@ -30,6 +32,8 @@ const positionFromLegacy = (
 
   if (
     normalized === "бармен" ||
+    normalized === "бармен bf" ||
+    normalized === "бармен бф" ||
     normalized === "бар-менеджер" ||
     normalized === "бар менеджер"
   ) {
@@ -37,10 +41,26 @@ const positionFromLegacy = (
   }
 
   if (
+    normalized === "бармен bb" ||
+    normalized === "бармен бб"
+  ) {
+    return "bartender_bb";
+  }
+
+  if (
     normalized === "официант" ||
+    normalized === "официант bf" ||
+    normalized === "официант бф" ||
     normalized === "официантка"
   ) {
     return "waiter";
+  }
+
+  if (
+    normalized === "официант bb" ||
+    normalized === "официант бб"
+  ) {
+    return "waiter_bb";
   }
 
   if (normalized === "менеджер") {
