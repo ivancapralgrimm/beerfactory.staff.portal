@@ -125,7 +125,7 @@ export function NotificationSettingsCard({
             {loading ? "Проверяем устройство…" : title}
           </h2>
           <p className="mt-1 text-sm leading-6 text-[var(--bf-muted)]">
-            Новая передача смены может прийти системным push-уведомлением со звуком, даже когда BFStaff закрыт.
+            Новая запись в Ленте может прийти системным push-уведомлением со звуком, даже когда BFStaff закрыт.
           </p>
         </div>
       </div>
@@ -180,7 +180,7 @@ export function NotificationSettingsCard({
       ) : null}
 
       <p className="mt-3 min-h-5 text-xs leading-5 text-[var(--bf-dim)]" role="status" aria-live="polite">
-        {message || (state.subscribed ? "Push активен только на этом устройстве. Автор собственной передачи уведомление не получает." : "")}
+        {message || (state.subscribed ? "Push активен только на этом устройстве. Автор собственной записи в Ленте уведомление не получает." : "")}
       </p>
     </Surface>
   );
