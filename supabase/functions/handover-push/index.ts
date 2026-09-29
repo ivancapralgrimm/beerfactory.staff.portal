@@ -19,6 +19,8 @@ const J = (body: unknown, status = 200) =>
 type StaffPosition =
   | "bartender"
   | "waiter"
+  | "bartender_bb"
+  | "waiter_bb"
   | "manager"
   | "hostess";
 
@@ -108,6 +110,8 @@ function normalizePositions(
   const allowed = new Set<StaffPosition>([
     "bartender",
     "waiter",
+    "bartender_bb",
+    "waiter_bb",
     "manager",
     "hostess"
   ]);
