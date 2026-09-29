@@ -1,71 +1,176 @@
 {
-  "name": "BFStaff r40.4 MEGA FEED + SHIFT v1",
-  "target_branch": "r40.4-react",
-  "expected_base_head": "cf491189a6c6a108708966dbf82eb588fde66959",
-  "main_touched": false,
-  "features": {
-    "feed": {
-      "route": "/feed",
-      "legacy_redirect": "/handover -> /feed",
-      "create_fields": [
-        "subject",
-        "body"
-      ],
-      "priorities": [
-        "normal",
-        "critical"
-      ],
-      "notification_targets": [
-        "all",
-        "staff_positions"
-      ],
-      "acknowledgement": true,
-      "resolved_state": true,
-      "dashboard_max_active": 6,
-      "dashboard_vertical_scroll": true
-    },
-    "shift": {
-      "timezone": "Asia/Novosibirsk",
-      "window_open": "11:00",
-      "window_close": "03:00",
-      "early_closing_unlock": true,
-      "opening_remains_editable_after_unlock": true,
-      "final_close_requires_opening_confirmation": true,
-      "compact_0300_audit": true
-    },
-    "manager": {
-      "real_checklist": true,
-      "groups": [
-        "BF",
-        "BB"
-      ],
-      "group_toggle_transactional": true,
-      "opening_items": {
-        "BF": 6,
-        "BB": 8
-      },
-      "closing_items": {
-        "BF": 9,
-        "BB": 9
-      }
+  "package": "BFStaff_r40.4_ACCESS_AND_EDITOR_v7_AUDITED",
+  "cumulative": true,
+  "replaces": [
+    "BFStaff_r40.4_BF_BB_POSITION_SYNC_v1",
+    "BFStaff_r40.4_BF_BB_POSITION_SYNC_v2",
+    "BFStaff_r40.4_BF_BB_POSITION_SYNC_v3",
+    "BFStaff_r40.4_FULL_CHECKLIST_EDITOR_v4",
+    "BFStaff_r40.4_FULL_CHECKLIST_EDITOR_v5",
+    "BFStaff_r40.4_ACCESS_AND_EDITOR_v6"
+  ],
+  "positions": {
+    "bartender": "Бармен BF",
+    "waiter": "Официант BF",
+    "bartender_bb": "Бармен BB",
+    "waiter_bb": "Официант BB",
+    "manager": "Менеджер",
+    "hostess": "Хостес"
+  },
+  "active_checklists": {
+    "bartender": {
+      "general_cleaning": 1,
+      "opening": 11,
+      "closing": 14
     },
     "waiter": {
-      "real_checklist": true,
-      "opening_items": 8,
-      "closing_items": 5
+      "general_cleaning": 1,
+      "opening": 8,
+      "closing": 5
     },
-    "general_cleaning": {
-      "foundation": true,
-      "weekday": "Sunday operational date",
-      "iso_weekday": 7,
-      "appears_above_opening_closing": true,
-      "task_rows_seeded": false
+    "bartender_bb": {
+      "general_cleaning": 1,
+      "opening": 8,
+      "closing": 6
     },
-    "bartender": {
-      "replaced": false
+    "waiter_bb": {
+      "general_cleaning": 1,
+      "opening": 8,
+      "closing": 5
+    },
+    "manager": {
+      "general_cleaning": 1,
+      "opening": 14,
+      "closing": 18
     },
     "hostess": {
-      "replaced": false
+      "general_cleaning": 1,
+      "opening": 8,
+      "closing": 5
     }
+  },
+  "editor": {
+    "route": "/shift/editor",
+    "source_of_truth": "public.position_shift_check_definitions",
+    "soft_delete": true,
+    "revision_conflict_check": true,
+    "audit_log": true,
+    "direct_authenticated_write_grants": false,
+    "access_source_of_truth": "Supabase capability functions",
+    "senior_scope": "exact current position only"
+  },
+  "live_edge_versions": {
+    "staff-profile": 8,
+    "staff-admin-users": 7,
+    "handover-push": 7
+  },
+  "migrations": [
+    "20260928203720_replace_bartender_real_shift_checklist.sql",
+    "20260928205509_replace_hostess_real_shift_checklist.sql",
+    "20260928211403_extend_staff_positions_with_bb.sql",
+    "20260928211425_sync_bf_bb_position_labels_and_self_service.sql",
+    "20260929052327_add_bartender_open_farfas_taps.sql",
+    "20260929054930_add_bartender_bb_checklist_and_bf_writeoffs.sql",
+    "20260929072551_seed_waiter_bb_general_cleaning_and_checklist_editor.sql",
+    "20260929072646_extend_audit_for_checklist_editor.sql",
+    "20260929073531_index_checklist_editor_actor_refs.sql",
+    "20260929075258_restrict_checklist_editor_to_admin.sql",
+    "20260929080653_simplify_access_roles_and_add_recent_attestation_board.sql"
+  ],
+  "checklist_editor_access": {
+    "owner_admin": "all six positions",
+    "senior_waiter_bf": [
+      "waiter"
+    ],
+    "senior_waiter_bb": [
+      "waiter_bb"
+    ],
+    "senior_hostess": [
+      "hostess"
+    ],
+    "staff": [],
+    "server_enforced": true
+  },
+  "access_model": {
+    "owner": {
+      "storage": "profiles.is_owner=true",
+      "display": "Владелец",
+      "permissions": "full"
+    },
+    "admin": {
+      "role": "admin",
+      "display": "Администратор",
+      "permissions": "full_except_owner_protection"
+    },
+    "senior_waiter": {
+      "role": "senior",
+      "positions": [
+        "waiter",
+        "waiter_bb"
+      ],
+      "display": "Старший официант",
+      "permissions": [
+        "recipes",
+        "own_exact_checklist"
+      ]
+    },
+    "senior_hostess": {
+      "role": "senior",
+      "positions": [
+        "hostess"
+      ],
+      "display": "Старший хостес",
+      "permissions": [
+        "own_exact_checklist"
+      ]
+    },
+    "staff": {
+      "role": "staff",
+      "display": "Сотрудник",
+      "permissions": []
+    },
+    "legacy_manager_role": {
+      "status": "deprecated_not_assignable",
+      "working_position_manager_unchanged": true
+    }
+  },
+  "attestation_board": {
+    "source": "public.get_recent_attestation_attempts(5)",
+    "visibility": "all active authenticated staff",
+    "rows": 5,
+    "fields": [
+      "employee_name",
+      "category",
+      "score",
+      "correct_total",
+      "attempted_at"
+    ]
+  },
+  "expected_repo_base": {
+    "branch": "r40.4-react",
+    "head": "c6ceceefb8446a87f2d7db84be8a75c2ccce6eba"
+  },
+  "audit": {
+    "status": "pre_upload_audited",
+    "typescript_transpile_files_checked": 16,
+    "typescript_transpile_errors": 0,
+    "all_internal_import_targets_resolved": true,
+    "feed_api_rpc_first_verified": true,
+    "push_sw_feed_route_verified": true,
+    "edge_sources_match_live": true,
+    "edge_import_maps_match_repo_and_live": true,
+    "package_migration_versions_match_live": true,
+    "github_ci_runs_supabase_migrations": false,
+    "repo_historical_migration_drift_exists": true
+  },
+  "preexisting_repo_migration_drift": {
+    "important": true,
+    "does_not_run_in_current_ci": true,
+    "examples": [
+      "20260924182000_add_profile_position_shift_window_limit.sql exists in repo but not in live migration history; its functionality is superseded by later live migrations.",
+      "20260928230000_bfstaff_feed_shift_megapack.sql exists in repo while live cumulative migration is recorded as 20260928170742_bfstaff_feed_shift_megapack.",
+      "Live history contains older migrations not represented in the current repo migration folder."
+    ],
+    "rule": "Do not enable automated supabase db push from this repository until migration history is reconciled/baselined."
   }
 }
