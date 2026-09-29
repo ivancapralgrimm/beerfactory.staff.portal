@@ -114,8 +114,8 @@ export function ProfilePage() {
 
   const positionLockText =
     user.position_change_reason === "window_locked"
-      ? "Смена должности доступна только во время рабочего окна: с 11:00 до 02:59."
-      : "Должность уже менялась в этой рабочей смене.";
+      ? "Должность можно изменить с 11:00 до 02:59."
+      : "Должность уже менялась в эту смену.";
 
   async function savePosition() {
     if (
@@ -138,7 +138,7 @@ export function ProfilePage() {
       await refreshProfile();
       setMessage({
         tone: "success",
-        text: "Должность сохранена. Следующее изменение будет доступно в следующую рабочую смену."
+        text: "Должность сохранена."
       });
     } catch (error) {
       const code =
@@ -152,8 +152,8 @@ export function ProfilePage() {
         setMessage({
           tone: "error",
           text: code === "position_change_window_locked"
-            ? "Сейчас должность менять нельзя. Следующее рабочее окно начнётся в 11:00."
-            : "Должность уже менялась в этой рабочей смене. Следующее изменение — с нового рабочего окна."
+            ? "Сейчас должность изменить нельзя."
+            : "Должность уже менялась в эту смену."
         });
       } else {
         setMessage({
@@ -219,10 +219,6 @@ export function ProfilePage() {
             <p className="mt-1 text-lg font-black text-[var(--bf-cream)]">
               {staffAccessLabel(user)}
             </p>
-            <p className="mt-1 text-sm leading-6 text-[var(--bf-muted)]">
-              Права доступа и рабочая должность разделены. Выбор должности сам по себе не выдаёт административные права.
-            </p>
-
             {canManageStaffClient(user) ? (
               <Button
                 asChild
@@ -306,9 +302,6 @@ export function ProfilePage() {
           />
           <div className="min-w-0 flex-1">
             <p className="eyebrow">ДОЛЖНОСТЬ</p>
-            <h2 className="mt-1 text-xl font-black">
-              Рабочая должность
-            </h2>
           </div>
         </div>
 
