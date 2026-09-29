@@ -1,6 +1,5 @@
 import {
   useEffect,
-  useMemo,
   useState
 } from "react";
 import {
@@ -27,15 +26,15 @@ import {
   type AdminUser
 } from "@/features/admin/types";
 import {
+  ASSIGNABLE_STAFF_ROLES,
   STAFF_POSITION_LABELS,
-  type StaffPosition,
-  type StaffRole
+  staffAccessLabel,
+  type AssignableStaffRole,
+  type StaffPosition
 } from "@/types/auth";
 import { cn } from "@/lib/utils";
 
-const ROLES = Object.keys(
-  ACCESS_ROLE_LABELS
-) as StaffRole[];
+const ROLES = ASSIGNABLE_STAFF_ROLES;
 
 const POSITIONS = Object.keys(
   STAFF_POSITION_LABELS
@@ -103,8 +102,13 @@ export function AdminUserCard({
     user: AdminUser
   ) => void;
 }) {
+  const initialRole: AssignableStaffRole =
+    user.role === "senior" || user.role === "admin"
+      ? user.role
+      : "staff";
+
   const [role, setRole] =
-    useState<StaffRole>(user.role);
+    useState<AssignableStaffRole>(initialRole);
 
   const [position, setPosition] =
     useState<StaffPosition | "">(
@@ -123,7 +127,11 @@ export function AdminUserCard({
     } | null>(null);
 
   useEffect(() => {
-    setRole(user.role);
+    setRole(
+      user.role === "senior" || user.role === "admin"
+        ? user.role
+        : "staff"
+    );
     setPosition(
       user.position_code || ""
     );
@@ -137,47 +145,21 @@ export function AdminUserCard({
 
   const roleLocked =
     user.is_owner ||
-    isSelf ||
-    (
-      !me.is_owner &&
-      user.role === "admin"
-    );
+    isSelf;
 
   const activeLocked =
     user.is_owner ||
-    isSelf ||
-    (
-      !me.is_owner &&
-      user.role === "admin"
-    );
+    isSelf;
 
   const positionLocked =
     user.is_owner && !isSelf;
 
   const securityLocked =
-    !me.is_owner &&
-    user.role === "admin" &&
-    !isSelf;
+    user.is_owner && !isSelf;
 
   const canDelete =
     !isSelf &&
-    !user.is_owner &&
-    (
-      me.is_owner ||
-      user.role !== "admin"
-    );
-
-  const allowedRoles =
-    useMemo(() => {
-      if (me.is_owner) {
-        return ROLES;
-      }
-
-      return ROLES.filter(
-        (item) =>
-          item !== "admin"
-      );
-    }, [me.is_owner]);
+    !user.is_owner;
 
   const roleDirty =
     role !== user.role;
@@ -301,28 +283,24 @@ export function AdminUserCard({
               onChange={(event) =>
                 setRole(
                   event.target
-                    .value as StaffRole
+                    .value as AssignableStaffRole
                 )
               }
               className="mt-2 min-h-11 w-full rounded-xl border border-[var(--bf-line)] bg-[var(--bf-bg)] px-3 text-sm font-bold text-[var(--bf-cream)] outline-none disabled:opacity-55 focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
             >
-              {(
-                roleLocked &&
-                !allowedRoles.includes(
-                  user.role
-                )
-                  ? [user.role]
-                  : allowedRoles
-              ).map((item) => (
+              {ROLES.map((item) => (
                 <option
                   key={item}
                   value={item}
                 >
-                  {
-                    ACCESS_ROLE_LABELS[
-                      item
-                    ]
-                  }
+                  {item === "senior"
+                    ? staffAccessLabel({
+                        role: "senior",
+                        is_owner: false,
+                        position_code:
+                          (position || user.position_code || null) as StaffPosition | null
+                      })
+                    : ACCESS_ROLE_LABELS[item]}
                 </option>
               ))}
             </select>
@@ -530,9 +508,7 @@ export function AdminUserCard({
 
         {securityLocked ? (
           <p className="mt-2 text-[11px] leading-4 text-[var(--bf-dim)]">
-            Security Mode другого
-            администратора доступен
-            только владельцу.
+            Аккаунт владельца защищён от административных изменений.
           </p>
         ) : null}
 

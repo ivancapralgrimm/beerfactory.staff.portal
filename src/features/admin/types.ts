@@ -1,12 +1,12 @@
 import type {
+  AssignableStaffRole,
   StaffPosition,
   StaffRole
 } from "@/types/auth";
 
-export const ACCESS_ROLE_LABELS: Record<StaffRole, string> = {
+export const ACCESS_ROLE_LABELS: Record<AssignableStaffRole, string> = {
   staff: "Сотрудник",
-  senior: "Старший сотрудник",
-  manager: "Менеджерские права",
+  senior: "Старший",
   admin: "Администратор"
 };
 
@@ -39,7 +39,7 @@ export type AdminMutation =
   | {
       action: "set_role";
       user_id: string;
-      role: StaffRole;
+      role: AssignableStaffRole;
     }
   | {
       action: "set_position";
