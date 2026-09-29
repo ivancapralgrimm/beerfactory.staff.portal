@@ -1,6 +1,7 @@
 {
-  "MANIFEST.json": "b47fcee62f39abc8e79a2f3cc6dde36fc9f33c890ca2a7e1803fe09868644381",
-  "README_UPLOAD.txt": "ea2010a4eaf880b953c99dad3d242a9d63b8c4b5d7bd7e4d1b20212ed20f6401",
-  "src/main.tsx": "cb33a83b89585240412b2a4b050c3d313354cbc6067d6e4b939fe7c1f68af366",
-  "src/mobile-input-guard.css": "202f8dfccd6d444891187fccf010b2da68b906ebb3a6742479d45760ad3da1b1"
+  "MANIFEST.json": "3747e89e778a87ce1c3789f0b5f9bcfface957301d4dc9cce01e897f50da00dc",
+  "README_UPLOAD.txt": "c1731a78b8a73939392568f2420d0557479c222e357dbe6d830a0c669820d0ab",
+  "src/features/auth/auth-context.tsx": "dc6ab0218e7dea6a71d7f7f10ee0287fd9202929d0db970a313313caeb806d8e",
+  "src/types/auth.ts": "164c75b589735f9b7de188d8ac65795d07d0475f77682c831b7865a4fce3040a",
+  "supabase/migrations/20260929151936_expand_senior_access_matrix.sql": "61c1da9bec4c993730d4c6e6e614b6b8be1cfe1adb69f294f8c047f9184d849e"
 }

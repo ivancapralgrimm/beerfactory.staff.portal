@@ -1,42 +1,101 @@
-BFStaff r40.4 · MOBILE INPUT ZOOM GUARD v1
+BFStaff r40.4 · ACCESS SYNC HOTFIX v2 AUDITED
 
-Установить ПЕРЕД созданием/merge PR r40.4-react -> main.
+НЕ ЗАГРУЖАТЬ v1.
+v2 полностью заменяет v1.
 
-Проверенная база:
-HEAD 37752f461b6e88aed056987b8ff1059f974ccffe
+BASE
+main
+3379792ac84a540d35a6890ccc235396d90b6a42
 
-Почему нужен:
-В текущем коде найдены текстовые поля с 14px/15px:
-- Лента
-- Профиль
-- редактор чек-листов
-- Админка
-- редактор рецептов
-и другие формы.
+ЧТО ИСПРАВЛЕНО ПОСЛЕ ПОВТОРНОГО АУДИТА
+В v1 автообновление профиля при временном network/profile failure
+могло заменить расширенный профиль на базовый Supabase user.
+Из-за этого UI мог временно потерять role/position и скрыть редакторы.
 
-На iPhone Safari/PWA поле <16px может вызвать автоматический zoom при focus.
-Для Android и остальных телефонов единое правило также исключает
-разное поведение мобильных браузеров.
+В v2:
+- последний успешно загруженный profile сохраняется;
+- role/position не исчезают из UI при кратковременном 5xx/network failure;
+- 401/403/404 продолжают обрабатываться существующей auth-логикой;
+- при следующем успешном refresh профиль обновляется нормально.
 
-Решение:
-- новый src/mobile-input-guard.css;
-- импортируется ПОСЛЕ styles.css;
-- все текстовые input/textarea/select на мобильных/touch-устройствах:
-  font-size: 16px !important;
-- checkbox/radio/file/range и кнопочные input не затрагиваются.
+ЦЕЛЕВАЯ МАТРИЦА
 
-Важно:
-- viewport НЕ блокируется;
-- user-scalable не отключается;
-- pinch-to-zoom остаётся доступен;
-- размеры обычного текста сайта не меняются;
-- бизнес-логика не меняется;
-- Supabase/Edge/migrations не меняются.
+Staff, любая должность:
+- без редакторов.
 
-После загрузки:
-1. дождаться Typecheck + Build;
-2. Vercel success;
-3. на iPhone и Android открыть:
-   Login, Ленту, Профиль, Recipe editor, Checklist editor, Admin;
-4. нажать каждое текстовое поле;
-5. экран не должен автоматически приближаться/оставаться увеличенным.
+Senior Бармен BF:
+- Рецепты;
+- только чек-лист Бармен BF.
+
+Senior Бармен BB:
+- Рецепты;
+- только чек-лист Бармен BB.
+
+Senior Официант BF:
+- Рецепты;
+- только чек-лист Официант BF.
+
+Senior Официант BB:
+- Рецепты;
+- только чек-лист Официант BB.
+
+Senior Менеджер:
+- Рецепты;
+- только чек-лист Менеджер.
+
+Senior Хостес:
+- только чек-лист Хостес;
+- без редактора рецептов.
+
+Admin, любая рабочая должность:
+- все редакторы;
+- все 6 должностей чек-листов;
+- управление персоналом;
+- журналы.
+
+Owner:
+- полный доступ.
+
+SESSION SYNC
+Профиль автоматически обновляется:
+- при возврате focus;
+- при возврате PWA из background;
+- после восстановления online;
+- раз в 30 секунд, пока приложение активно.
+
+LIVE SUPABASE
+Уже применена migration:
+20260929151936_expand_senior_access_matrix
+
+Migration-файл включён в пакет только для синхронизации repo с live.
+
+ПРЕДУСТАНОВОЧНЫЙ АУДИТ
+- main HEAD совпадает: PASS
+- server matrix Staff/Senior/Admin × 6 должностей: PASS
+- Owner: PASS
+- Senior own-checklist scope: PASS
+- Admin all-six checklist scope: PASS
+- staff-profile Edge v8 repo = live: PASS
+- staff-admin-users Edge v7 repo = live: PASS
+- legacy access role manager в profiles: 0
+- Security Advisor: новых категорий после migration нет
+- TS/TSX syntax: PASS
+- client permission matrix 18 комбинаций: PASS
+- transient network profile preservation: PASS
+- ZIP checksums: PASS
+- matrix-тесты базы выполнялись через ROLLBACK
+
+ОТДЕЛЬНО
+Сейчас есть 1 активный профиль без position_code.
+Это не ошибка hotfix.
+Staff без должности остаётся Staff.
+Senior без должности не получает position-scoped редакторы,
+пока ему не назначена рабочая должность.
+Admin/Owner от рабочей должности не зависят.
+
+УСТАНОВКА
+1. Создать ветку hotfix/r40.4-access-sync ОТ текущего main.
+2. Загрузить ТОЛЬКО v2.
+3. Дождаться Typecheck + Build и Vercel preview.
+4. После загрузки провести authenticated smoke.
+5. Только после этого PR -> main, Squash and merge.

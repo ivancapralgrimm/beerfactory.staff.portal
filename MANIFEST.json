@@ -1,43 +1,52 @@
 {
-  "package": "BFStaff_r40.4_MOBILE_INPUT_ZOOM_GUARD_v1",
-  "target_branch": "r40.4-react",
-  "expected_base_head": "37752f461b6e88aed056987b8ff1059f974ccffe",
-  "scope": "mobile form controls only",
-  "files": [
-    "src/main.tsx",
-    "src/mobile-input-guard.css"
+  "package": "BFStaff_r40.4_ACCESS_SYNC_HOTFIX_v2_AUDITED",
+  "replaces": [
+    "BFStaff_r40.4_ACCESS_SYNC_HOTFIX_v1"
   ],
-  "behavior": {
-    "mobile_text_controls_min_font_px": 16,
-    "covers": [
-      "text",
-      "search",
-      "email",
-      "password",
-      "tel",
-      "url",
-      "number",
-      "date",
-      "time",
-      "datetime-local",
-      "textarea",
-      "select"
-    ],
-    "excluded": [
-      "checkbox",
-      "radio",
-      "range",
-      "file",
-      "color",
-      "button",
-      "submit",
-      "reset",
-      "hidden"
-    ],
-    "iphone_safari_pwa": true,
-    "android_mobile": true,
-    "landscape_touch_devices": true,
-    "user_pinch_zoom_remains_enabled": true,
-    "viewport_changed": false
+  "target_branch": "hotfix/r40.4-access-sync",
+  "base_branch": "main",
+  "expected_base_head": "3379792ac84a540d35a6890ccc235396d90b6a42",
+  "replace_files": [
+    "src/types/auth.ts",
+    "src/features/auth/auth-context.tsx"
+  ],
+  "add_files": [
+    "supabase/migrations/20260929151936_expand_senior_access_matrix.sql"
+  ],
+  "live_migration": {
+    "version": "20260929151936",
+    "name": "expand_senior_access_matrix",
+    "already_applied": true
+  },
+  "matrix": {
+    "staff_all_positions": "no editors",
+    "senior_bartender_bf": "recipes + own checklist",
+    "senior_bartender_bb": "recipes + own checklist",
+    "senior_waiter_bf": "recipes + own checklist",
+    "senior_waiter_bb": "recipes + own checklist",
+    "senior_manager": "recipes + own checklist",
+    "senior_hostess": "own checklist only",
+    "admin_all_positions": "all editors + all checklist positions",
+    "owner": "full access"
+  },
+  "session_sync": {
+    "focus": true,
+    "visibility_restore": true,
+    "online_restore": true,
+    "poll_seconds": 30,
+    "transient_profile_failure_preserves_last_known_profile": true
+  },
+  "audit": {
+    "main_head_match": true,
+    "server_matrix_18_combinations": "PASS",
+    "owner_server_access": "PASS",
+    "staff_profile_edge_repo_live_match": true,
+    "staff_admin_users_edge_repo_live_match": true,
+    "legacy_manager_role_profiles": 0,
+    "active_profiles_without_position": 1,
+    "security_advisor_new_categories": "none",
+    "typescript_syntax": "PASS",
+    "client_matrix_18_combinations": "PASS",
+    "zip_checksums": "PASS"
   }
 }
