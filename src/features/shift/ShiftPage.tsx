@@ -121,12 +121,12 @@ function ChecklistRow({ row, locked, pending, onToggle }: {
 }) {
   const checked = Boolean(row.check?.completed);
   return (
-    <button type="button" role="checkbox" aria-checked={checked} aria-busy={pending} disabled={locked || pending} onClick={() => onToggle(row, !checked)} className={cn("grid min-h-[58px] w-full grid-cols-[30px_1fr_auto] items-center gap-3 rounded-2xl border px-3 py-3 text-left outline-none transition-[background-color,border-color,opacity,transform] focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)] active:translate-y-px disabled:cursor-default", checked ? "border-[color:color-mix(in_srgb,var(--bf-green),transparent_58%)] bg-[color:color-mix(in_srgb,var(--bf-green),transparent_91%)]" : "border-[var(--bf-line)] bg-[var(--bf-surface)]", pending && "opacity-85", locked && "opacity-65")}>
-      <span className={cn("grid size-7 place-items-center rounded-lg border", checked ? "border-[color:color-mix(in_srgb,var(--bf-green),transparent_35%)] bg-[color:color-mix(in_srgb,var(--bf-green),transparent_76%)] text-[#b7e3ba]" : "border-[var(--bf-line-strong)] bg-[var(--bf-surface-2)] text-[var(--bf-dim)]")} aria-hidden>
-        {pending ? <Loader2 className="size-4 animate-spin" /> : checked ? <Check className="size-4" /> : null}
+    <button type="button" role="checkbox" aria-checked={checked} aria-busy={pending} disabled={locked || pending} onClick={() => onToggle(row, !checked)} className={cn("grid min-h-[50px] w-full grid-cols-[26px_1fr_auto] items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left outline-none transition-[background-color,border-color,opacity,transform] focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)] active:translate-y-px disabled:cursor-default", checked ? "border-[color:color-mix(in_srgb,var(--bf-green),transparent_58%)] bg-[color:color-mix(in_srgb,var(--bf-green),transparent_91%)]" : "border-[var(--bf-line)] bg-[var(--bf-surface)]", pending && "opacity-85", locked && "opacity-65")}>
+      <span className={cn("grid size-6 place-items-center rounded-md border", checked ? "border-[color:color-mix(in_srgb,var(--bf-green),transparent_35%)] bg-[color:color-mix(in_srgb,var(--bf-green),transparent_76%)] text-[#b7e3ba]" : "border-[var(--bf-line-strong)] bg-[var(--bf-surface-2)] text-[var(--bf-dim)]")} aria-hidden>
+        {pending ? <Loader2 className="size-3.5 animate-spin" /> : checked ? <Check className="size-3.5" /> : null}
       </span>
-      <strong className="block min-w-0 text-[14px] leading-5 text-[var(--bf-cream)]">{row.label}</strong>
-      {checked ? <CheckCircle2 className="size-4 text-[var(--bf-green)]" aria-hidden /> : null}
+      <span className="block min-w-0 text-[13px] font-semibold leading-[18px] text-[var(--bf-cream)]">{row.label}</span>
+      {checked ? <CheckCircle2 className="size-3.5 text-[var(--bf-green)]" aria-hidden /> : null}
     </button>
   );
 }
@@ -158,14 +158,14 @@ function GroupBlock({ group, locked, pendingKeys, groupPending, onToggle, onTogg
   const allDone = group.rows.length > 0 && completed === group.rows.length;
   const mixed = completed > 0 && !allDone;
   return (
-    <div className="rounded-[20px] border border-[var(--bf-line)] bg-[var(--bf-bg)] p-2.5">
-      <button type="button" role="checkbox" aria-checked={mixed ? "mixed" : allDone} disabled={locked || groupPending} onClick={() => onToggleGroup(group, !allDone)} className="flex min-h-12 w-full items-center gap-3 rounded-xl px-2 text-left outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)] disabled:opacity-65">
-        <span className={cn("grid size-7 place-items-center rounded-lg border", allDone ? "border-[color:color-mix(in_srgb,var(--bf-green),transparent_35%)] bg-[color:color-mix(in_srgb,var(--bf-green),transparent_76%)] text-[#b7e3ba]" : mixed ? "border-[var(--bf-copper-hi)] bg-[color:color-mix(in_srgb,var(--bf-copper),transparent_80%)] text-[var(--bf-cream)]" : "border-[var(--bf-line-strong)] bg-[var(--bf-surface-2)] text-[var(--bf-dim)]")} aria-hidden>
-          {groupPending ? <Loader2 className="size-4 animate-spin" /> : allDone ? <Check className="size-4" /> : mixed ? <span className="h-0.5 w-3 rounded-full bg-current" /> : null}
+    <div className="rounded-[18px] border border-[var(--bf-line)] bg-[var(--bf-bg)] p-2">
+      <button type="button" role="checkbox" aria-checked={mixed ? "mixed" : allDone} disabled={locked || groupPending} onClick={() => onToggleGroup(group, !allDone)} className="flex min-h-10 w-full items-center gap-2.5 rounded-xl px-2 text-left outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)] disabled:opacity-65">
+        <span className={cn("grid size-6 place-items-center rounded-md border", allDone ? "border-[color:color-mix(in_srgb,var(--bf-green),transparent_35%)] bg-[color:color-mix(in_srgb,var(--bf-green),transparent_76%)] text-[#b7e3ba]" : mixed ? "border-[var(--bf-copper-hi)] bg-[color:color-mix(in_srgb,var(--bf-copper),transparent_80%)] text-[var(--bf-cream)]" : "border-[var(--bf-line-strong)] bg-[var(--bf-surface-2)] text-[var(--bf-dim)]")} aria-hidden>
+          {groupPending ? <Loader2 className="size-3.5 animate-spin" /> : allDone ? <Check className="size-3.5" /> : mixed ? <span className="h-0.5 w-3 rounded-full bg-current" /> : null}
         </span>
-        <span className="min-w-0 flex-1"><strong className="block text-base font-black text-[var(--bf-cream)]">{group.label}</strong><span className="text-[11px] text-[var(--bf-dim)]">{completed}/{group.rows.length} пунктов</span></span>
+        <span className="min-w-0 flex-1"><strong className="block text-sm font-black text-[var(--bf-cream)]">{group.label}</strong><span className="text-[10px] text-[var(--bf-dim)]">{completed}/{group.rows.length} пунктов</span></span>
       </button>
-      <div className="mt-1.5 grid gap-2 pl-1">
+      <div className="mt-1 grid gap-1.5 pl-0.5">
         {group.rows.map((row) => {
           const key = `${row.check_type}:${row.item_key}`;
           return <ChecklistRow key={key} row={row} locked={locked || groupPending} pending={pendingKeys.has(key)} onToggle={onToggle} />;
@@ -185,7 +185,7 @@ function ChecklistBody({ rows, locked, pendingKeys, pendingGroups, onToggle, onT
 }) {
   const { groups, ungrouped } = splitGroups(rows);
   return (
-    <div className="mt-4 grid gap-2">
+    <div className="mt-3 grid gap-1.5">
       {groups.map((group) => <GroupBlock key={group.key} group={group} locked={locked} pendingKeys={pendingKeys} groupPending={pendingGroups.has(`${group.rows[0]?.check_type}:${group.key}`)} onToggle={onToggle} onToggleGroup={onToggleGroup} />)}
       {ungrouped.map((row) => {
         const key = `${row.check_type}:${row.item_key}`;
@@ -390,7 +390,7 @@ export function ShiftPage() {
       </div>
 
       <div className="mt-5 rounded-[22px] border border-[var(--bf-line)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--bf-copper),transparent_90%),transparent_50%),var(--bf-surface)] p-4">
-        <div className="flex items-start justify-between gap-3"><div><div className="flex items-center gap-2">{shift.status === "closed" ? <CheckCircle2 className="size-5 text-[var(--bf-green)]" aria-hidden /> : <Clock3 className="size-5 text-[var(--bf-copper-hi)]" aria-hidden />}<h2 className="text-xl font-black">{shift.status === "not_started" ? "Смена не открыта" : shift.status === "active" ? "Смена открыта" : shift.status === "closed" ? "Смена закрыта" : "Смена истекла"}</h2></div></div><div className="shrink-0 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-bg)] px-3 py-2 text-right"><CalendarDays className="ml-auto size-4 text-[var(--bf-copper-hi)]" aria-hidden /><p className="mt-1 max-w-[11ch] text-xs font-bold capitalize leading-4">{formatDate(shift.shift_date)}</p></div></div>
+        <div className="flex items-center justify-between gap-3"><div><div className="flex items-center gap-2">{shift.status === "closed" ? <CheckCircle2 className="size-5 text-[var(--bf-green)]" aria-hidden /> : <Clock3 className="size-5 text-[var(--bf-copper-hi)]" aria-hidden />}<h2 className="text-xl font-black">{shift.status === "not_started" ? "Смена не открыта" : shift.status === "active" ? "Смена открыта" : shift.status === "closed" ? "Смена закрыта" : "Смена истекла"}</h2></div></div><div className="flex shrink-0 items-center gap-1.5 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-bg)] px-2.5 py-2"><CalendarDays className="size-4 text-[var(--bf-copper-hi)]" aria-hidden /><p className="whitespace-nowrap text-[11px] font-bold capitalize leading-none">{formatDate(shift.shift_date)}</p></div></div>
         {shift.opened_at || shift.closed_at ? <p className="mt-3 text-xs text-[var(--bf-muted)]">{shift.opened_at ? `Открыта ${formatTime(shift.opened_at, context.venue_timezone)}` : "Открытие не подтверждено"}{shift.closed_at ? ` · закрыта ${formatTime(shift.closed_at, context.venue_timezone)}` : ""}{context.closes_at ? ` · до ${formatTime(context.closes_at, context.venue_timezone)}` : ""}</p> : null}
       </div>
 

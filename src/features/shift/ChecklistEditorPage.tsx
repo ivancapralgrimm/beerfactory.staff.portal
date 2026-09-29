@@ -69,7 +69,6 @@ type EditorDraft = {
   isActive: boolean;
   activeIsoWeekdays: number[];
   groupKey: string;
-  groupLabel: string;
   revision: number | null;
 };
 
@@ -85,7 +84,6 @@ function blankDraft(type: ChecklistEditorCheckType): EditorDraft {
         ? [7]
         : [1, 2, 3, 4, 5, 6, 7],
     groupKey: "",
-    groupLabel: "",
     revision: null
   };
 }
@@ -99,7 +97,6 @@ function rowDraft(row: ChecklistEditorRow): EditorDraft {
     isActive: row.is_active,
     activeIsoWeekdays: [...row.active_iso_weekdays],
     groupKey: row.group_key || "",
-    groupLabel: row.group_label || "",
     revision: row.revision
   };
 }
@@ -250,13 +247,6 @@ export function ChecklistEditorPage() {
       });
       return;
     }
-    if (draft.groupKey.trim() && !draft.groupLabel.trim()) {
-      setMessage({
-        tone: "error",
-        text: "Для группы укажите её название."
-      });
-      return;
-    }
 
     setSaving(true);
     setMessage(null);
@@ -270,8 +260,8 @@ export function ChecklistEditorPage() {
         critical: draft.critical,
         isActive: draft.isActive,
         activeIsoWeekdays: draft.activeIsoWeekdays,
-        groupKey: draft.groupKey,
-        groupLabel: draft.groupLabel,
+        groupKey: selectedPosition === "manager" ? draft.groupKey : null,
+        groupLabel: null,
         expectedRevision: draft.revision
       });
       setSelectedType(draft.checkType);
@@ -578,7 +568,7 @@ export function ChecklistEditorPage() {
             />
           </label>
 
-          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          <div className={cn("mt-3 grid gap-3", selectedPosition === "manager" && "sm:grid-cols-2")}>
             <label className="grid gap-1.5">
               <span className="text-[11px] font-black uppercase tracking-[0.1em] text-[var(--bf-dim)]">
                 Раздел
@@ -610,38 +600,27 @@ export function ChecklistEditorPage() {
               </select>
             </label>
 
-            <label className="grid gap-1.5">
-              <span className="text-[11px] font-black uppercase tracking-[0.1em] text-[var(--bf-dim)]">
-                Группа
-              </span>
-              <input
-                value={draft.groupKey}
-                placeholder="BF или BB"
-                onChange={(event) =>
-                  setDraft((current) =>
-                    current ? { ...current, groupKey: event.target.value } : current
-                  )
-                }
-                className="min-h-11 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3 text-sm text-[var(--bf-cream)] outline-none placeholder:text-[var(--bf-dim)] focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
-              />
-            </label>
+            {selectedPosition === "manager" ? (
+              <label className="grid gap-1.5">
+                <span className="text-[11px] font-black uppercase tracking-[0.1em] text-[var(--bf-dim)]">
+                  Заведение
+                </span>
+                <select
+                  value={draft.groupKey}
+                  onChange={(event) =>
+                    setDraft((current) =>
+                      current ? { ...current, groupKey: event.target.value } : current
+                    )
+                  }
+                  className="min-h-11 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3 text-sm font-bold text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
+                >
+                  <option value="">Без группы</option>
+                  <option value="bf">BF</option>
+                  <option value="bb">BB</option>
+                </select>
+              </label>
+            ) : null}
           </div>
-
-          <label className="mt-3 grid gap-1.5">
-            <span className="text-[11px] font-black uppercase tracking-[0.1em] text-[var(--bf-dim)]">
-              Название группы
-            </span>
-            <input
-              value={draft.groupLabel}
-              placeholder="Например BF или BB"
-              onChange={(event) =>
-                setDraft((current) =>
-                  current ? { ...current, groupLabel: event.target.value } : current
-                )
-              }
-              className="min-h-11 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3 text-sm text-[var(--bf-cream)] outline-none placeholder:text-[var(--bf-dim)] focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
-            />
-          </label>
 
           <div className="mt-3">
             <span className="text-[11px] font-black uppercase tracking-[0.1em] text-[var(--bf-dim)]">

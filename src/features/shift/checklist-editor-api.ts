@@ -74,8 +74,8 @@ export function checklistEditorError(error: unknown) {
   if (message.includes("checklist_order_stale")) {
     return "Порядок уже изменился на другом устройстве. Обновите список и повторите.";
   }
-  if (message.includes("group_label_required")) {
-    return "Для группы нужно указать её название.";
+  if (message.includes("invalid_group")) {
+    return "Выберите BF, BB или без группы.";
   }
   if (message.includes("invalid_weekdays")) {
     return "Выберите хотя бы один день недели.";
