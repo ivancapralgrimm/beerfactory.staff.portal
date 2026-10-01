@@ -24,3 +24,10 @@ IMPORTANT:
 - SQL source is included for repository history only
 - DO NOT manually rerun these SQL files against the current live project
 - Admin destructive actions are not part of read-only QA
+
+R40.5 KNOWLEDGE ALSO ALREADY APPLIED:
+- 20260930151257 r40_5_knowledge_content_foundation
+- 20260930151818 r40_5_knowledge_security_hardening
+- 20260930152047 r40_5_knowledge_legacy_seed_v1
+- 20260930214301 r40_5_knowledge_integrity_hardening
+- knowledge-media-upload Edge Function version 2 (verify_jwt=true)

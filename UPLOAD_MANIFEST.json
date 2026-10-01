@@ -1,0 +1,12 @@
+{
+  "name": "BFStaff r40.5 Article Editor Upload Overlay",
+  "target_branch": "r40.5",
+  "required_baseline_commit": "d98aab55fc8893cc44313379c52e47db61a42f0f",
+  "purpose": "manual upload/merge over the current r40.5 baseline",
+  "file_count_without_manifest_checksums": 73,
+  "live_backend_already_applied": true,
+  "do_not_rerun_migrations": true,
+  "do_not_redeploy_edge_only_for_sync": true,
+  "live_edge_version": 2,
+  "remaining_gate": "Vercel Preview + live account/device QA"
+}

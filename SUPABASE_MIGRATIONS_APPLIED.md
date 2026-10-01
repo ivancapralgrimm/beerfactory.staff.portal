@@ -34,3 +34,23 @@ The SQL files are committed for reproducibility and future environments.
 - profile deletion now clears Shift v2 references;
 - `profiles`, `quiz_attempts`, `audit_log` client grants hardened;
 - direct profile directory reads are restricted to non-sensitive public staff fields.
+
+## r40.5 Knowledge Live Sync — supplied server-state record, 2026-09-30
+
+The backend handoff reports these as already applied to the same live project:
+
+- 20260930151257_r40_5_knowledge_content_foundation
+- 20260930151818_r40_5_knowledge_security_hardening
+- 20260930152047_r40_5_knowledge_legacy_seed_v1
+
+Matching SQL files are now recorded in supabase/migrations; the seed SQL is reproduced
+with the exact supplied generator. Codex did not execute or independently query live
+migration history. Do not reapply them or run db push as part of this return.
+See BACKEND_CONTRACT_CHECK.md for provenance, hashes and exact Edge-source sync.
+
+## r40.5 post-Codex Knowledge hardening — applied live
+
+- `20260930214301` · `r40_5_knowledge_integrity_hardening`
+- `knowledge-media-upload` Edge Function v2 ACTIVE, `verify_jwt=true`
+
+The migration and Edge source are included in this repository for reproducibility. They are already applied/deployed to the current Supabase project and must not be manually rerun merely because the files are uploaded to GitHub.
