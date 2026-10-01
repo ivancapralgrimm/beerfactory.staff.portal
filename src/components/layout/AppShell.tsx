@@ -89,6 +89,10 @@ export function AppShell() {
       <a
         className="bf-skip-link"
         href="#mainContent"
+        onClick={(event) => {
+          event.preventDefault();
+          document.getElementById("mainContent")?.focus();
+        }}
       >
         К основному содержимому
       </a>
