@@ -8,6 +8,7 @@ import {
   MoreHorizontal,
   Download,
   ExternalLink,
+  LoaderCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -337,6 +338,10 @@ export function KnowledgeEditorPage() {
       onPhoto={() => chooseImage(after)}
     />
   );
+  const [uploadIndicatorVisible, setUploadIndicatorVisible] = useState(false);
+  useEffect(() => {
+    if (!busy) setUploadIndicatorVisible(false);
+  }, [busy]);
   return (
     <section
       className="bf-article-editor mx-auto max-w-[760px] pb-6"
@@ -628,9 +633,31 @@ export function KnowledgeEditorPage() {
         hidden
         onChange={(e) => {
           const file = e.target.files?.[0];
-          if (file) void upload(file);
+          if (file) {
+            setUploadIndicatorVisible(true);
+            void upload(file);
+          }
         }}
       />
+      {uploadIndicatorVisible && (
+        <div
+          className="bf-editor-upload-status"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          <div className="bf-editor-upload-status-card">
+            <LoaderCircle
+              aria-hidden
+              className="size-7 shrink-0 animate-spin text-[var(--bf-copper-hi)]"
+            />
+            <span>
+              <strong>Загружаем изображение…</strong>
+              <small>Не закрывайте страницу</small>
+            </span>
+          </div>
+        </div>
+      )}
       <dialog
         ref={dialog}
         aria-labelledby="unsaved-title"
