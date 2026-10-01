@@ -1,5 +1,21 @@
 @import "tailwindcss";
 
+.bf-editor-input {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  padding: 12px;
+  border: 1px solid var(--bf-line);
+  border-radius: 12px;
+  background: var(--bf-surface-2);
+  color: var(--bf-cream);
+  font: inherit;
+  font-size: 16px;
+}
+.bf-editor-input:focus-visible { outline: 2px solid var(--bf-copper-hi); outline-offset: 2px; }
+textarea.bf-editor-input { resize: vertical; }
+fieldset:disabled .bf-editor-input { opacity: .65; }
+
 :root {
   font-family:
     Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI",
@@ -441,3 +457,54 @@ body { background: var(--bf-bg); }
 .bf-result-feedback small { font-size: 11px; color: var(--bf-muted); }
 .bf-result-feedback-success { background: #23302580; color: var(--bf-green); border-color: #45694b; }
 .bf-result-feedback-failure { background: #36231f80; color: var(--bf-red); border-color: #75443d; }
+
+/* Article Editor UX: one writing canvas using existing BeerFactory tokens. */
+.bf-editor-main-actions { display: flex; align-items: center; gap: 4px; margin: 16px 0 8px; }
+.bf-editor-main-actions > :nth-child(2) { margin-left: auto; }
+.bf-editor-metadata { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 156px); gap: 12px; }
+.bf-editor-details > summary {
+  display: flex; align-items: center; gap: 8px; min-height: 44px; cursor: pointer;
+  list-style: none; font-size: 14px; color: var(--bf-muted);
+}
+.bf-editor-details > summary::-webkit-details-marker { display: none; }
+.bf-editor-details > summary::before { content: '+'; font-size: 18px; }
+.bf-editor-details[open] > summary::before { content: '−'; }
+.bf-editor-details > summary:focus-visible { outline: 2px solid var(--bf-copper-hi); outline-offset: 2px; border-radius: 8px; }
+.bf-article-editor fieldset:disabled summary { pointer-events: none; opacity: .65; }
+.bf-editor-content-help { padding-top: 4px; font-size: 14px; line-height: 1.6; color: var(--bf-muted); }
+.bf-editor-content { border-top: 1px solid var(--bf-line); }
+.bf-editor-element { padding: 0; min-width: 0; }
+.bf-editor-text-tools { display: flex; align-items: center; min-height: 44px; gap: 0; }
+.bf-editor-writing {
+  border-color: transparent; background: transparent; border-radius: 8px; padding: 8px 4px;
+  line-height: 1.65; resize: none !important; overflow-y: auto;
+}
+.bf-editor-writing:focus { background: color-mix(in srgb, var(--bf-surface), transparent 35%); }
+.bf-editor-heading { font-size: 22px; font-weight: 750; line-height: 1.4; }
+.bf-editor-subheading { font-size: 19px; font-weight: 700; line-height: 1.45; }
+.bf-editor-note { padding-left: 12px; border-left: 2px solid var(--bf-copper); }
+.bf-editor-insertion { display: flex; align-items: center; gap: 12px; margin: 6px 0; }
+.bf-editor-insertion::before, .bf-editor-insertion::after { content: ''; height: 1px; flex: 1; background: var(--bf-line); opacity: .5; }
+.bf-editor-insertion > button { font-weight: 500; }
+.bf-editor-photo { display: block; width: 100%; max-height: 360px; object-fit: contain; border-radius: 12px; background: var(--bf-surface); }
+.bf-editor-photo-placeholder { display: flex; justify-content: center; align-items: center; gap: 12px; min-height: 140px; background: var(--bf-surface); border-radius: 12px; color: var(--bf-muted); font-size: 14px; }
+.bf-editor-list-kind { font: inherit; min-height: 44px; padding: 4px 8px; background: var(--bf-surface); color: var(--bf-cream); border: 1px solid var(--bf-line); border-radius: 8px; max-width: 100%; }
+.bf-editor-list-kind:focus-visible { outline: 2px solid var(--bf-copper-hi); outline-offset: 2px; }
+.bf-editor-list-item { display: grid; grid-template-columns: 20px minmax(0,1fr); gap: 4px; }
+.bf-editor-list-item .bf-editor-text-tools { flex-wrap: wrap; }
+.bf-editor-menu-panel {
+  position: fixed; z-index: 100; inset: auto; margin: 0; width: 264px; padding: 8px; border: 1px solid var(--bf-line-strong);
+  border-radius: 16px; background: var(--bf-surface); color: var(--bf-cream); box-shadow: 0 12px 40px #0008;
+  max-height: min(70vh, 460px); overflow-y: auto; overscroll-behavior: contain;
+}
+.bf-editor-menu-panel [role='menuitem'] { width: 100%; justify-content: flex-start; min-height: 44px; }
+.bf-editor-menu-primary { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding-bottom: 8px; border-bottom: 1px solid var(--bf-line); }
+.bf-editor-menu-primary [role='menuitem'] { background: var(--bf-surface-2); }
+.bf-editor-menu-caption { font-size: 12px; color: var(--bf-muted); margin: 10px 12px 4px; }
+@media (max-width: 639px) {
+  .bf-editor-menu-panel { left: 12px; right: 12px; bottom: calc(76px + env(safe-area-inset-bottom)); width: auto; max-height: 60dvh; }
+}
+.bf-main .bf-article-editor > h1 { font-size: 24px; line-height: 1.3; }
+.bf-article-editor #article-title { font-size: 20px; font-weight: 650; }
+.bf-editor-element { position: relative; }
+.bf-editor-photo-tools { position: absolute; right: 8px; top: 8px; z-index: 1; border-radius: 12px; background: color-mix(in srgb, var(--bf-bg), transparent 15%); }
