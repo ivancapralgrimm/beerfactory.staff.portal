@@ -134,7 +134,7 @@ export function DashboardGlobalSearch() {
           article.title,
           article.category,
           article.excerpt,
-          article.body
+          article.searchText ?? article.body
         ].join(" "));
         if (!haystack.includes(deferredQuery)) continue;
 

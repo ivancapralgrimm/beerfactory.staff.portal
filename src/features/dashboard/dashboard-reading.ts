@@ -207,6 +207,7 @@ export function dashboardReadingSelection(input: {
 export function knowledgeArticleImage(
   article: KnowledgeArticle
 ) {
+  if (article.source === 'supabase') return article.firstImage || null;
   const match = article.body.match(/!\[[^\]]*\]\(([^)]+)\)/);
   return match?.[1]?.trim() || null;
 }
