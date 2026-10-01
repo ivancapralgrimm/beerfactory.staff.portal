@@ -71,8 +71,17 @@ export default defineConfig(({ mode }) => {
           cleanupOutdatedCaches: true,
           navigateFallback: "/index.html",
           importScripts: ["push-sw.js"],
+          // These shell icons are already revisioned by includeAssets / manifest.
+          // Avoid conflicting duplicate precache keys from the broad asset glob.
+          globIgnores: [
+            "assets/icons/apple-touch-icon.png",
+            "assets/icons/icon-192.png",
+            "assets/icons/icon-512.png",
+            "assets/icons/icon-maskable-512.png",
+            "assets/icons/profile-avatar.png",
+          ],
           globPatterns: [
-            "**/*.{js,css,html,ico,png,svg,webp,jpg,jpeg,json,txt}",
+            "**/*.{js,css,html,ico,png,svg,webp,jpg,jpeg,json,txt,woff,woff2}",
           ],
         },
       }),
