@@ -1,4 +1,17 @@
-import { BookCheck, ChevronRight, RefreshCw, Search } from "lucide-react";
+import {
+  BookCheck,
+  BookOpen,
+  Beer,
+  ChefHat,
+  ClipboardList,
+  Grape,
+  Users,
+  RefreshCw,
+  Search,
+  UserRound,
+  Wine, Martini, GlassWater, FlaskConical, Sprout, Wheat, History, Sparkles,
+  HeartHandshake, MessageCircle, HandCoins, HandPlatter, ListChecks, ShieldCheck, UtensilsCrossed,
+} from "lucide-react";
 import { useDeferredValue, useEffect, useMemo } from "react";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -16,6 +29,31 @@ function searchableText(article: KnowledgeArticle) {
   return `${article.title} ${article.category} ${article.searchText ?? article.body}`.toLowerCase();
 }
 
+function articleIcon(article: KnowledgeArticle) {
+  // Presentation only: stable keyword matching, no backend fields or random choices.
+  const title = article.title.toLocaleLowerCase("ru-RU");
+  const category = article.category.toLocaleLowerCase("ru-RU");
+  if (/жалоб|last|latte|фраз|объяснит|обратн.*связ/.test(title)) return MessageCircle;
+  if (/рассерж|расстро|требователь|помощ|помочь/.test(title)) return HeartHandshake;
+  if (/продаж|дополнен|удочк/.test(title)) return HandCoins;
+  if (/чек.?лист|открыти|закрыти/.test(title)) return ListChecks;
+  if (/стандарт|правил|безопас/.test(title)) return ShieldCheck;
+  if (/подач|наливат|налить/.test(title)) return /пив/.test(title) ? Beer : HandPlatter;
+  if (/пив/.test(category)) return /появ|истори/.test(title) ? History : /солод|пшен|состав/.test(title) ? Wheat : Beer;
+  if (/вин/.test(category)) return /игрист|шампан/.test(title) ? Sparkles : /классиф|регион|розов/.test(title) ? Grape : Wine;
+  if (/алкогол|бар|напит/.test(category)) {
+    if (/джин|вермут|коктейл/.test(title)) return Martini;
+    if (/ликёр|ликер/.test(title)) return FlaskConical;
+    if (/текил|мескал/.test(title)) return Sprout;
+    if (/херес/.test(title)) return Wine;
+    return GlassWater;
+  }
+  if (/кух|меню|блюд/.test(category)) return /блюд|меню/.test(title) ? UtensilsCrossed : ChefHat;
+  if (/сервис|гост|продаж/.test(category)) return /заказ|систем|меню/.test(title) ? ClipboardList : Users;
+  if (/чек|стандарт|правил/.test(category)) return ClipboardList;
+  return BookOpen;
+}
+
 function KnowledgeRow({
   article,
   read,
@@ -27,44 +65,32 @@ function KnowledgeRow({
   from: string;
   onOpen: () => void;
 }) {
+  const Icon = articleIcon(article);
   return (
     <Link
       to={`/knowledge/${encodeURIComponent(article.id)}`}
       state={{ from }}
       onClick={onOpen}
-      className="knowledge-list-row group grid min-h-[116px] grid-cols-[1fr_auto] items-center gap-3 border-b border-[var(--bf-line)] py-4 outline-none transition-[background-color,color] duration-150 focus-visible:rounded-xl focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
+      className="knowledge-list-row knowledge-sticker"
       aria-label={`Открыть статью ${article.title}`}
+      title={article.title}
     >
-      <div className="min-w-0">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[var(--bf-copper-hi)]">
-            {article.category}
+      <div className="knowledge-sticker-icons">
+        <Icon size={22} strokeWidth={1.5} aria-hidden />
+        {read && (
+          <span className="knowledge-read-check" title="Прочитано">
+            <BookCheck size={19} aria-hidden />
+            <span className="sr-only">Прочитано</span>
           </span>
-          {read ? (
-            <span className="inline-flex min-h-6 items-center gap-1 rounded-full border border-[color:color-mix(in_srgb,var(--bf-green),transparent_65%)] px-2 text-[10px] font-bold text-[#9dd0a0]">
-              <BookCheck className="size-3" aria-hidden />
-              Прочитано
-            </span>
-          ) : null}
-        </div>
-
-        <h2 className="mt-1 text-[18px] font-extrabold leading-6 tracking-[-0.015em]">
-          {article.title}
-        </h2>
-
-        {article.excerpt ? (
-          <p className="knowledge-excerpt mt-1.5 text-[13px] leading-5 text-[var(--bf-muted)]">
-            {article.excerpt}
-          </p>
-        ) : null}
-
-        <div className="mt-2 text-[11px] font-semibold text-[var(--bf-dim)]">
-          {article.readingMinutes} мин
-        </div>
+        )}
       </div>
-
-      <div className="grid size-9 place-items-center rounded-full border border-[var(--bf-line)] text-[var(--bf-copper-hi)] transition-[border-color,background-color] duration-150 group-hover:border-[var(--bf-line-strong)] group-hover:bg-[var(--bf-surface)]">
-        <ChevronRight className="size-5" aria-hidden />
+      <h2>{article.title}</h2>
+      {article.excerpt && (
+        <p className="knowledge-excerpt">{article.excerpt}</p>
+      )}
+      <div className="knowledge-sticker-footer">
+        <span>{article.readingMinutes} мин чтения</span>
+        <span>{article.category}</span>
       </div>
     </Link>
   );
@@ -144,37 +170,56 @@ export function KnowledgePage() {
   const from = `${location.pathname}${location.search}`;
 
   return (
-    <section className="bf-list-page bf-knowledge-page pb-4">
-      <div className="max-w-2xl">
-        <p className="eyebrow">БАЗА ЗНАНИЙ</p>
-        <div className="mt-2 flex items-center justify-between gap-3">
-          <h1 className="text-[36px] font-black leading-none tracking-[-0.04em]">
-            Знания
-          </h1>
+    <section className="bf-knowledge-page">
+      <div className="knowledge-brandbar">
+        <span
+          className="knowledge-wordmark"
+          aria-label="BeerFactory Staff Portal"
+        >
+          <b>BF</b>Staff{" "}
+          <small>
+            BEERFACTORY
+            <br />
+            STAFF PORTAL
+          </small>
+        </span>
+        <div className="knowledge-brand-actions">
           <Button
             type="button"
-            variant="secondary"
+            variant="ghost"
             size="icon"
-            className="size-9 min-h-9 rounded-full p-0"
             aria-label="Обновить знания"
             disabled={state.status === "loading"}
             onClick={() => void reload()}
           >
             <RefreshCw
               className={cn(
-                "size-3.5",
+                "size-4",
                 state.status === "loading" && "animate-spin",
               )}
               aria-hidden
             />
           </Button>
+          <Button asChild variant="ghost" size="icon">
+            <Link to="/profile" aria-label="Профиль">
+              <UserRound className="size-5" aria-hidden />
+            </Link>
+          </Button>
         </div>
-        <p className="mt-3 text-pretty text-[15px] leading-6 text-[var(--bf-muted)]">
-          Ищи по теме, слову или содержанию статьи.
-        </p>
-
+      </div>
+      <div className="bf-knowledge-board">
+        <header className="knowledge-board-heading">
+          <BookOpen size={25} strokeWidth={1.4} aria-hidden />
+          <h1>ЗНАНИЯ</h1>
+          <p>Полезные материалы для нашей команды</p>
+          <div className="knowledge-board-rule" aria-hidden>
+            <span />
+            <Grape size={17} strokeWidth={1.4} />
+            <span />
+          </div>
+        </header>
         {editorAccess.hasEditorAccess && (
-          <div className="mt-4 flex flex-wrap gap-2">
+          <div className="knowledge-board-tools">
             {editorAccess.canCreate && (
               <Button asChild variant="primary">
                 <Link to="/knowledge/new" state={{ from }}>
@@ -189,131 +234,94 @@ export function KnowledgePage() {
             </Button>
           </div>
         )}
-
-        {state.status === "ready" ? (
-          <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-[var(--bf-dim)]">
-            <span>
-              Прочитано: {readCount}/{articles.length}
-            </span>
-            <Button
-              asChild
-              variant="secondary"
-              className="ml-auto h-9 min-h-9 px-3 text-xs"
-            >
-              <Link to="/attestation">Аттестация</Link>
+        <div className="knowledge-board-search">
+          <Search size={16} aria-hidden />
+          <label className="sr-only" htmlFor="knowledge-search">
+            Поиск по базе знаний
+          </label>
+          <Input
+            id="knowledge-search"
+            type="search"
+            value={query}
+            placeholder="Тема, слово или содержание…"
+            onChange={(event) => updateParam("q", event.target.value)}
+          />
+        </div>
+        {state.status === "loading" && (
+          <div className="knowledge-sticker-grid" aria-label="Загрузка статей">
+            {Array.from({ length: 6 }, (_, i) => (
+              <div
+                key={i}
+                className="knowledge-sticker knowledge-sticker-loading"
+              />
+            ))}
+          </div>
+        )}
+        {state.status === "error" && (
+          <div className="knowledge-board-empty" role="alert">
+            <h2>Материалы сейчас недоступны</h2>
+            <p>Попробуйте ещё раз.</p>
+            <Button onClick={reload}>
+              <RefreshCw size={16} aria-hidden />
+              Повторить
             </Button>
           </div>
-        ) : null}
-      </div>
-
-      <div className="relative mt-5">
-        <Search
-          className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-[var(--bf-dim)]"
-          aria-hidden
-        />
-        <label className="sr-only" htmlFor="knowledge-search">
-          Поиск по базе знаний
-        </label>
-        <Input
-          id="knowledge-search"
-          type="search"
-          value={query}
-          placeholder="Например: виски, жалоба, подача…"
-          className="pl-10"
-          onChange={(event) => updateParam("q", event.target.value)}
-        />
-      </div>
-
-      {state.status === "loading" ? (
-        <div className="mt-6" aria-label="Загрузка статей">
-          {Array.from({ length: 6 }, (_, index) => (
+        )}
+        {state.status === "ready" && (
+          <>
             <div
-              key={index}
-              className="h-[116px] animate-pulse border-b border-[var(--bf-line)] bg-[linear-gradient(90deg,transparent,rgba(255,255,255,.025),transparent)]"
-            />
-          ))}
-        </div>
-      ) : null}
-
-      {state.status === "error" ? (
-        <div className="mt-6 border-y border-[var(--bf-line)] py-6">
-          <p className="text-lg font-extrabold">Материалы сейчас недоступны</p>
-          <p className="mt-1 max-w-lg text-sm leading-6 text-[var(--bf-muted)]">
-            Попробуйте ещё раз.
-          </p>
-          <Button className="mt-4" onClick={reload}>
-            <RefreshCw className="size-4" aria-hidden />
-            Повторить
-          </Button>
-        </div>
-      ) : null}
-
-      {state.status === "ready" ? (
-        <>
-          <div
-            className="bf-scrollbar-none -mx-4 mt-5 flex gap-2 overflow-x-auto px-4 pb-1"
-            role="group"
-            aria-label="Категории базы знаний"
-          >
-            {categories.map((item) => {
-              const active = item === category;
-              return (
+              className="knowledge-board-categories bf-scrollbar-none"
+              role="group"
+              aria-label="Категории базы знаний"
+            >
+              {categories.map((item) => (
                 <button
                   key={item}
                   type="button"
-                  aria-pressed={active}
+                  aria-pressed={item === category}
                   onClick={() => updateParam("cat", item)}
-                  className={cn(
-                    "min-h-11 shrink-0 rounded-full border px-4 text-sm font-bold outline-none transition-[background-color,border-color,color] duration-150 focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]",
-                    active
-                      ? "border-[var(--bf-copper)] bg-[var(--bf-copper)] text-[#fff8ed]"
-                      : "border-[var(--bf-line)] bg-transparent text-[var(--bf-muted)]",
-                  )}
                 >
                   {item}
                 </button>
-              );
-            })}
-          </div>
-
-          <div
-            className="mt-3 flex items-center justify-between gap-3 text-xs text-[var(--bf-dim)]"
-            aria-live="polite"
-          >
-            <span>Найдено: {filtered.length}</span>
-          </div>
-
-          <div className="mt-2 border-t border-[var(--bf-line)]">
+              ))}
+            </div>
+            <div className="knowledge-board-summary">
+              <span aria-live="polite">Найдено: {filtered.length}</span>
+              <span>
+                Прочитано: {readCount}/{articles.length}
+              </span>
+              <Link to="/attestation">Аттестация</Link>
+            </div>
             {filtered.length ? (
-              filtered.map((article) => (
-                <KnowledgeRow
-                  key={article.id}
-                  article={article}
-                  read={progress.state.readIds.has(article.id)}
-                  from={from}
-                  onOpen={() => {
-                    try {
-                      sessionStorage.setItem(
-                        SCROLL_KEY,
-                        JSON.stringify({ path: from, y: window.scrollY }),
-                      );
-                    } catch {
-                      // Non-critical browser storage failure.
-                    }
-                  }}
-                />
-              ))
+              <div className="knowledge-sticker-grid">
+                {filtered.map((article) => (
+                  <KnowledgeRow
+                    key={article.id}
+                    article={article}
+                    read={progress.state.readIds.has(article.id)}
+                    from={from}
+                    onOpen={() => {
+                      try {
+                        sessionStorage.setItem(
+                          SCROLL_KEY,
+                          JSON.stringify({ path: from, y: window.scrollY }),
+                        );
+                      } catch {
+                        /* Optional scroll restoration. */
+                      }
+                    }}
+                  />
+                ))}
+              </div>
             ) : (
-              <div className="border-b border-[var(--bf-line)] py-8">
-                <p className="font-extrabold">Ничего не найдено</p>
-                <p className="mt-1 text-sm text-[var(--bf-muted)]">
-                  Попробуй другое слово или категорию.
-                </p>
+              <div className="knowledge-board-empty">
+                <h2>Ничего не найдено</h2>
+                <p>Попробуй другое слово или категорию.</p>
               </div>
             )}
-          </div>
-        </>
-      ) : null}
+          </>
+        )}
+      </div>
     </section>
   );
 }

@@ -1,25 +1,12 @@
-import {
-  ArrowLeft,
-  BookCheck,
-  Share2
-} from "lucide-react";
-import {
-  Fragment,
-  useEffect,
-  useMemo,
-  useState
-} from "react";
-import {
-  Link,
-  useLocation,
-  useParams
-} from "react-router-dom";
+import { ArrowLeft, BookCheck, Share2 } from "lucide-react";
+import { Fragment, useEffect, useMemo, useState } from "react";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/auth-context";
 import { KnowledgeImageDialog } from "@/features/knowledge/KnowledgeImageDialog";
 import {
   parseKnowledgeMarkdown,
-  renderKnowledgeInline
+  renderKnowledgeInline,
 } from "@/features/knowledge/knowledge-markdown";
 import { useKnowledgeArticles } from "@/features/knowledge/use-knowledge";
 import { useKnowledgeProgress } from "@/features/knowledge/use-knowledge-progress";
@@ -37,7 +24,7 @@ function safeDecode(value: string) {
 }
 
 function sectionTitle(
-  block: ReturnType<typeof parseKnowledgeMarkdown>[number]
+  block: ReturnType<typeof parseKnowledgeMarkdown>[number],
 ) {
   if (block.type === "heading") return block.text;
   if (block.type !== "paragraph" || block.lines.length !== 1) return null;
@@ -45,7 +32,8 @@ function sectionTitle(
 }
 
 function normalizeTopic(value: string) {
-  return value.toLocaleLowerCase("ru-RU")
+  return value
+    .toLocaleLowerCase("ru-RU")
     .replace(/[^\p{L}\p{N}]+/gu, " ")
     .trim();
 }
@@ -69,51 +57,69 @@ export function KnowledgeArticlePage() {
 
   const article = useMemo(
     () => state.articles.find((item) => item.id === requestedId),
-    [requestedId, state.articles]
+    [requestedId, state.articles],
   );
 
-  const [serverDetail, setServerDetail] = useState<{id:string;revision?:number;document:KnowledgeArticleDocument|null;error:boolean} | null>(null);
+  const [serverDetail, setServerDetail] = useState<{
+    id: string;
+    revision?: number;
+    document: KnowledgeArticleDocument | null;
+    error: boolean;
+  } | null>(null);
   useEffect(() => {
     if (!article || article.source !== "supabase") return;
     let active = true;
-    const {id, revision} = article;
-    setServerDetail({id, revision, document:null, error:false});
-    void loadKnowledgeArticleForEditor(id).then(document => {
-      if(document.status !== 'published') throw new Error('article_not_published');
-      if(active) setServerDetail({id, revision, document, error:false});
-    }).catch(() => {
-      if(active) setServerDetail({id, revision, document:null, error:true});
-    });
-    return () => { active = false; };
+    const { id, revision } = article;
+    setServerDetail({ id, revision, document: null, error: false });
+    void loadKnowledgeArticleForEditor(id)
+      .then((document) => {
+        if (document.status !== "published")
+          throw new Error("article_not_published");
+        if (active) setServerDetail({ id, revision, document, error: false });
+      })
+      .catch(() => {
+        if (active)
+          setServerDetail({ id, revision, document: null, error: true });
+      });
+    return () => {
+      active = false;
+    };
   }, [article?.id, article?.revision, article?.source]);
-  const detail = serverDetail?.id === article?.id && serverDetail?.revision === article?.revision ? serverDetail : null;
+  const detail =
+    serverDetail?.id === article?.id &&
+    serverDetail?.revision === article?.revision
+      ? serverDetail
+      : null;
 
   const blocks = useMemo(
-    () => (article && article.source !== "supabase" ? parseKnowledgeMarkdown(article.body) : []),
-    [article]
+    () =>
+      article && article.source !== "supabase"
+        ? parseKnowledgeMarkdown(article.body)
+        : [],
+    [article],
   );
   const titleTopics = useMemo(
-    () => new Set(
-      (article?.title ?? "")
-        .split(/\s*,\s*/u)
-        .map(normalizeTopic)
-        .filter(Boolean)
-    ),
-    [article]
+    () =>
+      new Set(
+        (article?.title ?? "")
+          .split(/\s*,\s*/u)
+          .map(normalizeTopic)
+          .filter(Boolean),
+      ),
+    [article],
   );
   const sections = useMemo(
-    () => blocks.flatMap((block, index) => {
-      const title = sectionTitle(block);
-      return title && titleTopics.has(normalizeTopic(title))
-        ? [{ index, title }]
-        : [];
-    }),
-    [blocks, titleTopics]
+    () =>
+      blocks.flatMap((block, index) => {
+        const title = sectionTitle(block);
+        return title && titleTopics.has(normalizeTopic(title))
+          ? [{ index, title }]
+          : [];
+      }),
+    [blocks, titleTopics],
   );
 
-  const read = article
-    ? progress.state.readIds.has(article.id)
-    : false;
+  const read = article ? progress.state.readIds.has(article.id) : false;
 
   const backTarget =
     location.state &&
@@ -139,10 +145,7 @@ export function KnowledgeArticlePage() {
         await navigator.share({ title, text, url });
         return;
       } catch (error) {
-        if (
-          error instanceof DOMException &&
-          error.name === "AbortError"
-        ) {
+        if (error instanceof DOMException && error.name === "AbortError") {
           return;
         }
       }
@@ -169,11 +172,11 @@ export function KnowledgeArticlePage() {
       setSaveStatus(
         source === "profile"
           ? "Отметка сохранена в профиле."
-          : "Отметка сохранена на этом устройстве."
+          : "Отметка сохранена на этом устройстве.",
       );
     } catch {
       setSaveStatus(
-        "Профиль сейчас недоступен. Отметка сохранена на этом устройстве."
+        "Профиль сейчас недоступен. Отметка сохранена на этом устройстве.",
       );
     } finally {
       setSaving(false);
@@ -201,9 +204,7 @@ export function KnowledgeArticlePage() {
         </Button>
 
         <div className="mt-6 border-y border-[var(--bf-line)] py-6">
-          <h1 className="text-2xl font-black">
-            Не удалось открыть статью
-          </h1>
+          <h1 className="text-2xl font-black">Не удалось открыть статью</h1>
           <p className="mt-2 text-sm leading-6 text-[var(--bf-muted)]">
             Материалы базы знаний сейчас недоступны.
           </p>
@@ -236,19 +237,22 @@ export function KnowledgeArticlePage() {
   }
 
   return (
-    <article className="mx-auto max-w-[860px] pb-7">
-      <div className="flex min-h-11 items-center justify-between gap-2">
-        <Button asChild variant="ghost" className="-ml-3">
+    <article className="knowledge-notebook mx-auto max-w-[860px]">
+      <div className="knowledge-notebook-toolbar">
+        <Button asChild variant="ghost" className="knowledge-notebook-back">
           <Link to={backTarget}>
             <ArrowLeft className="size-4" aria-hidden />
             Знания
           </Link>
         </Button>
 
+        <span
+          className="knowledge-wordmark"
+          aria-label="BeerFactory Staff Portal"
+        >
+          <b>BF</b>Staff
+        </span>
         <div className="flex items-center gap-2">
-          <span className="rounded-full border border-[var(--bf-line)] px-3 py-2 text-xs font-bold text-[var(--bf-muted)]">
-            {article.readingMinutes} мин
-          </span>
           <Button
             type="button"
             size="icon"
@@ -260,168 +264,224 @@ export function KnowledgeArticlePage() {
         </div>
       </div>
 
-      <div role="status" aria-live="polite" className="text-right text-xs text-[var(--bf-muted)] empty:hidden">
-        {shareStatus}
-      </div>
-
-      <header className="mt-6 border-b border-[var(--bf-line)] pb-5">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="eyebrow">{article.category.toUpperCase()}</span>
-          {read ? (
-            <span className="inline-flex min-h-6 items-center gap-1 rounded-full border border-[color:color-mix(in_srgb,var(--bf-green),transparent_65%)] px-2 text-[10px] font-bold text-[#9dd0a0]">
-              <BookCheck className="size-3" aria-hidden />
-              Прочитано
-            </span>
-          ) : null}
-        </div>
-
-        <h1 className="mt-3 text-balance text-[clamp(27px,7.2vw,38px)] font-black leading-[1.12] tracking-[-0.035em]">
-          {article.title}
-        </h1>
-      </header>
-
-      {sections.length >= 2 ? (
-        <nav aria-label="Разделы статьи" className="mt-4 flex flex-wrap gap-2">
-          {sections.map(({ index, title }) => (
-            <button
-              key={index}
-              type="button"
-              className="min-h-11 max-w-full rounded-full border border-[var(--bf-line)] bg-[var(--bf-surface)] px-3 text-[11px] font-bold text-[var(--bf-cream)] focus-visible:outline-2 focus-visible:outline-[var(--bf-copper-hi)]"
-              onClick={() => document.getElementById(`knowledge-section-${index}`)?.scrollIntoView({
-                behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
-                block: "start"
-              })}
-            >
-              {title}
-            </button>
-          ))}
-        </nav>
-      ) : null}
-
-      {editorAccess.canEdit && <div className="my-4"><Button asChild><Link to={`/knowledge/${encodeURIComponent(article.id)}/edit`} state={{from:backTarget}}>Редактировать статью</Link></Button></div>}
-      {article.source === "supabase" && (detail?.document ? <KnowledgeDocumentView document={detail.document}/> : detail?.error ? <div role="alert" className="my-6"><p>Не удалось загрузить статью. Проверьте соединение.</p><Button className="mt-3" onClick={()=>void reload()}>Повторить</Button></div> : <p role="status" className="my-6">Загружаем статью…</p>)}
-      {article.source !== "supabase" && <div className="knowledge-prose py-4 sm:py-6">
-        {blocks.map((block, index) => {
-          if (block.type === "paragraph") {
-            const standaloneTitle = sectionTitle(block);
-            if (standaloneTitle && titleTopics.has(normalizeTopic(standaloneTitle))) {
-              return (
-                <h2 key={index} id={`knowledge-section-${index}`} className="knowledge-chapter">
-                  {standaloneTitle}
-                </h2>
-              );
-            }
-            return (
-              <p key={index}>
-                {block.lines.map((line, lineIndex) => (
-                  <Fragment key={`${line}-${lineIndex}`}>
-                    {lineIndex > 0 ? <br /> : null}
-                    {renderKnowledgeInline(line)}
-                  </Fragment>
-                ))}
-              </p>
-            );
-          }
-
-          if (block.type === "heading") {
-            const chapter = titleTopics.has(normalizeTopic(block.text));
-            return (
-              <h2
-                key={index}
-                id={chapter ? `knowledge-section-${index}` : undefined}
-                className={chapter ? "knowledge-chapter" : undefined}
-              >
-                {renderKnowledgeInline(block.text)}
-              </h2>
-            );
-          }
-
-          if (block.type === "callout") {
-            return (
-              <aside key={index} className="knowledge-callout">
-                {renderKnowledgeInline(block.text)}
-              </aside>
-            );
-          }
-
-          if (block.type === "separator") {
-            return <hr key={index} />;
-          }
-
-          if (block.type === "list") {
-            const List = block.ordered ? "ol" : "ul";
-
-            return (
-              <List key={index}>
-                {block.items.map((item, itemIndex) => (
-                  <li key={`${item}-${itemIndex}`}>
-                    {renderKnowledgeInline(item)}
-                  </li>
-                ))}
-              </List>
-            );
-          }
-
-          return (
-            <figure key={index} className="knowledge-figure">
-              <button
-                type="button"
-                className="knowledge-image-button"
-                aria-label={
-                  block.alt
-                    ? `Открыть изображение: ${block.alt}`
-                    : "Открыть изображение"
-                }
-                onClick={() =>
-                  setActiveImage({
-                    src: block.src,
-                    alt: block.alt
-                  })
-                }
-              >
-                <img
-                  src={block.src}
-                  alt={block.alt}
-                  loading="lazy"
-                  className="h-full w-full object-contain"
-                />
-              </button>
-              {block.alt ? <figcaption>{block.alt}</figcaption> : null}
-            </figure>
-          );
-        })}
-      </div>}
-
-      <footer className="border-t border-[var(--bf-line)] pt-5">
-        <div className="flex flex-wrap gap-2">
-          <Button
-            type="button"
-            variant="primary"
-            disabled={saving || read || (article.source === 'supabase' && !detail?.document)}
-            onClick={markRead}
-          >
-            <BookCheck className="size-4" aria-hidden />
-            {saving
-              ? "Сохраняем…"
-              : read
-                ? "Прочитано ✓"
-                : "Отметить прочитанным"}
-          </Button>
-
-          <Button asChild>
-            <Link to="/attestation">Проверить знания</Link>
-          </Button>
-        </div>
-
-        <p
-          className="mt-3 min-h-5 text-xs leading-5 text-[var(--bf-muted)]"
+      <div className="knowledge-notebook-sheet">
+        <div
           role="status"
           aria-live="polite"
+          className="text-right text-xs text-[var(--bf-muted)] empty:hidden"
         >
-          {saveStatus}
-        </p>
-      </footer>
+          {shareStatus}
+        </div>
 
+        <header className="knowledge-notebook-heading">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="eyebrow">{article.category.toUpperCase()}</span>
+            <span className="knowledge-reading-time">
+              {article.readingMinutes} мин чтения
+            </span>
+            {read ? (
+              <span className="inline-flex min-h-6 items-center gap-1 rounded-full border border-[color:color-mix(in_srgb,var(--bf-green),transparent_65%)] px-2 text-[10px] font-bold text-[#9dd0a0]">
+                <BookCheck className="size-3" aria-hidden />
+                Прочитано
+              </span>
+            ) : null}
+          </div>
+
+          <h1>{article.title}</h1>
+        </header>
+
+        {sections.length >= 2 ? (
+          <nav
+            aria-label="Разделы статьи"
+            className="mt-4 flex flex-wrap gap-2"
+          >
+            {sections.map(({ index, title }) => (
+              <button
+                key={index}
+                type="button"
+                className="min-h-11 max-w-full rounded-full border border-[var(--bf-line)] bg-[var(--bf-surface)] px-3 text-[11px] font-bold text-[var(--bf-cream)] focus-visible:outline-2 focus-visible:outline-[var(--bf-copper-hi)]"
+                onClick={() =>
+                  document
+                    .getElementById(`knowledge-section-${index}`)
+                    ?.scrollIntoView({
+                      behavior: window.matchMedia(
+                        "(prefers-reduced-motion: reduce)",
+                      ).matches
+                        ? "auto"
+                        : "smooth",
+                      block: "start",
+                    })
+                }
+              >
+                {title}
+              </button>
+            ))}
+          </nav>
+        ) : null}
+
+        {editorAccess.canEdit && (
+          <div className="my-4">
+            <Button asChild>
+              <Link
+                to={`/knowledge/${encodeURIComponent(article.id)}/edit`}
+                state={{ from: backTarget }}
+              >
+                Редактировать статью
+              </Link>
+            </Button>
+          </div>
+        )}
+        {article.source === "supabase" &&
+          (detail?.document ? (
+            <KnowledgeDocumentView document={detail.document} />
+          ) : detail?.error ? (
+            <div role="alert" className="my-6">
+              <p>Не удалось загрузить статью. Проверьте соединение.</p>
+              <Button className="mt-3" onClick={() => void reload()}>
+                Повторить
+              </Button>
+            </div>
+          ) : (
+            <p role="status" className="my-6">
+              Загружаем статью…
+            </p>
+          ))}
+        {article.source !== "supabase" && (
+          <div className="knowledge-prose py-4 sm:py-6">
+            {blocks.map((block, index) => {
+              if (block.type === "paragraph") {
+                const standaloneTitle = sectionTitle(block);
+                if (
+                  standaloneTitle &&
+                  titleTopics.has(normalizeTopic(standaloneTitle))
+                ) {
+                  return (
+                    <h2
+                      key={index}
+                      id={`knowledge-section-${index}`}
+                      className="knowledge-chapter"
+                    >
+                      {standaloneTitle}
+                    </h2>
+                  );
+                }
+                return (
+                  <p key={index}>
+                    {block.lines.map((line, lineIndex) => (
+                      <Fragment key={`${line}-${lineIndex}`}>
+                        {lineIndex > 0 ? <br /> : null}
+                        {renderKnowledgeInline(line)}
+                      </Fragment>
+                    ))}
+                  </p>
+                );
+              }
+
+              if (block.type === "heading") {
+                const chapter = titleTopics.has(normalizeTopic(block.text));
+                return (
+                  <h2
+                    key={index}
+                    id={chapter ? `knowledge-section-${index}` : undefined}
+                    className={chapter ? "knowledge-chapter" : undefined}
+                  >
+                    {renderKnowledgeInline(block.text)}
+                  </h2>
+                );
+              }
+
+              if (block.type === "callout") {
+                return (
+                  <aside key={index} className="knowledge-callout">
+                    {renderKnowledgeInline(block.text)}
+                  </aside>
+                );
+              }
+
+              if (block.type === "separator") {
+                return <hr key={index} />;
+              }
+
+              if (block.type === "list") {
+                const List = block.ordered ? "ol" : "ul";
+
+                return (
+                  <List key={index}>
+                    {block.items.map((item, itemIndex) => (
+                      <li key={`${item}-${itemIndex}`}>
+                        {renderKnowledgeInline(item)}
+                      </li>
+                    ))}
+                  </List>
+                );
+              }
+
+              return (
+                <figure key={index} className="knowledge-figure">
+                  <button
+                    type="button"
+                    className="knowledge-image-button"
+                    aria-label={
+                      block.alt
+                        ? `Открыть изображение: ${block.alt}`
+                        : "Открыть изображение"
+                    }
+                    onClick={() =>
+                      setActiveImage({
+                        src: block.src,
+                        alt: block.alt,
+                      })
+                    }
+                  >
+                    <img
+                      src={block.src}
+                      alt={block.alt}
+                      loading="lazy"
+                      className="h-full w-full object-contain"
+                    />
+                  </button>
+                  {block.alt ? <figcaption>{block.alt}</figcaption> : null}
+                </figure>
+              );
+            })}
+          </div>
+        )}
+
+        <footer className="knowledge-notebook-footer">
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              variant="primary"
+              disabled={
+                saving ||
+                read ||
+                (article.source === "supabase" && !detail?.document)
+              }
+              onClick={markRead}
+            >
+              <BookCheck className="size-4" aria-hidden />
+              {saving
+                ? "Сохраняем…"
+                : read
+                  ? "Прочитано ✓"
+                  : "Отметить прочитанным"}
+            </Button>
+
+            <Button asChild>
+              <Link to="/attestation">Проверить знания</Link>
+            </Button>
+          </div>
+
+          <p
+            className="mt-3 min-h-5 text-xs leading-5 text-[var(--bf-muted)]"
+            role="status"
+            aria-live="polite"
+          >
+            {saveStatus}
+          </p>
+        </footer>
+      </div>
+      <div className="knowledge-notebook-trim" aria-hidden />
       {activeImage ? (
         <KnowledgeImageDialog
           open
