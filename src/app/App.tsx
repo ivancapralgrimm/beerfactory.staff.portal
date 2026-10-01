@@ -57,6 +57,9 @@ const KnowledgeArticlePage = lazy(() =>
   }))
 );
 
+const KnowledgeEditorPage = lazy(() => import("@/features/knowledge/editor/KnowledgeEditorPage").then(module => ({default: module.KnowledgeEditorPage})));
+const KnowledgeManagePage = lazy(() => import("@/features/knowledge/editor/KnowledgeManagePage").then(module => ({default: module.KnowledgeManagePage})));
+
 const AttestationPage = lazy(() =>
   import(
     "@/features/attestation/AttestationPage"
@@ -307,6 +310,12 @@ export function App() {
             </LazyRoute>
           }
         />
+        <Route
+          path="knowledge/new"
+          element={<LazyRoute><KnowledgeEditorPage /></LazyRoute>}
+        />
+        <Route path="knowledge/manage" element={<LazyRoute><KnowledgeManagePage /></LazyRoute>} />
+        <Route path="knowledge/:articleId/edit" element={<LazyRoute><KnowledgeEditorPage /></LazyRoute>} />
         <Route
           path="knowledge/:articleId"
           element={
