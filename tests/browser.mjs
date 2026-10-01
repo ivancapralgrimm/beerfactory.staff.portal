@@ -11,6 +11,7 @@ const {
   parseLegacyKnowledgeFile,
   knowledgeDocumentPlainText,
 } = require("../src/features/knowledge/editor/legacy-markdown.ts");
+const { validateKnowledgeArticle } = require("../src/features/knowledge/editor/article-model.ts");
 const { documents: seededDocuments } = require("./live-seed.cjs");
 const documents = new Map(seededDocuments.map((d) => [d.id, d]));
 const serverUrl = process.env.BF_TEST_SERVER_URL || "http://127.0.0.1:4175";
@@ -23,6 +24,7 @@ const results = [],
 const fixtureImage = fs.readFileSync("assets/icons/profile-avatar.png");
 const photoFixture = fs.readFileSync("assets/brewery-cooper-bg.jpg");
 let visualPhoto = false;
+let uploadGate = null;
 let listFailure = false,
   saveFailure = false,
   saveForbidden = false,
@@ -38,6 +40,7 @@ const browser = await chromium.launch({
   args: ["--no-sandbox"],
 });
 const check = async (name, run) => {
+  if(process.env.BF_TEST_KNOWLEDGE_ONLY === "1" && !name.startsWith("Knowledge redesign:") && !name.startsWith("Knowledge cumulative:") && !name.startsWith("no JavaScript")) return;
   try {
     await run();
     results.push({ name, status: "passed" });
@@ -350,6 +353,7 @@ async function session(
     }
     if (pathname.endsWith("/knowledge-media-upload")) {
       uploadCount++;
+      if (uploadGate) { uploadGate.started(); await uploadGate.wait; }
       if (!canEdit() && !permissions().can_create) return denied();
       if (mediaFailure) return json({ ok: false, error: "upload_failed" }, 500);
       assert.match(
@@ -1091,6 +1095,9 @@ try {
           }),
         );
         const expected = d.blocks.filter((b) => b.type === "image");
+        // The summary heading/read action render before the separate detail RPC.
+        // Wait for content rather than treating the summary as article readiness.
+        await visible(target.page.locator(".knowledge-prose"));
         assert.equal(
           await target.page.locator(".knowledge-prose figcaption").count(),
           expected.length,
@@ -1684,6 +1691,284 @@ try {
       await target.context.close();
     },
   );
+  await check("Knowledge redesign: two mobile sticker columns, real categories/search/read count and desktop screenshot", async () => {
+    // Earlier editor/grant regressions mutate transport fixtures. Reset only this
+    // in-memory fixture map so visual captures compare the supplied seed content.
+    documents.clear();
+    for (const document of seededDocuments) documents.set(document.id,structuredClone(document));
+    const target = await session(profile("staff"));
+    await target.open("/knowledge");
+    await visible(target.page.locator(".knowledge-sticker").first());
+    for(const width of [320,390,430,768,1366]) {
+      await target.page.setViewportSize({width,height:844});
+      const layout = await target.page.locator(".knowledge-sticker-grid").evaluate(el=>({columns:getComputedStyle(el).gridTemplateColumns.split(" ").length,width:document.documentElement.scrollWidth,viewport:innerWidth}));
+      assert.equal(layout.columns,2); assert.ok(layout.width <= layout.viewport+1);
+      const first = await target.page.locator(".knowledge-sticker").nth(0).boundingBox(), second = await target.page.locator(".knowledge-sticker").nth(1).boundingBox();
+      assert.ok(Math.abs(first.y-second.y)<8); assert.ok(second.x>first.x+first.width-4);
+    }
+    await target.page.setViewportSize({width:390,height:844});
+    await target.page.evaluate(()=>document.fonts.ready);
+    await target.page.evaluate(()=>window.scrollTo(0,0));
+    await target.page.screenshot({path:"reports/knowledge-list-mobile.png"});
+    await target.page.setViewportSize({width:1366,height:1000});
+    await target.page.evaluate(()=>window.scrollTo(0,0));
+    await target.page.screenshot({path:"reports/knowledge-list-desktop.png"});
+    const categories = target.page.getByRole("group",{name:"Категории базы знаний"});
+    await categories.getByRole("button",{name:"Пиво",exact:true}).click();
+    assert.equal(await categories.getByRole("button",{name:"Пиво",exact:true}).getAttribute("aria-pressed"),"true");
+    assert.match(target.page.url(),/cat=/);
+    await visible(target.page.getByRole("heading",{name:"Как появилось пиво",exact:true}));
+    assert.equal(await target.page.locator(".knowledge-sticker").count(),1);
+    await target.page.getByLabel("Поиск по базе знаний").fill("неттакойстатьи");
+    await visible(target.page.getByRole("heading",{name:"Ничего не найдено",exact:true}));
+    await target.page.getByLabel("Поиск по базе знаний").fill("");
+    await target.page.locator(".knowledge-sticker").first().click();
+    await visible(target.page.getByRole("button",{name:"Отметить прочитанным",exact:true}));
+    await target.page.getByRole("button",{name:"Отметить прочитанным",exact:true}).click();
+    await visible(target.page.getByRole("button",{name:"Прочитано ✓",exact:true}));
+    await target.page.getByRole("link",{name:"Знания",exact:true}).first().click();
+    assert.match(target.page.url(),/cat=/);
+    await visible(target.page.locator(".knowledge-read-check"));
+    assert.ok(target.state.progress.has("lesson-6"));
+    await target.context.close();
+  });
+  await check("Knowledge redesign: notebook all schema-v2 elements, signed photo viewer, keyboard close and real build screenshots",async()=>{
+    // Synthetic transport document only; no production or seed data is modified.
+    const id="knowledge-visual-fixture";
+    const text=t=>({text:t,marks:[]});
+    documents.set(id,validateKnowledgeArticle({...seededDocuments[0],id,title:"Как правильно наливать пиво",category:"Пиво",description:"Стандарты подачи и температура",status:"published",revision:1,blocks:[
+      {id:"visual-p1",type:"paragraph",content:text("Правильная подача пива — это не только про вкус, но и про впечатление гостя. Мы уделяем особое внимание стандартам, ведь каждая деталь имеет значение.")},
+      {id:"visual-photo",type:"image",mediaId:randomUUID(),storagePath:"fixture/knowledge-photo.jpg",legacySrc:null,name:"brewery-cooper-bg.jpg",alt:"Медные пивоваренные ёмкости BeerFactory",caption:"Внимание к деталям начинается на пивоварне.",width:1600,height:1066},
+      {id:"visual-heading",type:"heading",level:2,content:text("Температура и бокал")},
+      {id:"visual-p2",type:"paragraph",content:{text:"Используем чистые бокалы. Проверяем подачу и рассказываем гостю о сорте.",marks:[{type:"bold",from:0,to:10},{type:"italic",from:11,to:17},{type:"highlight",from:25,to:34}]}},
+      {id:"visual-quote",type:"quote",content:text("Пена должна быть плотной и кремовой — 2–3 см.")},
+      {id:"visual-h3",type:"heading",level:3,content:text("Перед подачей")},
+      {id:"visual-list",type:"list",ordered:false,items:[text("Проверьте чистоту бокала"),text("Уточните предпочтения гостя")]},
+      {id:"visual-ordered",type:"list",ordered:true,items:[text("Подготовьте бокал"),text("Подайте напиток")]},
+      {id:"visual-hr",type:"separator"}
+    ]}));
+    const target=await session(profile("staff")); visualPhoto=true;
+    try {
+      await target.open("/knowledge/"+id);
+      await visible(target.page.locator(".knowledge-image-button img"));
+      await target.page.locator(".knowledge-image-button img").evaluate(img=>img.decode());
+      await target.page.evaluate(()=>document.fonts.ready);
+      assert.equal(await target.page.locator(".knowledge-prose h2").count(),1);
+      assert.equal(await target.page.locator(".knowledge-prose h3").count(),1);
+      assert.equal(await target.page.locator(".knowledge-prose aside").count(),1);
+      assert.equal(await target.page.locator(".knowledge-prose ul").count(),1);
+      assert.equal(await target.page.locator(".knowledge-prose ol").count(),1);
+      assert.equal(await target.page.locator(".knowledge-prose hr").count(),1);
+      for(const tag of ["strong","em","mark"]) assert.equal(await target.page.locator(".knowledge-prose "+tag).count(),1);
+      for(const width of [320,390,430,768,1366]) {
+        await target.page.setViewportSize({width,height:844});
+        assert.ok(await target.page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+        const style=await target.page.locator(".knowledge-prose").evaluate(el=>({font:getComputedStyle(el).fontSize,color:getComputedStyle(el).color}));
+        assert.equal(style.font,"16px"); assert.equal(style.color,"rgb(53, 55, 55)");
+      }
+      await target.page.setViewportSize({width:390,height:844});
+      await target.page.screenshot({path:"reports/knowledge-article-mobile.png"});
+      const photo=target.page.getByRole("button",{name:"Открыть изображение: Медные пивоваренные ёмкости BeerFactory",exact:true});
+      await photo.focus(); await target.page.keyboard.press("Enter");
+      await visible(target.page.getByRole("dialog"));
+      const opened=await target.page.getByRole("dialog").locator("img").boundingBox();
+      assert.ok(opened.width>280);
+      await target.page.getByRole("dialog").locator("img").evaluate(img=>img.decode());
+      await target.page.waitForTimeout(250); // Let the existing 180ms modal entrance finish.
+      await target.page.screenshot({path:"reports/knowledge-image-viewer-mobile.png"});
+      await target.page.getByRole("button",{name:"Закрыть изображение",exact:true}).click();
+      await absent(target.page.getByRole("dialog"));
+      await photo.click(); await visible(target.page.getByRole("dialog"));
+      await target.page.keyboard.press("Escape"); await absent(target.page.getByRole("dialog"));
+      assert.equal(await photo.evaluate(el=>el===document.activeElement),true);
+      await target.page.setViewportSize({width:1366,height:1000});
+      await target.page.evaluate(()=>window.scrollTo(0,0));
+      await target.page.screenshot({path:"reports/knowledge-article-desktop.png"});
+      await photo.click(); await visible(target.page.getByRole("dialog"));
+      await target.page.keyboard.press("Escape"); await absent(target.page.getByRole("dialog"));
+    } finally { visualPhoto=false; documents.delete(id); await target.context.close(); }
+  });
+  await check("Knowledge redesign: legacy images still enlarge, same notebook, long article no mobile overflow",async()=>{
+    const target=await session(profile("staff"),{base:legacyUrl});
+    await target.open("/knowledge/lesson-17");
+    const photo=target.page.locator(".knowledge-image-button").first();
+    await visible(photo); await photo.click(); await visible(target.page.getByRole("dialog"));
+    await target.page.getByRole("button",{name:"Закрыть изображение",exact:true}).click();
+    await absent(target.page.getByRole("dialog"));
+    await target.page.evaluate(()=>document.fonts.ready);
+    await target.page.screenshot({path:"reports/knowledge-legacy-article-mobile.png"});
+    for(const id of ["lesson-1","lesson-11","lesson-14","lesson-24"]) {
+      await target.open("/knowledge/"+id);
+      await visible(target.page.locator(".knowledge-prose"));
+      assert.ok(await target.page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+      await target.page.getByRole("button",{name:"Отметить прочитанным",exact:true}).scrollIntoViewIfNeeded();
+      const safe=await target.page.getByRole("button",{name:"Отметить прочитанным",exact:true}).boundingBox();
+      const nav=await target.page.getByRole("navigation",{name:"Основная навигация"}).boundingBox();
+      assert.ok(safe.y+safe.height<=nav.y+1);
+    }
+    await target.context.close();
+  });
+  await check("Knowledge redesign: keyboard focus, long title, reduced motion, paper contrast and 44px controls",async()=>{
+    const target=await session(profile("staff"));
+    await target.open("/knowledge"); await visible(target.page.locator(".knowledge-sticker").first());
+    await target.page.emulateMedia({reducedMotion:"reduce"});
+    assert.ok(await target.page.locator(".knowledge-sticker").first().evaluate(el=>parseFloat(getComputedStyle(el).transitionDuration)<=.001));
+    const entry=target.page.locator(".knowledge-sticker").first(); await entry.focus();
+    assert.ok(await entry.evaluate(el=>getComputedStyle(el).outlineStyle!=="none"));
+    await target.page.keyboard.press("Enter"); await visible(target.page.locator(".knowledge-notebook-heading h1"));
+    await target.page.getByRole("link",{name:"Знания",exact:true}).first().focus(); await target.page.keyboard.press("Enter");
+    await visible(target.page.locator(".knowledge-sticker").first());
+    const sizes=await target.page.locator('.knowledge-brand-actions :is(a,button),.knowledge-board-categories button,.knowledge-board-search input,.knowledge-board-summary a').evaluateAll(els=>els.map(el=>({w:el.getBoundingClientRect().width,h:el.getBoundingClientRect().height})));
+    assert.ok(sizes.every(s=>s.h>=44&&s.w>=44));
+    await target.page.getByLabel("Поиск по базе знаний").fill("Шампанским");
+    const title=target.page.locator(".knowledge-sticker h2").first(); await visible(title);
+    assert.ok((await title.innerText()).includes("Шампанским"));
+    assert.ok(await title.evaluate(el=>el.clientHeight<=80&&el.clientWidth>100));
+    // Equivalent viewport at 200% desktop browser zoom; horizontal overflow must not appear.
+    await target.page.setViewportSize({width:683,height:500});
+    assert.ok(await target.page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+    await target.context.close();
+  });
+  await check("Knowledge redesign: production PWA precaches local font and textures for offline use",async()=>{
+    const context=await browser.newContext({serviceWorkers:"allow",viewport:{width:390,height:844}});
+    context.on("console", message=>{if(message.type()==="error") consoleErrors.push("PWA: "+message.text());});
+    context.on("weberror", error=>pageErrors.push(String(error.error())));
+    await context.route("**/*",route=> new URL(route.request().url()).origin===serverUrl ? route.continue() : route.abort());
+    const page=await context.newPage();
+    page.on("pageerror",error=>pageErrors.push(String(error)));
+    await page.goto(serverUrl);
+    await page.evaluate(async()=>{await navigator.serviceWorker.ready;});
+    await page.reload();
+    await page.waitForFunction(()=>!!navigator.serviceWorker.controller);
+    const cacheInfo=await page.evaluate(async()=>({controller:navigator.serviceWorker.controller?.scriptURL,keys:(await Promise.all((await caches.keys()).map(async key=>(await (await caches.open(key)).keys()).map(r=>r.url)))).flat()}));
+    fs.writeFileSync("reports/knowledge-pwa-cache.json",JSON.stringify(cacheInfo,null,2)+"\n");
+    await context.unroute("**/*"); // Routing disables the HTTP cache; leave real SW fetch handling intact.
+    await context.setOffline(true);
+    const cached=await page.evaluate(async()=>{
+      const result=[];
+      for(const path of ["caveat-cyrillic.woff","paper-grain.svg","leather-grain.svg"]) {
+        const response=await fetch("/assets/knowledge/"+path);
+        result.push({path,status:response.status,bytes:(await response.arrayBuffer()).byteLength});
+      }
+      await document.fonts.load('600 30px "BF Journal"',"Знания");
+      return result;
+    });
+    assert.ok(cached.every(r=>r.status===200&&r.bytes>100));
+    fs.writeFileSync("reports/knowledge-pwa-offline.json",JSON.stringify(cached,null,2)+"\n");
+    await context.setOffline(false);
+    await context.close();
+  });
+  await check("Knowledge cumulative: three mobile sticker rows and varied thematic icons without removing controls", async () => {
+    const target = await session(profile("staff"));
+    try {
+      await target.open("/knowledge");
+      await visible(target.page.locator(".knowledge-sticker").first());
+      await target.page.evaluate(() => document.fonts.ready);
+      const metrics = await target.page.evaluate(() => {
+        const cards = [...document.querySelectorAll(".knowledge-sticker")].slice(0,6);
+        return {
+          viewport: {width:innerWidth,height:innerHeight},
+          cards: cards.map(el => { const r=el.getBoundingClientRect(); return {x:r.x,y:r.y,width:r.width,height:r.height,bottom:r.bottom}; }),
+          navbar: document.querySelector('nav[aria-label="Основная навигация"]').getBoundingClientRect().top,
+          icons: cards.map(el => el.querySelector(".knowledge-sticker-icons > svg").getAttribute("class")),
+          titleSize: getComputedStyle(cards[0].querySelector("h2")).fontSize,
+          excerptSize: getComputedStyle(cards[0].querySelector(".knowledge-excerpt")).fontSize,
+        };
+      });
+      assert.equal(metrics.viewport.width,390);
+      assert.equal(metrics.cards.length,6);
+      assert.ok(metrics.cards.every(r => r.bottom <= metrics.navbar + 2),JSON.stringify(metrics));
+      assert.ok(new Set(metrics.icons).size >= 3,JSON.stringify(metrics.icons));
+      assert.equal(metrics.titleSize,"14px");
+      assert.equal(metrics.excerptSize,"12px");
+      await visible(target.page.getByLabel("Поиск по базе знаний"));
+      await visible(target.page.getByRole("group",{name:"Категории базы знаний"}));
+      await visible(target.page.locator(".knowledge-board-summary"));
+      await visible(target.page.getByRole("link",{name:/Аттестация/}));
+      fs.writeFileSync("reports/knowledge-mobile-density.json",JSON.stringify(metrics,null,2)+"\n");
+      await target.page.screenshot({path:"reports/knowledge-list-mobile.png"});
+    } finally { await target.context.close(); }
+  });
+  await check("Knowledge cumulative: consecutive photos use deterministic width alignment tilt and every image opens viewer",async()=>{
+    const id="knowledge-photo-mount-fixture";
+    const captions=["Первое фото — реальная подпись.","Второе фото — другая подпись.","Третье фото — заметка.","Четвёртое фото — подпись."];
+    documents.set(id,validateKnowledgeArticle({...seededDocuments[0],id,title:"Фотографии пивоварни",status:"published",revision:1,blocks:captions.map((caption,i)=>({id:"mount-"+i,type:"image",mediaId:randomUUID(),storagePath:"fixture/mount-"+i+".jpg",legacySrc:null,name:"photo.jpg",alt:"Ёмкости пивоварни "+(i+1),caption,width:1600,height:1066}))}));
+    const target=await session(profile("staff")); visualPhoto=true;
+    try {
+      await target.open("/knowledge/"+id);
+      await visible(target.page.locator(".knowledge-image-button img").first());
+      await target.page.locator(".knowledge-image-button img").evaluateAll(imgs=>Promise.all(imgs.map(img=>img.decode())));
+      await target.page.evaluate(()=>document.fonts.ready);
+      const layouts=[];
+      for(const width of [320,390,430,1366]) {
+        await target.page.setViewportSize({width,height:844});
+        assert.ok(await target.page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+        const metrics=await target.page.locator(".knowledge-figure").evaluateAll(figures=>figures.map(el=>({width:el.offsetWidth,parentWidth:el.parentElement.clientWidth,left:el.offsetLeft,transform:getComputedStyle(el).transform,caption:el.querySelector("figcaption").textContent})));
+        assert.deepEqual(metrics.map(m=>m.caption),captions);
+        assert.equal(new Set(metrics.map(m=>m.transform)).size,4);
+        assert.ok(new Set(metrics.map(m=>m.left)).size>=3);
+        if(width<640) for(const [i,expected] of [.90,.86,.82,.92].entries()) assert.ok(Math.abs(metrics[i].width/metrics[i].parentWidth-expected)<.015,JSON.stringify(metrics));
+        layouts.push({viewport:width,figures:metrics});
+      }
+      await target.page.setViewportSize({width:390,height:844});
+      await target.page.evaluate(()=>window.scrollTo(0,0));
+      await target.page.screenshot({path:"reports/knowledge-photo-mounts-mobile.png",fullPage:true});
+      for(let i=0;i<4;i++) {
+        await target.page.locator(".knowledge-image-button").nth(i).click();
+        await visible(target.page.getByRole("dialog"));
+        assert.equal(await target.page.getByRole("dialog").locator("img").getAttribute("alt"),"Ёмкости пивоварни "+(i+1));
+        await target.page.keyboard.press("Escape");
+        await absent(target.page.getByRole("dialog"));
+      }
+      fs.writeFileSync("reports/knowledge-photo-mounts.json",JSON.stringify(layouts,null,2)+"\n");
+    } finally { visualPhoto=false; documents.delete(id); await target.context.close(); }
+  });
+  await check("Knowledge cumulative: accessible nonblocking upload indicator success and network recovery preserve entered content",async()=>{
+    const target=await session(profile("admin"));
+    let release=()=>{};
+    const hold=()=>{ let started; const arrived=new Promise(resolve=>{started=resolve;}); const wait=new Promise(resolve=>{release=resolve;}); uploadGate={started,wait}; return arrived; };
+    try {
+      await target.open("/knowledge/new");
+      await visible(target.page.getByLabel("Заголовок",{exact:true}));
+      await target.page.getByLabel("Заголовок",{exact:true}).fill("Проверка загрузки фото");
+      await target.page.getByLabel("Текст 1",{exact:true}).fill("Введённый текст остаётся на экране.");
+      await addContent(target.page,"Фото");
+      const count=uploadCount;
+      let arrived=hold();
+      await target.page.locator("input[type=file]").setInputFiles({name:"fixture.png",mimeType:"image/png",buffer:fixtureImage});
+      await arrived;
+      const status=target.page.locator(".bf-editor-upload-status");
+      await visible(status);
+      assert.equal(await status.getAttribute("role"),"status");
+      assert.equal(await status.getAttribute("aria-live"),"polite");
+      assert.equal(await status.getAttribute("aria-atomic"),"true");
+      assert.match(await status.innerText(),/Загружаем изображение…/);
+      assert.match(await status.innerText(),/Не закрывайте страницу/);
+      assert.ok(await status.evaluate(el=>getComputedStyle(el).pointerEvents==="none"&&!el.contains(document.activeElement)&&!el.contains(document.elementFromPoint(innerWidth/2,innerHeight/2))));
+      const rect=await target.page.locator(".bf-editor-upload-status-card").boundingBox();
+      assert.ok(Math.abs(rect.x+rect.width/2-195)<2);
+      assert.ok(Math.abs(rect.y+rect.height/2-422)<2);
+      assert.ok(await target.page.getByRole("button",{name:"Подождите…",exact:true}).isDisabled());
+      await target.page.screenshot({path:"reports/editor-upload-indicator-mobile.png"});
+      release(); uploadGate=null;
+      await status.waitFor({state:"hidden"});
+      await visible(target.page.getByLabel("Подпись",{exact:true}));
+      assert.equal(uploadCount,count+1);
+      await target.page.getByLabel("Подпись",{exact:true}).fill("Сохранённая подпись");
+      await target.page.getByRole("button",{name:"Заменить фото",exact:true}).click();
+      mediaFailure=true; arrived=hold();
+      await target.page.locator("input[type=file]").setInputFiles({name:"retry.png",mimeType:"image/png",buffer:fixtureImage});
+      await arrived; await visible(status);
+      release(); uploadGate=null;
+      await status.waitFor({state:"hidden"});
+      await visible(target.page.getByRole("alert"));
+      assert.equal(await target.page.getByLabel("Текст 1",{exact:true}).inputValue(),"Введённый текст остаётся на экране.");
+      assert.equal(await target.page.getByLabel("Подпись",{exact:true}).inputValue(),"Сохранённая подпись");
+      await visible(target.page.getByRole("button",{name:"Скачать копию",exact:true}));
+      assert.equal(uploadCount,count+2);
+      assert.ok(!(await target.page.getByRole("button",{name:"Сохранить",exact:true}).isDisabled()));
+    } finally { release(); uploadGate=null; mediaFailure=false; await target.context.close(); }
+  });
   await check("no JavaScript errors or external/live requests", async () => {
     assert.deepEqual(pageErrors, []);
     assert.deepEqual(consoleErrors, []);

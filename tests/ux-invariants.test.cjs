@@ -76,3 +76,18 @@ test("UX pass preserves editor logic before render: access/load/save/upload/revi
     record.editor_logic_tokens_sha256,
   );
 });
+
+test("image upload exposes a centered accessible progress indicator without changing upload logic", () => {
+  const page = fs.readFileSync(
+    path.join(root, "src/features/knowledge/editor/KnowledgeEditorPage.tsx"),
+    "utf8",
+  );
+  const styles = fs.readFileSync(path.join(root, "src/styles.css"), "utf8");
+  assert.match(page, /setUploadIndicatorVisible\(true\)/);
+  assert.match(page, /Загружаем изображение…/);
+  assert.match(page, /Не закрывайте страницу/);
+  assert.match(page, /role="status"/);
+  assert.match(page, /aria-live="polite"/);
+  assert.match(styles, /\.bf-editor-upload-status\s*\{/);
+  assert.match(styles, /pointer-events:\s*none/);
+});
