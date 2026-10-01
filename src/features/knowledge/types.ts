@@ -5,6 +5,10 @@ export type KnowledgeArticle = {
   body: string;
   readingMinutes: number;
   excerpt: string;
+  source?: 'legacy' | 'supabase';
+  revision?: number;
+  searchText?: string;
+  firstImage?: string | null;
 };
 
 export type KnowledgeProgressSource = "profile" | "device";

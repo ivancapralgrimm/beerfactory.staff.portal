@@ -23,6 +23,10 @@ import {
 } from "@/features/knowledge/knowledge-markdown";
 import { useKnowledgeArticles } from "@/features/knowledge/use-knowledge";
 import { useKnowledgeProgress } from "@/features/knowledge/use-knowledge-progress";
+import { useKnowledgeEditorAccess } from "./editor/use-editor-access";
+import { loadKnowledgeArticleForEditor } from "./editor/knowledge-editor-api";
+import type { KnowledgeArticleDocument } from "./editor/article-model";
+import { KnowledgeDocumentView } from "./editor/KnowledgeDocumentView";
 
 function safeDecode(value: string) {
   try {
@@ -52,6 +56,7 @@ export function KnowledgeArticlePage() {
   const { state: auth } = useAuth();
   const userId = auth.status === "authenticated" ? auth.user.id : "";
   const { state, reload } = useKnowledgeArticles();
+  const editorAccess = useKnowledgeEditorAccess();
   const progress = useKnowledgeProgress(userId);
   const location = useLocation();
   const [shareStatus, setShareStatus] = useState("");
@@ -67,8 +72,24 @@ export function KnowledgeArticlePage() {
     [requestedId, state.articles]
   );
 
+  const [serverDetail, setServerDetail] = useState<{id:string;revision?:number;document:KnowledgeArticleDocument|null;error:boolean} | null>(null);
+  useEffect(() => {
+    if (!article || article.source !== "supabase") return;
+    let active = true;
+    const {id, revision} = article;
+    setServerDetail({id, revision, document:null, error:false});
+    void loadKnowledgeArticleForEditor(id).then(document => {
+      if(document.status !== 'published') throw new Error('article_not_published');
+      if(active) setServerDetail({id, revision, document, error:false});
+    }).catch(() => {
+      if(active) setServerDetail({id, revision, document:null, error:true});
+    });
+    return () => { active = false; };
+  }, [article?.id, article?.revision, article?.source]);
+  const detail = serverDetail?.id === article?.id && serverDetail?.revision === article?.revision ? serverDetail : null;
+
   const blocks = useMemo(
-    () => (article ? parseKnowledgeMarkdown(article.body) : []),
+    () => (article && article.source !== "supabase" ? parseKnowledgeMarkdown(article.body) : []),
     [article]
   );
   const titleTopics = useMemo(
@@ -277,7 +298,9 @@ export function KnowledgeArticlePage() {
         </nav>
       ) : null}
 
-      <div className="knowledge-prose py-4 sm:py-6">
+      {editorAccess.canEdit && <div className="my-4"><Button asChild><Link to={`/knowledge/${encodeURIComponent(article.id)}/edit`} state={{from:backTarget}}>Редактировать статью</Link></Button></div>}
+      {article.source === "supabase" && (detail?.document ? <KnowledgeDocumentView document={detail.document}/> : detail?.error ? <div role="alert" className="my-6"><p>Не удалось загрузить статью. Проверьте соединение.</p><Button className="mt-3" onClick={()=>void reload()}>Повторить</Button></div> : <p role="status" className="my-6">Загружаем статью…</p>)}
+      {article.source !== "supabase" && <div className="knowledge-prose py-4 sm:py-6">
         {blocks.map((block, index) => {
           if (block.type === "paragraph") {
             const standaloneTitle = sectionTitle(block);
@@ -367,14 +390,14 @@ export function KnowledgeArticlePage() {
             </figure>
           );
         })}
-      </div>
+      </div>}
 
       <footer className="border-t border-[var(--bf-line)] pt-5">
         <div className="flex flex-wrap gap-2">
           <Button
             type="button"
             variant="primary"
-            disabled={saving || read}
+            disabled={saving || read || (article.source === 'supabase' && !detail?.document)}
             onClick={markRead}
           >
             <BookCheck className="size-4" aria-hidden />
