@@ -1772,3 +1772,326 @@
   pointer-events: none;
 }
 .craft-dashboard .bf-dashboard-brand { position: relative; }
+
+
+/* ==========================================================================
+   BFStaff visual architecture hardening · r40.5 paper-first pass
+   Locked from the approved craft mockup + real iPhone QA screenshots.
+   Principles:
+   - paper is the application canvas, never a floating sheet on a black shell;
+   - leather is a semantic material for dock/selected/clipboard/primary action;
+   - decorative art never sits under controls;
+   - paper textures use filter-free SVGs for iOS/Safari stability;
+   - depth comes from restrained physical shadows, not dark gutters.
+   ========================================================================== */
+:root {
+  --craft-canvas: #f4e5c9;
+  --craft-canvas-deep: #ead7b5;
+  --craft-paper-shadow:
+    0 1px 0 rgba(255, 251, 239, .88),
+    0 3px 8px rgba(73, 48, 27, .16),
+    0 12px 28px rgba(73, 48, 27, .10);
+  --craft-control-shadow:
+    0 1px 0 rgba(255, 252, 242, .96),
+    0 2px 4px rgba(75, 48, 25, .18),
+    0 7px 15px rgba(75, 48, 25, .08);
+}
+
+/* Paper-first application surface. The old dark shell was the source of the
+   black side/top gutters on iOS and made every page feel like a floating DOM card. */
+.bf-app-shell {
+  color-scheme: light;
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    radial-gradient(ellipse at 90% 5%, rgba(176, 119, 61, .08), transparent 32%),
+    linear-gradient(120deg, #f8ecd4, var(--craft-canvas) 58%, var(--craft-canvas-deep));
+  min-height: 100dvh;
+}
+.bf-main {
+  max-width: 760px;
+  padding-top: calc(10px + env(safe-area-inset-top));
+  padding-inline: 10px;
+}
+
+/* No global decorative stamp. It previously collided with refresh/actions on Shift. */
+.craft-page::after { display: none !important; }
+
+/* Internal pages are part of the paper canvas instead of a paper island on dark shell. */
+.craft-page:not(.craft-page--article) {
+  border: 0;
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    linear-gradient(118deg, rgba(255,247,228,.94), rgba(244,229,201,.96));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.62);
+}
+.craft-page:not(.craft-page--article)::before { display: none; }
+
+/* Dashboard: dark brewery art is now an inset physical hero on paper, not the page background. */
+.craft-page--dashboard {
+  padding: 8px 8px 26px;
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    linear-gradient(120deg, #f8ecd4, #f2e1c2) !important;
+}
+.craft-dashboard .bf-dashboard-hero {
+  margin: 0 !important;
+  min-height: 270px;
+  padding: 20px 16px 18px !important;
+  border: 1px solid rgba(110, 66, 34, .65);
+  border-radius: 13px 11px 15px 10px;
+  isolation: isolate;
+  box-shadow:
+    inset 0 1px 0 rgba(236,181,126,.22),
+    inset 0 -1px 0 rgba(32,17,9,.74),
+    0 3px 8px rgba(51,30,16,.28),
+    0 13px 28px rgba(51,30,16,.16);
+  background:
+    radial-gradient(ellipse at 84% 24%, #3b281c, #1a130e 72%);
+}
+.craft-dashboard .bf-dashboard-hero::before {
+  inset: 0;
+  background: url("/assets/craft/illustrations/brewery-pen-caricature.webp") 86% center / auto 96% no-repeat;
+  -webkit-mask-image: none;
+  mask-image: none;
+  opacity: .50;
+  z-index: -2;
+}
+.craft-dashboard .bf-dashboard-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(22,14,9,.93) 0%, rgba(22,14,9,.66) 36%, rgba(22,14,9,.10) 78%);
+  pointer-events: none;
+}
+.craft-dashboard .bf-dashboard-brand,
+.craft-dashboard .bf-dashboard-hero h1,
+.craft-dashboard .bf-dashboard-hero p { position: relative; z-index: 1; }
+.craft-dashboard .bf-dashboard-brand {
+  font-size: clamp(39px, 11vw, 50px);
+  text-shadow: 0 2px 0 rgba(31,17,10,.50);
+}
+.craft-dashboard .bf-dashboard-hero h1 {
+  width: min(76%, 390px);
+  margin-top: 24px;
+  padding: 16px 15px 32px;
+  border: 1px solid rgba(183,151,104,.55);
+  border-radius: 4px 7px 5px 3px;
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    linear-gradient(120deg, #fff7e5, #f4e3c3) !important;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.85),
+    0 4px 9px rgba(20,10,5,.34),
+    0 14px 22px rgba(20,10,5,.16) !important;
+}
+.craft-dashboard .bf-dashboard-content {
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.craft-dashboard > .craft-paper-card,
+.craft-dashboard .bf-dashboard-profile,
+.craft-dashboard .bf-day-status,
+.craft-dashboard .bf-dashboard-action,
+.craft-dashboard .bf-dashboard-wide-action,
+.craft-paper-card:not(.craft-recipe-editor),
+.craft-recipe-grid .recipe-list-row,
+.craft-page--feed article {
+  border: 1px solid rgba(190, 157, 111, .52) !important;
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    linear-gradient(115deg, #fff5df, #f4e5c9) !important;
+  box-shadow: var(--craft-paper-shadow) !important;
+}
+.craft-dashboard .bf-dashboard-action:nth-child(2n) { border-radius: 5px 8px 5px 7px; }
+.craft-dashboard .bf-dashboard-action:nth-child(3n) { border-radius: 8px 5px 7px 4px; }
+.craft-dashboard .bf-dashboard-action:active,
+.craft-dashboard .bf-dashboard-profile:active,
+.craft-dashboard .bf-dashboard-wide-action:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 3px rgba(75,48,25,.18) !important;
+}
+
+/* Search and input controls should look embedded in paper, not flat CSS rectangles. */
+.craft-context :is(input:not([type="checkbox"]):not([type="radio"]), textarea, select) {
+  border: 1px solid rgba(171,135,86,.70);
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    rgba(255, 247, 231, .96);
+  box-shadow:
+    inset 0 1px 3px rgba(92,62,31,.12),
+    0 1px 0 rgba(255,255,255,.78),
+    0 3px 8px rgba(91,60,31,.09);
+}
+
+/* Menu header is a clean paper header. No transparent/masked paper sheet can leak dark pixels. */
+.craft-page--menu {
+  overflow: hidden;
+  padding-top: 16px;
+}
+.craft-page--menu .bf-recipes-header {
+  position: relative;
+  z-index: 2;
+  padding: 2px 1px 1px;
+}
+.craft-page--menu .bf-recipes-header-actions .craft-button {
+  border-radius: 7px !important;
+  box-shadow: var(--craft-control-shadow) !important;
+}
+.craft-page--menu .bf-recipes-search {
+  position: relative;
+  z-index: 3;
+}
+.craft-page--menu .bf-recipe-categories button:not([aria-pressed="true"]) {
+  border-color: rgba(184,149,102,.66);
+  background: rgba(255,246,225,.62);
+  box-shadow: 0 1px 0 rgba(255,255,255,.62), 0 2px 5px rgba(76,50,28,.07);
+}
+
+/* Plain actions use stable paper tags without CSS masks or SVG filter artefacts. */
+.craft-context .craft-button:not([data-craft-variant="primary"]):not([aria-pressed="true"]) {
+  border: 1px solid rgba(188,153,106,.56);
+  border-radius: 6px;
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    linear-gradient(120deg, #fff6e2, #f3e3c5);
+  box-shadow: var(--craft-control-shadow);
+}
+.craft-context .craft-button:not([data-craft-variant="primary"]):not([aria-pressed="true"])::before {
+  display: none !important;
+  -webkit-mask: none !important;
+  mask: none !important;
+}
+
+/* Shift tools now live inside the paper page. */
+.bf-page-tools {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 0 12px;
+}
+.bf-page-tool-link {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 13px;
+  color: var(--craft-ink);
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: none;
+  border: 1px solid rgba(181,145,97,.62);
+  border-radius: 8px 6px 9px 7px;
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    linear-gradient(120deg, #fff5df, #f3e2c4);
+  box-shadow: var(--craft-control-shadow);
+}
+.bf-page-tool-link:focus-visible {
+  outline: 2px solid var(--craft-copper);
+  outline-offset: 3px;
+}
+.craft-page--shift {
+  padding-top: 14px;
+}
+.craft-page--shift > section > div:first-child {
+  position: relative;
+  z-index: 2;
+}
+.craft-page--shift button[aria-label="Обновить смену"] {
+  position: relative;
+  z-index: 4;
+  box-shadow: var(--craft-control-shadow) !important;
+}
+.craft-shift-status {
+  border-color: rgba(184,149,102,.58) !important;
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    linear-gradient(118deg, #fff5df, #f4e5c9) !important;
+  box-shadow: var(--craft-paper-shadow);
+}
+.craft-phase-tabs button:not([aria-pressed="true"]) {
+  border-color: rgba(181,145,97,.60);
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    #fff5df;
+  box-shadow: var(--craft-control-shadow);
+}
+.craft-clipboard {
+  margin-top: 4px;
+  box-shadow:
+    inset 0 1px 1px rgba(242,200,154,.50),
+    inset 0 -3px 2px rgba(39,24,14,.68),
+    0 3px 0 #392316,
+    0 9px 18px rgba(52,31,17,.25),
+    0 22px 42px rgba(52,31,17,.12);
+}
+.craft-clipboard-paper {
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    repeating-linear-gradient(transparent 0 29px, rgba(153,132,97,.18) 29px 30px),
+    linear-gradient(105deg, #fff5e2, #f3e5cb);
+  border: 1px solid rgba(193,165,124,.55);
+  box-shadow:
+    -1px 1px 0 #ede0c9,
+    -2px 2px 0 #d4be9b,
+    0 5px 9px rgba(40,23,13,.32);
+}
+.craft-clipboard-paper::before { display: none; }
+
+/* Bottom dock stays leather, but loses the oversized vertical mass seen on iPhone. */
+.bf-bottom-nav {
+  inset-inline: 10px;
+  bottom: 4px;
+  padding-bottom: max(5px, env(safe-area-inset-bottom)) !important;
+  border-radius: 14px 14px 10px 10px;
+}
+.bf-bottom-nav > div { min-height: 52px !important; }
+.bf-bottom-nav a { min-height: 48px !important; }
+.bf-bottom-nav svg { width: 20px; height: 20px; }
+.bf-bottom-nav a span { font-size: 10px; line-height: 1.1; }
+
+/* Editors/admin stay operational and light: no accidental dark gaps around their paper work surface. */
+.craft-page--article-editor,
+.craft-page--knowledge-manage,
+.craft-page--checklist-editor,
+.craft-page--admin,
+.craft-page--profile,
+.craft-page--attestation,
+.craft-page--feed,
+.craft-page--recipe,
+.craft-page--menu,
+.craft-page--shift {
+  color-scheme: light;
+}
+
+@media (max-width: 430px) {
+  .bf-main { padding-inline: 8px; }
+  .craft-page:not(.craft-page--article) { padding-inline: 12px; }
+  .craft-page--dashboard { padding-inline: 7px; }
+  .craft-dashboard .bf-dashboard-hero { min-height: 250px; }
+  .craft-dashboard .bf-dashboard-hero h1 { width: 74%; font-size: clamp(34px, 10vw, 40px); }
+  .craft-dashboard .bf-dashboard-hero p { max-width: 76%; }
+  .craft-clipboard { padding-right: 29px; }
+}
+
+@media (max-width: 359px) {
+  .bf-main { padding-inline: 5px; }
+  .craft-page:not(.craft-page--article) { padding-inline: 10px; }
+  .craft-dashboard .bf-dashboard-hero h1 { width: 82%; }
+  .bf-bottom-nav { inset-inline: 6px; }
+}
+
+/* Explicit semantic exception: notebook toolbar stays leather. */
+.craft-page--article .knowledge-notebook-toolbar .craft-button[data-craft-variant] {
+  color: var(--craft-paper-light);
+  border-color: var(--craft-leather-hi);
+  border-radius: 24px;
+  background: var(--craft-leather-surface);
+  box-shadow:
+    inset 0 1px 1px rgba(244, 205, 165, .36),
+    0 2px 4px rgba(45, 25, 14, .24);
+}
