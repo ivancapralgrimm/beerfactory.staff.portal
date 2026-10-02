@@ -36,6 +36,7 @@ import type {
   PositionShiftWorkflow,
   ShiftCheckType
 } from "@/features/shift/types";
+import { ClipboardSurface } from "@/components/craft/CraftPage";
 import { cn } from "@/lib/utils";
 
 type ViewState =
@@ -210,16 +211,17 @@ function PhaseSection({ title, eyebrow, rows, completed, total, percent, locked,
   footer?: ReactNode;
 }) {
   return (
-    <section className="rounded-[22px] border border-[var(--bf-line)] bg-[var(--bf-surface)] p-4 sm:p-5">
+    <ClipboardSurface><section className="craft-phase rounded-[22px] border border-[var(--bf-line)] bg-[var(--bf-surface)] p-4 sm:p-5">
       <div className="flex items-start justify-between gap-3"><div><p className="eyebrow">{eyebrow}</p><h2 className="mt-1 text-2xl font-black">{title}</h2></div><span className="shrink-0 rounded-full border border-[var(--bf-line)] px-3 py-2 text-xs font-black text-[var(--bf-cream)]">{completed}/{total}</span></div>
       <div className="mt-4"><ProgressBar value={percent} label={`Прогресс: ${title}`} /></div>
       <ChecklistBody rows={rows} locked={locked} pendingKeys={pendingKeys} pendingGroups={pendingGroups} onToggle={onToggle} onToggleGroup={onToggleGroup} />
       {footer}
-    </section>
+    </section></ClipboardSurface>
   );
 }
 
 export function ShiftPage() {
+  const [visiblePhase, setVisiblePhase] = useState<"opening" | "closing">("opening");
   const [view, setView] = useState<ViewState>({ status: "loading" });
   const [refreshing, setRefreshing] = useState(false);
   const [pendingKeys, setPendingKeys] = useState<Set<string>>(() => new Set());
@@ -351,7 +353,7 @@ export function ShiftPage() {
     <section className="mx-auto max-w-3xl pb-6">
       <p className="eyebrow">СМЕНА НЕДОСТУПНА</p>
       <h1 className="mt-2 text-[34px] font-black leading-none tracking-[-0.04em]">Не удалось загрузить чек-лист</h1>
-      <div className="mt-5 rounded-[22px] border border-[color:color-mix(in_srgb,var(--bf-red),transparent_55%)] bg-[color:color-mix(in_srgb,var(--bf-red),transparent_92%)] p-4">
+      <div className="craft-shift-status mt-5 rounded-[22px] border border-[color:color-mix(in_srgb,var(--bf-red),transparent_55%)] bg-[color:color-mix(in_srgb,var(--bf-red),transparent_92%)] p-4">
         <div className="flex items-start gap-3"><AlertTriangle className="mt-0.5 size-5 shrink-0 text-[#e99990]" aria-hidden /><p className="text-sm leading-6 text-[var(--bf-muted)]">{view.message}</p></div>
         <Button type="button" variant="secondary" className="mt-4" onClick={() => void load(false)}><RefreshCw className="size-4" aria-hidden />Повторить</Button>
       </div>
@@ -361,14 +363,14 @@ export function ShiftPage() {
   const { context, shift, configured } = view.data;
 
   if (context.state === "position_required") return (
-    <section className="mx-auto max-w-2xl pb-6"><p className="eyebrow">СМЕНА</p><h1 className="mt-2 text-[34px] font-black leading-none tracking-[-0.04em]">Выберите должность в профиле</h1><div className="mt-5 rounded-[22px] border border-[var(--bf-line)] bg-[var(--bf-surface)] p-5"><BriefcaseBusiness className="size-6 text-[var(--bf-copper-hi)]" aria-hidden /><p className="mt-3 text-sm leading-6 text-[var(--bf-muted)]">После выбора появится ваш чек-лист.</p><Button asChild variant="primary" className="mt-4"><Link to="/profile">Открыть профиль</Link></Button></div></section>
+    <section className="mx-auto max-w-2xl pb-6"><p className="eyebrow">СМЕНА</p><h1 className="mt-2 text-[34px] font-black leading-none tracking-[-0.04em]">Выберите должность в профиле</h1><div className="craft-shift-status mt-5 rounded-[22px] border border-[var(--bf-line)] bg-[var(--bf-surface)] p-5"><BriefcaseBusiness className="size-6 text-[var(--bf-copper-hi)]" aria-hidden /><p className="mt-3 text-sm leading-6 text-[var(--bf-muted)]">После выбора появится ваш чек-лист.</p><Button asChild variant="primary" className="mt-4"><Link to="/profile">Открыть профиль</Link></Button></div></section>
   );
 
   if (context.state === "locked") return (
     <section className="mx-auto max-w-2xl pb-6">
       <p className="eyebrow">СМЕНА · {context.position_label}</p>
       <h1 className="mt-2 text-[34px] font-black leading-none tracking-[-0.04em]">Смена недоступна</h1>
-      <div className="mt-5 rounded-[22px] border border-[var(--bf-line)] bg-[var(--bf-surface)] p-5">
+      <div className="craft-shift-status mt-5 rounded-[22px] border border-[var(--bf-line)] bg-[var(--bf-surface)] p-5">
         <LockKeyhole className="size-6 text-[var(--bf-gold)]" aria-hidden />
         <h2 className="mt-3 text-xl font-black">Новая смена с 11:00</h2>
         <p className="mt-3 text-sm font-bold text-[var(--bf-cream)]">Следующее открытие: {formatDateTime(context.next_open_at, context.venue_timezone)}</p>
@@ -385,24 +387,25 @@ export function ShiftPage() {
   return (
     <section className="mx-auto max-w-3xl pb-6">
       <div className="flex items-start justify-between gap-3">
-        <div><p className="eyebrow">СМЕНА · {shift.position_label.toUpperCase()}</p><h1 className="mt-1 text-[36px] font-black leading-none tracking-[-0.04em]">Чек-листы</h1><p className="mt-2 text-sm text-[var(--bf-muted)]">11:00–03:00</p></div>
+        <div><p className="eyebrow">СМЕНА · {shift.position_label.toUpperCase()}</p><h1 className="mt-1 text-[36px] font-black leading-none tracking-[-0.04em]">Смена</h1><p className="mt-2 text-sm text-[var(--bf-muted)]">11:00–03:00</p></div>
         <Button type="button" variant="secondary" size="icon" aria-label="Обновить смену" disabled={interactionLocked} onClick={() => void load(true)}><RefreshCw className={cn("size-4", refreshing && "animate-spin")} aria-hidden /></Button>
       </div>
 
-      <div className="mt-5 rounded-[22px] border border-[var(--bf-line)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--bf-copper),transparent_90%),transparent_50%),var(--bf-surface)] p-4">
+      <div className="craft-shift-status mt-5 rounded-[22px] border border-[var(--bf-line)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--bf-copper),transparent_90%),transparent_50%),var(--bf-surface)] p-4">
         <div className="flex items-center justify-between gap-3"><div><div className="flex items-center gap-2">{shift.status === "closed" ? <CheckCircle2 className="size-5 text-[var(--bf-green)]" aria-hidden /> : <Clock3 className="size-5 text-[var(--bf-copper-hi)]" aria-hidden />}<h2 className="text-xl font-black">{shift.status === "not_started" ? "Смена не открыта" : shift.status === "active" ? "Смена открыта" : shift.status === "closed" ? "Смена закрыта" : "Смена истекла"}</h2></div></div><div className="flex shrink-0 items-center gap-1.5 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-bg)] px-2.5 py-2"><CalendarDays className="size-4 text-[var(--bf-copper-hi)]" aria-hidden /><p className="whitespace-nowrap text-[11px] font-bold capitalize leading-none">{formatDate(shift.shift_date)}</p></div></div>
         {shift.opened_at || shift.closed_at ? <p className="mt-3 text-xs text-[var(--bf-muted)]">{shift.opened_at ? `Открыта ${formatTime(shift.opened_at, context.venue_timezone)}` : "Открытие не подтверждено"}{shift.closed_at ? ` · закрыта ${formatTime(shift.closed_at, context.venue_timezone)}` : ""}{context.closes_at ? ` · до ${formatTime(context.closes_at, context.venue_timezone)}` : ""}</p> : null}
       </div>
 
       {context.general_cleaning_day ? <div className="mt-4">{cleaning.total ? <PhaseSection eyebrow="ВОСКРЕСЕНЬЕ · ГЕНУБОРКА" title="Генуборка" rows={cleaning.list} completed={cleaning.completed} total={cleaning.total} percent={cleaning.percent} locked={interactionLocked} pendingKeys={pendingKeys} pendingGroups={pendingGroups} onToggle={toggleCheck} onToggleGroup={toggleGroup} /> : <section className="rounded-[22px] border border-[color:color-mix(in_srgb,var(--bf-gold),transparent_60%)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--bf-gold),transparent_92%),transparent_55%),var(--bf-surface)] p-4 sm:p-5"><div className="flex items-start gap-3"><Sparkles className="mt-0.5 size-5 shrink-0 text-[var(--bf-gold)]" aria-hidden /><div><p className="eyebrow">ВОСКРЕСЕНЬЕ · ГЕНУБОРКА</p><h2 className="mt-1 text-2xl font-black">Генуборка</h2><p className="mt-2 text-sm leading-6 text-[var(--bf-muted)]">Пунктов пока нет.</p></div></div></section>}</div> : null}
 
-      <div className="mt-4"><PhaseSection eyebrow="ОТКРЫТИЕ" title="Открытие" rows={opening.list} completed={opening.completed} total={opening.total} percent={opening.percent} locked={!openingEditable || interactionLocked} pendingKeys={pendingKeys} pendingGroups={pendingGroups} onToggle={toggleCheck} onToggleGroup={toggleGroup} footer={shift.status === "not_started" ? <Button type="button" variant="primary" size="lg" className="mt-4 w-full" disabled={opening.total === 0 || opening.completed !== opening.total || interactionLocked || pendingKeys.size > 0 || pendingGroups.size > 0} onClick={() => void confirmPhase("open")}>{confirming === "open" ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <ClipboardCheck className="size-4" aria-hidden />}Подтвердить открытие</Button> : <p className="mt-4 text-xs font-bold text-[#9dd0a0]">Открытие подтверждено.</p>} /></div>
+      <div className="craft-phase-tabs" role="group" aria-label="Этап чек-листа"><button type="button" aria-pressed={visiblePhase === "opening"} onClick={() => setVisiblePhase("opening")}>Открытие</button><button type="button" aria-pressed={visiblePhase === "closing"} onClick={() => setVisiblePhase("closing")}>Закрытие</button></div>
+      <div className="mt-4" hidden={visiblePhase !== "opening"}><PhaseSection eyebrow="ОТКРЫТИЕ" title="Открытие" rows={opening.list} completed={opening.completed} total={opening.total} percent={opening.percent} locked={!openingEditable || interactionLocked} pendingKeys={pendingKeys} pendingGroups={pendingGroups} onToggle={toggleCheck} onToggleGroup={toggleGroup} footer={shift.status === "not_started" ? <Button type="button" variant="primary" size="lg" className="mt-4 w-full" disabled={opening.total === 0 || opening.completed !== opening.total || interactionLocked || pendingKeys.size > 0 || pendingGroups.size > 0} onClick={() => void confirmPhase("open")}>{confirming === "open" ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <ClipboardCheck className="size-4" aria-hidden />}Подтвердить открытие</Button> : <p className="mt-4 text-xs font-bold text-[#9dd0a0]">Открытие подтверждено.</p>} /></div>
 
-      <div className="mt-4">{!closingUnlocked && shift.status === "not_started" ? <section className="rounded-[22px] border border-[var(--bf-line)] bg-[var(--bf-surface)] p-4 sm:p-5"><p className="eyebrow">ЗАКРЫТИЕ</p><h2 className="mt-1 text-2xl font-black">Закрытие</h2><p className="mt-2 text-sm leading-6 text-[var(--bf-muted)]">При необходимости закрытие можно начать раньше.</p><Button type="button" variant="secondary" size="lg" className="mt-4 w-full" disabled={interactionLocked} onClick={() => void unlockClosing()}>{unlocking ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <LockKeyhole className="size-4" aria-hidden />}Открыть закрытие</Button></section> : <PhaseSection eyebrow="ЗАКРЫТИЕ" title="Закрытие" rows={closing.list} completed={closing.completed} total={closing.total} percent={closing.percent} locked={!closingEditable || interactionLocked} pendingKeys={pendingKeys} pendingGroups={pendingGroups} onToggle={toggleCheck} onToggleGroup={toggleGroup} footer={shift.status === "active" ? <Button type="button" variant="primary" size="lg" className="mt-4 w-full" disabled={closing.total === 0 || closing.completed !== closing.total || interactionLocked || pendingKeys.size > 0 || pendingGroups.size > 0} onClick={() => void confirmPhase("close")}>{confirming === "close" ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <ClipboardCheck className="size-4" aria-hidden />}Подтвердить закрытие</Button> : shift.status === "not_started" ? <p className="mt-4 text-xs leading-5 text-[var(--bf-dim)]">Отмечать пункты можно заранее. Подтверждение доступно после открытия.</p> : <p className="mt-4 text-xs font-bold text-[#9dd0a0]">Закрытие подтверждено.</p>} />}</div>
+      <div className="mt-4" hidden={visiblePhase !== "closing"}>{!closingUnlocked && shift.status === "not_started" ? <section className="rounded-[22px] border border-[var(--bf-line)] bg-[var(--bf-surface)] p-4 sm:p-5"><p className="eyebrow">ЗАКРЫТИЕ</p><h2 className="mt-1 text-2xl font-black">Закрытие</h2><p className="mt-2 text-sm leading-6 text-[var(--bf-muted)]">При необходимости закрытие можно начать раньше.</p><Button type="button" variant="secondary" size="lg" className="mt-4 w-full" disabled={interactionLocked} onClick={() => void unlockClosing()}>{unlocking ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <LockKeyhole className="size-4" aria-hidden />}Открыть закрытие</Button></section> : <PhaseSection eyebrow="ЗАКРЫТИЕ" title="Закрытие" rows={closing.list} completed={closing.completed} total={closing.total} percent={closing.percent} locked={!closingEditable || interactionLocked} pendingKeys={pendingKeys} pendingGroups={pendingGroups} onToggle={toggleCheck} onToggleGroup={toggleGroup} footer={shift.status === "active" ? <Button type="button" variant="primary" size="lg" className="mt-4 w-full" disabled={closing.total === 0 || closing.completed !== closing.total || interactionLocked || pendingKeys.size > 0 || pendingGroups.size > 0} onClick={() => void confirmPhase("close")}>{confirming === "close" ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <ClipboardCheck className="size-4" aria-hidden />}Подтвердить закрытие</Button> : shift.status === "not_started" ? <p className="mt-4 text-xs leading-5 text-[var(--bf-dim)]">Отмечать пункты можно заранее. Подтверждение доступно после открытия.</p> : <p className="mt-4 text-xs font-bold text-[#9dd0a0]">Закрытие подтверждено.</p>} />}</div>
 
       <p className={cn("mt-3 min-h-5 text-xs leading-5", message?.tone === "error" ? "text-[#e99990]" : "text-[#9dd0a0]")} role="status" aria-live="polite">{message?.text || ""}</p>
 
-      <section className="mt-5 rounded-[22px] border border-[var(--bf-line)] bg-[var(--bf-surface)] p-4"><div className="flex items-start gap-3"><StickyNote className="mt-0.5 size-5 shrink-0 text-[var(--bf-copper-hi)]" aria-hidden /><div className="min-w-0 flex-1"><p className="eyebrow">ЛЕНТА</p><h2 className="mt-1 text-lg font-black">Есть важная информация?</h2><p className="mt-1 text-sm leading-6 text-[var(--bf-muted)]">Добавьте её в Ленту.</p><Button asChild variant="secondary" className="mt-3"><Link to="/feed">Открыть Ленту</Link></Button></div></div></section>
+      <section className="craft-shift-status mt-5 rounded-[22px] border border-[var(--bf-line)] bg-[var(--bf-surface)] p-4"><div className="flex items-start gap-3"><StickyNote className="mt-0.5 size-5 shrink-0 text-[var(--bf-copper-hi)]" aria-hidden /><div className="min-w-0 flex-1"><p className="eyebrow">ЛЕНТА</p><h2 className="mt-1 text-lg font-black">Есть важная информация?</h2><p className="mt-1 text-sm leading-6 text-[var(--bf-muted)]">Добавьте её в Ленту.</p><Button asChild variant="secondary" className="mt-3"><Link to="/feed">Открыть Ленту</Link></Button></div></div></section>
     </section>
   );
 }
