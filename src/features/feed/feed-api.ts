@@ -45,30 +45,29 @@ export async function loadFeed() {
     )
   ];
 
-  let profiles = new Map<string, FeedProfile>();
-  let acknowledgements: AckRow[] = [];
+  const [profileResult, acknowledgementResult] = await Promise.all([
+    profileIds.length
+      ? supabase
+          .from("profiles")
+          .select("id,first_name,last_name,position")
+          .in("id", profileIds)
+      : Promise.resolve({ data: [], error: null }),
+    noteIds.length
+      ? supabase
+          .from("feed_acknowledgements")
+          .select("note_id,user_id,created_at")
+          .in("note_id", noteIds)
+      : Promise.resolve({ data: [], error: null })
+  ]);
 
-  if (profileIds.length) {
-    const { data: profileRows, error: profileError } =
-      await supabase
-        .from("profiles")
-        .select("id,first_name,last_name,position")
-        .in("id", profileIds);
+  if (profileResult.error) throw profileResult.error;
+  if (acknowledgementResult.error) throw acknowledgementResult.error;
 
-    if (profileError) throw profileError;
-    profiles = asProfileMap((profileRows || []) as FeedProfile[]);
-  }
-
-  if (noteIds.length) {
-    const { data: ackRows, error: ackError } =
-      await supabase
-        .from("feed_acknowledgements")
-        .select("note_id,user_id,created_at")
-        .in("note_id", noteIds);
-
-    if (ackError) throw ackError;
-    acknowledgements = (ackRows || []) as AckRow[];
-  }
+  const profiles = asProfileMap(
+    (profileResult.data || []) as FeedProfile[]
+  );
+  const acknowledgements =
+    (acknowledgementResult.data || []) as AckRow[];
 
   const ackCount = new Map<string, number>();
   const mine = new Set<string>();
