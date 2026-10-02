@@ -1,0 +1,45 @@
+{
+  "baseline_head": "86592046d9df3e9699c918094d84ae9116ab1186",
+  "source_candidate": "Approved Full Redesign V2 + Material Fidelity Result",
+  "scope": "Reviewed frontend-only performance/network hotfixes. Original protected baseline remains authoritative outside this explicit allowlist.",
+  "changes": [
+    "Immediate route pending feedback plus recoverable lazy-route failure screen.",
+    "staff-profile GET timeout (6s) and identical-token in-flight dedupe; transient timeout keeps the existing auth fallback semantics.",
+    "Coalesced focus/visibility/online refresh bursts for Feed, birthdays and Knowledge; Shift workflow read uses in-flight dedupe without changing Shift page logic.",
+    "Feed profile and acknowledgement reads run in parallel after notes are loaded.",
+    "Knowledge text index becomes ready before private image URL signing; signed thumbnails update asynchronously with a 10-minute client cache inside the 15-minute signed-URL lifetime."
+  ],
+  "forbidden_scope": [
+    "No Supabase migration/RLS/table/function changes.",
+    "No Edge function or Cloudflare Worker changes.",
+    "No user/role/live-data changes.",
+    "No recipe write contract or shift business-rule changes.",
+    "No automatic destructive reload on chunk failure."
+  ],
+  "previous_sha256": {
+    "src/app/App.tsx": "5b776fcccc3624161c6859bb4b9ae19c696fec64587452825f79a65c9de39494",
+    "src/features/auth/auth-api.ts": "f08361d5d37e739d65152c44a7cb1b6ece2ef5ea7697221d008c31547295ff11",
+    "src/features/dashboard/use-upcoming-birthdays.ts": "eeb933b693dc0b57333e589c0b00099e75874dee42718ab2201d7006eca0ee71",
+    "src/features/feed/feed-api.ts": "167271b51cb5ec6224aaba57daaaee77d515ea594927a6209decca3c4d5011b3",
+    "src/features/feed/use-feed.ts": "d75f210adc574477dce34484977367dd4fe7f28462ae81e9abb96f3653e2d9b8",
+    "src/features/knowledge/knowledge-data.ts": "fd21c5dbbf1ca0c212a8649cb2ba7d1dc2fc7bc7791991f5de1bfdf11fe094fc",
+    "src/features/knowledge/knowledge-server.ts": "d65c86605d52231e5d8c8813817f3d8e78974ad4e674076193852c628e4b8b89",
+    "src/features/knowledge/use-knowledge.ts": "b35c9b6336aa285c940bea1667f10354680c25576dbadfa7d131465731712142",
+    "src/features/shift/shift-api.ts": "9aff31cf35e309243aebd6bf23ff7b110e23a7f3058800f2d45accb2ff89ed5a",
+    "UX_BASELINE_PROTECTED.json": "d57acc2be651c588f9a56c9463cac231bdfbd7a8a2257dc19247a7b28a184ebd",
+    "KNOWLEDGE_REDESIGN_PROTECTED.json": "d9d4166c033b88736a2340cacf907a38ad12fad8e5e74e4e9908d69a974a7bc9"
+  },
+  "override_sha256": {
+    "src/app/App.tsx": "4f4689805109a51bdd270eacefa4fc6f1f46814df527e46244672eef9ccd1963",
+    "src/features/auth/auth-api.ts": "fdd4158c1e2688aaac681c330a3ac6a57a059471ee3974c33f53fd5c529385a5",
+    "src/features/dashboard/use-upcoming-birthdays.ts": "3ece4c1d05cd2646c6ade875a4edcc2435589be1c0e14933b6d8fbcf2033d4be",
+    "src/features/feed/feed-api.ts": "d84323601c4b6c4dd23a966df0ed34e1085662a3e5b3ab5ff54fa445f52b4be0",
+    "src/features/feed/use-feed.ts": "87ca6a4f1552062c30cf6a7ee4dce34e3722806b5fd311d46316655c9de72576",
+    "src/features/knowledge/knowledge-data.ts": "7b3a32f444b42e868c71dc22c8b0902e85990c49eeaedbe6910a45ed5ea77074",
+    "src/features/knowledge/knowledge-server.ts": "7779c4024f4e0180d269fe4aec7287c5ab896416c5baedde3e311077f3d5013e",
+    "src/features/knowledge/use-knowledge.ts": "eb99ebc07757db52009341221cbac390a3639db59b7099004ea205a9a26b48f2",
+    "src/features/shift/shift-api.ts": "8e7b801c2174544ea903c5e6a9b109dcf70c1b0aceab5f646be5a3400918412d",
+    "UX_BASELINE_PROTECTED.json": "b09fc05bd41930cc2ed8d53ffbe43f6e1e81f167affe377131b9cc38e74406ae",
+    "KNOWLEDGE_REDESIGN_PROTECTED.json": "b214c91192a629d58df692fef08733c2d24f404823b608732ad4897a1c0f1a52"
+  }
+}
