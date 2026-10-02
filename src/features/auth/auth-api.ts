@@ -45,33 +45,74 @@ export async function staffLogin(input: {
   return data;
 }
 
-export async function fetchStaffProfile(accessToken: string) {
-  const response = await fetch(edgeFunctions.profile, {
-    headers: {
-      apikey: config.supabasePublishableKey,
-      Authorization: `Bearer ${accessToken}`
+const PROFILE_READ_TIMEOUT_MS = 6_000;
+let profileReadInFlight: {
+  accessToken: string;
+  promise: Promise<StaffProfile | null>;
+} | null = null;
+
+async function fetchStaffProfileOnce(accessToken: string) {
+  const controller = new AbortController();
+  const timeout = setTimeout(
+    () => controller.abort(),
+    PROFILE_READ_TIMEOUT_MS
+  );
+
+  try {
+    const response = await fetch(edgeFunctions.profile, {
+      headers: {
+        apikey: config.supabasePublishableKey,
+        Authorization: `Bearer ${accessToken}`
+      },
+      signal: controller.signal
+    });
+
+    if (
+      response.status === 401 ||
+      response.status === 403 ||
+      response.status === 404
+    ) {
+      const error = new Error("profile_auth_failed");
+      Object.assign(error, { status: response.status });
+      throw error;
+    }
+
+    if (!response.ok) {
+      throw new Error("profile_load_failed");
+    }
+
+    const data = (await jsonOrEmpty(response)) as {
+      profile?: StaffProfile;
+    };
+
+    return data.profile ?? null;
+  } catch (error) {
+    if (controller.signal.aborted) {
+      const timeoutError = new Error("profile_load_timeout");
+      Object.assign(timeoutError, { code: "profile_timeout" });
+      throw timeoutError;
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+export function fetchStaffProfile(accessToken: string) {
+  if (
+    profileReadInFlight?.accessToken === accessToken
+  ) {
+    return profileReadInFlight.promise;
+  }
+
+  const promise = fetchStaffProfileOnce(accessToken).finally(() => {
+    if (profileReadInFlight?.promise === promise) {
+      profileReadInFlight = null;
     }
   });
 
-  if (
-    response.status === 401 ||
-    response.status === 403 ||
-    response.status === 404
-  ) {
-    const error = new Error("profile_auth_failed");
-    Object.assign(error, { status: response.status });
-    throw error;
-  }
-
-  if (!response.ok) {
-    throw new Error("profile_load_failed");
-  }
-
-  const data = (await jsonOrEmpty(response)) as {
-    profile?: StaffProfile;
-  };
-
-  return data.profile ?? null;
+  profileReadInFlight = { accessToken, promise };
+  return promise;
 }
 
 export async function updateStaffProfile(
