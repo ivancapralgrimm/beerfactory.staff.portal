@@ -13,6 +13,7 @@ import {
   PencilRuler,
   StickyNote
 } from "lucide-react";
+import { CraftPage, craftScreen } from "@/components/craft/CraftPage";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/features/auth/auth-context";
 import { canManageChecklistsClient } from "@/types/auth";
@@ -118,7 +119,7 @@ export function AppShell() {
           </div>
         ) : null}
 
-        <Outlet />
+        <CraftPage screen={craftScreen(location.pathname)}><Outlet /></CraftPage>
       </main>
 
       {!isDashboard && <nav
