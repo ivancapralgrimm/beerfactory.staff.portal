@@ -5,6 +5,7 @@ import { App } from "@/app/App";
 import { AuthProvider } from "@/features/auth/auth-context";
 import "@/styles.css";
 import "@/mobile-input-guard.css";
+import "@/components/craft/craft.css";
 
 // A data router provides navigation blocking while retaining existing hash URLs.
 const router = createHashRouter([{ path: "*", element: <AuthProvider><App /></AuthProvider> }]);
