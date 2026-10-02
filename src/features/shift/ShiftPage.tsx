@@ -9,8 +9,7 @@ import {
   Loader2,
   LockKeyhole,
   RefreshCw,
-  Sparkles,
-  StickyNote
+  Sparkles
 } from "lucide-react";
 import {
   useCallback,
@@ -405,7 +404,6 @@ export function ShiftPage() {
 
       <p className={cn("mt-3 min-h-5 text-xs leading-5", message?.tone === "error" ? "text-[#e99990]" : "text-[#9dd0a0]")} role="status" aria-live="polite">{message?.text || ""}</p>
 
-      <section className="craft-shift-status mt-5 rounded-[22px] border border-[var(--bf-line)] bg-[var(--bf-surface)] p-4"><div className="flex items-start gap-3"><StickyNote className="mt-0.5 size-5 shrink-0 text-[var(--bf-copper-hi)]" aria-hidden /><div className="min-w-0 flex-1"><p className="eyebrow">ЛЕНТА</p><h2 className="mt-1 text-lg font-black">Есть важная информация?</h2><p className="mt-1 text-sm leading-6 text-[var(--bf-muted)]">Добавьте её в Ленту.</p><Button asChild variant="secondary" className="mt-3"><Link to="/feed">Открыть Ленту</Link></Button></div></div></section>
     </section>
   );
 }
