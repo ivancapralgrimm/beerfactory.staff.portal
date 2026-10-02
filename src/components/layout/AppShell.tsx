@@ -51,6 +51,7 @@ const navItems = [
 export function AppShell() {
   const { state } = useAuth();
   const location = useLocation();
+  const screen = craftScreen(location.pathname);
   const isDashboard = location.pathname === "/";
   const isShiftArea = location.pathname.startsWith("/shift");
   const isChecklistEditor = location.pathname === "/shift/editor";
@@ -85,8 +86,42 @@ export function AppShell() {
     };
   }, []);
 
+  useEffect(() => {
+    const root = document.documentElement;
+    const body = document.body;
+    const previousRootBackground = root.style.backgroundColor;
+    const previousBodyBackground = body.style.backgroundColor;
+    const previousColorScheme = root.style.colorScheme;
+
+    root.style.backgroundColor = "#f4e5c9";
+    body.style.backgroundColor = "#f4e5c9";
+    root.style.colorScheme = "light";
+
+    return () => {
+      root.style.backgroundColor = previousRootBackground;
+      body.style.backgroundColor = previousBodyBackground;
+      root.style.colorScheme = previousColorScheme;
+    };
+  }, []);
+
+  const shiftTool = isShiftArea && (isChecklistEditor || canManageChecklists) ? (
+    <div className="bf-page-tools" aria-label="Инструменты смены">
+      <Link
+        to={isChecklistEditor ? "/shift" : "/shift/editor"}
+        className="bf-page-tool-link"
+      >
+        {isChecklistEditor ? (
+          <ClipboardCheck className="size-4" aria-hidden />
+        ) : (
+          <PencilRuler className="size-4" aria-hidden />
+        )}
+        {isChecklistEditor ? "К смене" : "Редактор чек-листов"}
+      </Link>
+    </div>
+  ) : null;
+
   return (
-    <div className={cn("bf-app-shell min-h-dvh", isDashboard ? "pb-[env(safe-area-inset-bottom)]" : "pb-[calc(76px+env(safe-area-inset-bottom))]")}>
+    <div className={cn("bf-app-shell min-h-dvh", `bf-app-shell--${screen}`, isDashboard ? "pb-[env(safe-area-inset-bottom)]" : "pb-[calc(64px+env(safe-area-inset-bottom))]")}>
       <a
         className="bf-skip-link"
         href="#mainContent"
@@ -103,30 +138,17 @@ export function AppShell() {
         tabIndex={-1}
         className="bf-main mx-auto max-w-5xl px-4 pt-[calc(20px+env(safe-area-inset-top))] pb-5 outline-none"
       >
-        {isShiftArea && (isChecklistEditor || canManageChecklists) ? (
-          <div className="mb-3 flex justify-end">
-            <Link
-              to={isChecklistEditor ? "/shift" : "/shift/editor"}
-              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3 text-xs font-black text-[var(--bf-cream)] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
-            >
-              {isChecklistEditor ? (
-                <ClipboardCheck className="size-4" aria-hidden />
-              ) : (
-                <PencilRuler className="size-4" aria-hidden />
-              )}
-              {isChecklistEditor ? "К смене" : "Редактор чек-листов"}
-            </Link>
-          </div>
-        ) : null}
-
-        <CraftPage screen={craftScreen(location.pathname)}><Outlet /></CraftPage>
+        <CraftPage screen={screen}>
+          {shiftTool}
+          <Outlet />
+        </CraftPage>
       </main>
 
       {!isDashboard && <nav
         aria-label="Основная навигация"
         className="bf-bottom-nav fixed inset-x-0 bottom-0 z-50 pb-[env(safe-area-inset-bottom)]"
       >
-        <div className="mx-auto grid min-h-[62px] max-w-xl grid-cols-5 px-2">
+        <div className="mx-auto grid min-h-[52px] max-w-xl grid-cols-5 px-2">
           {navItems.map(
             ({
               to,
@@ -140,7 +162,7 @@ export function AppShell() {
                 end={end}
                 className={({ isActive }) =>
                   cn(
-                    "flex min-h-[60px] flex-col items-center justify-center gap-0.5 rounded-lg px-1 text-[10px] font-medium text-[var(--bf-muted)] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]",
+                    "flex min-h-[50px] flex-col items-center justify-center gap-0.5 rounded-lg px-1 text-[10px] font-medium text-[var(--bf-muted)] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]",
                     isActive &&
                       "text-[var(--bf-copper-hi)]"
                   )
