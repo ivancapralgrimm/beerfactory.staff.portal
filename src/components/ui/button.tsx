@@ -42,7 +42,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <Comp
         ref={ref}
-        className={cn(buttonVariants({ variant, size }), className)}
+        data-craft-variant={variant || "secondary"}
+        className={cn("craft-button", buttonVariants({ variant, size }), className)}
         {...props}
       />
     );
