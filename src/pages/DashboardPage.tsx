@@ -122,9 +122,9 @@ export function DashboardPage() {
   const showReadingSection = readingLoading || readingArticles.length > 0;
 
   return (
-    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: "easeOut" }} className="space-y-5">
+    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: "easeOut" }} className="craft-dashboard space-y-5">
       <section className="bf-dashboard-hero">
-        <div className="bf-dashboard-brand">BEERFACTORY <span>STAFF PORTAL</span></div>
+        <div className="bf-dashboard-brand">BFSTAFF <span>GOOD BEER<br />GREAT PEOPLE</span></div>
         <h1>Привет{firstName ? `, ${firstName}` : ""}!</h1>
         <p>Хорошего рабочего дня!<br />«Вкус начинается с команды»</p>
       </section>

@@ -202,9 +202,12 @@ export function ProfilePage() {
   return (
     <section className="bf-profile-page mx-auto max-w-2xl pb-6">
       <p className="eyebrow">ЛИЧНЫЙ ПРОФИЛЬ</p>
+      <div className="craft-profile-id"><div className="craft-profile-photo" aria-hidden="true"><img src="/assets/icons/profile-avatar.png" alt="" width="96" height="96" /></div><div>
+      <p className="craft-profile-heading">Профиль</p>
       <h1 className="mt-2 text-[34px] font-black leading-none tracking-[-0.04em]">
         {fullName || "Сотрудник"}
       </h1>
+      <p className="mt-2 text-sm">{user.position_code ? STAFF_POSITION_LABELS[user.position_code] : "Должность не выбрана"}</p></div></div>
 
       <Surface className="mt-5 p-4">
         <div className="flex items-start gap-3">
