@@ -273,7 +273,7 @@ export function RecipesPage() {
 
   return (
     <section className="bf-list-page bf-recipes-page pb-4">
-      <div className="max-w-2xl">
+      <div className="bf-recipes-header max-w-2xl">
         <p className="eyebrow">РЕЦЕПТЫ</p>
 
         <div className="mt-2 flex items-end justify-between gap-3">
@@ -281,7 +281,7 @@ export function RecipesPage() {
             Рецепты
           </h1>
 
-          <div className="flex shrink-0 items-center gap-2">
+          <div className="bf-recipes-header-actions flex shrink-0 items-center gap-2">
             <Button
               type="button"
               variant="secondary"
@@ -337,7 +337,7 @@ export function RecipesPage() {
         </div>
       ) : null}
 
-      <div className="relative mt-5">
+      <div className="bf-recipes-search relative mt-5">
         <Search
           className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-[var(--bf-dim)]"
           aria-hidden
@@ -397,7 +397,7 @@ export function RecipesPage() {
       {state.status === "ready" ? (
         <>
           <div
-            className="bf-scrollbar-none -mx-4 mt-5 flex gap-2 overflow-x-auto px-4 pb-1"
+            className="bf-recipe-categories bf-scrollbar-none -mx-4 mt-5 flex gap-2 overflow-x-auto px-4 pb-1"
             role="group"
             aria-label="Категории рецептов"
           >
