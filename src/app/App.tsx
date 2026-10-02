@@ -1,12 +1,15 @@
 import {
+  Component,
   lazy,
   Suspense,
+  type ErrorInfo,
   type ReactNode
 } from "react";
 import {
   Navigate,
   Route,
   Routes,
+  useLocation,
   useParams
 } from "react-router-dom";
 import { AppShell } from "@/components/layout/AppShell";
@@ -130,15 +133,59 @@ function BootScreen() {
 function RouteLoader() {
   return (
     <div
-      className="grid min-h-[34dvh] place-items-center"
+      className="pointer-events-none fixed inset-x-0 top-[calc(10px+env(safe-area-inset-top))] z-[80] flex justify-center px-4"
       role="status"
       aria-live="polite"
     >
-      <p className="text-sm font-semibold text-[var(--bf-muted)]">
+      <div className="rounded-full border border-[var(--bf-line-strong)] bg-[var(--bf-surface-2)] px-4 py-2 text-xs font-black text-[var(--bf-cream)] shadow-lg">
         Загружаем раздел…
-      </p>
+      </div>
     </div>
   );
+}
+
+function isChunkLoadError(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error ?? "");
+  return /dynamically imported module|module script|chunk|importing a module/i.test(message);
+}
+
+class RouteLoadBoundary extends Component<
+  { children: ReactNode },
+  { error: Error | null }
+> {
+  state = { error: null as Error | null };
+
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+
+  componentDidCatch(error: Error, _info: ErrorInfo) {
+    if (!isChunkLoadError(error)) {
+      console.error(error);
+    }
+  }
+
+  render() {
+    if (!this.state.error) return this.props.children;
+
+    return (
+      <section className="mx-auto mt-8 max-w-md rounded-[22px] border border-[var(--bf-line)] bg-[var(--bf-surface)] p-5 text-center">
+        <h2 className="text-lg font-black text-[var(--bf-cream)]">
+          Не удалось загрузить раздел
+        </h2>
+        <p className="mt-2 text-sm text-[var(--bf-muted)]">
+          Проверьте соединение и обновите этот экран. Незавершённый текст в редакторе лучше сначала скопировать.
+        </p>
+        <button
+          type="button"
+          className="mt-4 min-h-11 rounded-xl border border-[var(--bf-line-strong)] bg-[var(--bf-surface-2)] px-4 text-sm font-black text-[var(--bf-cream)]"
+          onClick={() => window.location.reload()}
+        >
+          Обновить экран
+        </button>
+      </section>
+    );
+  }
 }
 
 function ProtectedApp() {
@@ -222,10 +269,14 @@ function LazyRoute({
 }: {
   children: ReactNode;
 }) {
+  const location = useLocation();
+
   return (
-    <Suspense fallback={<RouteLoader />}>
-      {children}
-    </Suspense>
+    <RouteLoadBoundary key={location.pathname}>
+      <Suspense key={location.pathname} fallback={<RouteLoader />}>
+        {children}
+      </Suspense>
+    </RouteLoadBoundary>
   );
 }
 
