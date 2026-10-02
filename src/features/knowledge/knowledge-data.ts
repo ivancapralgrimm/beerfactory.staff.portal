@@ -111,7 +111,11 @@ async function fetchArticles() {
   return articles;
 }
 
-export async function loadKnowledgeArticles(options?: { force?: boolean; scope?: string }) {
+export async function loadKnowledgeArticles(options?: {
+  force?: boolean;
+  scope?: string;
+  onMediaReady?: (articles: KnowledgeArticle[]) => void;
+}) {
   const force = options?.force === true;
   if (knowledgeSource === 'supabase') {
     const scope = options?.scope || '';
@@ -121,7 +125,17 @@ export async function loadKnowledgeArticles(options?: { force?: boolean; scope?:
     const pending = serverInflight.get(scope);
     if (pending) return pending;
     const generation = cacheGeneration;
-    const request: Promise<KnowledgeArticle[]> = loadServerKnowledgeArticles().then(articles => {
+    const onMediaReady = (articles: KnowledgeArticle[]) => {
+      if (generation !== cacheGeneration) return;
+      serverCache.set(scope, { articles, at: Date.now() });
+      options?.onMediaReady?.(articles);
+      window.dispatchEvent(
+        new CustomEvent("bf-knowledge-media-ready", {
+          detail: { scope, articles }
+        })
+      );
+    };
+    const request: Promise<KnowledgeArticle[]> = loadServerKnowledgeArticles(onMediaReady).then(articles => {
       if (generation === cacheGeneration) serverCache.set(scope,{ articles, at: Date.now() }); return articles;
     }).finally(() => { if (serverInflight.get(scope) === request) serverInflight.delete(scope); });
     serverInflight.set(scope,request);
