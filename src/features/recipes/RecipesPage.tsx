@@ -4,7 +4,8 @@ import {
   Plus,
   RefreshCw,
   Search,
-  WifiOff
+  WifiOff,
+  UtensilsCrossed
 } from "lucide-react";
 import {
   useDeferredValue,
@@ -33,6 +34,7 @@ import { useRecipes } from "@/features/recipes/use-recipes";
 import type { Recipe } from "@/features/recipes/types";
 import { canManageRecipesClient } from "@/types/auth";
 import { cn } from "@/lib/utils";
+import { PhotoMount } from "@/components/craft/CraftPage";
 
 const SCROLL_KEY = "bf-r404-recipes-scroll";
 
@@ -99,6 +101,7 @@ function RecipeRow({
       )}
       aria-label={`Открыть рецепт ${recipe.name}${archived ? ", архив" : ""}`}
     >
+      <PhotoMount src={recipe.photo} fallback={<UtensilsCrossed aria-hidden="true" size={40} />} />
       <div className="min-w-0">
         <div className="flex min-h-4 flex-wrap items-center gap-1.5">
           <span
@@ -435,7 +438,7 @@ export function RecipesPage() {
             ) : null}
           </div>
 
-          <div className="mt-2 grid gap-2">
+          <div className="craft-recipe-grid mt-2 grid gap-2">
             {filtered.length ? (
               filtered.map((recipe) => (
                 <RecipeRow
