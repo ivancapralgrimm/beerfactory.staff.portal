@@ -262,7 +262,7 @@ export function ProfilePage() {
               setBirthDate(event.target.value);
               setMessage(null);
             }}
-            className="block h-full w-full min-w-0 max-w-full border-0 bg-transparent px-3 py-0 text-sm font-bold text-[var(--bf-cream)] outline-none"
+            className="bf-birthday-input block h-full w-full min-w-0 max-w-full border-0 bg-transparent px-3 py-0 text-sm font-bold text-[var(--bf-cream)] outline-none"
             style={{
               width: "100%",
               minWidth: 0,
