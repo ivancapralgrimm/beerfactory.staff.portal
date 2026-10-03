@@ -1,0 +1,37 @@
+{
+  "package": "BFStaff_r40.5_INLINE_EDITOR_SCROLLTOP_RECIPE_STICKER_VERIFIED",
+  "target_branch": "r40.5",
+  "base_git_blob_sha": {
+    "src/components/layout/AppShell.tsx": "8fddc00f44484a0fb5fec141570e5735798c60b2",
+    "src/components/craft/craft.css": "af0b06edbc7b1890f872ef64a76a0dd9ad84a516",
+    "src/features/shift/ChecklistEditorPage.tsx": "452dac7293568dbf4c3d0a9d3763468c8a94ce17",
+    "src/features/recipes/RecipeDetailPage.tsx": "3325f618ea76ee60c5d20723feb0580ef28c2c52"
+  },
+  "files": {
+    "README_UPLOAD.txt": {
+      "sha256": "a57303bbddb1efd2474cd1a0546c45c0a6b37a26ba4a3cc8903c9df327eb6695",
+      "bytes": 3257
+    },
+    "src/components/craft/craft.css": {
+      "sha256": "0231c84b071448051c630c256d81d67cdfe7b784df160c873b03054b8fdb94d8",
+      "bytes": 68779
+    },
+    "src/components/layout/AppShell.tsx": {
+      "sha256": "4e28e6d06e5444649414c6bfa0be7e140c23fb407e1f3bf1af080df2432fcb0d",
+      "bytes": 6239
+    },
+    "src/features/recipes/RecipeDetailPage.tsx": {
+      "sha256": "a8b04613250dae26e2ca2b0def7bec6fae79385aa66476fcb51007c1c28f1db0",
+      "bytes": 19341
+    },
+    "src/features/shift/ChecklistEditorPage.tsx": {
+      "sha256": "681150b372f91aab90b03a10f7a83b7708b11d543af29d007cb403bc8d3bb460",
+      "bytes": 31854
+    },
+    "tests/r40-5-inline-editor-scrolltop-sticker.test.cjs": {
+      "sha256": "00613449d62aaac3cc01ac726c2838999262b56741a7a51b7317af54a50b553d",
+      "bytes": 2077
+    }
+  },
+  "github_mutated": false
+}

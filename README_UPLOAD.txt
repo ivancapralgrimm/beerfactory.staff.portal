@@ -1,101 +1,40 @@
-BFStaff r40.4 · ACCESS SYNC HOTFIX v2 AUDITED
+BFStaff r40.5 — inline checklist editor + scroll-to-top + recipe sticker
+======================================================================
 
-НЕ ЗАГРУЖАТЬ v1.
-v2 полностью заменяет v1.
+Цель: применить правки поверх актуальной ветки r40.5. GitHub из этого пакета не изменялся.
 
-BASE
-main
-3379792ac84a540d35a6890ccc235396d90b6a42
+Заменить 4 файла с сохранением путей:
+1. src/components/layout/AppShell.tsx
+2. src/components/craft/craft.css
+3. src/features/shift/ChecklistEditorPage.tsx
+4. src/features/recipes/RecipeDetailPage.tsx
 
-ЧТО ИСПРАВЛЕНО ПОСЛЕ ПОВТОРНОГО АУДИТА
-В v1 автообновление профиля при временном network/profile failure
-могло заменить расширенный профиль на базовый Supabase user.
-Из-за этого UI мог временно потерять role/position и скрыть редакторы.
+Опциональный regression-test:
+5. tests/r40-5-inline-editor-scrolltop-sticker.test.cjs
+   Запуск: node --test tests/r40-5-inline-editor-scrolltop-sticker.test.cjs
 
-В v2:
-- последний успешно загруженный profile сохраняется;
-- role/position не исчезают из UI при кратковременном 5xx/network failure;
-- 401/403/404 продолжают обрабатываться существующей auth-логикой;
-- при следующем успешном refresh профиль обновляется нормально.
+Что изменено
+------------
+• Редактирование существующего пункта чек-листа теперь раскрывает форму прямо внутри карточки выбранного пункта, под его кнопками. Повторное нажатие на карандаш закрывает форму. Создание нового пункта остаётся отдельной формой сверху.
+• Ошибки сохранения существующего пункта показываются рядом с открытым inline-редактором, чтобы не требовалось возвращаться вверх страницы.
+• В AppShell добавлена плавающая кнопка «Вернуться наверх». Она появляется после заметной прокрутки, учитывает нижний toolbar и safe-area, а при reduced motion не использует плавную анимацию.
+• В карточке рецепта «Состав» заменён на бумажный стикер: заголовок «Состав» находится на самом стикере, добавлены бумажная фактура, скотч и лёгкий загиб угла.
 
-ЦЕЛЕВАЯ МАТРИЦА
+Совместимость
+-------------
+• В AppShell сохранена актуальная r40.5 структура bf-bottom-dock, то есть пакет не откатывает свежий нижний toolbar.
+• Серверные API, права, Supabase/NocoDB, миграции и бизнес-логика чек-листов/рецептов не менялись.
+• Размер touch-control «наверх»: 44–46 px.
 
-Staff, любая должность:
-- без редакторов.
+База r40.5, относительно которой собран пакет (Git blob SHA до изменения):
+• AppShell.tsx: 8fddc00f44484a0fb5fec141570e5735798c60b2
+• craft.css: af0b06edbc7b1890f872ef64a76a0dd9ad84a516
+• ChecklistEditorPage.tsx: 452dac7293568dbf4c3d0a9d3763468c8a94ce17
+• RecipeDetailPage.tsx: 3325f618ea76ee60c5d20723feb0580ef28c2c52
 
-Senior Бармен BF:
-- Рецепты;
-- только чек-лист Бармен BF.
-
-Senior Бармен BB:
-- Рецепты;
-- только чек-лист Бармен BB.
-
-Senior Официант BF:
-- Рецепты;
-- только чек-лист Официант BF.
-
-Senior Официант BB:
-- Рецепты;
-- только чек-лист Официант BB.
-
-Senior Менеджер:
-- Рецепты;
-- только чек-лист Менеджер.
-
-Senior Хостес:
-- только чек-лист Хостес;
-- без редактора рецептов.
-
-Admin, любая рабочая должность:
-- все редакторы;
-- все 6 должностей чек-листов;
-- управление персоналом;
-- журналы.
-
-Owner:
-- полный доступ.
-
-SESSION SYNC
-Профиль автоматически обновляется:
-- при возврате focus;
-- при возврате PWA из background;
-- после восстановления online;
-- раз в 30 секунд, пока приложение активно.
-
-LIVE SUPABASE
-Уже применена migration:
-20260929151936_expand_senior_access_matrix
-
-Migration-файл включён в пакет только для синхронизации repo с live.
-
-ПРЕДУСТАНОВОЧНЫЙ АУДИТ
-- main HEAD совпадает: PASS
-- server matrix Staff/Senior/Admin × 6 должностей: PASS
-- Owner: PASS
-- Senior own-checklist scope: PASS
-- Admin all-six checklist scope: PASS
-- staff-profile Edge v8 repo = live: PASS
-- staff-admin-users Edge v7 repo = live: PASS
-- legacy access role manager в profiles: 0
-- Security Advisor: новых категорий после migration нет
-- TS/TSX syntax: PASS
-- client permission matrix 18 комбинаций: PASS
-- transient network profile preservation: PASS
-- ZIP checksums: PASS
-- matrix-тесты базы выполнялись через ROLLBACK
-
-ОТДЕЛЬНО
-Сейчас есть 1 активный профиль без position_code.
-Это не ошибка hotfix.
-Staff без должности остаётся Staff.
-Senior без должности не получает position-scoped редакторы,
-пока ему не назначена рабочая должность.
-Admin/Owner от рабочей должности не зависят.
-
-УСТАНОВКА
-1. Создать ветку hotfix/r40.4-access-sync ОТ текущего main.
-2. Загрузить ТОЛЬКО v2.
-3. Дождаться Typecheck + Build и Vercel preview.
-4. После загрузки провести authenticated smoke.
-5. Только после этого PR -> main, Squash and merge.
+Проверка
+--------
+• 3/3 новых regression-теста — PASS.
+• 8/8 visual-architecture-hardening — PASS.
+• TypeScript syntax parse: 0 TS1xxx parse errors.
+• Полный npm build локально не запускался: в переданном исходном архиве нет node_modules, а среда пакета ожидает Node 24.x.
