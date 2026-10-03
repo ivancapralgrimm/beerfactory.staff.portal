@@ -2991,3 +2991,178 @@
     transition: none;
   }
 }
+
+/* ========================================================================== 
+   r40.5 global action controls · archival-card / leather hybrid
+   One material language for utility controls across every portal section.
+   Text actions use image-backed paper tags; icon actions use compact square
+   archival-card / leather assets inspired by physical index cards. No iOS-only effects.
+   ========================================================================== */
+
+/* Text and mixed-content actions: real SVG paper silhouette, not a rounded CSS card. */
+.craft-context .craft-button[data-craft-size="default"]:not([data-craft-variant="primary"]):not(.knowledge-leather-action),
+.craft-context .craft-button[data-craft-size="lg"]:not([data-craft-variant="primary"]):not(.knowledge-leather-action) {
+  position: relative;
+  isolation: isolate;
+  border-color: transparent !important;
+  border-radius: 2px !important;
+  background-color: transparent !important;
+  background-image: url("/assets/craft/materials/paper-tag.svg") !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-size: 100% 100% !important;
+  box-shadow: none !important;
+}
+.craft-context .craft-button[data-craft-size="default"]:not([data-craft-variant="primary"]):not(.knowledge-leather-action)::before,
+.craft-context .craft-button[data-craft-size="lg"]:not([data-craft-variant="primary"]):not(.knowledge-leather-action)::before {
+  display: none !important;
+}
+.craft-context .craft-button[data-craft-size="default"][data-craft-variant="danger"],
+.craft-context .craft-button[data-craft-size="lg"][data-craft-variant="danger"] {
+  color: #8f3d33 !important;
+  background-image:
+    linear-gradient(rgba(155,59,45,.08), rgba(155,59,45,.08)),
+    url("/assets/craft/materials/paper-tag.svg") !important;
+}
+
+/* Every shared icon Button gets one mature archival-card treatment. */
+.craft-context .craft-button[data-craft-size="icon"]:not(.knowledge-image-button):not(.knowledge-leather-action) {
+  position: relative;
+  isolation: isolate;
+  display: inline-grid !important;
+  width: 48px !important;
+  min-width: 48px !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  place-items: center;
+  padding: 0 !important;
+  overflow: visible;
+  color: #765034 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background-color: transparent !important;
+  background-image: url("/assets/craft/materials/tool-paper-sync.svg") !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-size: 100% 100% !important;
+  box-shadow: none !important;
+  transform: rotate(-.45deg);
+  transform-origin: 50% 55%;
+  transition: transform 120ms ease, opacity 120ms ease !important;
+  -webkit-tap-highlight-color: transparent;
+}
+.craft-context .craft-button[data-craft-size="icon"]:not(.knowledge-image-button):not(.knowledge-leather-action)::before,
+.craft-context .craft-button[data-craft-size="icon"]:not(.knowledge-image-button):not(.knowledge-leather-action)::after {
+  display: none !important;
+}
+.craft-context .craft-button[data-craft-size="icon"]:not(.knowledge-image-button):not(.knowledge-leather-action) > svg,
+.craft-context .craft-button[data-craft-size="icon"]:not(.knowledge-image-button):not(.knowledge-leather-action) svg {
+  position: relative;
+  z-index: 1;
+  width: 20px;
+  height: 20px;
+  color: currentColor;
+  stroke: currentColor;
+  stroke-width: 1.9;
+}
+
+/* Primary / selected icon actions become leather tabs with high-contrast white ink. */
+.craft-context .craft-button[data-craft-size="icon"][data-craft-variant="primary"]:not(.knowledge-image-button),
+.craft-context .craft-button[data-craft-size="icon"][aria-pressed="true"]:not(.knowledge-image-button):not([data-craft-variant="danger"]) {
+  color: #fffdf8 !important;
+  background-image: url("/assets/craft/materials/tool-leather-create.svg") !important;
+  transform: rotate(.35deg);
+}
+
+/* Destructive icon actions keep the paper object but use red ink and a warm tint. */
+.craft-context .craft-button[data-craft-size="icon"][data-craft-variant="danger"]:not(.knowledge-image-button) {
+  color: #963f34 !important;
+  background-image:
+    linear-gradient(rgba(155,59,45,.10), rgba(155,59,45,.10)),
+    url("/assets/craft/materials/tool-paper-settings.svg") !important;
+  transform: rotate(.6deg);
+}
+
+.craft-context .craft-button[data-craft-size="icon"]:not(.knowledge-image-button):not(.knowledge-leather-action):active:not(:disabled) {
+  transform: translateY(1px) scale(.975);
+}
+.craft-context .craft-button[data-craft-size="icon"][data-craft-variant="primary"]:not(.knowledge-image-button):active:not(:disabled),
+.craft-context .craft-button[data-craft-size="icon"][aria-pressed="true"]:not(.knowledge-image-button):active:not(:disabled) {
+  transform: rotate(.35deg) translateY(1px) scale(.975);
+}
+.craft-context .craft-button[data-craft-size="icon"][data-craft-variant="danger"]:not(.knowledge-image-button):active:not(:disabled) {
+  transform: rotate(.6deg) translateY(1px) scale(.975);
+}
+
+/* Notebook actions deliberately stay leather, now using the same real material tile. */
+.craft-page--article .knowledge-notebook-toolbar .craft-button[data-craft-size="icon"].knowledge-leather-action {
+  width: 48px !important;
+  min-width: 48px !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  padding: 0 !important;
+  color: #fffdf8 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background-color: transparent !important;
+  background-image: url("/assets/craft/materials/tool-leather-create.svg") !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-size: 100% 100% !important;
+  box-shadow: none !important;
+}
+.craft-page--article .knowledge-notebook-toolbar .craft-button[data-craft-size="icon"].knowledge-leather-action::before,
+.craft-page--article .knowledge-notebook-toolbar .craft-button[data-craft-size="icon"].knowledge-leather-action::after {
+  display: none !important;
+}
+.craft-page--article .knowledge-notebook-toolbar .craft-button[data-craft-size="icon"].knowledge-leather-action svg {
+  color: currentColor;
+  stroke: currentColor;
+}
+
+/* Knowledge create pencil: true white on leather for legibility. */
+.craft-page--knowledge .knowledge-image-button--create {
+  color: #fffdf8 !important;
+}
+.craft-page--knowledge .knowledge-image-button--create svg {
+  color: #fffdf8 !important;
+  stroke: #fffdf8 !important;
+}
+
+/* Cross-phone sizing: no device-brand assumptions. */
+@media (max-width: 390px) {
+  .craft-context .craft-button[data-craft-size="icon"]:not(.knowledge-image-button),
+  .craft-page--article .knowledge-notebook-toolbar .craft-button[data-craft-size="icon"].knowledge-leather-action {
+    width: 46px !important;
+    min-width: 46px !important;
+    height: 46px !important;
+    min-height: 46px !important;
+  }
+}
+@media (max-width: 350px) {
+  .craft-context .craft-button[data-craft-size="icon"]:not(.knowledge-image-button),
+  .craft-page--article .knowledge-notebook-toolbar .craft-button[data-craft-size="icon"].knowledge-leather-action {
+    width: 44px !important;
+    min-width: 44px !important;
+    height: 44px !important;
+    min-height: 44px !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .craft-context .craft-button[data-craft-size="icon"] {
+    transition: none !important;
+  }
+}
+
+/* AppShell's Shift utility link is not rendered through <Button>, so opt it
+   into the same archival stationery material language explicitly. */
+.craft-context .bf-page-tool-link {
+  border-color: transparent !important;
+  border-radius: 2px !important;
+  background-color: transparent !important;
+  background-image: url("/assets/craft/materials/paper-tag.svg") !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-size: 100% 100% !important;
+  box-shadow: none !important;
+}
