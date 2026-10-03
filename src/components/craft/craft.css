@@ -2142,31 +2142,58 @@
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-.craft-page--checklist-editor .bf-checklist-inline-editor {
+/* Existing checklist item editor lives in its own normal-flow panel.
+   Keeping it as a sibling of the item card prevents any overlap with the next item. */
+.craft-page--checklist-editor .bf-checklist-item-stack {
+  display: grid;
+  min-width: 0;
+  gap: 8px;
   position: relative;
-  margin: 14px -2px -2px;
-  padding: 16px 13px 14px;
-  border-top: 1px dashed rgba(152, 80, 34, .36);
-  border-radius: 0 0 5px 5px;
+  isolation: isolate;
+}
+.craft-page--checklist-editor .bf-checklist-editor-panel {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  margin: 0 6px 4px;
+  padding: 0 !important;
+  overflow: hidden;
+  border: 1px solid rgba(181, 138, 86, .62) !important;
+  border-radius: 7px 5px 9px 6px !important;
   background:
     var(--craft-grain) 0 0 / 256px 256px repeat,
-    linear-gradient(115deg, rgba(255, 247, 228, .78), rgba(239, 220, 187, .70));
-  box-shadow: inset 0 8px 14px rgba(117, 79, 39, .05);
-  animation: bf-checklist-editor-open 180ms ease-out both;
+    linear-gradient(115deg, #fff3da, #eed9b6) !important;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.78),
+    0 4px 9px rgba(73,48,27,.14),
+    0 12px 24px rgba(73,48,27,.08) !important;
+  animation: bf-checklist-editor-open 150ms ease-out both;
 }
-.craft-page--checklist-editor .bf-checklist-inline-editor::before {
+.craft-page--checklist-editor .bf-checklist-editor-panel::before {
   content: "";
   position: absolute;
-  top: -1px;
-  left: 22px;
-  width: 58px;
-  height: 2px;
-  background: var(--craft-copper);
-  opacity: .52;
+  top: 0;
+  left: 20px;
+  right: 20px;
+  height: 1px;
+  border-top: 1px dashed rgba(152, 80, 34, .30);
+  pointer-events: none;
+}
+.craft-page--checklist-editor .bf-checklist-inline-editor {
+  position: relative;
+  margin: 0;
+  padding: 17px 14px 15px;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  box-shadow: none;
+}
+.craft-page--checklist-editor .bf-checklist-inline-editor::before {
+  display: none;
 }
 @keyframes bf-checklist-editor-open {
-  from { opacity: 0; transform: translateY(-6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .craft-page--recipe .recipe-ingredients-sticker {
@@ -2277,5 +2304,528 @@
   .bf-scroll-top,
   .craft-page--checklist-editor .bf-checklist-inline-editor {
     animation: none;
+  }
+}
+
+/* ==========================================================================
+   r40.5 recipe mood-board pass
+   Physical Polaroid + paper notes. Every object remains in normal document
+   flow, so rotation never becomes overlap. Photography is always contained,
+   never cropped.
+   ========================================================================== */
+.craft-page--recipe article {
+  overflow: visible;
+}
+
+.craft-page--recipe .recipe-moodboard-header {
+  display: grid;
+  gap: 24px;
+  align-items: start;
+  overflow: visible;
+}
+
+.craft-page--recipe .recipe-title-note {
+  position: relative;
+  width: calc(100% - 8px);
+  margin-inline: auto;
+  padding: 18px 16px 20px;
+  color: var(--craft-ink);
+  border: 1px solid rgba(177, 142, 96, .28);
+  border-radius: 5px 3px 7px 4px;
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    linear-gradient(117deg, rgba(255,248,231,.97), rgba(244,229,201,.96));
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.82),
+    1px 4px 8px rgba(71,46,26,.12),
+    0 12px 25px rgba(71,46,26,.06);
+  transform: rotate(-.55deg);
+  transform-origin: 48% 50%;
+}
+.craft-page--recipe .recipe-title-note .eyebrow {
+  color: #8f552f;
+}
+.craft-page--recipe .recipe-title-note h1 {
+  color: #322920;
+  font-family: var(--craft-display);
+  font-weight: 800;
+  letter-spacing: -.018em;
+}
+.craft-page--recipe .recipe-title-note [class*="rounded-full"] {
+  color: #6a5541;
+  border-color: rgba(151,112,70,.32);
+  background: rgba(255,250,237,.54);
+}
+
+/* Polaroid: classic near-square image well, wider white foot, no crop. */
+.craft-page--recipe .recipe-polaroid {
+  position: relative;
+  isolation: isolate;
+  display: block;
+  width: min(94%, 430px);
+  justify-self: center;
+  margin: 8px auto 14px;
+  padding: 14px 14px 0;
+  appearance: none;
+  overflow: visible;
+  color: #30271f;
+  text-align: left;
+  border: 1px solid rgba(117,103,84,.22);
+  border-radius: 2px 3px 2px 4px;
+  background:
+    linear-gradient(118deg, rgba(255,255,253,.99), rgba(247,242,230,.99));
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.96),
+    2px 5px 9px rgba(55,37,24,.24),
+    0 18px 31px rgba(55,37,24,.13);
+  transform: rotate(2deg);
+  transform-origin: 50% 18%;
+  cursor: zoom-in;
+  -webkit-tap-highlight-color: transparent;
+}
+.craft-page--recipe .recipe-polaroid:focus-visible {
+  outline: 2px solid var(--craft-copper);
+  outline-offset: 5px;
+}
+.craft-page--recipe .recipe-polaroid:active {
+  transform: rotate(2deg) translateY(1px) scale(.995);
+}
+.craft-page--recipe .recipe-polaroid-tape {
+  position: absolute;
+  z-index: 4;
+  top: -13px;
+  left: 50%;
+  width: 92px;
+  height: 27px;
+  transform: translateX(-50%) rotate(-4deg);
+  border-inline: 1px solid rgba(151,130,94,.18);
+  background:
+    linear-gradient(90deg, rgba(225,208,174,.58), rgba(245,230,195,.78) 50%, rgba(218,198,162,.54));
+  box-shadow: 0 1px 2px rgba(72,50,29,.10);
+  opacity: .88;
+  pointer-events: none;
+}
+.craft-page--recipe .recipe-polaroid-photo-well {
+  position: relative;
+  display: grid;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  place-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 38%, #38342f, #1f1d1b 76%);
+  box-shadow:
+    inset 0 0 0 1px rgba(0,0,0,.24),
+    inset 0 0 25px rgba(0,0,0,.24);
+}
+.craft-page--recipe .recipe-polaroid-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: center;
+  transform: none !important;
+}
+.craft-page--recipe .recipe-polaroid-caption {
+  display: flex;
+  min-height: 66px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 8px 10px 7px;
+  color: #5d4b3b;
+  font: 700 clamp(16px, 4.5vw, 19px)/1.25 var(--craft-display);
+  letter-spacing: .005em;
+}
+.craft-page--recipe .recipe-polaroid-caption svg {
+  flex: none;
+  color: #9b6239;
+  opacity: .74;
+}
+
+.craft-page--recipe .recipe-moodboard {
+  display: grid;
+  gap: 24px;
+  padding: 2px 5px 18px;
+  overflow: visible;
+}
+
+.craft-page--recipe .recipe-moodboard-card {
+  position: relative;
+  isolation: isolate;
+  width: calc(100% - 10px);
+  max-width: 100%;
+  margin-inline: auto;
+  padding: 25px 18px 20px;
+  overflow: visible;
+  color: #40352b;
+  border: 1px solid rgba(171,132,81,.25);
+  border-radius: 4px 7px 3px 5px;
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    radial-gradient(circle at 88% 12%, rgba(194,146,71,.08), transparent 28%),
+    linear-gradient(123deg, #fff3d8, #f2dfb9 83%);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.74),
+    1px 4px 8px rgba(72,48,25,.16),
+    0 14px 25px rgba(72,48,25,.07);
+  transform-origin: 50% 10%;
+}
+.craft-page--recipe .recipe-moodboard-card::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  right: -2px;
+  bottom: -2px;
+  width: 23px;
+  height: 22px;
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  background: linear-gradient(140deg, transparent 48%, rgba(171,132,81,.12) 50%, rgba(255,248,230,.56) 82%);
+  pointer-events: none;
+}
+.craft-page--recipe .recipe-note-left { transform: rotate(-1.55deg); }
+.craft-page--recipe .recipe-note-right { transform: rotate(1.25deg); }
+.craft-page--recipe .recipe-method-note { transform: rotate(1.45deg); }
+.craft-page--recipe .recipe-serving-note { transform: rotate(-1.1deg); }
+.craft-page--recipe .recipe-meta-note { transform: rotate(1.15deg); }
+.craft-page--recipe .recipe-change-note { transform: rotate(-1.3deg); }
+.craft-page--recipe .recipe-calculator-note { transform: rotate(.8deg); }
+
+.craft-page--recipe .recipe-note-title {
+  position: relative;
+  z-index: 1;
+  width: fit-content;
+  margin: 0 0 13px;
+  color: #352b23;
+  font: 800 clamp(27px, 7vw, 32px)/1.05 var(--craft-display);
+  letter-spacing: 0;
+}
+.craft-page--recipe .recipe-note-title::after {
+  content: "";
+  position: absolute;
+  left: 2px;
+  right: 7%;
+  bottom: -6px;
+  height: 2px;
+  border-radius: 999px;
+  background: rgba(151,80,38,.38);
+  transform: rotate(-1deg);
+}
+.craft-page--recipe .recipe-note-body {
+  margin: 0;
+  color: #55483b;
+  font-size: 15px;
+  line-height: 1.68;
+  overflow-wrap: anywhere;
+}
+
+/* Fasteners deliberately alternate so the board does not look templated. */
+.craft-page--recipe .recipe-fastener {
+  position: absolute;
+  z-index: 4;
+  display: block;
+  pointer-events: none;
+}
+.craft-page--recipe .recipe-fastener-pin {
+  top: 11px;
+  right: 18px;
+  width: 15px;
+  height: 15px;
+  border: 1px solid rgba(80,38,24,.32);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 28%, #f7c59f 0 15%, #b35d43 19% 53%, #743622 72% 100%);
+  box-shadow:
+    0 2px 2px rgba(58,32,20,.28),
+    2px 5px 8px rgba(58,32,20,.15);
+}
+.craft-page--recipe .recipe-fastener-pin::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 12px;
+  width: 1px;
+  height: 9px;
+  background: rgba(74,62,50,.45);
+  transform: rotate(11deg);
+  transform-origin: top;
+}
+.craft-page--recipe .recipe-fastener-pin-alt {
+  right: auto;
+  left: 18px;
+  background:
+    radial-gradient(circle at 35% 28%, #f6d8a4 0 15%, #b8813e 19% 53%, #6f4a24 72% 100%);
+}
+.craft-page--recipe .recipe-fastener-tape {
+  top: -11px;
+  left: 50%;
+  width: 72px;
+  height: 22px;
+  transform: translateX(-50%) rotate(-5deg);
+  border-inline: 1px solid rgba(166,143,105,.18);
+  background: linear-gradient(90deg, rgba(218,200,165,.54), rgba(242,224,186,.77), rgba(211,190,151,.50));
+  box-shadow: 0 1px 2px rgba(73,51,30,.07);
+  opacity: .86;
+}
+.craft-page--recipe .recipe-fastener-tape-short {
+  left: 64%;
+  width: 58px;
+  transform: translateX(-50%) rotate(7deg);
+}
+.craft-page--recipe .recipe-fastener-tape-corner {
+  top: -9px;
+  left: auto;
+  right: 12px;
+  width: 54px;
+  height: 19px;
+  transform: rotate(8deg);
+}
+.craft-page--recipe .recipe-fastener-tape-side {
+  top: 16px;
+  left: -15px;
+  width: 48px;
+  height: 18px;
+  transform: rotate(-73deg);
+}
+
+/* Ingredients use the same physical paper language as the other notes. */
+.craft-page--recipe .recipe-ingredients-sticker {
+  margin: 0 auto;
+  padding: 27px 18px 20px;
+  border-color: rgba(171,132,81,.25);
+  border-radius: 4px 7px 3px 5px;
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    radial-gradient(circle at 86% 14%, rgba(217,175,91,.13), transparent 29%),
+    linear-gradient(125deg, #fff0c9, #f0d8a1 82%);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.76),
+    1px 4px 8px rgba(77,49,24,.17),
+    0 14px 24px rgba(77,49,24,.07);
+}
+.craft-page--recipe .recipe-ingredients-sticker::before {
+  display: none;
+}
+.craft-page--recipe .recipe-ingredients-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: #4f4337;
+  font-size: 15px;
+  line-height: 1.55;
+}
+.craft-page--recipe .recipe-ingredients-list li {
+  position: relative;
+  padding-left: 17px;
+  overflow-wrap: anywhere;
+}
+.craft-page--recipe .recipe-ingredients-list li::before {
+  content: "•";
+  position: absolute;
+  left: 1px;
+  top: 0;
+  color: #98502f;
+  font-weight: 900;
+}
+
+/* Calculator keeps every control and behaviour, but loses the nested CSS-card shell. */
+.craft-page--recipe .recipe-calculator-note > section {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.craft-page--recipe .recipe-calculator-note > section > .eyebrow {
+  color: #905732;
+}
+.craft-page--recipe .recipe-calculator-note > section h2,
+.craft-page--recipe .recipe-calculator-note > section [class*="text-[var(--bf-cream)]"] {
+  color: #40352b;
+}
+.craft-page--recipe .recipe-calculator-note > section [class*="text-[var(--bf-muted)]"] {
+  color: #69594a;
+}
+.craft-page--recipe .recipe-calculator-note > section [class*="divide-y"],
+.craft-page--recipe .recipe-calculator-note > section [class*="border-y"] {
+  border-color: rgba(151,112,70,.27);
+}
+
+/* Recipe metadata becomes another attached note, still collapsible and fully functional. */
+.craft-page--recipe .recipe-meta-note {
+  padding: 0;
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    linear-gradient(122deg, #f9edcf, #ead3a8);
+}
+.craft-page--recipe .recipe-meta-summary {
+  position: relative;
+  display: flex;
+  min-height: 58px;
+  align-items: center;
+  padding: 18px 48px 15px 18px;
+  color: #352b23;
+  font: 800 clamp(25px, 6.4vw, 30px)/1.05 var(--craft-display);
+  cursor: pointer;
+  list-style: none;
+}
+.craft-page--recipe .recipe-meta-summary::-webkit-details-marker { display: none; }
+.craft-page--recipe .recipe-meta-summary::marker { content: ""; }
+.craft-page--recipe .recipe-meta-summary:focus-visible {
+  outline: 2px solid var(--craft-copper);
+  outline-offset: 4px;
+}
+.craft-page--recipe .recipe-meta-content {
+  padding: 0 18px 19px;
+}
+.craft-page--recipe .recipe-meta-status {
+  margin: 0 0 8px;
+  padding: 9px 0 11px;
+  color: #6a5541;
+  font-size: 12px;
+  font-weight: 800;
+  border-bottom: 1px dashed rgba(151,112,70,.30);
+}
+.craft-page--recipe .recipe-meta-line {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) minmax(0,1.25fr);
+  gap: 12px;
+  padding: 10px 0;
+  font-size: 14px;
+  border-bottom: 1px dashed rgba(151,112,70,.24);
+}
+.craft-page--recipe .recipe-meta-line:last-child { border-bottom: 0; }
+.craft-page--recipe .recipe-meta-label { color: #7a6755; }
+.craft-page--recipe .recipe-meta-value {
+  color: #3e332a;
+  text-align: right;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+.craft-page--recipe .recipe-admin-actions {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 13px;
+  border-top: 1px dashed rgba(151,112,70,.31);
+}
+
+.craft-page--recipe .recipe-cache-note {
+  width: fit-content;
+  max-width: calc(100% - 8px);
+  margin: 0 auto;
+  padding: 9px 13px;
+  color: #725f4e;
+  font-size: 12px;
+  line-height: 1.5;
+  border: 1px dashed rgba(151,112,70,.27);
+  background: rgba(255,246,225,.58);
+  transform: rotate(.6deg);
+}
+
+/* The fullscreen viewer is intentionally untouched: tapping the Polaroid still
+   opens RecipePhotoDialog, whose image uses object-fit: contain. */
+
+@media (min-width: 720px) {
+  .craft-page--recipe .recipe-moodboard-header {
+    grid-template-columns: minmax(0,1fr) minmax(320px,.88fr);
+    gap: 30px;
+  }
+  .craft-page--recipe .recipe-polaroid {
+    width: min(100%, 430px);
+    justify-self: end;
+    margin-top: 4px;
+  }
+  .craft-page--recipe .recipe-moodboard {
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 28px 24px;
+    align-items: start;
+  }
+  .craft-page--recipe .recipe-moodboard-card {
+    width: calc(100% - 12px);
+  }
+  .craft-page--recipe .recipe-ingredients-sticker,
+  .craft-page--recipe .recipe-method-note,
+  .craft-page--recipe .recipe-meta-note {
+    grid-column: 1 / -1;
+    width: min(96%, 760px);
+  }
+}
+
+@media (max-width: 430px) {
+  .craft-page--recipe .recipe-moodboard-header { gap: 22px; }
+  .craft-page--recipe .recipe-title-note { width: calc(100% - 6px); }
+  .craft-page--recipe .recipe-polaroid {
+    width: calc(100% - 12px);
+    padding: 11px 11px 0;
+    transform: rotate(1.55deg);
+  }
+  .craft-page--recipe .recipe-polaroid:active {
+    transform: rotate(1.55deg) translateY(1px) scale(.995);
+  }
+  .craft-page--recipe .recipe-polaroid-caption {
+    min-height: 58px;
+    padding: 10px 7px 9px;
+  }
+  .craft-page--recipe .recipe-moodboard {
+    gap: 22px;
+    padding-inline: 2px;
+  }
+  .craft-page--recipe .recipe-moodboard-card {
+    width: calc(100% - 10px);
+    padding-inline: 16px;
+  }
+  .craft-page--recipe .recipe-note-left { transform: rotate(-1.1deg); }
+  .craft-page--recipe .recipe-note-right,
+  .craft-page--recipe .recipe-method-note,
+  .craft-page--recipe .recipe-meta-note { transform: rotate(.9deg); }
+  .craft-page--recipe .recipe-serving-note,
+  .craft-page--recipe .recipe-change-note { transform: rotate(-.8deg); }
+  .craft-page--recipe .recipe-calculator-note { transform: rotate(.6deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .craft-page--recipe .recipe-polaroid,
+  .craft-page--recipe .recipe-moodboard-card {
+    transition: none;
+  }
+}
+
+/* Final board rhythm: actual rendered cards alternate direction even when
+   optional recipe sections are absent. */
+.craft-page--recipe .recipe-moodboard {
+  width: 100%;
+  max-width: 760px;
+  margin-inline: auto;
+  grid-template-columns: minmax(0, 1fr);
+}
+.craft-page--recipe .recipe-moodboard > .recipe-moodboard-card:nth-child(odd) {
+  transform: rotate(-1.35deg);
+}
+.craft-page--recipe .recipe-moodboard > .recipe-moodboard-card:nth-child(even) {
+  transform: rotate(1.15deg);
+}
+@media (min-width: 720px) {
+  .craft-page--recipe .recipe-moodboard {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .craft-page--recipe .recipe-moodboard-card,
+  .craft-page--recipe .recipe-ingredients-sticker,
+  .craft-page--recipe .recipe-method-note,
+  .craft-page--recipe .recipe-meta-note {
+    grid-column: auto;
+    width: min(96%, 760px);
+  }
+}
+@media (max-width: 430px) {
+  .craft-page--recipe .recipe-moodboard > .recipe-moodboard-card:nth-child(odd) {
+    transform: rotate(-.95deg);
+  }
+  .craft-page--recipe .recipe-moodboard > .recipe-moodboard-card:nth-child(even) {
+    transform: rotate(.8deg);
   }
 }
