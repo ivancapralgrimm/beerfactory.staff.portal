@@ -22,7 +22,7 @@ test('knowledge header uses one icon-only utility row without profile action', (
   assert.doesNotMatch(page, />\s*Управление статьями\s*</);
 });
 
-test('knowledge utility controls are image-backed torn-paper and leather buttons', () => {
+test('knowledge utility controls are image-backed archival-card and leather buttons', () => {
   const css = read('src/components/craft/craft.css');
   assert.match(css, /\.knowledge-image-button--sync[\s\S]*tool-paper-sync\.svg/);
   assert.match(css, /\.knowledge-image-button--manage[\s\S]*tool-paper-settings\.svg/);
