@@ -2829,3 +2829,165 @@
     transform: rotate(.8deg);
   }
 }
+
+/* ==========================================================================
+   r40.5 Knowledge utility controls · torn-paper image-button hybrid
+   The utility controls are backed by local SVG material assets rather than
+   rectangular CSS cards. New-article stays leather for hierarchy, while sync
+   and management use two different torn-paper surfaces.
+   ========================================================================== */
+.craft-page--knowledge .knowledge-board-topline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+}
+
+.craft-page--knowledge .knowledge-board-heading {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.craft-page--knowledge .knowledge-board-heading h1 {
+  margin: 0;
+  padding-right: 0;
+  font-size: clamp(50px, 13.8vw, 62px);
+  line-height: .96;
+  letter-spacing: -.025em;
+}
+
+.craft-page--knowledge .knowledge-utility-actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 4px;
+  margin-top: -3px;
+}
+
+.craft-page--knowledge .knowledge-image-button,
+.craft-page--knowledge .knowledge-image-button[data-craft-variant="ghost"],
+.craft-page--knowledge .knowledge-image-button[data-craft-variant="secondary"] {
+  position: relative;
+  isolation: isolate;
+  display: inline-grid;
+  width: 48px;
+  min-width: 48px;
+  height: 48px;
+  min-height: 48px;
+  place-items: center;
+  padding: 0;
+  overflow: visible;
+  color: #765034;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background-color: transparent !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-size: 100% 100% !important;
+  box-shadow: none !important;
+  transform-origin: 50% 55%;
+  transition: transform 120ms ease, opacity 120ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.craft-page--knowledge .knowledge-image-button::before,
+.craft-page--knowledge .knowledge-image-button::after {
+  display: none !important;
+}
+
+.craft-page--knowledge .knowledge-image-button--sync {
+  background-image: url("/assets/craft/materials/tool-paper-sync.svg") !important;
+  transform: rotate(-1.4deg);
+}
+
+.craft-page--knowledge .knowledge-image-button--manage {
+  background-image: url("/assets/craft/materials/tool-paper-settings.svg") !important;
+  transform: rotate(1.3deg);
+}
+
+.craft-page--knowledge .knowledge-image-button--create {
+  color: #f8e8c8;
+  background-image: url("/assets/craft/materials/tool-leather-create.svg") !important;
+  transform: rotate(-.6deg);
+}
+
+.craft-page--knowledge .knowledge-image-button svg {
+  position: relative;
+  z-index: 1;
+  width: 20px;
+  height: 20px;
+  stroke-width: 1.9;
+  filter: none;
+}
+
+.craft-page--knowledge .knowledge-image-button:hover:not(:disabled) {
+  opacity: .96;
+}
+
+.craft-page--knowledge .knowledge-image-button--sync:active:not(:disabled) {
+  transform: rotate(-1.4deg) translateY(1px) scale(.975);
+}
+
+.craft-page--knowledge .knowledge-image-button--manage:active:not(:disabled) {
+  transform: rotate(1.3deg) translateY(1px) scale(.975);
+}
+
+.craft-page--knowledge .knowledge-image-button--create:active:not(:disabled) {
+  transform: rotate(-.6deg) translateY(1px) scale(.975);
+}
+
+.craft-page--knowledge .knowledge-image-button:focus-visible {
+  outline: 2px solid var(--craft-copper);
+  outline-offset: 3px;
+}
+
+.craft-page--knowledge .knowledge-image-button:disabled {
+  opacity: .46;
+}
+
+/* Existing category controls already use the paper-tag SVG for inactive items
+   and leather for the selected item; keep that contrast as part of the hybrid. */
+.craft-page--knowledge .knowledge-board-search {
+  margin-top: 16px;
+}
+
+@media (max-width: 390px) {
+  .craft-page--knowledge .knowledge-board-topline {
+    gap: 7px;
+  }
+  .craft-page--knowledge .knowledge-board-heading h1 {
+    font-size: clamp(47px, 13vw, 54px);
+  }
+  .craft-page--knowledge .knowledge-utility-actions {
+    gap: 2px;
+  }
+  .craft-page--knowledge .knowledge-image-button,
+  .craft-page--knowledge .knowledge-image-button[data-craft-variant="ghost"],
+  .craft-page--knowledge .knowledge-image-button[data-craft-variant="secondary"] {
+    width: 46px;
+    min-width: 46px;
+    height: 46px;
+    min-height: 46px;
+  }
+}
+
+@media (max-width: 350px) {
+  .craft-page--knowledge .knowledge-board-heading h1 {
+    font-size: 43px;
+  }
+  .craft-page--knowledge .knowledge-image-button,
+  .craft-page--knowledge .knowledge-image-button[data-craft-variant="ghost"],
+  .craft-page--knowledge .knowledge-image-button[data-craft-variant="secondary"] {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .craft-page--knowledge .knowledge-image-button {
+    transition: none;
+  }
+}
