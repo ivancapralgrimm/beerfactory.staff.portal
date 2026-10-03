@@ -3025,3 +3025,80 @@
     transition: none !important;
   }
 }
+
+
+/* ==========================================================================
+   r40.5 visual correction · Shift hierarchy + article icon actions
+   ========================================================================== */
+.craft-page--shift .craft-shift-role-line {
+  margin-top: 8px !important;
+  color: #725b46;
+  font-size: 13px !important;
+  line-height: 1.35;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.craft-page--shift .craft-shift-status-compact {
+  height: 76px !important;
+  min-height: 76px;
+  padding: 10px 12px !important;
+}
+
+.craft-page--shift .craft-phase .craft-checklist-row {
+  margin-block: 3px;
+  padding: 10px 9px;
+  border: 1px solid rgba(177, 148, 107, .54) !important;
+  border-radius: 8px !important;
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    linear-gradient(112deg, rgba(255, 248, 231, .96), rgba(245, 232, 207, .96)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .82),
+    0 2px 3px rgba(73, 48, 27, .16),
+    0 6px 12px rgba(73, 48, 27, .08);
+}
+
+.craft-page--shift .craft-phase .craft-checklist-row[aria-checked="true"],
+.craft-page--shift .craft-phase .craft-checklist-row.is-complete {
+  border-color: rgba(83, 127, 79, .48) !important;
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    linear-gradient(112deg, rgba(116, 157, 107, .18), rgba(92, 139, 88, .12)),
+    linear-gradient(112deg, #fff8e8, #f4e4c7) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .70),
+    0 2px 3px rgba(57, 88, 54, .16),
+    0 6px 12px rgba(57, 88, 54, .07);
+}
+
+/* The article back control remains leather, but edit/share are ordinary square
+   action buttons. Remove decorative round stitches so icons stay centred. */
+.craft-page--article .knowledge-notebook-toolbar .knowledge-notebook-actions .craft-button[data-craft-size="icon"] {
+  width: 44px !important;
+  min-width: 44px !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  padding: 0 !important;
+  color: #755033 !important;
+  border: 1px solid rgba(155, 117, 73, .52) !important;
+  border-radius: 12px !important;
+  background-color: #f8ecd4 !important;
+  background-image: linear-gradient(180deg, rgba(255,255,255,.72), rgba(227,207,172,.28)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.86),
+    0 2px 4px rgba(66,43,25,.16),
+    0 7px 14px rgba(66,43,25,.08) !important;
+}
+.craft-page--article .knowledge-notebook-toolbar .knowledge-notebook-actions .craft-button[data-craft-size="icon"]::before,
+.craft-page--article .knowledge-notebook-toolbar .knowledge-notebook-actions .craft-button[data-craft-size="icon"]::after {
+  display: none !important;
+  content: none !important;
+}
+.craft-page--article .knowledge-notebook-toolbar .knowledge-notebook-actions .craft-button[data-craft-size="icon"] svg {
+  position: static;
+  width: 19px;
+  height: 19px;
+  color: currentColor;
+  stroke: currentColor;
+}
