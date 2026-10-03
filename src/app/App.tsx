@@ -113,8 +113,20 @@ const ProfilePage = lazy(() =>
 
 function BootScreen() {
   return (
-    <main className="grid min-h-dvh place-items-center bg-[var(--bf-bg)] px-6">
-      <div className="text-center">
+    <main
+      className="craft-context grid min-h-dvh place-items-center px-6 text-[#332820]"
+      style={{
+        backgroundColor: "#f4e5c9",
+        backgroundImage:
+          'url("/assets/craft/materials/paper-fibre.svg"), radial-gradient(circle at 50% 8%, rgba(255,255,255,.52), transparent 38%), linear-gradient(180deg, #f8ecd5 0%, #efe0c2 100%)',
+        backgroundRepeat: "repeat, no-repeat, no-repeat"
+      }}
+    >
+      <div
+        className="w-full max-w-[286px] rounded-[18px] border border-[#c9ad83] bg-[#fff4df]/90 px-7 py-7 text-center shadow-[0_12px_28px_rgba(80,54,31,0.12)]"
+        role="status"
+        aria-live="polite"
+      >
         <img
           src="/assets/icons/profile-avatar.png"
           alt=""
@@ -122,7 +134,7 @@ function BootScreen() {
           height="72"
           className="mx-auto size-[72px]"
         />
-        <p className="mt-4 text-sm font-semibold text-[var(--bf-muted)]">
+        <p className="mt-4 text-sm font-semibold text-[#5a4736]">
           Проверяем сессию…
         </p>
       </div>
