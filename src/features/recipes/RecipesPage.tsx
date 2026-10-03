@@ -274,9 +274,7 @@ export function RecipesPage() {
   return (
     <section className="bf-list-page bf-recipes-page pb-4">
       <div className="bf-recipes-header max-w-2xl">
-        <p className="eyebrow">РЕЦЕПТЫ</p>
-
-        <div className="mt-2 flex items-end justify-between gap-3">
+        <div className="flex items-end justify-between gap-3">
           <h1 className="min-w-0 text-[36px] font-black leading-none tracking-[-0.04em]">
             Рецепты
           </h1>
@@ -317,7 +315,7 @@ export function RecipesPage() {
         </div>
 
         <p className="mt-3 text-pretty text-[15px] leading-6 text-[var(--bf-muted)]">
-          Найди блюдо или напиток по названию, составу или категории.
+          Найди рецепт по названию, ингредиенту, категории
         </p>
       </div>
 
