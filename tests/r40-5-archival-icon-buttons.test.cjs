@@ -5,34 +5,22 @@ const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 
-test('shared square icon buttons keep global size semantics', () => {
+test('shared icon buttons keep explicit size semantics', () => {
   const button = read('src/components/ui/button.tsx');
   assert.match(button, /data-craft-size=\{size \?\? "default"\}/);
 });
 
-test('paper utility assets use clean rounded archival cards, not torn silhouettes', () => {
-  for (const file of ['tool-paper-sync.svg', 'tool-paper-settings.svg']) {
-    const svg = read(`assets/craft/materials/${file}`);
-    assert.match(svg, /<rect x="7" y="7" width="50" height="50" rx="9"/);
-    assert.match(svg, /feDropShadow/);
-    assert.match(svg, /feTurbulence/);
-    assert.doesNotMatch(svg, /<path d="M8 10\.5|<path d="M9 8\.5/);
-  }
-});
-
-test('accent utility asset is clean leather archival card with stitched inset', () => {
-  const svg = read('assets/craft/materials/tool-leather-create.svg');
-  assert.match(svg, /<rect x="7" y="7" width="50" height="50" rx="9"/);
-  assert.match(svg, /stroke-dasharray="2\.6 2\.4"/);
-  assert.match(svg, /feTurbulence/);
-});
-
-test('global icon buttons still use paper normal, leather primary and white Knowledge pencil', () => {
+test('square action buttons use clean CSS cards rather than paper image tiles', () => {
   const css = read('src/components/craft/craft.css');
-  assert.match(css, /data-craft-size="icon"[\s\S]*tool-paper-sync\.svg/);
-  assert.match(css, /data-craft-size="icon"[\s\S]*data-craft-variant="primary"[\s\S]*tool-leather-create\.svg/);
-  assert.match(css, /knowledge-image-button--create svg[\s\S]*stroke:\s*#fffdf8\s*!important/);
-  assert.match(css, /width:\s*48px\s*!important/);
-  assert.match(css, /@media \(max-width: 390px\)[\s\S]*46px\s*!important/);
-  assert.match(css, /@media \(max-width: 350px\)[\s\S]*44px\s*!important/);
+  assert.match(css, /\.craft-button\[data-craft-size="icon"\]\s*\{/);
+  assert.match(css, /border-radius:\s*12px\s*!important/);
+  assert.match(css, /box-shadow:[\s\S]*0 7px 14px/);
+  assert.doesNotMatch(css, /data-craft-size="icon"[\s\S]{0,900}tool-paper-sync\.svg/);
+  assert.doesNotMatch(css, /knowledge-image-button--sync[\s\S]{0,700}tool-paper-sync\.svg/);
+});
+
+test('primary square actions use copper depth and white ink', () => {
+  const css = read('src/components/craft/craft.css');
+  assert.match(css, /data-craft-variant="primary"[\s\S]*color:\s*#fffdf8/);
+  assert.match(css, /background-image:\s*linear-gradient\(180deg, #9f623c 0%, #724027 100%\)/);
 });
