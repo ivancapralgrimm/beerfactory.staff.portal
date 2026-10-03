@@ -1,32 +1,39 @@
 {
-  "package": "BFStaff_r40.5_KNOWLEDGE_TORN_BUTTONS_MOODBOARD_CUMULATIVE",
+  "package": "BFStaff_r40.5_ARCHIVAL_ICON_BUTTONS_CUMULATIVE",
   "target_branch": "r40.5",
-  "cumulative": true,
-  "base_known_blobs": {
-    "src/features/knowledge/KnowledgePage.tsx": "a74bb77be1df25302e4a417f6c9811ebead02d62",
-    "src/components/craft/craft.css": "7ad6e67bb015a92f42e3621c9d1b62e15d3fa327"
+  "base": {
+    "branch": "r40.5",
+    "head_before_package": "54a744b80f96c6b789e80f092ba2a09e76536495",
+    "known_blob_sha": {
+      "src/components/ui/button.tsx": "a34f45fdb121856e239aabf0340ef0f9aae2dcef",
+      "src/components/craft/craft.css": "cecfecde59add0d17ff709f2e8d75fc3bda39c01"
+    }
   },
   "github_mutated": false,
   "files": {
     "README_UPLOAD.txt": {
-      "sha256": "1b96ddd3c94baa209013c912455d8e8d4c0bd5488916362e38e19f14ebafd716",
-      "bytes": 4836
+      "sha256": "cf483941fe2ce6d0407299d0fb0f4f15ffc7e4c6227cef8b5612ad38083cdb49",
+      "bytes": 2540
     },
     "assets/craft/materials/tool-leather-create.svg": {
-      "sha256": "cfbcb1b2612aabfbf0d931c5e5d4cbd2781147d122ad38084e66999c8f617f66",
-      "bytes": 1183
+      "sha256": "f628b8f5c3d6e39e0f7fc4d172557cdb334eafa5b56ea75d185733d6bcc1dac5",
+      "bytes": 1543
     },
     "assets/craft/materials/tool-paper-settings.svg": {
-      "sha256": "056386630f567eed79718f6f7e63fd7c7ffc1b676f3625d74497f418d7a69ac9",
-      "bytes": 1054
+      "sha256": "ab9f8b19d2e32b5ab20fe28f9c2f362d6ad22072db31fede081d37540a3da6aa",
+      "bytes": 1508
     },
     "assets/craft/materials/tool-paper-sync.svg": {
-      "sha256": "c9f38990369d56df5b14a8606cd51d7a8ea2a4a4a5bdfd6f625eca07d20c2132",
-      "bytes": 1081
+      "sha256": "0143d41fe825290e5e6872e205fc6eb24ae6db5a000af3edbb223cdf0a9a3f6b",
+      "bytes": 1511
     },
     "src/components/craft/craft.css": {
-      "sha256": "055ca1fe8e110d21ca736bec5feb7c954ee1b3548fda845db42a6d3579dc7e14",
-      "bytes": 89108
+      "sha256": "4a5ffa1c845cb68fd3d189f908b7a03321361ae8d48be6989cad70afb4427eec",
+      "bytes": 97059
+    },
+    "src/components/ui/button.tsx": {
+      "sha256": "3175d9915d7ece726e6c8a8bb34a840f23e2522696db79a620258116170c7f51",
+      "bytes": 2096
     },
     "src/features/knowledge/KnowledgePage.tsx": {
       "sha256": "9c0efb51bde88ce3ccdb5e9eb36d0c4a988991d37b41015b2c7c6dfa37d30e91",
@@ -40,25 +47,25 @@
       "sha256": "b80634c4ba32013fd96cc096e91f6224fb2405668d81be689466544f0e187a5b",
       "bytes": 32201
     },
+    "tests/r40-5-archival-icon-buttons.test.cjs": {
+      "sha256": "64372d0c44460087671fbcf802cb2ea638b884bece2a2f4438fadfde7459b458",
+      "bytes": 1884
+    },
     "tests/r40-5-checklist-editor-flow-fix.test.cjs": {
       "sha256": "962b731435349d302a8bdd968b4b4324b7d18e62bf8b8c887e1249c4daa8edf4",
       "bytes": 1474
     },
+    "tests/r40-5-global-action-buttons.test.cjs": {
+      "sha256": "1e7d6090bb6141b9903bd52ddc3d3c4457fab5017494b6739db2b62a58c68470",
+      "bytes": 1926
+    },
     "tests/r40-5-knowledge-tool-buttons.test.cjs": {
-      "sha256": "3cc7dc7a46d47c1bbb2f4515522b2474b50404a4f9a4e7bc6d26678836e0d1c2",
-      "bytes": 1987
+      "sha256": "57faf405d54071f9d6b19c31163b2f8fa97a28dfa3cee36cf594072c931583a9",
+      "bytes": 1990
     },
     "tests/r40-5-recipe-moodboard.test.cjs": {
       "sha256": "13ec4c022cdbb84bb40d2a92071bb196ea25da880bcfdb85d6dfd0ea864180fe",
       "bytes": 2544
     }
-  },
-  "verification": {
-    "combined_targeted_tests": "7/7 PASS",
-    "knowledge_targeted_tests": "3/3 PASS",
-    "tsx_parse_TS1xxx": "0",
-    "css_brace_balance": "PASS",
-    "css_paren_balance": "PASS",
-    "svg_xml_parse": "3/3 PASS"
   }
 }
