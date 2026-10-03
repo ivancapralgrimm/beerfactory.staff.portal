@@ -1,72 +1,23 @@
 {
-  "package": "BFStaff_r40.5_SQUARE_ACTION_BUTTONS_RESTORE_CUMULATIVE",
+  "package": "BFStaff_r40.5_SESSION_BOOT_PAPER_FIX",
   "target_branch": "r40.5",
-  "base": {
-    "branch": "r40.5",
-    "head_before_package": "49ab1a565b95ea2262ea951f0e2d85baf2e98da3",
-    "known_blob_sha": {
-      "src/components/craft/craft.css": "e3affbe8a163ce21cd3df72c68f70d46d50a983b",
-      "src/components/ui/button.tsx": "98cf4e64e6f40a83604ce920851a0b7935419cfc",
-      "src/features/knowledge/KnowledgePage.tsx": "29dfa958c30d56f2e10bf25e0eb34358883e13a6"
-    }
+  "base_head": "6802594fbf873a8160eac39eabd02239ff89d5ce",
+  "base_git_blob_sha": {
+    "src/app/App.tsx": "67888726ee1fc13cc3abc0b85b75725e17fa9193"
   },
   "github_mutated": false,
   "files": {
     "README_UPLOAD.txt": {
-      "sha256": "db356d243ddd60224a0f632a061a309b9270c2aad5b1e0f099af914161c97a24",
-      "bytes": 3904
+      "sha256": "51331195332d703a128a37fdcc60293b3c6cf865f5164f7eadb6d7c60526ffc3",
+      "bytes": 1380
     },
-    "assets/craft/materials/tool-leather-create.svg": {
-      "sha256": "f628b8f5c3d6e39e0f7fc4d172557cdb334eafa5b56ea75d185733d6bcc1dac5",
-      "bytes": 1543
+    "src/app/App.tsx": {
+      "sha256": "8871dcecb37ab61dad289d704e6bbe1916648b8f7d1b0f0ca556a8037466c1b8",
+      "bytes": 10777
     },
-    "assets/craft/materials/tool-paper-settings.svg": {
-      "sha256": "ab9f8b19d2e32b5ab20fe28f9c2f362d6ad22072db31fede081d37540a3da6aa",
-      "bytes": 1508
-    },
-    "assets/craft/materials/tool-paper-sync.svg": {
-      "sha256": "0143d41fe825290e5e6872e205fc6eb24ae6db5a000af3edbb223cdf0a9a3f6b",
-      "bytes": 1511
-    },
-    "src/components/craft/craft.css": {
-      "sha256": "a361c81c2ac622ac6a77153aef3a37871ab17739546f877f50241675dc18a190",
-      "bytes": 91162
-    },
-    "src/components/ui/button.tsx": {
-      "sha256": "3175d9915d7ece726e6c8a8bb34a840f23e2522696db79a620258116170c7f51",
-      "bytes": 2096
-    },
-    "src/features/knowledge/KnowledgePage.tsx": {
-      "sha256": "9c0efb51bde88ce3ccdb5e9eb36d0c4a988991d37b41015b2c7c6dfa37d30e91",
-      "bytes": 12360
-    },
-    "src/features/recipes/RecipeDetailPage.tsx": {
-      "sha256": "f90ee6dfa17e072c38ad2bb74b360e90265b695e6efa5d10bea01adac31494e3",
-      "bytes": 19224
-    },
-    "src/features/shift/ChecklistEditorPage.tsx": {
-      "sha256": "b80634c4ba32013fd96cc096e91f6224fb2405668d81be689466544f0e187a5b",
-      "bytes": 32201
-    },
-    "tests/r40-5-archival-icon-buttons.test.cjs": {
-      "sha256": "b0a60bd2bed5abb864a4d91da13c09f9671ecdee0bc034bf23d9c568db469e10",
-      "bytes": 1264
-    },
-    "tests/r40-5-checklist-editor-flow-fix.test.cjs": {
-      "sha256": "962b731435349d302a8bdd968b4b4324b7d18e62bf8b8c887e1249c4daa8edf4",
-      "bytes": 1474
-    },
-    "tests/r40-5-global-action-buttons.test.cjs": {
-      "sha256": "3c0d8f49a7f24133db39dc4010f58149c48f0b77037fea9676543bae9e1326e7",
-      "bytes": 1226
-    },
-    "tests/r40-5-knowledge-tool-buttons.test.cjs": {
-      "sha256": "4f4f2b53e447a94606e0a7d95d361c249657b8ff0f817d91e0da09b5f92f8ede",
-      "bytes": 1222
-    },
-    "tests/r40-5-recipe-moodboard.test.cjs": {
-      "sha256": "13ec4c022cdbb84bb40d2a92071bb196ea25da880bcfdb85d6dfd0ea864180fe",
-      "bytes": 2544
+    "tests/r40-5-session-boot-paper.test.cjs": {
+      "sha256": "6c839c2e78eb595dc37c0f342a27a40254e5ba12ddaa259f8c860da359274bfd",
+      "bytes": 1061
     }
   }
 }
