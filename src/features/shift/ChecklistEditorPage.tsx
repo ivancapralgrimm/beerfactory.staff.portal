@@ -20,7 +20,9 @@ import {
   useCallback,
   useEffect,
   useMemo,
-  useState
+  useState,
+  type Dispatch,
+  type SetStateAction
 } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -113,6 +115,227 @@ function formatUpdated(row: ChecklistEditorRow) {
   } catch {
     return "";
   }
+}
+
+
+type ChecklistDraftEditorProps = {
+  draft: EditorDraft;
+  setDraft: Dispatch<SetStateAction<EditorDraft | null>>;
+  selectedPosition: StaffPosition | null;
+  saving: boolean;
+  inline?: boolean;
+  message?: {
+    tone: "success" | "error";
+    text: string;
+  } | null;
+  onCancel: () => void;
+  onSave: () => void;
+};
+
+function ChecklistDraftEditor({
+  draft,
+  setDraft,
+  selectedPosition,
+  saving,
+  inline = false,
+  message = null,
+  onCancel,
+  onSave
+}: ChecklistDraftEditorProps) {
+  const content = (
+    <>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="eyebrow">
+            {draft.itemKey ? "РЕДАКТИРОВАНИЕ" : "НОВЫЙ ПУНКТ"}
+          </p>
+          <h2 className="mt-1 text-xl font-black">
+            {draft.itemKey ? "Изменить пункт" : "Добавить пункт"}
+          </h2>
+        </div>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          aria-label="Закрыть редактор пункта"
+          onClick={onCancel}
+        >
+          <X className="size-4" aria-hidden />
+        </Button>
+      </div>
+
+      <label className="mt-4 grid gap-1.5">
+        <span className="text-[11px] font-black uppercase tracking-[0.1em] text-[var(--bf-dim)]">
+          Текст пункта
+        </span>
+        <textarea
+          rows={4}
+          maxLength={500}
+          value={draft.label}
+          onChange={(event) =>
+            setDraft((current) =>
+              current ? { ...current, label: event.target.value } : current
+            )
+          }
+          className="min-h-28 resize-y rounded-2xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3.5 py-3 text-[15px] leading-6 text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
+        />
+      </label>
+
+      <div className={cn("mt-3 grid gap-3", selectedPosition === "manager" && "sm:grid-cols-2")}>
+        <label className="grid gap-1.5">
+          <span className="text-[11px] font-black uppercase tracking-[0.1em] text-[var(--bf-dim)]">
+            Раздел
+          </span>
+          <select
+            value={draft.checkType}
+            onChange={(event) => {
+              const checkType = event.target.value as ChecklistEditorCheckType;
+              setDraft((current) =>
+                current
+                  ? {
+                      ...current,
+                      checkType,
+                      activeIsoWeekdays:
+                        checkType === "general_cleaning" && current.itemKey === null
+                          ? [7]
+                          : current.activeIsoWeekdays
+                    }
+                  : current
+              );
+            }}
+            className="min-h-11 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3 text-sm font-bold text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
+          >
+            {TYPE_OPTIONS.map((item) => (
+              <option key={item.value} value={item.value}>
+                {item.label}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        {selectedPosition === "manager" ? (
+          <label className="grid gap-1.5">
+            <span className="text-[11px] font-black uppercase tracking-[0.1em] text-[var(--bf-dim)]">
+              Заведение
+            </span>
+            <select
+              value={draft.groupKey}
+              onChange={(event) =>
+                setDraft((current) =>
+                  current ? { ...current, groupKey: event.target.value } : current
+                )
+              }
+              className="min-h-11 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3 text-sm font-bold text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
+            >
+              <option value="">Без группы</option>
+              <option value="bf">BF</option>
+              <option value="bb">BB</option>
+            </select>
+          </label>
+        ) : null}
+      </div>
+
+      <div className="mt-3">
+        <span className="text-[11px] font-black uppercase tracking-[0.1em] text-[var(--bf-dim)]">
+          Дни недели
+        </span>
+        <div className="mt-2 grid grid-cols-7 gap-1.5">
+          {WEEKDAYS.map((day) => {
+            const active = draft.activeIsoWeekdays.includes(day.value);
+            return (
+              <button
+                key={day.value}
+                type="button"
+                aria-pressed={active}
+                onClick={() =>
+                  setDraft((current) => {
+                    if (!current) return current;
+                    const next = active
+                      ? current.activeIsoWeekdays.filter((value) => value !== day.value)
+                      : [...current.activeIsoWeekdays, day.value].sort((a, b) => a - b);
+                    return { ...current, activeIsoWeekdays: next };
+                  })
+                }
+                className={cn(
+                  "min-h-10 rounded-xl border text-[11px] font-black",
+                  active
+                    ? "border-[var(--bf-copper-hi)] bg-[color:color-mix(in_srgb,var(--bf-copper),transparent_82%)] text-[var(--bf-cream)]"
+                    : "border-[var(--bf-line)] text-[var(--bf-dim)]"
+                )}
+              >
+                {day.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <label className="mt-3 flex min-h-11 items-center gap-3 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3">
+        <input
+          type="checkbox"
+          checked={draft.critical}
+          onChange={(event) =>
+            setDraft((current) =>
+              current ? { ...current, critical: event.target.checked } : current
+            )
+          }
+          className="size-4 accent-[var(--bf-copper)]"
+        />
+        <span className="text-sm font-bold">Критичный пункт</span>
+      </label>
+
+      {inline && message ? (
+        <p
+          className={cn(
+            "mt-3 rounded-xl border px-3 py-2 text-xs leading-5",
+            message.tone === "error"
+              ? "border-[color:color-mix(in_srgb,var(--bf-red),transparent_55%)] text-[#9f302a]"
+              : "border-[color:color-mix(in_srgb,var(--bf-green),transparent_55%)] text-[#376b3c]"
+          )}
+          role={message.tone === "error" ? "alert" : "status"}
+          aria-live="polite"
+        >
+          {message.text}
+        </p>
+      ) : null}
+
+      <div className="mt-4 flex gap-2">
+        <Button
+          type="button"
+          variant="secondary"
+          className="flex-1"
+          disabled={saving}
+          onClick={onCancel}
+        >
+          Отмена
+        </Button>
+        <Button
+          type="button"
+          variant="primary"
+          className="flex-1"
+          disabled={saving || !draft.label.trim()}
+          onClick={onSave}
+        >
+          {saving ? (
+            <Loader2 className="size-4 animate-spin" aria-hidden />
+          ) : (
+            <Save className="size-4" aria-hidden />
+          )}
+          {saving ? "Сохраняем…" : "Сохранить"}
+        </Button>
+      </div>
+    </>
+  );
+
+  if (inline) {
+    return (
+      <div className="bf-checklist-inline-editor" role="region" aria-label="Редактирование пункта">
+        {content}
+      </div>
+    );
+  }
+
+  return <Surface className="mt-3 p-4">{content}</Surface>;
 }
 
 export function ChecklistEditorPage() {
@@ -230,7 +453,9 @@ export function ChecklistEditorPage() {
   }
 
   function openEdit(row: ChecklistEditorRow) {
-    setDraft(rowDraft(row));
+    setDraft((current) =>
+      current?.itemKey === row.item_key ? null : rowDraft(row)
+    );
     setMessage(null);
   }
 
@@ -529,174 +754,15 @@ export function ChecklistEditorPage() {
         </Button>
       </div>
 
-      {draft ? (
-        <Surface className="mt-3 p-4">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="eyebrow">
-                {draft.itemKey ? "РЕДАКТИРОВАНИЕ" : "НОВЫЙ ПУНКТ"}
-              </p>
-              <h2 className="mt-1 text-xl font-black">
-                {draft.itemKey ? "Изменить пункт" : "Добавить пункт"}
-              </h2>
-            </div>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              aria-label="Закрыть редактор пункта"
-              onClick={() => setDraft(null)}
-            >
-              <X className="size-4" aria-hidden />
-            </Button>
-          </div>
-
-          <label className="mt-4 grid gap-1.5">
-            <span className="text-[11px] font-black uppercase tracking-[0.1em] text-[var(--bf-dim)]">
-              Текст пункта
-            </span>
-            <textarea
-              rows={4}
-              maxLength={500}
-              value={draft.label}
-              onChange={(event) =>
-                setDraft((current) =>
-                  current ? { ...current, label: event.target.value } : current
-                )
-              }
-              className="min-h-28 resize-y rounded-2xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3.5 py-3 text-[15px] leading-6 text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
-            />
-          </label>
-
-          <div className={cn("mt-3 grid gap-3", selectedPosition === "manager" && "sm:grid-cols-2")}>
-            <label className="grid gap-1.5">
-              <span className="text-[11px] font-black uppercase tracking-[0.1em] text-[var(--bf-dim)]">
-                Раздел
-              </span>
-              <select
-                value={draft.checkType}
-                onChange={(event) => {
-                  const checkType = event.target.value as ChecklistEditorCheckType;
-                  setDraft((current) =>
-                    current
-                      ? {
-                          ...current,
-                          checkType,
-                          activeIsoWeekdays:
-                            checkType === "general_cleaning" && current.itemKey === null
-                              ? [7]
-                              : current.activeIsoWeekdays
-                        }
-                      : current
-                  );
-                }}
-                className="min-h-11 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3 text-sm font-bold text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
-              >
-                {TYPE_OPTIONS.map((item) => (
-                  <option key={item.value} value={item.value}>
-                    {item.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            {selectedPosition === "manager" ? (
-              <label className="grid gap-1.5">
-                <span className="text-[11px] font-black uppercase tracking-[0.1em] text-[var(--bf-dim)]">
-                  Заведение
-                </span>
-                <select
-                  value={draft.groupKey}
-                  onChange={(event) =>
-                    setDraft((current) =>
-                      current ? { ...current, groupKey: event.target.value } : current
-                    )
-                  }
-                  className="min-h-11 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3 text-sm font-bold text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
-                >
-                  <option value="">Без группы</option>
-                  <option value="bf">BF</option>
-                  <option value="bb">BB</option>
-                </select>
-              </label>
-            ) : null}
-          </div>
-
-          <div className="mt-3">
-            <span className="text-[11px] font-black uppercase tracking-[0.1em] text-[var(--bf-dim)]">
-              Дни недели
-            </span>
-            <div className="mt-2 grid grid-cols-7 gap-1.5">
-              {WEEKDAYS.map((day) => {
-                const active = draft.activeIsoWeekdays.includes(day.value);
-                return (
-                  <button
-                    key={day.value}
-                    type="button"
-                    aria-pressed={active}
-                    onClick={() =>
-                      setDraft((current) => {
-                        if (!current) return current;
-                        const next = active
-                          ? current.activeIsoWeekdays.filter((value) => value !== day.value)
-                          : [...current.activeIsoWeekdays, day.value].sort((a, b) => a - b);
-                        return { ...current, activeIsoWeekdays: next };
-                      })
-                    }
-                    className={cn(
-                      "min-h-10 rounded-xl border text-[11px] font-black",
-                      active
-                        ? "border-[var(--bf-copper-hi)] bg-[color:color-mix(in_srgb,var(--bf-copper),transparent_82%)] text-[var(--bf-cream)]"
-                        : "border-[var(--bf-line)] text-[var(--bf-dim)]"
-                    )}
-                  >
-                    {day.label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <label className="mt-3 flex min-h-11 items-center gap-3 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3">
-            <input
-              type="checkbox"
-              checked={draft.critical}
-              onChange={(event) =>
-                setDraft((current) =>
-                  current ? { ...current, critical: event.target.checked } : current
-                )
-              }
-              className="size-4 accent-[var(--bf-copper)]"
-            />
-            <span className="text-sm font-bold">Критичный пункт</span>
-          </label>
-
-          <div className="mt-4 flex gap-2">
-            <Button
-              type="button"
-              variant="secondary"
-              className="flex-1"
-              disabled={saving}
-              onClick={() => setDraft(null)}
-            >
-              Отмена
-            </Button>
-            <Button
-              type="button"
-              variant="primary"
-              className="flex-1"
-              disabled={saving || !draft.label.trim()}
-              onClick={() => void saveDraft()}
-            >
-              {saving ? (
-                <Loader2 className="size-4 animate-spin" aria-hidden />
-              ) : (
-                <Save className="size-4" aria-hidden />
-              )}
-              {saving ? "Сохраняем…" : "Сохранить"}
-            </Button>
-          </div>
-        </Surface>
+      {draft?.itemKey === null ? (
+        <ChecklistDraftEditor
+          draft={draft}
+          setDraft={setDraft}
+          selectedPosition={selectedPosition}
+          saving={saving}
+          onCancel={() => setDraft(null)}
+          onSave={() => void saveDraft()}
+        />
       ) : null}
 
       <p
@@ -720,11 +786,13 @@ export function ChecklistEditorPage() {
         </Surface>
       ) : (
         <div className="mt-2 grid gap-2">
-          {rows.map((row) => {
+          {rows.map((row, rowIndex) => {
             const activeIndex = activeRows.findIndex(
               (item) => item.item_key === row.item_key
             );
             const busy = pendingKey === row.item_key;
+            const editing = draft?.itemKey === row.item_key;
+            const editorId = `checklist-item-editor-${rowIndex}-${row.item_key.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
 
             return (
               <Surface
@@ -805,9 +873,11 @@ export function ChecklistEditorPage() {
                   </Button>
                   <Button
                     type="button"
-                    variant="secondary"
+                    variant={editing ? "primary" : "secondary"}
                     size="icon"
-                    aria-label="Редактировать пункт"
+                    aria-label={editing ? "Закрыть редактор пункта" : "Редактировать пункт"}
+                    aria-expanded={editing}
+                    aria-controls={editorId}
                     disabled={Boolean(pendingKey)}
                     onClick={() => openEdit(row)}
                   >
@@ -844,6 +914,21 @@ export function ChecklistEditorPage() {
                     )}
                   </Button>
                 </div>
+
+                {editing && draft ? (
+                  <div id={editorId}>
+                    <ChecklistDraftEditor
+                      draft={draft}
+                      setDraft={setDraft}
+                      selectedPosition={selectedPosition}
+                      saving={saving}
+                      inline
+                      message={message}
+                      onCancel={() => setDraft(null)}
+                      onSave={() => void saveDraft()}
+                    />
+                  </div>
+                ) : null}
               </Surface>
             );
           })}
