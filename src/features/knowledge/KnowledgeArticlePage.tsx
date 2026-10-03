@@ -1,4 +1,4 @@
-import { ArrowLeft, BookCheck, Share2 } from "lucide-react";
+import { ArrowLeft, BookCheck, Pencil, Share2 } from "lucide-react";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,21 @@ import { useKnowledgeEditorAccess } from "./editor/use-editor-access";
 import { loadKnowledgeArticleForEditor } from "./editor/knowledge-editor-api";
 import type { KnowledgeArticleDocument } from "./editor/article-model";
 import { KnowledgeDocumentView } from "./editor/KnowledgeDocumentView";
+
+function LeatherStitches({ round = false }: { round?: boolean }) {
+  if (!round) return <span className="knowledge-button-thread" aria-hidden />;
+  const stitches = Array.from({ length: 12 }, (_, index) => {
+    const angle = index * Math.PI / 6;
+    const point = (offset: number, radius = 16) => `${22 + Math.cos(angle + offset) * radius} ${22 + Math.sin(angle + offset) * radius}`;
+    const path = `M${point(-.17)} Q${point(0, 15.2)} ${point(.17)}`;
+    return <g key={index}>
+      <path d={path} stroke="#241209" strokeWidth="2.2" opacity=".5" />
+      <path d={path} stroke="#d2a371" strokeWidth="1.05" />
+      <path d={path} stroke="#f7d7a4" strokeWidth=".3" opacity=".65" />
+    </g>;
+  });
+  return <svg className="knowledge-button-stitches" viewBox="0 0 44 44" aria-hidden focusable="false" fill="none" strokeLinecap="round">{stitches}</svg>;
+}
 
 function safeDecode(value: string) {
   try {
@@ -239,8 +254,9 @@ export function KnowledgeArticlePage() {
   return (
     <article className="knowledge-notebook mx-auto max-w-[860px]">
       <div className="knowledge-notebook-toolbar">
-        <Button asChild variant="ghost" className="knowledge-notebook-back">
-          <Link to={backTarget}>
+        <Button asChild variant="ghost" className="knowledge-notebook-back knowledge-leather-action">
+          <Link to={backTarget} aria-label="Назад в Знания">
+            <LeatherStitches />
             <ArrowLeft className="size-4" aria-hidden />
             Знания
           </Link>
@@ -252,13 +268,23 @@ export function KnowledgeArticlePage() {
         >
           <b>BF</b>Staff
         </span>
-        <div className="flex items-center gap-2">
+        <div className="knowledge-notebook-actions flex items-center gap-2">
+          {editorAccess.canEdit && (
+            <Button asChild size="icon" className="knowledge-leather-action knowledge-notebook-icon">
+              <Link to={`/knowledge/${encodeURIComponent(article.id)}/edit`} state={{ from: backTarget }} aria-label="Редактировать статью" title="Редактировать статью">
+                <LeatherStitches round />
+                <Pencil className="size-4" aria-hidden />
+              </Link>
+            </Button>
+          )}
           <Button
             type="button"
             size="icon"
             aria-label="Поделиться статьёй"
+            className="knowledge-leather-action knowledge-notebook-icon"
             onClick={shareArticle}
           >
+            <LeatherStitches round />
             <Share2 className="size-4" aria-hidden />
           </Button>
         </div>
@@ -319,18 +345,6 @@ export function KnowledgeArticlePage() {
           </nav>
         ) : null}
 
-        {editorAccess.canEdit && (
-          <div className="my-4">
-            <Button asChild>
-              <Link
-                to={`/knowledge/${encodeURIComponent(article.id)}/edit`}
-                state={{ from: backTarget }}
-              >
-                Редактировать статью
-              </Link>
-            </Button>
-          </div>
-        )}
         {article.source === "supabase" &&
           (detail?.document ? (
             <KnowledgeDocumentView document={detail.document} />
