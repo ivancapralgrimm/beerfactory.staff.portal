@@ -272,7 +272,6 @@ export function KnowledgeArticlePage() {
           {editorAccess.canEdit && (
             <Button asChild size="icon" className="knowledge-leather-action knowledge-notebook-icon">
               <Link to={`/knowledge/${encodeURIComponent(article.id)}/edit`} state={{ from: backTarget }} aria-label="Редактировать статью" title="Редактировать статью">
-                <LeatherStitches round />
                 <Pencil className="size-4" aria-hidden />
               </Link>
             </Button>
@@ -284,7 +283,6 @@ export function KnowledgeArticlePage() {
             className="knowledge-leather-action knowledge-notebook-icon"
             onClick={shareArticle}
           >
-            <LeatherStitches round />
             <Share2 className="size-4" aria-hidden />
           </Button>
         </div>
