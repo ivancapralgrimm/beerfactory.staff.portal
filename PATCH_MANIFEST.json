@@ -1,37 +1,53 @@
 {
-  "package": "BFStaff_r40.5_INLINE_EDITOR_SCROLLTOP_RECIPE_STICKER_VERIFIED",
+  "package": "BFStaff_r40.5_CHECKLIST_FLOW_RECIPE_MOODBOARD_POLAROID",
   "target_branch": "r40.5",
-  "base_git_blob_sha": {
-    "src/components/layout/AppShell.tsx": "8fddc00f44484a0fb5fec141570e5735798c60b2",
-    "src/components/craft/craft.css": "af0b06edbc7b1890f872ef64a76a0dd9ad84a516",
-    "src/features/shift/ChecklistEditorPage.tsx": "452dac7293568dbf4c3d0a9d3763468c8a94ce17",
-    "src/features/recipes/RecipeDetailPage.tsx": "3325f618ea76ee60c5d20723feb0580ef28c2c52"
+  "expected_base_git_blob_sha": {
+    "src/features/shift/ChecklistEditorPage.tsx": "80322f2bb8ab024b839b4755ac911fd6e18fe849",
+    "src/components/craft/craft.css": "bd0cfdc025511063da1fe2f29a4367d7a11ebd0c",
+    "src/features/recipes/RecipeDetailPage.tsx": "e4eb2c51b31612b8b2fe927ebfbdf762a6ded4ac"
+  },
+  "behavior": {
+    "checklist_editor": "separate normal-flow sibling panel below selected item",
+    "recipe_photo": "Polaroid; complete source image; object-fit contain; fullscreen dialog preserved",
+    "recipe_content": "mood-board paper notes alternating rotation; tape/pushpin fasteners; normal flow"
   },
   "files": {
     "README_UPLOAD.txt": {
-      "sha256": "a57303bbddb1efd2474cd1a0546c45c0a6b37a26ba4a3cc8903c9df327eb6695",
-      "bytes": 3257
+      "bytes": 5215,
+      "sha256": "bfd2b0c2615d328adf5923e00f84ba5aac3efaf99e2fcd0b4d16ce41437216b8",
+      "git_blob_sha": "c8a549761ccbd2fe8536cdbd583c9a2e797c471f"
     },
     "src/components/craft/craft.css": {
-      "sha256": "0231c84b071448051c630c256d81d67cdfe7b784df160c873b03054b8fdb94d8",
-      "bytes": 68779
-    },
-    "src/components/layout/AppShell.tsx": {
-      "sha256": "4e28e6d06e5444649414c6bfa0be7e140c23fb407e1f3bf1af080df2432fcb0d",
-      "bytes": 6239
-    },
-    "src/features/recipes/RecipeDetailPage.tsx": {
-      "sha256": "a8b04613250dae26e2ca2b0def7bec6fae79385aa66476fcb51007c1c28f1db0",
-      "bytes": 19341
+      "bytes": 84411,
+      "sha256": "c2204d42fd24379e6b200489ccbf90ec6d5d6c6b17681d2076eb1a68aa1d9141",
+      "git_blob_sha": "7ad6e67bb015a92f42e3621c9d1b62e15d3fa327"
     },
     "src/features/shift/ChecklistEditorPage.tsx": {
-      "sha256": "681150b372f91aab90b03a10f7a83b7708b11d543af29d007cb403bc8d3bb460",
-      "bytes": 31854
+      "bytes": 32201,
+      "sha256": "b80634c4ba32013fd96cc096e91f6224fb2405668d81be689466544f0e187a5b",
+      "git_blob_sha": "6227bd6fed89bb5458592fece058492a5225ce2b"
     },
-    "tests/r40-5-inline-editor-scrolltop-sticker.test.cjs": {
-      "sha256": "00613449d62aaac3cc01ac726c2838999262b56741a7a51b7317af54a50b553d",
-      "bytes": 2077
+    "src/features/recipes/RecipeDetailPage.tsx": {
+      "bytes": 19224,
+      "sha256": "f90ee6dfa17e072c38ad2bb74b360e90265b695e6efa5d10bea01adac31494e3",
+      "git_blob_sha": "f0bead5f2a90246b25a3dfb17229a82761b331ef"
+    },
+    "tests/r40-5-checklist-editor-flow-fix.test.cjs": {
+      "bytes": 1474,
+      "sha256": "962b731435349d302a8bdd968b4b4324b7d18e62bf8b8c887e1249c4daa8edf4",
+      "git_blob_sha": "2488b8ca0beaf4794a4ad9c1cb6d9b91d6fbbb90"
+    },
+    "tests/r40-5-recipe-moodboard.test.cjs": {
+      "bytes": 2544,
+      "sha256": "13ec4c022cdbb84bb40d2a92071bb196ea25da880bcfdb85d6dfd0ea864180fe",
+      "git_blob_sha": "e71baccc0070698dac92c7f70b6dd459135ea6fc"
     }
+  },
+  "verification": {
+    "targeted_tests": "4/4 PASS",
+    "visual_plus_targeted": "12/12 PASS on refreshed r40.5 baseline",
+    "typescript_parse": "0 TS1xxx errors",
+    "css_balance": "PASS"
   },
   "github_mutated": false
 }
