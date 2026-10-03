@@ -2095,3 +2095,187 @@
     inset 0 1px 1px rgba(244, 205, 165, .36),
     0 2px 4px rgba(45, 25, 14, .24);
 }
+
+/* r40.5 interaction pass · inline checklist editor, recipe sticker, scroll-to-top. */
+.bf-scroll-top {
+  position: fixed;
+  z-index: 60;
+  right: max(12px, env(safe-area-inset-right), calc((100vw - 760px) / 2 + 12px));
+  bottom: max(14px, calc(env(safe-area-inset-bottom) + 14px));
+  display: grid;
+  width: 46px;
+  height: 46px;
+  place-items: center;
+  padding: 0;
+  color: var(--craft-paper-light);
+  border: 1px solid rgba(223, 171, 112, .64);
+  border-radius: 50%;
+  background:
+    var(--craft-leather-grain),
+    linear-gradient(155deg, var(--craft-leather-hi), var(--craft-leather) 72%);
+  box-shadow:
+    inset 0 1px 1px rgba(244, 205, 165, .36),
+    inset 0 -2px 2px rgba(48, 25, 13, .28),
+    0 3px 7px rgba(45, 25, 14, .26),
+    0 10px 22px rgba(45, 25, 14, .14);
+  cursor: pointer;
+  animation: bf-scroll-top-in 150ms ease-out both;
+}
+.bf-scroll-top[data-with-bottom-nav="true"] {
+  bottom: calc(70px + env(safe-area-inset-bottom));
+}
+.bf-scroll-top::after {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border: 1px dashed rgba(219, 173, 114, .42);
+  border-radius: inherit;
+  pointer-events: none;
+}
+.bf-scroll-top:focus-visible {
+  outline: 2px solid var(--craft-copper);
+  outline-offset: 3px;
+}
+.bf-scroll-top:active { transform: translateY(1px); }
+@keyframes bf-scroll-top-in {
+  from { opacity: 0; transform: translateY(7px) scale(.94); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.craft-page--checklist-editor .bf-checklist-inline-editor {
+  position: relative;
+  margin: 14px -2px -2px;
+  padding: 16px 13px 14px;
+  border-top: 1px dashed rgba(152, 80, 34, .36);
+  border-radius: 0 0 5px 5px;
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    linear-gradient(115deg, rgba(255, 247, 228, .78), rgba(239, 220, 187, .70));
+  box-shadow: inset 0 8px 14px rgba(117, 79, 39, .05);
+  animation: bf-checklist-editor-open 180ms ease-out both;
+}
+.craft-page--checklist-editor .bf-checklist-inline-editor::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 22px;
+  width: 58px;
+  height: 2px;
+  background: var(--craft-copper);
+  opacity: .52;
+}
+@keyframes bf-checklist-editor-open {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.craft-page--recipe .recipe-ingredients-sticker {
+  position: relative;
+  isolation: isolate;
+  margin: 8px 3px 4px;
+  padding: 24px 18px 18px;
+  overflow: visible;
+  color: var(--craft-ink);
+  border: 1px solid rgba(198, 158, 99, .72);
+  border-radius: 4px 7px 3px 5px;
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    radial-gradient(circle at 86% 14%, rgba(217, 175, 91, .18), transparent 28%),
+    linear-gradient(125deg, #fff1cf, #f3dda9 78%);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.84),
+    1px 4px 7px rgba(77, 49, 24, .22),
+    0 13px 24px rgba(77, 49, 24, .08);
+  transform: rotate(-.35deg);
+}
+.craft-page--recipe .recipe-ingredients-sticker::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  top: -9px;
+  left: 17%;
+  width: 58px;
+  height: 19px;
+  border-inline: 1px solid rgba(180, 151, 107, .26);
+  background: linear-gradient(90deg, rgba(222, 201, 161, .62), rgba(238, 219, 181, .82), rgba(211, 190, 149, .58));
+  box-shadow: 0 1px 2px rgba(79, 55, 30, .08);
+  transform: rotate(-6deg);
+  pointer-events: none;
+}
+.craft-page--recipe .recipe-ingredients-sticker::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  right: -2px;
+  bottom: -2px;
+  width: 25px;
+  height: 24px;
+  background: linear-gradient(140deg, transparent 49%, rgba(186, 145, 88, .18) 50%, rgba(255, 248, 228, .64) 82%);
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  pointer-events: none;
+}
+.craft-page--recipe .recipe-ingredients-title {
+  position: relative;
+  margin: 0 0 12px;
+  width: fit-content;
+  color: var(--craft-ink);
+  font: 700 30px/1.05 var(--craft-display);
+  letter-spacing: 0;
+}
+.craft-page--recipe .recipe-ingredients-title::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 8%;
+  bottom: -5px;
+  height: 2px;
+  border-radius: 100%;
+  background: rgba(152, 80, 34, .44);
+  transform: rotate(-1deg);
+}
+.craft-page--recipe .recipe-ingredients-list {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: #41382e;
+  font-size: 15px;
+  line-height: 1.5;
+}
+.craft-page--recipe .recipe-ingredients-list li {
+  position: relative;
+  padding-left: 15px;
+  overflow-wrap: anywhere;
+}
+.craft-page--recipe .recipe-ingredients-list li::before {
+  content: "•";
+  position: absolute;
+  left: 1px;
+  top: 0;
+  color: var(--craft-copper);
+  font-weight: 900;
+}
+
+@media (max-width: 430px) {
+  .bf-scroll-top {
+    right: max(12px, env(safe-area-inset-right));
+    width: 44px;
+    height: 44px;
+  }
+  .bf-scroll-top[data-with-bottom-nav="true"] {
+    bottom: calc(69px + env(safe-area-inset-bottom));
+  }
+  .craft-page--recipe .recipe-ingredients-sticker {
+    margin-inline: 1px;
+    padding: 22px 15px 16px;
+  }
+  .craft-page--recipe .recipe-ingredients-title { font-size: 28px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bf-scroll-top,
+  .craft-page--checklist-editor .bf-checklist-inline-editor {
+    animation: none;
+  }
+}
