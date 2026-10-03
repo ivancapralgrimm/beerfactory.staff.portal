@@ -425,18 +425,18 @@ export function RecipeDetailPage() {
       <div className="mt-5 grid gap-6 md:grid-cols-[minmax(0,1.35fr)_minmax(240px,.65fr)] md:items-start">
         <div className="space-y-6">
           {displayIngredients.length > 0 ? (
-            <section aria-labelledby="ingredients-title">
-              <h2 id="ingredients-title" className="eyebrow">СОСТАВ</h2>
-              <div className="mt-3 divide-y divide-[var(--bf-line)] overflow-hidden rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-4">
+            <section
+              aria-labelledby="ingredients-title"
+              className="recipe-ingredients-sticker"
+            >
+              <h2 id="ingredients-title" className="recipe-ingredients-title">
+                Состав
+              </h2>
+              <ul className="recipe-ingredients-list">
                 {displayIngredients.map((ingredient, index) => (
-                  <div
-                    key={`${ingredient}-${index}`}
-                    className="py-3 text-[14px] leading-[1.5] text-[var(--bf-cream)]"
-                  >
-                    {ingredient}
-                  </div>
+                  <li key={`${ingredient}-${index}`}>{ingredient}</li>
                 ))}
-              </div>
+              </ul>
             </section>
           ) : null}
 
