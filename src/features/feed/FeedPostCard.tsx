@@ -3,6 +3,7 @@ import {
   CheckCircle2,
   Loader2,
   Megaphone,
+  Paperclip,
   UsersRound
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -59,7 +60,7 @@ export function FeedPostCard({
   return (
     <article
       className={cn(
-        "rounded-[20px] border bg-[var(--bf-surface)]",
+        "bf-feed-sticker rounded-[20px] border bg-[var(--bf-surface)]",
         compact ? "p-3.5" : "p-4",
         critical
           ? "border-[color:color-mix(in_srgb,var(--bf-red),transparent_52%)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--bf-red),transparent_93%),transparent_55%),var(--bf-surface)]"
@@ -67,6 +68,7 @@ export function FeedPostCard({
         resolved && "opacity-75"
       )}
     >
+      <Paperclip className="bf-note-clip" aria-hidden />
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-1.5">
