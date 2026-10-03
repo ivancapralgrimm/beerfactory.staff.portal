@@ -1,31 +1,9 @@
-BFStaff r40.5 · SESSION BOOT PAPER FIX
-=====================================
+BFStaff r40.5 — Shift locked screen fix
 
-Цель
-----
-Привести экран «Проверяем сессию…» к актуальному светлому craft/paper стилю BFStaff.
+Replace only:
+src/features/shift/ShiftPage.tsx
 
-База
-----
-Ветка: r40.5
-HEAD перед сборкой: 6802594fbf873a8160eac39eabd02239ff89d5ce
-src/app/App.tsx blob до изменения: 67888726ee1fc13cc3abc0b85b75725e17fa9193
-
-Что изменено
-------------
-• Убран тёмный/медно-коричневый фон BootScreen через var(--bf-bg).
-• Весь экран загрузки теперь кремовый бумажный, с локальной paper-fibre фактурой.
-• Центральная область тоже светлая бумажная, без старого большого тёмно-медного блока.
-• Текст «Проверяем сессию…» сделан тёмно-коричневым (#5a4736).
-• Добавлены role=status и aria-live=polite.
-• Логика авторизации, Supabase, сессия и маршрутизация не менялись.
-
-Установка
----------
-Заменить только:
-src/app/App.tsx
-
-Опционально добавить regression-test:
-tests/r40-5-session-boot-paper.test.cjs
-
-GitHub из пакета не изменялся.
+Changes:
+- removed obsolete 'СМЕНА · {position}' eyebrow from locked/unconfigured states;
+- moved 'Новая смена с 11:00' and 'Следующее открытие' next to the lock icon;
+- no backend/API/session logic changed.
