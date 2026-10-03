@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   Link,
   NavLink,
@@ -6,6 +6,7 @@ import {
   useLocation
 } from "react-router-dom";
 import {
+  ArrowUp,
   BookOpen,
   ClipboardCheck,
   Home,
@@ -47,6 +48,49 @@ const navItems = [
     icon: StickyNote
   }
 ];
+
+function ScrollToTopButton({ withBottomNav }: { withBottomNav: boolean }) {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const update = () => {
+      const threshold = Math.max(420, window.innerHeight * 0.7);
+      setVisible(window.scrollY > threshold);
+    };
+
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+
+    return () => {
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, []);
+
+  if (!visible) return null;
+
+  return (
+    <button
+      type="button"
+      className="bf-scroll-top"
+      data-with-bottom-nav={withBottomNav ? "true" : "false"}
+      aria-label="Вернуться наверх"
+      onClick={() => {
+        const reduceMotion = window.matchMedia(
+          "(prefers-reduced-motion: reduce)"
+        ).matches;
+        window.scrollTo({
+          top: 0,
+          left: 0,
+          behavior: reduceMotion ? "auto" : "smooth"
+        });
+      }}
+    >
+      <ArrowUp className="size-5" aria-hidden />
+    </button>
+  );
+}
 
 export function AppShell() {
   const { state } = useAuth();
@@ -143,6 +187,8 @@ export function AppShell() {
           <Outlet />
         </CraftPage>
       </main>
+
+      <ScrollToTopButton withBottomNav={!isDashboard} />
 
       {!isDashboard && <nav
         aria-label="Основная навигация"
