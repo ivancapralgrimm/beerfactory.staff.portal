@@ -146,8 +146,9 @@ export function AppShell() {
 
       {!isDashboard && <nav
         aria-label="Основная навигация"
-        className="bf-bottom-nav fixed inset-x-0 bottom-0 z-50 pb-[env(safe-area-inset-bottom)]"
+        className="bf-bottom-dock"
       >
+        <div className="bf-bottom-nav">
         <div className="mx-auto grid min-h-[52px] max-w-xl grid-cols-5 px-2">
           {navItems.map(
             ({
@@ -176,6 +177,7 @@ export function AppShell() {
               </NavLink>
             )
           )}
+        </div>
         </div>
       </nav>}
     </div>
