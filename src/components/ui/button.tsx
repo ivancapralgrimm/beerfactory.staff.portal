@@ -43,6 +43,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <Comp
         ref={ref}
         data-craft-variant={variant || "secondary"}
+        data-craft-size={size ?? "default"}
         className={cn("craft-button", buttonVariants({ variant, size }), className)}
         {...props}
       />
