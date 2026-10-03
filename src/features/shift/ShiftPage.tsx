@@ -66,19 +66,6 @@ function formatDate(value: string) {
   }
 }
 
-function formatTime(value: string | null, timeZone: string) {
-  if (!value) return "—";
-  try {
-    return new Intl.DateTimeFormat("ru-RU", {
-      hour: "2-digit",
-      minute: "2-digit",
-      timeZone
-    }).format(new Date(value));
-  } catch {
-    return "—";
-  }
-}
-
 function formatDateTime(value: string | null, timeZone: string) {
   if (!value) return "11:00";
   try {
@@ -121,7 +108,7 @@ function ChecklistRow({ row, locked, pending, onToggle }: {
 }) {
   const checked = Boolean(row.check?.completed);
   return (
-    <button type="button" role="checkbox" aria-checked={checked} aria-busy={pending} disabled={locked || pending} onClick={() => onToggle(row, !checked)} className={cn("grid min-h-[50px] w-full grid-cols-[26px_1fr_auto] items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left outline-none transition-[background-color,border-color,opacity,transform] focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)] active:translate-y-px disabled:cursor-default", checked ? "border-[color:color-mix(in_srgb,var(--bf-green),transparent_58%)] bg-[color:color-mix(in_srgb,var(--bf-green),transparent_91%)]" : "border-[var(--bf-line)] bg-[var(--bf-surface)]", pending && "opacity-85", locked && "opacity-65")}>
+    <button type="button" role="checkbox" aria-checked={checked} aria-busy={pending} disabled={locked || pending} onClick={() => onToggle(row, !checked)} className={cn("craft-checklist-row grid min-h-[50px] w-full grid-cols-[26px_1fr_auto] items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left outline-none transition-[background-color,border-color,box-shadow,opacity,transform] focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)] active:translate-y-px disabled:cursor-default", checked ? "is-complete border-[color:color-mix(in_srgb,var(--bf-green),transparent_48%)]" : "border-[var(--bf-line)]", pending && "opacity-85", locked && "opacity-65")}>
       <span className={cn("grid size-6 place-items-center rounded-md border", checked ? "border-[color:color-mix(in_srgb,var(--bf-green),transparent_35%)] bg-[color:color-mix(in_srgb,var(--bf-green),transparent_76%)] text-[#b7e3ba]" : "border-[var(--bf-line-strong)] bg-[var(--bf-surface-2)] text-[var(--bf-dim)]")} aria-hidden>
         {pending ? <Loader2 className="size-3.5 animate-spin" /> : checked ? <Check className="size-3.5" /> : null}
       </span>
@@ -385,14 +372,14 @@ export function ShiftPage() {
 
   return (
     <section className="mx-auto max-w-3xl pb-6">
-      <div className="flex items-start justify-between gap-3">
-        <div><p className="eyebrow">СМЕНА · {shift.position_label.toUpperCase()}</p><h1 className="mt-1 text-[36px] font-black leading-none tracking-[-0.04em]">Смена</h1><p className="mt-2 text-sm text-[var(--bf-muted)]">11:00–03:00</p></div>
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-3">
+        <h1 className="text-[36px] font-black leading-none tracking-[-0.04em]">Смена</h1>
         <Button type="button" variant="secondary" size="icon" aria-label="Обновить смену" disabled={interactionLocked} onClick={() => void load(true)}><RefreshCw className={cn("size-4", refreshing && "animate-spin")} aria-hidden /></Button>
+        <p className="craft-shift-role-line col-span-2 mt-2 text-center text-sm font-semibold text-[var(--bf-muted)]">Должность: {shift.position_label} • 11:00 - 03:00</p>
       </div>
 
-      <div className="craft-shift-status mt-5 rounded-[22px] border border-[var(--bf-line)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--bf-copper),transparent_90%),transparent_50%),var(--bf-surface)] p-4">
-        <div className="flex items-center justify-between gap-3"><div><div className="flex items-center gap-2">{shift.status === "closed" ? <CheckCircle2 className="size-5 text-[var(--bf-green)]" aria-hidden /> : <Clock3 className="size-5 text-[var(--bf-copper-hi)]" aria-hidden />}<h2 className="text-xl font-black">{shift.status === "not_started" ? "Смена не открыта" : shift.status === "active" ? "Смена открыта" : shift.status === "closed" ? "Смена закрыта" : "Смена истекла"}</h2></div></div><div className="flex shrink-0 items-center gap-1.5 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-bg)] px-2.5 py-2"><CalendarDays className="size-4 text-[var(--bf-copper-hi)]" aria-hidden /><p className="whitespace-nowrap text-[11px] font-bold capitalize leading-none">{formatDate(shift.shift_date)}</p></div></div>
-        {shift.opened_at || shift.closed_at ? <p className="mt-3 text-xs text-[var(--bf-muted)]">{shift.opened_at ? `Открыта ${formatTime(shift.opened_at, context.venue_timezone)}` : "Открытие не подтверждено"}{shift.closed_at ? ` · закрыта ${formatTime(shift.closed_at, context.venue_timezone)}` : ""}{context.closes_at ? ` · до ${formatTime(context.closes_at, context.venue_timezone)}` : ""}</p> : null}
+      <div className="craft-shift-status craft-shift-status-compact mt-5 h-[76px] rounded-[22px] border border-[var(--bf-line)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--bf-copper),transparent_90%),transparent_50%),var(--bf-surface)] p-4">
+        <div className="flex h-full items-center justify-between gap-3"><div><div className="flex items-center gap-2">{shift.status === "closed" ? <CheckCircle2 className="size-5 text-[var(--bf-green)]" aria-hidden /> : <Clock3 className="size-5 text-[var(--bf-copper-hi)]" aria-hidden />}<h2 className="text-xl font-black">{shift.status === "not_started" ? "Смена не открыта" : shift.status === "active" ? "Смена открыта" : shift.status === "closed" ? "Смена закрыта" : "Смена истекла"}</h2></div></div><div className="flex shrink-0 items-center gap-1.5 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-bg)] px-2.5 py-2"><CalendarDays className="size-4 text-[var(--bf-copper-hi)]" aria-hidden /><p className="whitespace-nowrap text-[11px] font-bold capitalize leading-none">{formatDate(shift.shift_date)}</p></div></div>
       </div>
 
       {context.general_cleaning_day ? <div className="mt-4">{cleaning.total ? <PhaseSection eyebrow="ВОСКРЕСЕНЬЕ · ГЕНУБОРКА" title="Генуборка" rows={cleaning.list} completed={cleaning.completed} total={cleaning.total} percent={cleaning.percent} locked={interactionLocked} pendingKeys={pendingKeys} pendingGroups={pendingGroups} onToggle={toggleCheck} onToggleGroup={toggleGroup} /> : <section className="rounded-[22px] border border-[color:color-mix(in_srgb,var(--bf-gold),transparent_60%)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--bf-gold),transparent_92%),transparent_55%),var(--bf-surface)] p-4 sm:p-5"><div className="flex items-start gap-3"><Sparkles className="mt-0.5 size-5 shrink-0 text-[var(--bf-gold)]" aria-hidden /><div><p className="eyebrow">ВОСКРЕСЕНЬЕ · ГЕНУБОРКА</p><h2 className="mt-1 text-2xl font-black">Генуборка</h2><p className="mt-2 text-sm leading-6 text-[var(--bf-muted)]">Пунктов пока нет.</p></div></div></section>}</div> : null}
