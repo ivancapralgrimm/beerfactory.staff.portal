@@ -4,7 +4,8 @@ import {
   Plus,
   RefreshCw,
   Search,
-  WifiOff
+  WifiOff,
+  UtensilsCrossed
 } from "lucide-react";
 import {
   useDeferredValue,
@@ -33,6 +34,7 @@ import { useRecipes } from "@/features/recipes/use-recipes";
 import type { Recipe } from "@/features/recipes/types";
 import { canManageRecipesClient } from "@/types/auth";
 import { cn } from "@/lib/utils";
+import { PhotoMount } from "@/components/craft/CraftPage";
 
 const SCROLL_KEY = "bf-r404-recipes-scroll";
 
@@ -99,6 +101,7 @@ function RecipeRow({
       )}
       aria-label={`Открыть рецепт ${recipe.name}${archived ? ", архив" : ""}`}
     >
+      <PhotoMount src={recipe.photo} fallback={<UtensilsCrossed aria-hidden="true" size={40} />} />
       <div className="min-w-0">
         <div className="flex min-h-4 flex-wrap items-center gap-1.5">
           <span
@@ -270,15 +273,13 @@ export function RecipesPage() {
 
   return (
     <section className="bf-list-page bf-recipes-page pb-4">
-      <div className="max-w-2xl">
-        <p className="eyebrow">РЕЦЕПТЫ</p>
-
-        <div className="mt-2 flex items-end justify-between gap-3">
+      <div className="bf-recipes-header max-w-2xl">
+        <div className="flex items-end justify-between gap-3">
           <h1 className="min-w-0 text-[36px] font-black leading-none tracking-[-0.04em]">
             Рецепты
           </h1>
 
-          <div className="flex shrink-0 items-center gap-2">
+          <div className="bf-recipes-header-actions flex shrink-0 items-center gap-2">
             <Button
               type="button"
               variant="secondary"
@@ -314,7 +315,7 @@ export function RecipesPage() {
         </div>
 
         <p className="mt-3 text-pretty text-[15px] leading-6 text-[var(--bf-muted)]">
-          Найди блюдо или напиток по названию, составу или категории.
+          Найди рецепт по названию, ингредиенту, категории
         </p>
       </div>
 
@@ -334,7 +335,7 @@ export function RecipesPage() {
         </div>
       ) : null}
 
-      <div className="relative mt-5">
+      <div className="bf-recipes-search relative mt-5">
         <Search
           className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-[var(--bf-dim)]"
           aria-hidden
@@ -394,7 +395,7 @@ export function RecipesPage() {
       {state.status === "ready" ? (
         <>
           <div
-            className="bf-scrollbar-none -mx-4 mt-5 flex gap-2 overflow-x-auto px-4 pb-1"
+            className="bf-recipe-categories bf-scrollbar-none -mx-4 mt-5 flex gap-2 overflow-x-auto px-4 pb-1"
             role="group"
             aria-label="Категории рецептов"
           >
@@ -435,7 +436,7 @@ export function RecipesPage() {
             ) : null}
           </div>
 
-          <div className="mt-2 grid gap-2">
+          <div className="craft-recipe-grid mt-2 grid gap-2">
             {filtered.length ? (
               filtered.map((recipe) => (
                 <RecipeRow
