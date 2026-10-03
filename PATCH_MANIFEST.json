@@ -1,19 +1,20 @@
 {
-  "package": "BFStaff_r40.5_ARCHIVAL_ICON_BUTTONS_CUMULATIVE",
+  "package": "BFStaff_r40.5_SQUARE_ACTION_BUTTONS_RESTORE_CUMULATIVE",
   "target_branch": "r40.5",
   "base": {
     "branch": "r40.5",
-    "head_before_package": "54a744b80f96c6b789e80f092ba2a09e76536495",
+    "head_before_package": "49ab1a565b95ea2262ea951f0e2d85baf2e98da3",
     "known_blob_sha": {
-      "src/components/ui/button.tsx": "a34f45fdb121856e239aabf0340ef0f9aae2dcef",
-      "src/components/craft/craft.css": "cecfecde59add0d17ff709f2e8d75fc3bda39c01"
+      "src/components/craft/craft.css": "e3affbe8a163ce21cd3df72c68f70d46d50a983b",
+      "src/components/ui/button.tsx": "98cf4e64e6f40a83604ce920851a0b7935419cfc",
+      "src/features/knowledge/KnowledgePage.tsx": "29dfa958c30d56f2e10bf25e0eb34358883e13a6"
     }
   },
   "github_mutated": false,
   "files": {
     "README_UPLOAD.txt": {
-      "sha256": "cf483941fe2ce6d0407299d0fb0f4f15ffc7e4c6227cef8b5612ad38083cdb49",
-      "bytes": 2540
+      "sha256": "db356d243ddd60224a0f632a061a309b9270c2aad5b1e0f099af914161c97a24",
+      "bytes": 3904
     },
     "assets/craft/materials/tool-leather-create.svg": {
       "sha256": "f628b8f5c3d6e39e0f7fc4d172557cdb334eafa5b56ea75d185733d6bcc1dac5",
@@ -28,8 +29,8 @@
       "bytes": 1511
     },
     "src/components/craft/craft.css": {
-      "sha256": "4a5ffa1c845cb68fd3d189f908b7a03321361ae8d48be6989cad70afb4427eec",
-      "bytes": 97059
+      "sha256": "a361c81c2ac622ac6a77153aef3a37871ab17739546f877f50241675dc18a190",
+      "bytes": 91162
     },
     "src/components/ui/button.tsx": {
       "sha256": "3175d9915d7ece726e6c8a8bb34a840f23e2522696db79a620258116170c7f51",
@@ -48,20 +49,20 @@
       "bytes": 32201
     },
     "tests/r40-5-archival-icon-buttons.test.cjs": {
-      "sha256": "64372d0c44460087671fbcf802cb2ea638b884bece2a2f4438fadfde7459b458",
-      "bytes": 1884
+      "sha256": "b0a60bd2bed5abb864a4d91da13c09f9671ecdee0bc034bf23d9c568db469e10",
+      "bytes": 1264
     },
     "tests/r40-5-checklist-editor-flow-fix.test.cjs": {
       "sha256": "962b731435349d302a8bdd968b4b4324b7d18e62bf8b8c887e1249c4daa8edf4",
       "bytes": 1474
     },
     "tests/r40-5-global-action-buttons.test.cjs": {
-      "sha256": "1e7d6090bb6141b9903bd52ddc3d3c4457fab5017494b6739db2b62a58c68470",
-      "bytes": 1926
+      "sha256": "3c0d8f49a7f24133db39dc4010f58149c48f0b77037fea9676543bae9e1326e7",
+      "bytes": 1226
     },
     "tests/r40-5-knowledge-tool-buttons.test.cjs": {
-      "sha256": "57faf405d54071f9d6b19c31163b2f8fa97a28dfa3cee36cf594072c931583a9",
-      "bytes": 1990
+      "sha256": "4f4f2b53e447a94606e0a7d95d361c249657b8ff0f817d91e0da09b5f92f8ede",
+      "bytes": 1222
     },
     "tests/r40-5-recipe-moodboard.test.cjs": {
       "sha256": "13ec4c022cdbb84bb40d2a92071bb196ea25da880bcfdb85d6dfd0ea864180fe",
