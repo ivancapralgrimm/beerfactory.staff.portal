@@ -8,9 +8,23 @@ import {
   Users,
   RefreshCw,
   Search,
-  UserRound,
-  Wine, Martini, GlassWater, FlaskConical, Sprout, Wheat, History, Sparkles,
-  HeartHandshake, MessageCircle, HandCoins, HandPlatter, ListChecks, ShieldCheck, UtensilsCrossed,
+  Pencil,
+  Settings2,
+  Wine,
+  Martini,
+  GlassWater,
+  FlaskConical,
+  Sprout,
+  Wheat,
+  History,
+  Sparkles,
+  HeartHandshake,
+  MessageCircle,
+  HandCoins,
+  HandPlatter,
+  ListChecks,
+  ShieldCheck,
+  UtensilsCrossed,
 } from "lucide-react";
 import { useDeferredValue, useEffect, useMemo } from "react";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
@@ -171,69 +185,80 @@ export function KnowledgePage() {
 
   return (
     <section className="bf-knowledge-page">
-      <div className="knowledge-brandbar">
-        <span
-          className="knowledge-wordmark"
-          aria-label="BeerFactory Staff Portal"
-        >
-          <b>BF</b>Staff{" "}
-          <small>
-            BEERFACTORY
-            <br />
-            STAFF PORTAL
-          </small>
-        </span>
-        <div className="knowledge-brand-actions">
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            aria-label="Обновить знания"
-            disabled={state.status === "loading"}
-            onClick={() => void reload()}
-          >
-            <RefreshCw
-              className={cn(
-                "size-4",
-                state.status === "loading" && "animate-spin",
-              )}
-              aria-hidden
-            />
-          </Button>
-          <Button asChild variant="ghost" size="icon">
-            <Link to="/profile" aria-label="Профиль">
-              <UserRound className="size-5" aria-hidden />
-            </Link>
-          </Button>
-        </div>
-      </div>
       <div className="bf-knowledge-board">
-        <header className="knowledge-board-heading">
-          <BookOpen size={25} strokeWidth={1.4} aria-hidden />
-          <h1>ЗНАНИЯ</h1>
-          <p>Полезные материалы для нашей команды</p>
-          <div className="knowledge-board-rule" aria-hidden>
-            <span />
-            <Grape size={17} strokeWidth={1.4} />
-            <span />
-          </div>
-        </header>
-        {editorAccess.hasEditorAccess && (
-          <div className="knowledge-board-tools">
-            {editorAccess.canCreate && (
-              <Button asChild variant="primary">
-                <Link to="/knowledge/new" state={{ from }}>
-                  Новая статья
+        <div className="knowledge-board-topline">
+          <header className="knowledge-board-heading">
+            <BookOpen size={25} strokeWidth={1.4} aria-hidden />
+            <h1>ЗНАНИЯ</h1>
+            <p>Полезные материалы для нашей команды</p>
+            <div className="knowledge-board-rule" aria-hidden>
+              <span />
+              <Grape size={17} strokeWidth={1.4} />
+              <span />
+            </div>
+          </header>
+
+          <div
+            className="knowledge-utility-actions"
+            aria-label="Инструменты базы знаний"
+          >
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="knowledge-image-button knowledge-image-button--sync"
+              aria-label="Обновить знания"
+              title="Обновить знания"
+              disabled={state.status === "loading"}
+              onClick={() => void reload()}
+            >
+              <RefreshCw
+                className={cn(
+                  "size-5",
+                  state.status === "loading" && "animate-spin",
+                )}
+                aria-hidden
+              />
+            </Button>
+
+            {editorAccess.hasEditorAccess && editorAccess.canCreate && (
+              <Button
+                asChild
+                variant="ghost"
+                size="icon"
+                className="knowledge-image-button knowledge-image-button--create"
+              >
+                <Link
+                  to="/knowledge/new"
+                  state={{ from }}
+                  aria-label="Новая статья"
+                  title="Новая статья"
+                >
+                  <Pencil className="size-5" aria-hidden />
                 </Link>
               </Button>
             )}
-            <Button asChild>
-              <Link to="/knowledge/manage" state={{ from }}>
-                Управление статьями
-              </Link>
-            </Button>
+
+            {editorAccess.hasEditorAccess && (
+              <Button
+                asChild
+                variant="ghost"
+                size="icon"
+                className="knowledge-image-button knowledge-image-button--manage"
+              >
+                <Link
+                  to="/knowledge/manage"
+                  state={{ from }}
+                  aria-label="Управление статьями"
+                  title="Управление статьями"
+                >
+                  <Settings2 className="size-5" aria-hidden />
+                </Link>
+              </Button>
+            )}
           </div>
-        )}
+        </div>
+
         <div className="knowledge-board-search">
           <Search size={16} aria-hidden />
           <label className="sr-only" htmlFor="knowledge-search">
