@@ -1,53 +1,64 @@
 {
-  "package": "BFStaff_r40.5_CHECKLIST_FLOW_RECIPE_MOODBOARD_POLAROID",
+  "package": "BFStaff_r40.5_KNOWLEDGE_TORN_BUTTONS_MOODBOARD_CUMULATIVE",
   "target_branch": "r40.5",
-  "expected_base_git_blob_sha": {
-    "src/features/shift/ChecklistEditorPage.tsx": "80322f2bb8ab024b839b4755ac911fd6e18fe849",
-    "src/components/craft/craft.css": "bd0cfdc025511063da1fe2f29a4367d7a11ebd0c",
-    "src/features/recipes/RecipeDetailPage.tsx": "e4eb2c51b31612b8b2fe927ebfbdf762a6ded4ac"
+  "cumulative": true,
+  "base_known_blobs": {
+    "src/features/knowledge/KnowledgePage.tsx": "a74bb77be1df25302e4a417f6c9811ebead02d62",
+    "src/components/craft/craft.css": "7ad6e67bb015a92f42e3621c9d1b62e15d3fa327"
   },
-  "behavior": {
-    "checklist_editor": "separate normal-flow sibling panel below selected item",
-    "recipe_photo": "Polaroid; complete source image; object-fit contain; fullscreen dialog preserved",
-    "recipe_content": "mood-board paper notes alternating rotation; tape/pushpin fasteners; normal flow"
-  },
+  "github_mutated": false,
   "files": {
     "README_UPLOAD.txt": {
-      "bytes": 5215,
-      "sha256": "bfd2b0c2615d328adf5923e00f84ba5aac3efaf99e2fcd0b4d16ce41437216b8",
-      "git_blob_sha": "c8a549761ccbd2fe8536cdbd583c9a2e797c471f"
+      "sha256": "1b96ddd3c94baa209013c912455d8e8d4c0bd5488916362e38e19f14ebafd716",
+      "bytes": 4836
+    },
+    "assets/craft/materials/tool-leather-create.svg": {
+      "sha256": "cfbcb1b2612aabfbf0d931c5e5d4cbd2781147d122ad38084e66999c8f617f66",
+      "bytes": 1183
+    },
+    "assets/craft/materials/tool-paper-settings.svg": {
+      "sha256": "056386630f567eed79718f6f7e63fd7c7ffc1b676f3625d74497f418d7a69ac9",
+      "bytes": 1054
+    },
+    "assets/craft/materials/tool-paper-sync.svg": {
+      "sha256": "c9f38990369d56df5b14a8606cd51d7a8ea2a4a4a5bdfd6f625eca07d20c2132",
+      "bytes": 1081
     },
     "src/components/craft/craft.css": {
-      "bytes": 84411,
-      "sha256": "c2204d42fd24379e6b200489ccbf90ec6d5d6c6b17681d2076eb1a68aa1d9141",
-      "git_blob_sha": "7ad6e67bb015a92f42e3621c9d1b62e15d3fa327"
+      "sha256": "055ca1fe8e110d21ca736bec5feb7c954ee1b3548fda845db42a6d3579dc7e14",
+      "bytes": 89108
     },
-    "src/features/shift/ChecklistEditorPage.tsx": {
-      "bytes": 32201,
-      "sha256": "b80634c4ba32013fd96cc096e91f6224fb2405668d81be689466544f0e187a5b",
-      "git_blob_sha": "6227bd6fed89bb5458592fece058492a5225ce2b"
+    "src/features/knowledge/KnowledgePage.tsx": {
+      "sha256": "9c0efb51bde88ce3ccdb5e9eb36d0c4a988991d37b41015b2c7c6dfa37d30e91",
+      "bytes": 12360
     },
     "src/features/recipes/RecipeDetailPage.tsx": {
-      "bytes": 19224,
       "sha256": "f90ee6dfa17e072c38ad2bb74b360e90265b695e6efa5d10bea01adac31494e3",
-      "git_blob_sha": "f0bead5f2a90246b25a3dfb17229a82761b331ef"
+      "bytes": 19224
+    },
+    "src/features/shift/ChecklistEditorPage.tsx": {
+      "sha256": "b80634c4ba32013fd96cc096e91f6224fb2405668d81be689466544f0e187a5b",
+      "bytes": 32201
     },
     "tests/r40-5-checklist-editor-flow-fix.test.cjs": {
-      "bytes": 1474,
       "sha256": "962b731435349d302a8bdd968b4b4324b7d18e62bf8b8c887e1249c4daa8edf4",
-      "git_blob_sha": "2488b8ca0beaf4794a4ad9c1cb6d9b91d6fbbb90"
+      "bytes": 1474
+    },
+    "tests/r40-5-knowledge-tool-buttons.test.cjs": {
+      "sha256": "3cc7dc7a46d47c1bbb2f4515522b2474b50404a4f9a4e7bc6d26678836e0d1c2",
+      "bytes": 1987
     },
     "tests/r40-5-recipe-moodboard.test.cjs": {
-      "bytes": 2544,
       "sha256": "13ec4c022cdbb84bb40d2a92071bb196ea25da880bcfdb85d6dfd0ea864180fe",
-      "git_blob_sha": "e71baccc0070698dac92c7f70b6dd459135ea6fc"
+      "bytes": 2544
     }
   },
   "verification": {
-    "targeted_tests": "4/4 PASS",
-    "visual_plus_targeted": "12/12 PASS on refreshed r40.5 baseline",
-    "typescript_parse": "0 TS1xxx errors",
-    "css_balance": "PASS"
-  },
-  "github_mutated": false
+    "combined_targeted_tests": "7/7 PASS",
+    "knowledge_targeted_tests": "3/3 PASS",
+    "tsx_parse_TS1xxx": "0",
+    "css_brace_balance": "PASS",
+    "css_paren_balance": "PASS",
+    "svg_xml_parse": "3/3 PASS"
+  }
 }

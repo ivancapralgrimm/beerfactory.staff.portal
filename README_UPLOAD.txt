@@ -1,77 +1,72 @@
-BFStaff r40.5 — CHECKLIST FLOW FIX + RECIPE MOOD BOARD / POLAROID
-=================================================================
+BFStaff r40.5 — KNOWLEDGE TORN BUTTONS + PREVIOUS MOODBOARD FIXES (CUMULATIVE)
+=============================================================================
 
 ЦЕЛЬ
-Один пакет поверх текущей ветки r40.5. Он заменяет НЕУСТАНОВЛЕННЫЙ отдельный
-CHECKLIST_EDITOR_FLOW_FIX и одновременно перерабатывает страницу рецепта.
+Это кумулятивный пакет для ветки r40.5. Он включает:
+1) исправление normal-flow редактора существующих пунктов чек-листа;
+2) mood-board / Polaroid страницу рецепта;
+3) новую верхнюю панель страницы «Знания» с image-backed torn-paper кнопками.
 
-ЗАМЕНИТЬ ФАЙЛЫ
-1. src/features/shift/ChecklistEditorPage.tsx
-2. src/features/recipes/RecipeDetailPage.tsx
-3. src/components/craft/craft.css
+Этот архив можно ставить ПОСЛЕ предыдущего общего пакета либо ВМЕСТО него.
+Он специально собран кумулятивным, чтобы частичная загрузка файлов не оставила
+craft.css и React-компоненты в разных версиях.
 
-ОПЦИОНАЛЬНЫЕ REGRESSION TESTS
-4. tests/r40-5-checklist-editor-flow-fix.test.cjs
-5. tests/r40-5-recipe-moodboard.test.cjs
+ЗНАНИЯ — ЧТО ИЗМЕНЕНО
+- Кнопка «Профиль» со страницы «Знания» удалена полностью.
+- «Новая статья» больше не содержит текста: только иконка карандаша.
+- «Управление статьями» больше не содержит текста: только иконка шестерёнки.
+- Sync + Pencil + Settings находятся в одной компактной строке справа от заголовка.
+- Для сотрудников без editor access остаётся только доступная им кнопка Sync.
+- canCreate и hasEditorAccess сохранены: визуальная правка не расширяет права.
+- aria-label/title сохранены, поэтому icon-only кнопки остаются понятными для accessibility.
+- Заголовок «Знания» увеличен и освобождён от старого padding под отдельные кнопки.
 
-ЧЕК-ЛИСТЫ
-- Редактор существующего пункта больше не вложен в карточку пункта.
-- Пункт остаётся отдельной карточкой.
-- Сразу под ним появляется отдельная бумажная панель редактора в NORMAL FLOW.
-- Следующие пункты физически сдвигаются вниз на высоту редактора.
-- Нет absolute/fixed-позиционирования редактора, отрицательных внешних отступов
-  и визуального наложения на соседние пункты.
-- Повторный тап по карандашу закрывает редактор.
-- Тап по карандашу другого пункта переносит редактор под него.
-- Форма создания нового пункта сверху остаётся без изменений.
+HYBRID / TORN PAPER BUTTONS
+Кнопки теперь не рисуются обычным прямоугольным CSS-контейнером.
+Их вид формируют локальные SVG surface-assets с прозрачным неровным контуром:
+- tool-paper-sync.svg — светлая оторванная бумага;
+- tool-leather-create.svg — кожаный лоскут со строчкой для главного create-action;
+- tool-paper-settings.svg — второй вариант оторванной бумаги.
 
-РЕЦЕПТ — MOOD BOARD / DREAM BOARD
-- Фото рецепта оформлено как физическая карточка Polaroid.
-- Фото внутри квадратного photo-well ВСЕГДА показывается целиком:
-  object-fit: contain; никакого crop / cover / zoom для подгонки.
-- Если пропорции исходника не квадратные, свободные поля внутри photo-well
-  остаются тёмными. Это намеренная часть Polaroid-композиции.
-- Нижняя белая часть Polaroid увеличена, подпись: Фото «Название рецепта».
-- Нажатие на Polaroid по-прежнему открывает штатный RecipePhotoDialog.
-  Полноэкранный viewer не заменён и не урезан.
-- Polaroid слегка повернут и закреплён матовым скотчем.
-- Состав, приготовление, подача/выход, данные рецепта, изменение рецепта и
-  калькулятор оформлены как физические бумажные заметки.
-- Крепления чередуются: скотч / pushpin.
-- Фактически отрисованные заметки автоматически чередуют небольшой угол
-  влево/вправо, даже если какие-то необязательные блоки отсутствуют.
-- Все карточки остаются в обычном вертикальном потоке. Повороты не создают
-  overlap и не меняют реальную высоту соседних блоков.
-- Границы максимально приглушены: глубина создаётся материалом бумаги и
-  мягкими физическими тенями, а не обычными CSS-контейнерами.
-- Админские действия, RecipeCalculator, архивирование и удаление сохраняют
-  исходную функциональность.
+Тень и неровный силуэт находятся внутри самих SVG, поэтому внешний контур
+не превращается обратно в обычный box-shadow прямоугольник. CSS отвечает только
+за размер, focus-state и короткое физическое «прижатие» при тапе.
 
-НЕ МЕНЯЛОСЬ
-- API / Cloudflare Worker
-- Supabase / NocoDB
-- серверные права и роли
-- данные рецептов и чек-листов
-- AppShell / scroll-to-top / нижний toolbar
-- RecipePhotoDialog
-- GitHub этим пакетом не изменялся
+Категории сохраняют уже существующий гибрид: paper-tag для обычных категорий
+и leather для выбранной. Таким образом экран использует бумагу + кожу, но без
+случайного набора несвязанных материалов.
 
-EXPECTED BASE r40.5 ДО УСТАНОВКИ ЭТОГО ПАКЕТА
-- src/features/shift/ChecklistEditorPage.tsx
-  Git blob: 80322f2bb8ab024b839b4755ac911fd6e18fe849
-- src/components/craft/craft.css
-  Git blob: bd0cfdc025511063da1fe2f29a4367d7a11ebd0c
+СОХРАНЕНО ИЗ ПРЕДЫДУЩЕГО ОБЩЕГО ПАКЕТА
+- Checklist editor: отдельный normal-flow блок под выбранным пунктом, без overlap.
+- Recipe page: Polaroid, contain без crop, fullscreen RecipePhotoDialog,
+  mood-board заметки, tape/pushpin, чередование небольших углов.
+
+ЗАМЕНЯЕМЫЕ ФАЙЛЫ
+- src/features/knowledge/KnowledgePage.tsx
 - src/features/recipes/RecipeDetailPage.tsx
-  Git blob: e4eb2c51b31612b8b2fe927ebfbdf762a6ded4ac
+- src/features/shift/ChecklistEditorPage.tsx
+- src/components/craft/craft.css
+
+НОВЫЕ ASSETS
+- assets/craft/materials/tool-paper-sync.svg
+- assets/craft/materials/tool-paper-settings.svg
+- assets/craft/materials/tool-leather-create.svg
+
+REGRESSION TESTS
+- tests/r40-5-knowledge-tool-buttons.test.cjs
+- tests/r40-5-checklist-editor-flow-fix.test.cjs
+- tests/r40-5-recipe-moodboard.test.cjs
 
 ПРОВЕРКА
-- targeted regression: 4/4 PASS
-- visual architecture + targeted suite: 12/12 PASS на актуализированном r40.5 baseline
-- TS/TSX parse: 0 ошибок TS1xxx
-- CSS brace/paren balance: PASS
-- RecipePhotoDialog текущей r40.5 проверен: fullscreen image использует object-contain
+- combined targeted suite: 7/7 PASS
+- Knowledge targeted suite: 3/3 PASS
+- TS/TSX syntax parse: 0 ошибок TS1xxx
+- CSS brace balance: PASS
+- CSS parenthesis balance: PASS
+- 3 SVG assets: XML parse PASS
+- GitHub этим пакетом не изменялся
 
-УСТАНОВКА
-Загрузить содержимое архива в корень ветки r40.5 с заменой файлов по тем же путям.
-Отдельный архив BFStaff_r40.5_CHECKLIST_EDITOR_FLOW_FIX после этого НЕ устанавливать:
-его исправление уже включено сюда.
+ВАЖНО
+Полный production npm build локально не запускался: этот пакет содержит только
+изменённые файлы, без node_modules. После загрузки в r40.5 дождаться Vercel build
+и проверить страницу «Знания» на реальном iPhone/PWA, особенно ширины 375/390 px.
