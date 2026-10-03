@@ -1,0 +1,292 @@
+/* BFStaff workspace: the archive's notebook materials with a compact work-first composition. */
+html, body { background-color: #f4e5c9; }
+.bf-app-shell { background: var(--craft-grain) 0 0 / 256px 256px repeat, radial-gradient(ellipse at 90% 5%, rgba(176,119,61,.08), transparent 32%), linear-gradient(120deg, #f8ecd4, #f4e5c9 58%, #ead7b5); }
+.bf-main { max-width: 980px; padding: calc(16px + env(safe-area-inset-top)) 16px 28px; }
+.craft-page { border-radius: 16px !important; }
+.craft-page--dashboard { padding: 20px !important; }
+.craft-dashboard { display: flex; flex-direction: column; gap: 22px; }
+.craft-dashboard > * { margin-top: 0 !important; min-width: 0; }
+.craft-dashboard .bf-dashboard-hero { min-height: 176px; padding: 20px 24px !important; border-radius: 12px; }
+.craft-dashboard .bf-dashboard-hero::before { background-position: right center; opacity: .34; }
+.craft-dashboard .bf-dashboard-brand { font-size: clamp(36px, 7vw, 52px); line-height: 1; display: flex; align-items: center; gap: 18px; }
+.craft-dashboard .bf-dashboard-brand span { font: 600 14px/1.35 var(--craft-body); letter-spacing: .04em; color: #e9be89; }
+.craft-dashboard .bf-dashboard-hero h1 { width: auto; margin: 18px 0 0; padding: 0; border: 0; box-shadow: none !important; background: transparent !important; color: #fff0d5; font-size: clamp(30px, 6vw, 42px); line-height: 1.2; transform: none; }
+.craft-dashboard .bf-dashboard-hero h1::before { display: none; }
+.craft-dashboard .bf-dashboard-hero .bf-workspace-date { margin: 6px 0 0; max-width: none; color: #e5c7a5; font-size: 14px; text-transform: capitalize; }
+.craft-dashboard .bf-dashboard-content { display: grid; grid-template-columns: 1fr auto; gap: 16px; }
+.craft-dashboard .bf-dashboard-profile { grid-column: 2; grid-row: 1; align-self: stretch; justify-content: center; gap: 8px; padding: 12px 16px; margin: 0; min-height: 52px; font-size: 14px; }
+.craft-dashboard .bf-dashboard-profile > svg:last-child { display: none; }
+.craft-dashboard .bf-day-status { grid-column: 1; grid-row: 1; margin: 0; padding: 12px 16px; min-height: 52px; }
+.bf-workspace-label { grid-column: 1 / -1; margin: 4px 0 -6px; font: 700 28px/1.2 var(--craft-display); }
+.craft-dashboard .bf-dashboard-actions { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.craft-dashboard .bf-dashboard-action { min-height: 128px; padding: 18px; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 8px; position: relative; }
+.craft-dashboard .bf-dashboard-action > svg:first-child { position: static; width: 26px; height: 26px; margin: 0; color: #915027; }
+.craft-dashboard .bf-dashboard-action strong { font: 700 28px/1.1 var(--craft-display); margin: 0; }
+.craft-dashboard .bf-dashboard-action span { font-size: 14px; line-height: 1.4; }
+.craft-dashboard .bf-action-chevron { display: none; }
+.craft-dashboard .bf-dashboard-wide-action { grid-column: 1 / -1; min-height: 64px; padding: 14px 18px; margin: 0; }
+.craft-dashboard .bf-dashboard-wide-action > svg:last-child { display: none; }
+.craft-dashboard .bf-dashboard-wide-action strong { font-size: 20px; }
+.craft-dashboard .bf-dashboard-wide-action small, .craft-dashboard .bf-day-status small { font-size: 14px; line-height: 1.4; }
+.bf-bottom-nav { box-shadow: 0 -4px 20px #2e201722; }
+.bf-bottom-nav a { min-height: 60px; font-size: 12px; }
+a, button { touch-action: manipulation; }
+a:focus-visible, button:focus-visible { outline: 2px solid #985022; outline-offset: 4px; }
+@media (min-width: 768px) {
+  .craft-page--dashboard { padding: 28px !important; }
+  .craft-dashboard .bf-dashboard-actions { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .craft-dashboard .bf-dashboard-action { min-height: 158px; }
+  .craft-dashboard .bf-dashboard-hero { min-height: 190px; }
+}
+@media (max-width: 420px) {
+  .bf-main { padding-inline: 8px; }
+  .craft-page--dashboard { padding: 12px !important; }
+  .craft-dashboard .bf-dashboard-hero { padding: 18px !important; }
+  .craft-dashboard .bf-dashboard-content { grid-template-columns: 1fr; gap: 14px; }
+  .craft-dashboard .bf-dashboard-profile { grid-column: 1; grid-row: 1; justify-content: flex-start; }
+  .craft-dashboard .bf-day-status { grid-column: 1; grid-row: 2; }
+  .craft-dashboard .bf-dashboard-action { padding: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
+/* Torn silhouettes belong to the paper layer, never to interactive content. */
+:root {
+  --bf-torn-edge: polygon(1% 2%, 8% 1%, 15% 2%, 22% 0%, 30% 2%, 37% 1%, 46% 2%, 54% 0%, 63% 2%, 72% 1%, 81% 2%, 90% 0%, 98% 2%, 99% 10%, 97% 17%, 100% 25%, 98% 33%, 100% 42%, 98% 51%, 99% 60%, 97% 69%, 100% 77%, 98% 86%, 99% 96%, 91% 98%, 82% 97%, 73% 100%, 65% 98%, 56% 99%, 48% 97%, 39% 100%, 31% 98%, 23% 99%, 15% 97%, 7% 99%, 1% 97%, 2% 89%, 0% 81%, 2% 72%, 1% 64%, 3% 55%, 0% 46%, 2% 38%, 1% 29%, 3% 20%, 0% 12%);
+}
+.craft-dashboard :is(.bf-dashboard-action, .bf-dashboard-profile, .bf-day-status, .bf-dashboard-wide-action, .bf-dashboard-search),
+.craft-page .bf-feed-sticker {
+  position: relative;
+  isolation: isolate;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible;
+  filter: drop-shadow(0 3px 2px #54391c25) drop-shadow(0 9px 7px #54391c2e);
+}
+.craft-dashboard :is(.bf-dashboard-action, .bf-dashboard-profile, .bf-day-status, .bf-dashboard-wide-action, .bf-dashboard-search)::before,
+.craft-page .bf-feed-sticker::before {
+  content: "";
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
+  z-index: -1;
+  border-radius: 0;
+  background: var(--craft-grain) 0 0 / 256px 256px repeat, linear-gradient(115deg, #fff5df, #f4e5c9);
+  clip-path: var(--bf-torn-edge);
+  box-shadow: inset 0 0 10px #ba92532e;
+  pointer-events: none;
+}
+.craft-dashboard .bf-dashboard-action:nth-child(even)::before { transform: scaleX(-1); }
+.craft-dashboard .bf-dashboard-actions { align-items: start; }
+.craft-dashboard .bf-dashboard-action { aspect-ratio: 1; min-height: 0; height: auto; padding: 20px 17px; gap: 12px; justify-content: center; }
+.craft-dashboard .bf-dashboard-action > svg:first-child { align-self: center; }
+.craft-dashboard .bf-dashboard-action strong { font-size: clamp(25px, 6.5vw, 32px); }
+.craft-dashboard .bf-dashboard-profile, .craft-dashboard .bf-day-status, .craft-dashboard .bf-dashboard-wide-action { padding: 16px 20px; }
+.craft-dashboard .bf-dashboard-search { padding: 18px; }
+.craft-dashboard .bf-dashboard-action:active, .craft-dashboard .bf-dashboard-profile:active, .craft-dashboard .bf-dashboard-wide-action:active { box-shadow: none !important; }
+/* All visible actions retain depth at rest, including disabled controls. */
+.craft-button,
+.craft-context button:not(.bf-reading-controls button),
+.bf-page-tool-link {
+  box-shadow: 0 2px 2px #54391c20, 0 5px 9px #54391c25 !important;
+}
+.craft-button:active { box-shadow: 0 1px 2px #54391c22, 0 3px 5px #54391c25 !important; }
+
+.bf-reading-carousel { margin-top: 14px; min-width: 0; }
+.bf-reading-track { display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 12px 8px 18px; scroll-padding-inline: 8px; overscroll-behavior-x: contain; }
+.bf-reading-card { flex: 0 0 clamp(158px, 44vw, 230px); display: flex; flex-direction: column; min-width: 0; padding: 10px; border: 1px solid #be9d6f85; border-radius: 4px 6px 3px 5px; background: var(--craft-grain), linear-gradient(115deg, #fff5df, #f4e5c9); box-shadow: 0 3px 5px #54391c22, 0 8px 12px #54391c25; scroll-snap-align: start; color: var(--craft-ink); }
+.bf-reading-image { position: relative; aspect-ratio: 4/3; display: grid; place-items: center; border: 1px solid var(--craft-rule); background: var(--craft-paper-shade); padding: 4px; transform: rotate(-1.5deg); }
+.bf-reading-card:nth-child(even) .bf-reading-image { transform: rotate(1.5deg); }
+.bf-reading-image::before { content: ""; position: absolute; top: -5px; left: -3px; width: 30px; height: 13px; background: #dbb782a6; transform: rotate(-30deg); pointer-events: none; }
+.bf-reading-image img { width: 100%; height: 100%; object-fit: cover; min-height: 0; }
+.bf-reading-image > svg { width: 34px; height: 34px; color: var(--craft-copper); }
+.bf-reading-body { flex: 1; display: flex; flex-direction: column; padding: 13px 3px 3px; gap: 8px; }
+.bf-reading-category { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--craft-copper); }
+.bf-reading-body > strong { font: 700 26px/1.05 var(--craft-display); overflow-wrap: anywhere; }
+.bf-reading-meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px; margin-top: auto; padding-top: 8px; font-size: 12px; color: var(--craft-muted); }
+.bf-reading-meta > span:last-child { display: inline-flex; gap: 3px; align-items: center; }
+.bf-reading-meta svg { width: 13px; height: 13px; }
+.bf-reading-controls { display: flex; justify-content: space-between; margin: -8px 0 0; }
+.bf-reading-controls button { display: grid; place-items: center; width: 44px; height: 44px; color: #6f5d4880; background: transparent; border: 0; box-shadow: none !important; }
+.bf-reading-controls button:disabled { visibility: hidden; }
+.bf-reading-controls svg { width: 18px; height: 18px; }
+.bf-reading-controls button:hover, .bf-reading-controls button:focus-visible { color: var(--craft-copper); }
+
+/* Safe-area spacing moves the whole dock; it never becomes leather padding. */
+.bf-bottom-nav {
+  bottom: max(4px, env(safe-area-inset-bottom)) !important;
+  padding: 4px 0 !important;
+  height: 62px !important;
+  min-height: 62px !important;
+  max-height: 62px !important;
+  box-sizing: border-box;
+}
+.bf-bottom-nav > div { height: 52px !important; min-height: 52px !important; }
+.bf-bottom-nav a { height: 52px !important; min-height: 52px !important; padding-block: 0; }
+.bf-app-shell:not(.bf-app-shell--dashboard) { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
+.bf-birthday-input { text-align: center !important; text-align-last: center; }
+.bf-birthday-input::-webkit-date-and-time-value { text-align: center; margin-inline: auto; }
+.bf-birthday-input::-webkit-datetime-edit { display: inline-flex; justify-content: center; width: 100%; padding: 0; }
+.bf-admin-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); max-width: 460px; align-items: start; }
+.craft-page .bf-admin-stat { aspect-ratio: 1; min-height: 0 !important; padding: 8px !important; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px; border-radius: 8px !important; }
+.bf-admin-stat > span { font-size: 10px; line-height: 1.2; min-height: 2.4em; display: flex; align-items: center; justify-content: center; }
+.bf-admin-stat > strong { margin: 0; font-size: 24px; line-height: 1; }
+.craft-page .bf-feed-sticker { padding: 22px 20px 20px; margin-inline: 4px; }
+.bf-feed-sticker > .bf-note-clip { position: absolute; left: -9px; top: 18px; width: 23px; height: 34px; color: #89735d; stroke-width: 1.7; transform: rotate(-18deg); filter: drop-shadow(1px 2px 1px #3b211744); pointer-events: none; z-index: 1; }
+@media (max-width: 360px) {
+  .craft-dashboard .bf-dashboard-action { padding: 16px 12px; gap: 9px; }
+  .craft-dashboard .bf-dashboard-action strong { font-size: 24px; }
+  .craft-dashboard .bf-dashboard-action span { font-size: 13px; }
+  .bf-admin-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 230px; }
+}
+@media (min-width: 768px) { .craft-dashboard .bf-dashboard-action strong { font-size: 30px; } }
+
+@media (max-width: 767px) {
+  .craft-dashboard .bf-dashboard-action { padding: 14px; gap: 8px; }
+  .craft-dashboard .bf-dashboard-action strong { font-size: 28px; }
+  .craft-dashboard .bf-dashboard-action span { font-size: 14px; line-height: 1.3; }
+  .craft-dashboard .bf-dashboard-action > svg:first-child { width: 24px; height: 24px; }
+}
+@media (max-width: 360px) {
+  .craft-dashboard .bf-dashboard-action { padding: 10px; gap: 5px; }
+  .craft-dashboard .bf-dashboard-action strong { font-size: 24px; }
+  .craft-dashboard .bf-dashboard-action span { font-size: 12.5px; }
+  .craft-dashboard .bf-dashboard-action > svg:first-child { width: 22px; height: 22px; }
+}
+
+/* Photographs on tape, without an enclosing outlined card. Reuse recipe mounts. */
+.bf-reading-card {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 8px 5px 5px;
+}
+.bf-reading-card .craft-recipe-thumb {
+  aspect-ratio: 4/3;
+  padding: 5px;
+  border: 0;
+  background: var(--craft-paper-light);
+  box-shadow: 0 3px 3px #3c24132b, 0 8px 10px #3c24132e;
+  transform: rotate(-3deg);
+}
+.bf-reading-card:nth-child(even) .craft-recipe-thumb { transform: rotate(2.5deg); }
+.bf-reading-card .craft-recipe-thumb::before { width: 38px; height: 15px; top: -6px; left: -5px; background: #dbb782b0; }
+.bf-reading-card .craft-recipe-thumb > svg { width: 36px; height: 36px; color: var(--craft-copper); }
+.bf-reading-body { padding-top: 16px; }
+.bf-reading-body > strong { font-size: 25px; }
+
+/* Only the transparent outer dock is viewport-fixed. Safari may extend that layer,
+   but the leather is now an ordinary, explicitly sized child with no safe-area padding. */
+.bf-bottom-dock {
+  position: fixed;
+  inset-inline: 10px;
+  bottom: max(4px, env(safe-area-inset-bottom));
+  height: 62px;
+  min-height: 62px;
+  max-height: 62px;
+  z-index: 50;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-sizing: border-box;
+}
+.bf-bottom-dock > .bf-bottom-nav {
+  position: relative !important;
+  inset: auto !important;
+  width: 100%;
+  height: 62px !important;
+  min-height: 62px !important;
+  max-height: 62px !important;
+  padding: 4px 0 !important;
+  margin: 0;
+  box-sizing: border-box;
+  flex: none;
+}
+.bf-bottom-dock .bf-bottom-nav > div { height: 52px !important; min-height: 52px !important; max-height: 52px !important; }
+.bf-bottom-dock .bf-bottom-nav a { height: 52px !important; min-height: 52px !important; max-height: 52px !important; }
+@media (max-width: 360px) { .bf-bottom-dock { inset-inline: 6px; } }
+
+/* Compact reading cards: photograph, short title and annotation inside the paper card. */
+.bf-reading-card {
+  flex-basis: clamp(168px, 44vw, 216px);
+  height: 238px;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #be9d6f85;
+  border-radius: 7px;
+  background: var(--craft-grain), linear-gradient(115deg, #fff5df, #f4e5c9);
+  box-shadow: 0 3px 5px #54391c22, 0 8px 12px #54391c25;
+}
+.bf-reading-card .bf-reading-image { flex: none; height: 82px; aspect-ratio: auto; padding: 0; border: 0; border-bottom: 1px solid #be9d6f65; transform: none; }
+.bf-reading-card:nth-child(even) .bf-reading-image { transform: none; }
+.bf-reading-card .bf-reading-image::before { display: none; }
+.bf-reading-card .bf-reading-body { min-height: 0; padding: 10px 12px; gap: 5px; }
+.bf-reading-body > strong { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; font: 700 21px/1.05 var(--craft-display); }
+.bf-reading-excerpt { margin: 0; font: 400 13px/1.35 var(--craft-body); color: var(--craft-muted); display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.bf-reading-card .bf-reading-meta { padding-top: 3px; }
+
+/* A continuous leather article head, edge to edge, with matching stitched actions. */
+.craft-page--article .knowledge-notebook { overflow: visible; }
+.craft-page--article .knowledge-notebook-toolbar {
+  width: 100vw;
+  max-width: none;
+  margin-inline: calc(50% - 50vw);
+  border-radius: 0;
+  box-sizing: border-box;
+  background: var(--craft-leather-surface);
+  padding: 12px max(12px, calc((100vw - 860px) / 2));
+}
+.craft-page--article .knowledge-notebook-toolbar .knowledge-leather-action[data-craft-variant] {
+  position: relative;
+  isolation: isolate;
+  border: 1px solid #b67f4b;
+  border-radius: 999px;
+  background: var(--craft-leather-surface) !important;
+  color: #ffedcf;
+  box-shadow: inset 0 1px 1px #f4cda55c, 0 3px 5px #2d190e66 !important;
+}
+.craft-page--article .knowledge-notebook-toolbar .knowledge-leather-action[data-craft-variant]::before { display: block !important; content: ""; position: absolute; inset: 4px; border: 1px dashed #dfb581a6; border-radius: inherit; background: none; opacity: 1; mask: none !important; pointer-events: none; }
+.knowledge-notebook-actions { flex: none; }
+.craft-page--article .knowledge-notebook-toolbar .knowledge-notebook-icon { width: 44px; min-width: 44px; height: 44px; padding: 0; }
+.craft-page--article .knowledge-notebook-toolbar .knowledge-notebook-back { flex: none; min-height: 44px; font-size: 13px; padding-inline: 13px; }
+.craft-page--article .knowledge-notebook-toolbar .knowledge-wordmark { font-size: clamp(20px, 6vw, 27px); }
+
+/* Reference: one paper card, taped tilted photo, category, short handwritten title. */
+.bf-reading-card { height: 238px; padding: 10px; border-radius: 4px 6px 3px 5px; overflow: visible; }
+.bf-reading-card .craft-recipe-thumb { flex: none; height: 116px; aspect-ratio: auto; border: 1px solid var(--craft-rule); background: var(--craft-paper-shade); padding: 4px; transform: rotate(-1.5deg); box-shadow: 0 2px 3px #3c241320; }
+.bf-reading-card:nth-child(even) .craft-recipe-thumb { transform: rotate(1.5deg); }
+.bf-reading-card .craft-recipe-thumb::before { width: 30px; height: 13px; top: -6px; left: -4px; }
+.bf-reading-card .bf-reading-body { padding: 12px 3px 0; gap: 5px; }
+.bf-reading-card .bf-reading-body > strong { font: 700 23px/1.05 var(--craft-display); -webkit-line-clamp: 2; }
+.bf-reading-card .bf-reading-category { font-size: 12px; line-height: 1.2; }
+.bf-reading-card .bf-reading-meta { font-size: 12px; line-height: 1.2; padding-top: 0; }
+/* Separate thread segments with a dark groove, rather than a dotted CSS border. */
+.craft-page--article .knowledge-notebook-toolbar .knowledge-leather-action[data-craft-variant]::before { display: none !important; }
+.knowledge-button-stitches { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.knowledge-button-stitches :is(rect, circle) { vector-effect: non-scaling-stroke; }
+
+/* Reuse the dock's curved thread material at a smaller scale. */
+.knowledge-button-thread { position: absolute; inset: 4px; border-radius: inherit; pointer-events: none; background:
+ var(--craft-thread-x) left top / 10px 5px repeat-x,
+ var(--craft-thread-x) left bottom / 10px 5px repeat-x,
+ var(--craft-thread-y) left top / 5px 10px repeat-y,
+ var(--craft-thread-y) right top / 5px 10px repeat-y;
+ opacity: .76; }
+
+/* Tighten only the search-to-profile spacing. */
+.craft-dashboard > .bf-dashboard-search + .bf-dashboard-content { margin-top: -8px !important; }
+/* Installed PWA: keep content below cutouts and the fixed-size dock above Home. */
+@media (display-mode: standalone), (display-mode: fullscreen) {
+ .bf-main { padding-top: calc(12px + env(safe-area-inset-top, 0px)) !important;
+  padding-left: max(12px, env(safe-area-inset-left, 0px));
+  padding-right: max(12px, env(safe-area-inset-right, 0px)); }
+ .bf-bottom-dock { bottom: calc(4px + env(safe-area-inset-bottom, 0px));
+  left: max(10px, env(safe-area-inset-left, 0px));
+  right: max(10px, env(safe-area-inset-right, 0px)); }
+}
