@@ -795,10 +795,13 @@ export function ChecklistEditorPage() {
             const editorId = `checklist-item-editor-${rowIndex}-${row.item_key.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
 
             return (
-              <Surface
+              <div
                 key={`${row.position_code}:${row.item_key}`}
-                className={cn("p-3.5", !row.is_active && "opacity-65")}
+                className="bf-checklist-item-stack"
               >
+                <Surface
+                  className={cn("p-3.5", !row.is_active && "opacity-65")}
+                >
                 <div className="flex items-start gap-3">
                   <div
                     className={cn(
@@ -915,8 +918,15 @@ export function ChecklistEditorPage() {
                   </Button>
                 </div>
 
+                </Surface>
+
                 {editing && draft ? (
-                  <div id={editorId}>
+                  <Surface
+                    id={editorId}
+                    className="bf-checklist-editor-panel"
+                    role="region"
+                    aria-label={`Редактирование пункта: ${row.label}`}
+                  >
                     <ChecklistDraftEditor
                       draft={draft}
                       setDraft={setDraft}
@@ -927,9 +937,9 @@ export function ChecklistEditorPage() {
                       onCancel={() => setDraft(null)}
                       onSave={() => void saveDraft()}
                     />
-                  </div>
+                  </Surface>
                 ) : null}
-              </Surface>
+              </div>
             );
           })}
         </div>
