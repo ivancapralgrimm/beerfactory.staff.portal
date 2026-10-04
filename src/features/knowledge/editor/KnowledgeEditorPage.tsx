@@ -6,7 +6,6 @@ import {
   Eye,
   Pencil,
   MoreHorizontal,
-  Download,
   ExternalLink,
   LoaderCircle,
 } from "lucide-react";
@@ -312,19 +311,6 @@ export function KnowledgeEditorPage() {
       if (currentOperation()) setBusy(false);
     }
   }
-  function backup() {
-    if (!document) return;
-    const url = URL.createObjectURL(
-      new Blob([JSON.stringify(document, null, 2)], {
-        type: "application/json",
-      }),
-    );
-    const link = window.document.createElement("a");
-    link.href = url;
-    link.download = `knowledge-${document.id.replace(/:/g, "-")}.json`;
-    link.click();
-    setTimeout(() => URL.revokeObjectURL(url), 10_000);
-  }
   const insertion = (after: string | null) => (
     <AddContentMenu
       disabled={busy || document!.blocks.length >= 200}
@@ -384,11 +370,6 @@ export function KnowledgeEditorPage() {
           {error}
         </p>
       )}
-      {document && loadedKey.current === key && !canUseEditor && (
-        <Button className="mt-3" onClick={backup}>
-          Скачать несохранённую копию
-        </Button>
-      )}
       {!canUseEditor && message && (
         <p role="status" className="mt-3">
           {message}
@@ -435,41 +416,28 @@ export function KnowledgeEditorPage() {
               <Save aria-hidden className="size-4" />
               {busy ? "Подождите…" : "Сохранить"}
             </Button>
-            <EditorMenu
-              label="Дополнительные действия"
-              iconOnly
-              trigger={<MoreHorizontal aria-hidden className="size-5" />}
-              disabled={busy}
-            >
-              {(close) => (
-                <>
-                  <Button
-                    role="menuitem"
-                    variant="ghost"
-                    onClick={() => {
-                      close();
-                      backup();
-                    }}
-                  >
-                    <Download aria-hidden className="size-4" />
-                    Скачать копию
-                  </Button>
-                  {document.revision > 0 &&
-                    document.status === "published" &&
-                    knowledgeSource === "supabase" && (
-                      <Button asChild variant="ghost" role="menuitem">
-                        <Link
-                          onClick={close}
-                          to={`/knowledge/${encodeURIComponent(document.id)}`}
-                        >
-                          <ExternalLink aria-hidden className="size-4" />
-                          Открыть статью
-                        </Link>
-                      </Button>
-                    )}
-                </>
+            {document.revision > 0 &&
+              document.status === "published" &&
+              knowledgeSource === "supabase" && (
+                <EditorMenu
+                  label="Дополнительные действия"
+                  iconOnly
+                  trigger={<MoreHorizontal aria-hidden className="size-5" />}
+                  disabled={busy}
+                >
+                  {(close) => (
+                    <Button asChild variant="ghost" role="menuitem">
+                      <Link
+                        onClick={close}
+                        to={`/knowledge/${encodeURIComponent(document.id)}`}
+                      >
+                        <ExternalLink aria-hidden className="size-4" />
+                        Открыть статью
+                      </Link>
+                    </Button>
+                  )}
+                </EditorMenu>
               )}
-            </EditorMenu>
           </div>
           <p role="status" className="my-3 text-xs text-[var(--bf-muted)]">
             {message ||
@@ -479,29 +447,23 @@ export function KnowledgeEditorPage() {
                   ? "Нет несохранённых изменений"
                   : "Новый черновик")}
           </p>
-          {error && (
+          {error && document.revision > 0 && (
             <div className="mb-4 flex flex-wrap gap-2">
-              <Button type="button" onClick={backup}>
-                <Download aria-hidden className="size-4" />
-                Скачать копию
-              </Button>
-              {document.revision > 0 && (
-                <Button
-                  type="button"
-                  disabled={busy}
-                  onClick={() => {
-                    if (
-                      !dirty ||
-                      confirm(
-                        "Загрузить серверную версию и заменить изменения в редакторе? Перед этим можно скачать копию.",
-                      )
+              <Button
+                type="button"
+                disabled={busy}
+                onClick={() => {
+                  if (
+                    !dirty ||
+                    confirm(
+                      "Загрузить серверную версию и заменить изменения в редакторе? Несохранённые изменения будут потеряны.",
                     )
-                      void load();
-                  }}
-                >
-                  Загрузить серверную версию
-                </Button>
-              )}
+                  )
+                    void load();
+                }}
+              >
+                Загрузить серверную версию
+              </Button>
             </div>
           )}
           {preview ? (
@@ -672,7 +634,7 @@ export function KnowledgeEditorPage() {
         </h2>
         <p className="my-4 text-sm">
           {busy ? "Операция ещё выполняется." : "Есть несохранённые изменения."}{" "}
-          Можно остаться, сохранить статью или скачать копию.
+          Можно остаться и сохранить изменения или выйти без сохранения.
         </p>
         <div className="flex flex-wrap gap-2">
           <Button
