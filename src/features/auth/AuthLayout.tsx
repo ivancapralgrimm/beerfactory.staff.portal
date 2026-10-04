@@ -21,7 +21,7 @@ export function AuthLayout({
         id="mainContent"
         tabIndex={-1}
         aria-labelledby="auth-title"
-        className="auth-panel"
+        className="auth-panel craft-context"
       >
         <div className="mb-5">
           <Brand />

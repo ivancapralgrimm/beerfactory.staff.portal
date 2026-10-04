@@ -6,7 +6,7 @@ export function KnowledgeImageDialog({
   open,
   src,
   alt,
-  onClose
+  onClose,
 }: {
   open: boolean;
   src: string;
@@ -14,13 +14,27 @@ export function KnowledgeImageDialog({
   onClose: () => void;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
 
-    if (open && !dialog.open) dialog.showModal();
+    if (open && !dialog.open) {
+      triggerRef.current =
+        document.activeElement instanceof HTMLElement
+          ? document.activeElement
+          : null;
+      dialog.showModal();
+    }
     if (!open && dialog.open) dialog.close();
+    return () => {
+      // React removes the modal on dismiss; return keyboard focus to its photo.
+      const trigger = triggerRef.current;
+      if (open && trigger?.isConnected) {
+        trigger.focus({ preventScroll: true });
+      }
+    };
   }, [open]);
 
   return (

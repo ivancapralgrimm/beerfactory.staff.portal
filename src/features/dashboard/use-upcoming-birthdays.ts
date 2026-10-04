@@ -1,6 +1,7 @@
 import {
   useCallback,
   useEffect,
+  useRef,
   useState
 } from "react";
 import {
@@ -9,6 +10,7 @@ import {
 import type {
   UpcomingBirthday
 } from "@/features/dashboard/types";
+import { installCoalescedResumeRefresh } from "@/lib/coalesced-resume-refresh";
 
 type BirthdayState = {
   birthdays: UpcomingBirthday[];
@@ -25,9 +27,14 @@ export function useUpcomingBirthdays() {
       refreshing: false,
       error: null
     });
+  const inFlightRef = useRef<Promise<void> | null>(null);
+  const requestGenerationRef = useRef(0);
 
   const refresh = useCallback(
-    async (quiet = false) => {
+    (quiet = false) => {
+      if (inFlightRef.current) return inFlightRef.current;
+
+      const generation = ++requestGenerationRef.current;
       setState((current) => ({
         ...current,
         loading:
@@ -41,65 +48,47 @@ export function useUpcomingBirthdays() {
             : null
       }));
 
-      try {
-        const birthdays =
-          await loadUpcomingBirthdays();
+      const request = (async () => {
+        try {
+          const birthdays =
+            await loadUpcomingBirthdays();
 
-        setState({
-          birthdays,
-          loading: false,
-          refreshing: false,
-          error: null
-        });
-      } catch {
-        setState((current) => ({
-          ...current,
-          loading: false,
-          refreshing: false,
-          error:
-            "Не удалось загрузить ближайшие дни рождения."
-        }));
-      }
+          if (generation !== requestGenerationRef.current) return;
+          setState({
+            birthdays,
+            loading: false,
+            refreshing: false,
+            error: null
+          });
+        } catch {
+          if (generation !== requestGenerationRef.current) return;
+          setState((current) => ({
+            ...current,
+            loading: false,
+            refreshing: false,
+            error:
+              "Не удалось загрузить ближайшие дни рождения."
+          }));
+        }
+      })().finally(() => {
+        if (inFlightRef.current === request) inFlightRef.current = null;
+      });
+
+      inFlightRef.current = request;
+      return request;
     },
     []
   );
 
   useEffect(() => {
     void refresh(false);
-
-    const onFocus = () => {
-      void refresh(true);
-    };
-
-    const onVisibility = () => {
-      if (
-        document.visibilityState ===
-        "visible"
-      ) {
-        void refresh(true);
-      }
-    };
-
-    window.addEventListener(
-      "focus",
-      onFocus
-    );
-
-    document.addEventListener(
-      "visibilitychange",
-      onVisibility
+    const removeResumeRefresh = installCoalescedResumeRefresh(
+      () => refresh(true)
     );
 
     return () => {
-      window.removeEventListener(
-        "focus",
-        onFocus
-      );
-
-      document.removeEventListener(
-        "visibilitychange",
-        onVisibility
-      );
+      requestGenerationRef.current += 1;
+      removeResumeRefresh();
     };
   }, [refresh]);
 

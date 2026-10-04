@@ -163,3 +163,23 @@ fire outward and the pieces fall behind the result to the bottom of its informat
 area over approximately 3–4 seconds. The floor is implied, not drawn. Failed
 attempts have no confetti. Reduced-motion preference
 suppresses the particles entirely; the score and actions are still visible.
+
+## r40.5 Knowledge editor
+The native editor reuses BFStaff surfaces, cream/copper tokens and existing buttons.
+Text fields are at least 16px; block movement uses keyboard-accessible buttons with
+labels, insertion controls appear before/after blocks, and image alt/caption are
+separate fields. Preview uses the same safe schema-v2 renderer as server articles.
+Unsaved-navigation dialog supports Escape, and status/errors use live regions.
+The existing reader and image dialog remain available during legacy cutover.
+
+### Final Live Sync presentation rules
+New/edit/publish controls use separate server capabilities, never working position.
+Description is list metadata; legacy image labels use alt only when caption is empty.
+Upload metadata remains usable when private preview signing fails. Conflict/error
+states preserve the draft and offer an explicit copy/export/reload workflow.
+
+### Article Editor UX pass
+One dark writing canvas; no numbered cards or technical vocabulary. Primary Save,
+secondary Preview, compact + insertion with Text/Photo first, Aa text types and •••
+actions. Icon formatting uses 44px targets; alt/list formatting/description are
+progressively disclosed. Existing tokens/icons/reader/permission logic are retained.

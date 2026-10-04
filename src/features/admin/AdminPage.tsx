@@ -175,9 +175,9 @@ export function AdminPage() {
 
       {tab === "team" ? (
         <div className="mt-1">
-          <div className="grid grid-cols-4 gap-2">
+          <div className="bf-admin-stats grid grid-cols-4 gap-2">
             {[["Всего", stats.total], ["Активны", stats.active], ["Админы", stats.admins], ["Без должности", stats.noPosition]].map(([label, value]) => (
-              <Surface key={String(label)} className="p-2.5 text-center"><span className="text-[9px] font-black uppercase tracking-[0.06em] text-[var(--bf-dim)]">{label}</span><strong className="mt-1 block text-xl">{value}</strong></Surface>
+              <Surface key={String(label)} className="bf-admin-stat p-2.5 text-center"><span className="text-[9px] font-black uppercase tracking-[0.06em] text-[var(--bf-dim)]">{label}</span><strong className="mt-1 block text-xl">{value}</strong></Surface>
             ))}
           </div>
 

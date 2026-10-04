@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="58" viewBox="0 0 300 58"><defs>
+<linearGradient id="steel" x2="0" y2="1"><stop stop-color="#fbf7eb"/><stop offset=".13" stop-color="#c8c7bf"/><stop offset=".25" stop-color="#fffef7"/><stop offset=".43" stop-color="#85857d"/><stop offset=".59" stop-color="#55564e"/><stop offset=".7" stop-color="#e9e8dc"/><stop offset="1" stop-color="#a8a89d"/></linearGradient>
+<linearGradient id="plate" x2="0" y2="1"><stop stop-color="#f5f2e6"/><stop offset=".4" stop-color="#b8b6aa"/><stop offset="1" stop-color="#767870"/></linearGradient>
+<linearGradient id="wire" x2="0" y2="1"><stop stop-color="#55564e"/><stop offset=".22" stop-color="#fffdf0"/><stop offset=".38" stop-color="#c6c5b9"/><stop offset=".67" stop-color="#61635c"/><stop offset=".86" stop-color="#eeeddf"/><stop offset="1" stop-color="#8b8c81"/></linearGradient>
+<linearGradient id="glint"><stop stop-color="#fffdf0" stop-opacity="0"/><stop offset=".45" stop-color="#fffdf0" stop-opacity=".85"/><stop offset=".7" stop-color="#fffdf0" stop-opacity="0"/></linearGradient>
+<filter id="shadow" x="-10%" y="-25%" width="120%" height="160%"><feDropShadow dx="0" dy="3" stdDeviation="2" flood-color="#29180d" flood-opacity=".48"/></filter>
+</defs><g filter="url(#shadow)">
+<path d="M24 18Q24 12 31 12H269Q276 12 276 18V41Q276 47 269 47H31Q24 47 24 41Z" fill="url(#plate)" stroke="#57584c" stroke-width="1"/>
+<path d="M39 26H261V47Q260 51 255 51H45Q40 51 39 47Z" fill="url(#steel)" stroke="#79796b"/>
+<path d="M43 46H257" fill="none" stroke="#fffbed" stroke-width="1.2"/><path d="M44 50H256" fill="none" stroke="#46483f" stroke-width="1.4"/>
+<path d="M47 10H253Q263 10 263 20V32Q263 38 253 38H47Q37 38 37 32V20Q37 10 47 10Z" fill="none" stroke="#42473e" stroke-width="7.5"/>
+<path d="M47 10H253Q263 10 263 20V32Q263 38 253 38H47Q37 38 37 32V20Q37 10 47 10Z" fill="none" stroke="url(#wire)" stroke-width="5.8"/>
+<path d="M46 8H253Q259 8 262 13" fill="none" stroke="#fffceb" stroke-width=".8" opacity=".85"/>
+<path d="M49 23H251" fill="none" stroke="url(#steel)" stroke-width="3.8"/>
+<path d="M48 24H252" fill="none" stroke="#575d50" stroke-width=".65"/>
+<g fill="url(#steel)" stroke="#727568" stroke-width=".8"><circle cx="30" cy="23" r="3.2"/><circle cx="270" cy="23" r="3.2"/></g>
+<g stroke="#51574b" stroke-width=".7"><path d="M28.5 24.2L31.5 21.8"/><path d="M268.5 24.2L271.5 21.8"/></g>
+<path d="M46 29H254V35H46Z" fill="url(#glint)" opacity=".45"/>
+</g></svg>

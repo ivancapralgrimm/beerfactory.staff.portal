@@ -57,9 +57,9 @@ function MetaLine({
   value: string;
 }) {
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] gap-3 border-b border-[var(--bf-line)] py-2.5 text-sm last:border-b-0">
-      <span className="text-[var(--bf-dim)]">{label}</span>
-      <strong className="text-right font-bold text-[var(--bf-cream)]">
+    <div className="recipe-meta-line">
+      <span className="recipe-meta-label">{label}</span>
+      <strong className="recipe-meta-value">
         {value}
       </strong>
     </div>
@@ -372,8 +372,8 @@ export function RecipeDetailPage() {
         </div>
       ) : null}
 
-      <header className="mt-6 grid gap-4 md:grid-cols-[minmax(0,1.08fr)_minmax(280px,.92fr)] md:items-start">
-        <div className="border-b border-[var(--bf-line)] pb-5">
+      <header className="recipe-moodboard-header mt-6">
+        <div className="recipe-title-note">
           <p className="eyebrow">
             {categoryLabel(recipe.category).toUpperCase() || "МЕНЮ"}
             {recipe.subcategory ? ` / ${recipe.subcategory.toUpperCase()}` : ""}
@@ -399,135 +399,149 @@ export function RecipeDetailPage() {
         {recipe.photo && !photoFailed ? (
           <button
             type="button"
-            className="group relative grid aspect-[16/9] place-items-center overflow-hidden rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)] md:aspect-[4/3]"
-            aria-label={`Открыть фото ${recipe.name}`}
+            className="recipe-polaroid group"
+            aria-label={`Открыть фото ${recipe.name} на весь экран`}
             onClick={() => setPhotoOpen(true)}
           >
-            <img
-              src={recipe.photo}
-              alt={recipe.name}
-              className="h-full max-h-[430px] w-full object-contain transition-transform duration-200 group-hover:scale-[1.01]"
-              loading="eager"
-              fetchPriority="high"
-              onError={() => {
-                setPhotoFailed(true);
-                setPhotoOpen(false);
-              }}
-            />
-            <span className="absolute bottom-3 right-3 inline-flex items-center gap-1 rounded-full border border-white/15 bg-black/55 px-2.5 py-1.5 text-xs font-bold text-white backdrop-blur">
+            <span className="recipe-polaroid-tape" aria-hidden />
+            <span className="recipe-polaroid-photo-well">
+              <img
+                src={recipe.photo}
+                alt={recipe.name}
+                className="recipe-polaroid-image"
+                loading="eager"
+                fetchPriority="high"
+                onError={() => {
+                  setPhotoFailed(true);
+                  setPhotoOpen(false);
+                }}
+              />
+            </span>
+            <span className="recipe-polaroid-caption">
+              <span>Фото «{recipe.name}»</span>
               <ExternalLink className="size-3.5" aria-hidden />
-              Фото
             </span>
           </button>
         ) : null}
       </header>
 
-      <div className="mt-5 grid gap-6 md:grid-cols-[minmax(0,1.35fr)_minmax(240px,.65fr)] md:items-start">
-        <div className="space-y-6">
-          {displayIngredients.length > 0 ? (
-            <section aria-labelledby="ingredients-title">
-              <h2 id="ingredients-title" className="eyebrow">СОСТАВ</h2>
-              <div className="mt-3 divide-y divide-[var(--bf-line)] overflow-hidden rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-4">
-                {displayIngredients.map((ingredient, index) => (
-                  <div
-                    key={`${ingredient}-${index}`}
-                    className="py-3 text-[14px] leading-[1.5] text-[var(--bf-cream)]"
-                  >
-                    {ingredient}
-                  </div>
-                ))}
-              </div>
-            </section>
-          ) : null}
-
-          {isCalculable(recipe) ? <RecipeCalculator recipe={recipe} /> : null}
-
-          {displayMethod ? (
-            <section aria-labelledby="method-title" className="border-t border-[var(--bf-line)] pt-4">
-              <h2 id="method-title" className="eyebrow">ПРИГОТОВЛЕНИЕ</h2>
-              <p className="mt-3 whitespace-pre-wrap text-[14px] leading-[1.65] text-[var(--bf-muted)]">
-                {displayMethod}
-              </p>
-            </section>
-          ) : null}
-
-          {recipe.serving ? (
-            <section aria-labelledby="serving-title" className="border-t border-[var(--bf-line)] pt-4">
-              <h2 id="serving-title" className="eyebrow">ПОДАЧА / ВЫХОД</h2>
-              <p className="mt-3 whitespace-pre-wrap text-[14px] leading-[1.65] text-[var(--bf-muted)]">
-                {recipe.serving}
-              </p>
-            </section>
-          ) : null}
-        </div>
-
-        <aside className="space-y-4 md:sticky md:top-6">
-          <details className="border-t border-[var(--bf-line)] pt-3">
-            <summary className="min-h-11 cursor-pointer py-3 text-sm font-bold text-[var(--bf-cream)] focus-visible:outline-2 focus-visible:outline-[var(--bf-copper-hi)]">
-              Данные рецепта
-            </summary>
-            <div className="pb-3">
-              <div className="mb-2 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-3 py-3">
-                <p className="text-xs font-black text-[var(--bf-cream)]">
-                  {archived
-                    ? "Позиция находится в архиве"
-                    : "Актуальная позиция из нынешнего меню"}
-                </p>
-              </div>
-
-              {metadata.map(([label, value]) => (
-                <MetaLine key={label} label={label} value={value} />
+      <div className="recipe-moodboard mt-7">
+        {displayIngredients.length > 0 ? (
+          <section
+            aria-labelledby="ingredients-title"
+            className="recipe-moodboard-card recipe-ingredients-sticker recipe-note-left"
+            data-fastener="pin"
+          >
+            <span className="recipe-fastener recipe-fastener-pin" aria-hidden />
+            <h2 id="ingredients-title" className="recipe-note-title">
+              Состав
+            </h2>
+            <ul className="recipe-ingredients-list">
+              {displayIngredients.map((ingredient, index) => (
+                <li key={`${ingredient}-${index}`}>{ingredient}</li>
               ))}
+            </ul>
+          </section>
+        ) : null}
 
-              {canManageRecipes && accessToken ? (
-                <div className="mt-3 grid gap-2 border-t border-[var(--bf-line)] pt-3">
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    disabled={Boolean(actionPending)}
-                    onClick={() => void toggleArchive()}
-                  >
-                    {archived ? (
-                      <RotateCcw className="size-4" aria-hidden />
-                    ) : (
-                      <Archive className="size-4" aria-hidden />
-                    )}
-                    {actionPending === "status"
-                      ? "Сохраняем…"
-                      : archived
-                        ? "Вернуть из архива"
-                        : "Переместить в архив"}
-                  </Button>
+        {isCalculable(recipe) ? (
+          <section className="recipe-moodboard-card recipe-calculator-note recipe-note-right" data-fastener="tape">
+            <span className="recipe-fastener recipe-fastener-tape recipe-fastener-tape-short" aria-hidden />
+            <RecipeCalculator recipe={recipe} />
+          </section>
+        ) : null}
 
-                  <Button
-                    type="button"
-                    variant="danger"
-                    disabled={Boolean(actionPending)}
-                    onClick={() => setDeleteConfirmOpen(true)}
-                  >
-                    <Trash2 className="size-4" aria-hidden />
-                    Удалить рецепт
-                  </Button>
-                </div>
-              ) : null}
-            </div>
-          </details>
-
-          {recipe.changeNote ? (
-            <section className="border-t border-[var(--bf-line)] pt-4">
-              <p className="eyebrow">ЧТО ИЗМЕНИЛОСЬ</p>
-              <p className="mt-2 text-sm leading-6 text-[var(--bf-muted)]">
-                {recipe.changeNote}
-              </p>
-            </section>
-          ) : null}
-
-          {data?.source === "cache-offline" || data?.source === "legacy-cache" ? (
-            <p className="text-xs leading-5 text-[var(--bf-dim)]">
-              Показана последняя сохранённая версия рецепта.
+        {displayMethod ? (
+          <section
+            aria-labelledby="method-title"
+            className="recipe-moodboard-card recipe-method-note recipe-note-right"
+            data-fastener="tape"
+          >
+            <span className="recipe-fastener recipe-fastener-tape" aria-hidden />
+            <h2 id="method-title" className="recipe-note-title">Приготовление</h2>
+            <p className="recipe-note-body whitespace-pre-wrap">
+              {displayMethod}
             </p>
-          ) : null}
-        </aside>
+          </section>
+        ) : null}
+
+        {recipe.serving ? (
+          <section
+            aria-labelledby="serving-title"
+            className="recipe-moodboard-card recipe-serving-note recipe-note-left"
+            data-fastener="pin"
+          >
+            <span className="recipe-fastener recipe-fastener-pin recipe-fastener-pin-alt" aria-hidden />
+            <h2 id="serving-title" className="recipe-note-title">Подача / выход</h2>
+            <p className="recipe-note-body whitespace-pre-wrap">
+              {recipe.serving}
+            </p>
+          </section>
+        ) : null}
+
+        <details className="recipe-moodboard-card recipe-meta-note recipe-note-right" open>
+          <summary className="recipe-meta-summary">
+            <span>Данные рецепта</span>
+            <span className="recipe-fastener recipe-fastener-tape recipe-fastener-tape-corner" aria-hidden />
+          </summary>
+          <div className="recipe-meta-content">
+            <p className="recipe-meta-status">
+              {archived
+                ? "Позиция находится в архиве"
+                : "Актуальная позиция из нынешнего меню"}
+            </p>
+
+            {metadata.map(([label, value]) => (
+              <MetaLine key={label} label={label} value={value} />
+            ))}
+
+            {canManageRecipes && accessToken ? (
+              <div className="recipe-admin-actions">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  disabled={Boolean(actionPending)}
+                  onClick={() => void toggleArchive()}
+                >
+                  {archived ? (
+                    <RotateCcw className="size-4" aria-hidden />
+                  ) : (
+                    <Archive className="size-4" aria-hidden />
+                  )}
+                  {actionPending === "status"
+                    ? "Сохраняем…"
+                    : archived
+                      ? "Вернуть из архива"
+                      : "Переместить в архив"}
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="danger"
+                  disabled={Boolean(actionPending)}
+                  onClick={() => setDeleteConfirmOpen(true)}
+                >
+                  <Trash2 className="size-4" aria-hidden />
+                  Удалить рецепт
+                </Button>
+              </div>
+            ) : null}
+          </div>
+        </details>
+
+        {recipe.changeNote ? (
+          <section className="recipe-moodboard-card recipe-change-note recipe-note-left" data-fastener="tape">
+            <span className="recipe-fastener recipe-fastener-tape recipe-fastener-tape-side" aria-hidden />
+            <h2 className="recipe-note-title">Что изменилось</h2>
+            <p className="recipe-note-body">{recipe.changeNote}</p>
+          </section>
+        ) : null}
+
+        {data?.source === "cache-offline" || data?.source === "legacy-cache" ? (
+          <p className="recipe-cache-note">
+            Показана последняя сохранённая версия рецепта.
+          </p>
+        ) : null}
       </div>
 
       {recipe.photo && !photoFailed ? (

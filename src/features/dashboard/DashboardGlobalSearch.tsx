@@ -134,7 +134,7 @@ export function DashboardGlobalSearch() {
           article.title,
           article.category,
           article.excerpt,
-          article.body
+          article.searchText ?? article.body
         ].join(" "));
         if (!haystack.includes(deferredQuery)) continue;
 
@@ -168,7 +168,7 @@ export function DashboardGlobalSearch() {
     knowledge.state.status === "error";
 
   return (
-    <Surface className="p-3.5" aria-label="Быстрый поиск по порталу">
+    <Surface className="bf-dashboard-search p-3.5" aria-label="Быстрый поиск по порталу">
       <label htmlFor="dashboard-global-search" className="block">
         <span className="eyebrow">БЫСТРЫЙ ПОИСК</span>
         <div className="relative mt-2">

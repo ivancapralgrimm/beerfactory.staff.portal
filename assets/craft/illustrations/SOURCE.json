@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-02",
+  "method": "Original image_gen pen-style caricature of the user-authorized existing brewery photo, refined to a simpler round vessel/porthole/gauge/pipes drawing. This is AI-generated illustration, not human-drawn art.",
+  "source_photo": "assets/brewery-cooper-bg.jpg",
+  "source_photo_sha256": "13cc3086914cc3c9b67d9db1f55ad4f6358a031305fa0b96da4641f62eb4e83c",
+  "generated_original_sha256": "627edae580de3ff71548fe3d66abe0a6c841a6983af98102e927fd07cd316f26",
+  "optimization": "Delivery size 840px wide, metadata stripped, WebP quality 82; no stock crop, UI screenshot, or content substitution.",
+  "license_provenance": "Original generated output supplied for BFStaff project use; derived from the user-provided project image on explicit user instruction. Sketchyicons licenses are separate and unchanged.",
+  "runtime_files": {
+    "brewery-pen-caricature.webp": {
+      "bytes": 204214,
+      "sha256": "4b02809c09ed9e445b464d28dbb1db31e201531db8d5c4d01f831462e522f57a"
+    }
+  }
+}

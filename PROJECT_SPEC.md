@@ -349,3 +349,13 @@ Deletion policy:
 Recipe governance editing is shown only when the Cloudflare Worker explicitly advertises the governance capability.
 Write controls enable only when the Worker reports a server-side write credential is configured.
 This prevents a frontend deployment from exposing dead admin controls before the NocoDB/Worker migration is complete.
+
+### r40.5 Knowledge article editor
+Native schema v2 editor uses the supplied live Supabase RPC/private Storage contract.
+Server can_create/can_edit/can_publish govern actions; Owner/Admin are privileged,
+Staff/Senior default read-only independently of working position. Existing lesson IDs,
+progress, hash links, list/categories, Dashboard and search remain compatible.
+Preview r40.5 reads Supabase; production build remains legacy until a separately
+reviewed cutover. Exact applied migration history/Edge source are recorded locally,
+not executed. See CODEX_FINAL_REPORT.md, BACKEND_CONTRACT_CHECK.md and NEEDS_LIVE_QA.md.
+NocoDB recipes and auth access hotfix remain unchanged; legacy assets are retained.

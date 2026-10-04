@@ -63,16 +63,27 @@ export function shiftErrorMessage(error: unknown) {
   return "Не удалось синхронизировать смену. Проверьте соединение и повторите.";
 }
 
-export async function loadPositionShiftWorkflow() {
-  const { data, error } = await supabase.rpc(
-    "get_position_shift_workflow"
-  );
+let shiftWorkflowInFlight: Promise<PositionShiftWorkflow> | null = null;
 
-  if (error || !data) {
-    throw error || new Error("shift_unavailable");
-  }
+export function loadPositionShiftWorkflow() {
+  if (shiftWorkflowInFlight) return shiftWorkflowInFlight;
 
-  return data as PositionShiftWorkflow;
+  const request = (async () => {
+    const { data, error } = await supabase.rpc(
+      "get_position_shift_workflow"
+    );
+
+    if (error || !data) {
+      throw error || new Error("shift_unavailable");
+    }
+
+    return data as PositionShiftWorkflow;
+  })().finally(() => {
+    if (shiftWorkflowInFlight === request) shiftWorkflowInFlight = null;
+  });
+
+  shiftWorkflowInFlight = request;
+  return request;
 }
 
 export async function setPositionShiftCheck(input: {

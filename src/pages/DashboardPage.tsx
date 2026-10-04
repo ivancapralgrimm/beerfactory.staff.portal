@@ -1,10 +1,10 @@
+import { ReadingCarousel } from "@/features/dashboard/ReadingCarousel";
 import { motion } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
 import { loadPositionShiftWorkflow } from "@/features/shift/shift-api";
 import type { PositionShiftWorkflow } from "@/features/shift/types";
 import { useAuth } from "@/features/auth/auth-context";
 import {
-  BookCheck,
   BookOpen,
   Cake,
   ChevronRight,
@@ -21,8 +21,7 @@ import { DashboardGlobalSearch } from "@/features/dashboard/DashboardGlobalSearc
 import { useUpcomingBirthdays } from "@/features/dashboard/use-upcoming-birthdays";
 import {
   dashboardReadingDayKey,
-  dashboardReadingSelection,
-  knowledgeArticleImage
+  dashboardReadingSelection
 } from "@/features/dashboard/dashboard-reading";
 import { useKnowledgeArticles } from "@/features/knowledge/use-knowledge";
 import { useKnowledgeProgress } from "@/features/knowledge/use-knowledge-progress";
@@ -32,9 +31,9 @@ import {
 } from "@/types/auth";
 
 const actions = [
+  { to: "/shift", title: "Смена", text: "Открытие, задачи, закрытие", icon: ClipboardCheck },
   { to: "/menu", title: "Рецепты", text: "Блюда, напитки, технологии", icon: UtensilsCrossed },
   { to: "/knowledge", title: "Знания", text: "Обучение и статьи", icon: BookOpen },
-  { to: "/shift", title: "Смена", text: "Чек-листы и отчёты", icon: ClipboardCheck },
   { to: "/feed", title: "Лента", text: "Новости и сообщения", icon: StickyNote }
 ];
 
@@ -122,11 +121,11 @@ export function DashboardPage() {
   const showReadingSection = readingLoading || readingArticles.length > 0;
 
   return (
-    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: "easeOut" }} className="space-y-5">
+    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: "easeOut" }} className="craft-dashboard space-y-5">
       <section className="bf-dashboard-hero">
-        <div className="bf-dashboard-brand">BEERFACTORY <span>STAFF PORTAL</span></div>
+        <div className="bf-dashboard-brand">BFSTAFF <span>BeerFactory<br />Staff Portal</span></div>
         <h1>Привет{firstName ? `, ${firstName}` : ""}!</h1>
-        <p>Хорошего рабочего дня!<br />«Вкус начинается с команды»</p>
+        <p className="bf-workspace-date">{new Intl.DateTimeFormat("ru-RU", { weekday: "long", day: "numeric", month: "long", timeZone: "Asia/Novosibirsk" }).format(new Date())}</p>
       </section>
 
       <DashboardGlobalSearch />
@@ -135,6 +134,7 @@ export function DashboardPage() {
         <Link to="/profile" className="bf-dashboard-profile"><UserRound aria-hidden className="size-4" /> Мой профиль <ChevronRight aria-hidden className="size-4" /></Link>
         <div className="bf-day-status" role="status"><ClipboardCheck aria-hidden className="size-5" /><span><strong>{shiftStatus[0]}</strong><small>{shiftStatus[1]}</small></span></div>
 
+        <h2 className="bf-workspace-label">Рабочий стол</h2>
         <div className="bf-dashboard-actions">
           {actions.map(({ to, title, text, icon: Icon }) => (
             <Link key={to} to={to} className="bf-dashboard-action"><Icon aria-hidden className="size-6" /><ChevronRight aria-hidden className="bf-action-chevron size-4" /><strong>{title}</strong><span>{text}</span></Link>
@@ -177,21 +177,7 @@ export function DashboardPage() {
           {readingLoading ? (
             <div className="bf-scrollbar-none -mr-4 mt-4 flex gap-3 overflow-x-auto pr-4 pb-1" aria-label="Загрузка подборки статей">{Array.from({ length: 3 }, (_, index) => <div key={index} className="h-[188px] w-[156px] shrink-0 animate-pulse rounded-[18px] border border-[var(--bf-line)] bg-[var(--bf-surface)]" />)}</div>
           ) : (
-            <div className="bf-scrollbar-none -mr-4 mt-4 flex snap-x snap-mandatory gap-3 overflow-x-auto pr-4 pb-2" aria-label="Подборка статей">
-              {readingArticles.map((article) => {
-                const image = knowledgeArticleImage(article);
-                const read = knowledgeProgress.state.readIds.has(article.id);
-                return (
-                  <Link key={article.id} to={`/knowledge/${encodeURIComponent(article.id)}`} state={{ from: "/" }} className="group flex h-[188px] w-[156px] shrink-0 snap-start flex-col overflow-hidden rounded-[18px] border border-[var(--bf-line)] bg-[var(--bf-surface)] outline-none transition-[border-color,transform] focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)] active:translate-y-px" aria-label={`Открыть статью ${article.title}`}>
-                    <div className="relative h-[82px] shrink-0 overflow-hidden border-b border-[var(--bf-line)] bg-[linear-gradient(145deg,var(--bf-surface-2),var(--bf-surface))]">
-                      {image ? <img src={image} alt="" loading="lazy" className="h-full w-full object-cover opacity-90" /> : <div className="grid h-full place-items-center"><BookOpen className="size-7 text-[var(--bf-copper-hi)]" aria-hidden /></div>}
-                      {read ? <span className="absolute right-2 top-2 inline-flex min-h-6 items-center gap-1 rounded-full border border-[color:color-mix(in_srgb,var(--bf-green),transparent_55%)] bg-[#162016e8] px-2 text-[9px] font-black text-[#9dd0a0]"><BookCheck className="size-3" aria-hidden />Прочитано</span> : null}
-                    </div>
-                    <div className="flex min-h-0 flex-1 flex-col p-3"><span className="text-[9px] font-black uppercase tracking-[0.12em] text-[var(--bf-copper-hi)]">{article.category}</span><strong className="mt-1 line-clamp-3 text-[13px] leading-[1.28] tracking-[-0.01em] text-[var(--bf-cream)]">{article.title}</strong><span className="mt-auto pt-2 text-[10px] font-semibold text-[var(--bf-dim)]">{article.readingMinutes} мин</span></div>
-                  </Link>
-                );
-              })}
-            </div>
+            <ReadingCarousel articles={readingArticles} readIds={knowledgeProgress.state.readIds} />
           )}
         </section>
       ) : null}

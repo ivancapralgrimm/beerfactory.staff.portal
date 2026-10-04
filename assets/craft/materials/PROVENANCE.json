@@ -1,0 +1,26 @@
+{
+  "author": "BeerFactory Staff Portal material fidelity + visual architecture hardening",
+  "date": "2026-10-02",
+  "method": "Original project-owned SVG. Paper fibres, sheets, tags and crease overlays use deterministic fixed-seed vector geometry with no SVG filters/turbulence/displacement for iOS/Safari stability; clipboard, leather, stitch and pen assets retain their existing project-owned implementations.",
+  "stock_images_used": false,
+  "target_crops_used": false,
+  "runtime_random": false,
+  "license": "Project-owned original artwork; supplied with the BFStaff source for unrestricted project use.",
+  "files": {
+    "clipboard-clip.svg": "a182cbbc65f9b4b03af242d2f44ff15d8ffe0ab35af7523d8636e6dc6347e24a",
+    "coffee-trace.svg": "db3933350e4c9b7a166c28c874a7e7a0deaaa8884176750b03d64c43e98ec325",
+    "leather-pebble.svg": "6ff060603eb77d9f2a1d10f334b5b84c6a12668264df04e65045c183c693d89a",
+    "paper-crease.svg": "c1fe79f0608ca4d484440bf58dad92a3fd84f9b4b57bf0675e237b7a3ad0caec",
+    "paper-edge-1.svg": "d9bb7002c9b786523b6429d3c4b04a0a2a60d55e939f78977a1c018160b9ac87",
+    "paper-edge-2.svg": "15780cd75a99863c4d23b75fd5c35dc98f57cd0b13630b37b1e0c2444ab8e37d",
+    "paper-edge-3.svg": "4aaf7a5610abbcc35d5f80d2dc331209a34b560a87becb3cdcfc9203cd837186",
+    "paper-fibre.svg": "d9cad93af732820d1ae7055438c85e610d9367ab712f244ce751b9894b3caac2",
+    "paper-sheet-1.svg": "d317e0b8e4bd109596d78f23bb4e3e5de7eab80439b2a09f520c45ea10227503",
+    "paper-sheet-2.svg": "672523b5d7c8e962de2b146d2e35c38aec6426cbcd79571ba37740cf5aa9282a",
+    "paper-sheet-3.svg": "ce2c17691a8cfaafafba431a78903344f1f5c59e7b8ced6b394089bfd2bf687f",
+    "paper-tag.svg": "354fb3a1d42da6d113f9adb32ea42e3d7590b178d600fee1bd7591b07b630969",
+    "stitch-horizontal.svg": "a6e9cc29338d9b42df9f766c07d2e94faeab70a5e15be8dd05646017de91df4c",
+    "stitch-vertical.svg": "4f784fc401fd0c893b3423f017d3974215a213bc72c7d74618ce71893a9c3dfb",
+    "work-pen.svg": "4b9d14090131852dcf10935c8ef311b5489a2b3bcb26b4cdf6383058b72f2bd1"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "BFStaff r40.5 Supabase Foundation Live Sync",
+  "files": [
+    "CHECKSUMS.json",
+    "README_FIRST.md",
+    "SERVER_STATE.json",
+    "docs/BACKEND_CONTRACT.md",
+    "supabase/functions/knowledge-media-upload/index.ts",
+    "supabase/migrations/20260930151257_r40_5_knowledge_content_foundation.sql",
+    "supabase/migrations/20260930151818_r40_5_knowledge_security_hardening.sql",
+    "tools/build-knowledge-legacy-seed.mjs"
+  ],
+  "live_migrations": [
+    "20260930151257",
+    "20260930151818",
+    "20260930152047"
+  ],
+  "production_cutover": false
+}

@@ -13,7 +13,13 @@
     "prebuild": "npm run sync:public",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc -b --pretty false"
+    "typecheck": "tsc -b --pretty false",
+    "test": "node --test --test-isolation=none tests/knowledge.test.cjs tests/live-sync.test.cjs tests/edge-contract.test.cjs tests/ux-invariants.test.cjs tests/backend-hardening.test.cjs tests/knowledge-redesign.test.cjs tests/full-redesign-v2.test.cjs tests/performance-network.test.cjs tests/visual-architecture-hardening.test.cjs",
+    "test:browser": "node tests/run-browser.mjs",
+    "knowledge:seed:dry-run": "node scripts/build-knowledge-legacy-seed.mjs",
+    "dev:preview": "npm run sync:public && vite --mode r40.5-preview",
+    "build:preview": "npm run sync:public && tsc -b && vite build --mode r40.5-preview",
+    "knowledge:seed:live-history": "node tools/build-knowledge-legacy-seed.mjs ."
   },
   "dependencies": {
     "@radix-ui/react-slot": "1.3.3",
@@ -29,10 +35,11 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "4.3.3",
-    "@vitejs/plugin-react": "6.1.1",
     "@types/node": "^24.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "6.1.1",
+    "playwright": "1.58.2",
     "tailwindcss": "4.3.3",
     "typescript": "^5.9.0",
     "vite": "8.3.0",

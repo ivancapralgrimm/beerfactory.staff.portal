@@ -3,14 +3,14 @@
 Production-oriented mobile-first portal shell for bar/brewery staff.
 
 ## Run
-Serve this directory as static files. For local development:
-
-`python3 -m http.server 8080`
-
-Then open `http://localhost:8080`.
+Node 24.x. Install with `npm ci`, then `npm run dev`.
+Validate with `npm test`, `npm run typecheck` and `npm run build`.
+Publish the generated `dist` directory through the existing release process.
 
 ## Data
-- `assets/training-data.json` powers Knowledge.
+- `assets/training-data.txt` powers Knowledge until verified Supabase cutover.
+- r40.5 article editor uses Supabase RPCs and private Storage; see
+  [integration and verification instructions](R40_5_EDITOR_INTEGRATION.md).
 - `assets/questions.txt` powers Attestation.
 - Menu tries the configured Cloudflare Worker and falls back to local demo data.
 

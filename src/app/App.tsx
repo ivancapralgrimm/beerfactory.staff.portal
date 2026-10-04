@@ -1,12 +1,15 @@
 import {
+  Component,
   lazy,
   Suspense,
+  type ErrorInfo,
   type ReactNode
 } from "react";
 import {
   Navigate,
   Route,
   Routes,
+  useLocation,
   useParams
 } from "react-router-dom";
 import { AppShell } from "@/components/layout/AppShell";
@@ -56,6 +59,9 @@ const KnowledgeArticlePage = lazy(() =>
     default: module.KnowledgeArticlePage
   }))
 );
+
+const KnowledgeEditorPage = lazy(() => import("@/features/knowledge/editor/KnowledgeEditorPage").then(module => ({default: module.KnowledgeEditorPage})));
+const KnowledgeManagePage = lazy(() => import("@/features/knowledge/editor/KnowledgeManagePage").then(module => ({default: module.KnowledgeManagePage})));
 
 const AttestationPage = lazy(() =>
   import(
@@ -107,8 +113,20 @@ const ProfilePage = lazy(() =>
 
 function BootScreen() {
   return (
-    <main className="grid min-h-dvh place-items-center bg-[var(--bf-bg)] px-6">
-      <div className="text-center">
+    <main
+      className="craft-context grid min-h-dvh place-items-center px-6 text-[#332820]"
+      style={{
+        backgroundColor: "#f4e5c9",
+        backgroundImage:
+          'url("/assets/craft/materials/paper-fibre.svg"), radial-gradient(circle at 50% 8%, rgba(255,255,255,.52), transparent 38%), linear-gradient(180deg, #f8ecd5 0%, #efe0c2 100%)',
+        backgroundRepeat: "repeat, no-repeat, no-repeat"
+      }}
+    >
+      <div
+        className="w-full max-w-[286px] rounded-[18px] border border-[#c9ad83] bg-[#fff4df]/90 px-7 py-7 text-center shadow-[0_12px_28px_rgba(80,54,31,0.12)]"
+        role="status"
+        aria-live="polite"
+      >
         <img
           src="/assets/icons/profile-avatar.png"
           alt=""
@@ -116,7 +134,7 @@ function BootScreen() {
           height="72"
           className="mx-auto size-[72px]"
         />
-        <p className="mt-4 text-sm font-semibold text-[var(--bf-muted)]">
+        <p className="mt-4 text-sm font-semibold text-[#5a4736]">
           Проверяем сессию…
         </p>
       </div>
@@ -127,15 +145,59 @@ function BootScreen() {
 function RouteLoader() {
   return (
     <div
-      className="grid min-h-[34dvh] place-items-center"
+      className="pointer-events-none fixed inset-x-0 top-[calc(10px+env(safe-area-inset-top))] z-[80] flex justify-center px-4"
       role="status"
       aria-live="polite"
     >
-      <p className="text-sm font-semibold text-[var(--bf-muted)]">
+      <div className="rounded-full border border-[var(--bf-line-strong)] bg-[var(--bf-surface-2)] px-4 py-2 text-xs font-black text-[var(--bf-cream)] shadow-lg">
         Загружаем раздел…
-      </p>
+      </div>
     </div>
   );
+}
+
+function isChunkLoadError(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error ?? "");
+  return /dynamically imported module|module script|chunk|importing a module/i.test(message);
+}
+
+class RouteLoadBoundary extends Component<
+  { children: ReactNode },
+  { error: Error | null }
+> {
+  state = { error: null as Error | null };
+
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+
+  componentDidCatch(error: Error, _info: ErrorInfo) {
+    if (!isChunkLoadError(error)) {
+      console.error(error);
+    }
+  }
+
+  render() {
+    if (!this.state.error) return this.props.children;
+
+    return (
+      <section className="mx-auto mt-8 max-w-md rounded-[22px] border border-[var(--bf-line)] bg-[var(--bf-surface)] p-5 text-center">
+        <h2 className="text-lg font-black text-[var(--bf-cream)]">
+          Не удалось загрузить раздел
+        </h2>
+        <p className="mt-2 text-sm text-[var(--bf-muted)]">
+          Проверьте соединение и обновите этот экран. Незавершённый текст в редакторе лучше сначала скопировать.
+        </p>
+        <button
+          type="button"
+          className="mt-4 min-h-11 rounded-xl border border-[var(--bf-line-strong)] bg-[var(--bf-surface-2)] px-4 text-sm font-black text-[var(--bf-cream)]"
+          onClick={() => window.location.reload()}
+        >
+          Обновить экран
+        </button>
+      </section>
+    );
+  }
 }
 
 function ProtectedApp() {
@@ -219,10 +281,14 @@ function LazyRoute({
 }: {
   children: ReactNode;
 }) {
+  const location = useLocation();
+
   return (
-    <Suspense fallback={<RouteLoader />}>
-      {children}
-    </Suspense>
+    <RouteLoadBoundary key={location.pathname}>
+      <Suspense key={location.pathname} fallback={<RouteLoader />}>
+        {children}
+      </Suspense>
+    </RouteLoadBoundary>
   );
 }
 
@@ -307,6 +373,12 @@ export function App() {
             </LazyRoute>
           }
         />
+        <Route
+          path="knowledge/new"
+          element={<LazyRoute><KnowledgeEditorPage /></LazyRoute>}
+        />
+        <Route path="knowledge/manage" element={<LazyRoute><KnowledgeManagePage /></LazyRoute>} />
+        <Route path="knowledge/:articleId/edit" element={<LazyRoute><KnowledgeEditorPage /></LazyRoute>} />
         <Route
           path="knowledge/:articleId"
           element={

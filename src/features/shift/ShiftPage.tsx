@@ -354,17 +354,20 @@ export function ShiftPage() {
 
   if (context.state === "locked") return (
     <section className="mx-auto max-w-2xl pb-6">
-      <p className="eyebrow">СМЕНА · {context.position_label}</p>
-      <h1 className="mt-2 text-[34px] font-black leading-none tracking-[-0.04em]">Смена недоступна</h1>
+      <h1 className="text-[34px] font-black leading-none tracking-[-0.04em]">Смена недоступна</h1>
       <div className="craft-shift-status mt-5 rounded-[22px] border border-[var(--bf-line)] bg-[var(--bf-surface)] p-5">
-        <LockKeyhole className="size-6 text-[var(--bf-gold)]" aria-hidden />
-        <h2 className="mt-3 text-xl font-black">Новая смена с 11:00</h2>
-        <p className="mt-3 text-sm font-bold text-[var(--bf-cream)]">Следующее открытие: {formatDateTime(context.next_open_at, context.venue_timezone)}</p>
+        <div className="flex items-start gap-3">
+          <LockKeyhole className="mt-0.5 size-6 shrink-0 text-[var(--bf-gold)]" aria-hidden />
+          <div className="min-w-0">
+            <h2 className="text-xl font-black">Новая смена с 11:00</h2>
+            <p className="mt-1.5 text-sm font-bold text-[var(--bf-cream)]">Следующее открытие: {formatDateTime(context.next_open_at, context.venue_timezone)}</p>
+          </div>
+        </div>
       </div>
     </section>
   );
 
-  if (!configured || !shift) return <section className="mx-auto max-w-2xl pb-6"><p className="eyebrow">СМЕНА · {context.position_label}</p><h1 className="mt-2 text-[34px] font-black leading-none tracking-[-0.04em]">Чек-лист пока не настроен</h1></section>;
+  if (!configured || !shift) return <section className="mx-auto max-w-2xl pb-6"><h1 className="text-[34px] font-black leading-none tracking-[-0.04em]">Чек-лист пока не настроен</h1></section>;
 
   const openingEditable = shift.status === "not_started";
   const closingUnlocked = shift.status === "active" || Boolean(shift.closing_unlocked_at);

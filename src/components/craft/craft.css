@@ -1,0 +1,3125 @@
+/* BFStaff V2: semantic materials, shared work surfaces and bounded screen compositions.
+   Imported after the protected existing styles; no original CSS is removed. */
+:root {
+  --craft-paper: #f4e5c9;
+  --craft-paper-light: #fff4df;
+  --craft-paper-shade: #e8d4ad;
+  --craft-ink: #30271e;
+  --craft-muted: #6f5d48;
+  --craft-rule: #c5ae86;
+  --craft-leather: #6a351d;
+  --craft-leather-hi: #a66236;
+  --craft-leather-shadow: #35190e;
+  --craft-copper: #985022;
+  --craft-copper-hi: #b76d36;
+  --craft-metal: #c39b60;
+  --craft-success: #365e3b;
+  --craft-error: #9b3b2d;
+  --craft-seam: #dbad72;
+  --craft-shadow: 0 3px 7px #3c24132b;
+  --craft-grain: url("/assets/knowledge/paper-grain.svg");
+  --craft-leather-grain: url("/assets/knowledge/leather-grain.svg");
+  --craft-display: "BF Journal", "Segoe Print", cursive;
+  --craft-body:
+    Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+.craft-context {
+  color-scheme: light;
+  --bf-bg: var(--craft-paper-shade);
+  --bf-surface: var(--craft-paper-light);
+  --bf-surface-2: var(--craft-paper);
+  --bf-line: var(--craft-rule);
+  --bf-line-strong: var(--craft-copper);
+  --bf-cream: var(--craft-ink);
+  --bf-muted: var(--craft-muted);
+  --bf-dim: var(--craft-muted);
+  --bf-copper: var(--craft-copper);
+  --bf-copper-hi: var(--craft-copper);
+  --bf-gold: #8a642b;
+  --bf-green: var(--craft-success);
+  --bf-red: var(--craft-error);
+  color: var(--craft-ink);
+  font-family: var(--craft-body);
+}
+.craft-page {
+  position: relative;
+  min-width: 0;
+  padding: 22px 14px 26px;
+  border: 1px solid var(--craft-rule);
+  border-radius: 6px 8px 4px 7px;
+  background:
+    var(--craft-grain),
+    radial-gradient(ellipse at 95% 0, #b9793424, transparent 32%),
+    var(--craft-paper);
+  box-shadow:
+    inset 0 0 22px #9c743723,
+    0 12px 32px #0006;
+}
+.craft-page::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: var(--craft-paper-light);
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 42%,
+    96% 70%,
+    91% 38%,
+    86% 61%,
+    79% 32%,
+    74% 71%,
+    68% 30%,
+    61% 54%,
+    54% 22%,
+    46% 65%,
+    38% 34%,
+    30% 67%,
+    22% 36%,
+    14% 75%,
+    7% 31%,
+    0 65%
+  );
+  pointer-events: none;
+}
+.craft-page::after {
+  content: "";
+  position: absolute;
+  top: 9px;
+  right: 12px;
+  width: 60px;
+  height: 45px;
+  opacity: 0.2;
+  background: url("/assets/craft/brewery-sketch.svg") center / contain no-repeat;
+  pointer-events: none;
+}
+.craft-context h1,
+.craft-context h2,
+.craft-profile-heading {
+  font-family: var(--craft-display);
+  font-weight: 700;
+  letter-spacing: 0;
+  text-wrap: balance;
+}
+.craft-context h1 {
+  font-size: 42px;
+  line-height: 1.08;
+}
+.craft-context h2 {
+  font-size: 28px;
+  line-height: 1.15;
+}
+.craft-context h3 {
+  color: var(--craft-ink);
+}
+.craft-context .eyebrow {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+}
+.craft-context
+  :is(input:not([type="checkbox"]):not([type="radio"]), textarea, select) {
+  min-width: 0;
+  max-width: 100%;
+  font-family: var(--craft-body);
+  font-size: 16px;
+  color: var(--craft-ink);
+  border-color: var(--craft-rule);
+  border-radius: 7px;
+  background-color: var(--craft-paper-light);
+  box-shadow: inset 0 1px 3px #79592d15;
+}
+.craft-context :is(input, textarea, select)::placeholder {
+  color: var(--craft-muted);
+  opacity: 0.9;
+}
+.craft-context :is(button, a, input, textarea, select, summary):focus-visible {
+  outline: 2px solid var(--craft-copper);
+  outline-offset: 3px;
+}
+.craft-context :is(button, a, summary) {
+  -webkit-tap-highlight-color: #98502222;
+}
+.craft-context summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+.craft-paper-card {
+  border: 1px solid var(--craft-rule);
+  border-radius: 4px 7px 4px 5px;
+  background:
+    var(--craft-grain),
+    linear-gradient(110deg, var(--craft-paper-light), var(--craft-paper));
+  box-shadow: var(--craft-shadow);
+}
+.craft-context .craft-button {
+  min-height: 44px;
+  border-radius: 8px;
+  max-width: 100%;
+}
+.craft-context .craft-button[data-craft-variant="primary"],
+.craft-context button[aria-pressed="true"]:not([role="checkbox"]),
+.craft-phase-tabs button[aria-pressed="true"] {
+  color: var(--craft-paper-light);
+  border: 1px solid var(--craft-copper);
+  background:
+    var(--craft-leather-grain),
+    linear-gradient(170deg, var(--craft-leather-hi), var(--craft-leather) 72%);
+  box-shadow:
+    inset 0 0 0 3px #bb89522e,
+    inset 0 1px 2px #e3b28255,
+    0 2px 4px #35190e45;
+}
+.craft-context .craft-button[data-craft-variant="primary"] {
+  outline: 1px dashed #dbad7270;
+  outline-offset: -5px;
+}
+.craft-context .craft-button[data-craft-variant="danger"] {
+  color: var(--craft-error);
+  background: #9b3b2d12;
+}
+.craft-context .craft-button[data-craft-variant="secondary"] {
+  background: var(--craft-paper-light);
+  color: var(--craft-ink);
+}
+.craft-context .craft-button[data-craft-variant="ghost"] {
+  color: var(--craft-muted);
+}
+.craft-context [role="alert"] {
+  color: var(--craft-error);
+}
+.craft-context [class*="text-[#9dd0a0]"],
+.craft-context [class*="text-[#b7e3ba]"] {
+  color: var(--craft-success);
+}
+.craft-context [class*="text-[#e99990]"],
+.craft-context [class*="text-[#ffb2aa]"] {
+  color: var(--craft-error);
+}
+.craft-context [class*="bg-[#36231f"],
+.craft-context [class*="bg-[#162016"] {
+  background-color: var(--craft-paper);
+}
+.craft-context [role="checkbox"] {
+  color: var(--craft-ink);
+}
+.craft-context [role="checkbox"][aria-checked="true"] {
+  border-color: var(--craft-success);
+}
+.craft-context [role="checkbox"] svg {
+  stroke-width: 1.6;
+}
+.craft-context [role="progressbar"] {
+  background: var(--craft-paper-shade);
+  border: 1px solid var(--craft-rule);
+  height: 8px;
+}
+.craft-context [role="progressbar"] > div {
+  background: linear-gradient(var(--craft-copper-hi), var(--craft-leather));
+}
+/* Supporting dark shell and premium stitched dock; Dashboard's existing no-dock rule stays. */
+.bf-app-shell {
+  background:
+    radial-gradient(ellipse at 10% 0, #7c472124, transparent 38%), var(--bf-bg);
+}
+.bf-main {
+  max-width: 980px;
+  padding-top: calc(14px + env(safe-area-inset-top));
+}
+.bf-bottom-nav {
+  inset-inline: 8px;
+  bottom: 4px;
+  border: 1px solid #a76b3c;
+  border-radius: 15px 15px 11px 11px;
+  background:
+    var(--craft-leather-grain),
+    linear-gradient(130deg, #351b12, #63321c 50%, #2a1710);
+  box-shadow:
+    inset 0 1px 2px #e1b18066,
+    0 -5px 18px #0006;
+}
+.bf-bottom-nav::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 1px dashed #bd895566;
+  border-radius: 11px;
+  pointer-events: none;
+}
+.bf-bottom-nav a {
+  color: #d4b88e;
+}
+.bf-bottom-nav a[aria-current="page"] {
+  color: #ffc481;
+  background: radial-gradient(ellipse, #ca81412b, transparent 70%);
+}
+.bf-bottom-nav svg {
+  stroke-width: 1.45;
+  width: 22px;
+  height: 22px;
+}
+/* Workbench hero + greeting note. Existing real-data sections and no-nav rule retained. */
+.craft-page--dashboard {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.craft-page--dashboard::before,
+.craft-page--dashboard::after {
+  display: none;
+}
+.craft-dashboard .bf-dashboard-hero {
+  position: relative;
+  min-height: 290px;
+  padding: 20px 16px;
+  overflow: hidden;
+  border-radius: 7px;
+  background:
+    url("/assets/craft/brewery-sketch.svg") right center / 70% 95% no-repeat,
+    linear-gradient(90deg, #160e06e6, #211105c7),
+    url("/assets/brewery-cooper-bg.jpg") center / cover;
+}
+.craft-dashboard .bf-dashboard-brand {
+  font-family: "Marker Felt", "Chalkboard SE", var(--craft-display);
+  font-weight: 400;
+  font-size: 52px;
+  line-height: 0.9;
+  color: #e2a566;
+  letter-spacing: -2px;
+  transform: rotate(-4deg);
+}
+.craft-dashboard .bf-dashboard-brand span {
+  display: block;
+  margin-top: 12px;
+  color: var(--craft-paper-light);
+  font: 600 18px/1.05 var(--craft-display);
+  letter-spacing: 1px;
+}
+.craft-dashboard .bf-dashboard-hero h1 {
+  position: relative;
+  width: 72%;
+  margin: 24px 0 0;
+  padding: 18px 16px 34px;
+  font-size: 38px;
+  color: var(--craft-ink);
+  background: var(--craft-grain), var(--craft-paper-light);
+  border-radius: 2px 4px 3px 7px;
+  transform: rotate(-2deg);
+  box-shadow: 0 3px 9px #0005;
+}
+.craft-dashboard .bf-dashboard-hero h1::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: -6px;
+  width: 43px;
+  height: 20px;
+  transform: rotate(-32deg);
+  background: #dfbd84a8;
+  pointer-events: none;
+}
+.craft-dashboard .bf-dashboard-hero p {
+  position: relative;
+  max-width: 72%;
+  padding: 0 16px;
+  margin-top: -30px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--craft-ink);
+  transform: rotate(-2deg);
+}
+.craft-dashboard .bf-dashboard-content {
+  background: var(--craft-grain), var(--craft-paper);
+  padding: 14px;
+  border-radius: 4px;
+  border-color: var(--craft-rule);
+}
+.craft-dashboard .bf-dashboard-actions {
+  grid-template-columns: 1fr;
+  gap: 9px;
+}
+.craft-dashboard .bf-dashboard-action {
+  display: grid;
+  grid-template-columns: 30px 1fr 18px;
+  grid-template-rows: auto auto;
+  column-gap: 10px;
+  min-height: 70px;
+  padding: 12px;
+  border-radius: 4px;
+  background: var(--craft-grain), var(--craft-paper-light);
+  color: var(--craft-ink);
+  box-shadow: var(--craft-shadow);
+}
+.craft-dashboard .bf-dashboard-action > svg:first-child {
+  grid-row: 1/3;
+  align-self: center;
+  color: var(--craft-copper);
+}
+.craft-dashboard .bf-action-chevron {
+  grid-column: 3;
+  grid-row: 1/3;
+  position: static;
+  align-self: center;
+}
+.craft-dashboard .bf-dashboard-action strong {
+  font: 700 24px/1 var(--craft-display);
+  grid-column: 2;
+}
+.craft-dashboard .bf-dashboard-action span {
+  grid-column: 2;
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--craft-muted);
+}
+.craft-dashboard .bf-day-status,
+.craft-dashboard .bf-dashboard-wide-action {
+  background: var(--craft-paper-light);
+  border-color: var(--craft-rule);
+  color: var(--craft-ink);
+  border-radius: 5px;
+  box-shadow: var(--craft-shadow);
+}
+.craft-dashboard .bf-day-status svg,
+.craft-dashboard .bf-dashboard-wide-action svg {
+  color: var(--craft-copper);
+}
+.craft-dashboard > section:not(.bf-dashboard-hero),
+.craft-dashboard > div:not(.bf-dashboard-content) {
+  padding: 14px;
+  background: var(--craft-grain), var(--craft-paper);
+  border-radius: 5px;
+}
+/* Mounted recipe catalog: same real rows, IDs, filters and content sources. */
+.craft-recipe-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.craft-recipe-grid .recipe-list-row {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  padding: 9px;
+  min-width: 0;
+  min-height: 200px;
+  border-radius: 3px 5px 2px 5px;
+  background: var(--craft-grain), var(--craft-paper-light);
+  box-shadow: var(--craft-shadow);
+  content-visibility: visible;
+}
+.craft-recipe-thumb {
+  position: relative;
+  aspect-ratio: 4/3;
+  width: 100%;
+  display: grid;
+  place-items: center;
+  background: var(--craft-paper-shade);
+  padding: 4px;
+  border: 1px solid var(--craft-rule);
+  transform: rotate(-1.5deg);
+}
+.craft-recipe-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.craft-recipe-thumb::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: -4px;
+  width: 30px;
+  height: 13px;
+  background: #dbb782a6;
+  transform: rotate(-30deg);
+  pointer-events: none;
+}
+.recipe-list-row:nth-child(2n) .craft-recipe-thumb {
+  transform: rotate(1.5deg);
+}
+.craft-recipe-grid .recipe-list-row h2 {
+  font-size: 24px;
+  line-height: 1.05;
+  margin-top: 4px;
+}
+.craft-recipe-grid .recipe-list-row > div:last-child {
+  display: none;
+} /* Redundant decorative chevron; the full card is the link. */
+.craft-page--menu .bf-recipes-page > div:first-child > p:last-child {
+  font-size: 12px;
+  line-height: 1.5;
+  margin-top: 8px;
+}
+.craft-page--recipe article > div {
+  border-radius: 5px;
+}
+.craft-page--recipe article img:not([src*="icon"]) {
+  border: 7px solid var(--craft-paper-light);
+  box-shadow: var(--craft-shadow);
+}
+/* Harmonize the accepted Knowledge board without replacing its renderer/viewer. */
+.craft-page--knowledge,
+.craft-page--article {
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+.craft-page--knowledge::before,
+.craft-page--article::before,
+.craft-page--knowledge::after,
+.craft-page--article::after {
+  display: none;
+}
+.craft-page--knowledge .knowledge-brandbar {
+  position: absolute;
+  right: 12px;
+  top: 5px;
+  z-index: 2;
+  margin: 0;
+}
+.craft-page--knowledge .knowledge-brandbar .knowledge-wordmark {
+  display: none;
+}
+.craft-page--knowledge .knowledge-brand-actions a,
+.craft-page--knowledge .knowledge-brand-actions button {
+  color: var(--craft-copper);
+}
+.craft-page--knowledge .bf-knowledge-board {
+  border-radius: 5px;
+  padding-top: 20px;
+  background: var(--craft-grain), var(--craft-paper);
+}
+.craft-page--knowledge .knowledge-board-heading {
+  text-align: left;
+}
+.craft-page--knowledge .knowledge-board-heading > svg,
+.craft-page--knowledge .knowledge-board-heading p,
+.craft-page--knowledge .knowledge-board-rule {
+  display: none;
+}
+.craft-page--knowledge .knowledge-board-heading h1 {
+  font: 700 42px/1.15 var(--craft-display);
+  text-transform: capitalize;
+  letter-spacing: 0;
+  padding-right: 94px;
+}
+.craft-page--knowledge .knowledge-board-search {
+  margin-top: 12px;
+}
+.craft-page--knowledge .knowledge-list-row h2 {
+  font-family: var(--craft-display);
+  font-size: 22px;
+  line-height: 1.12;
+  font-weight: 700;
+}
+.craft-page--knowledge .knowledge-sticker-icons {
+  min-height: 28px;
+  margin-bottom: 6px;
+}
+.craft-page--knowledge .knowledge-sticker-icons > svg {
+  width: 28px;
+  height: 28px;
+  stroke-width: 1.5;
+}
+.craft-page--knowledge .knowledge-sticker {
+  min-height: 154px;
+}
+.craft-page--knowledge .knowledge-excerpt {
+  font-size: 12px;
+  line-height: 1.4;
+}
+.craft-page--article .knowledge-notebook {
+  border-radius: 8px;
+}
+.craft-page--article .knowledge-notebook-toolbar .craft-button {
+  color: var(--craft-paper-light);
+  background:
+    var(--craft-leather-grain),
+    linear-gradient(var(--craft-leather-hi), var(--craft-leather));
+  border-color: var(--craft-leather-hi);
+  border-radius: 24px;
+}
+.craft-page--attestation [role="group"][aria-label="Варианты ответа"] {
+  gap: 10px;
+}
+.craft-page--attestation [role="group"][aria-label="Варианты ответа"] button {
+  min-height: 54px;
+  border-radius: 5px;
+}
+.craft-page--attestation h1[tabindex] {
+  font-size: 34px;
+  padding: 18px 14px;
+  background: var(--craft-grain), var(--craft-paper-light);
+  border: 1px solid var(--craft-rule);
+  box-shadow: var(--craft-shadow);
+}
+/* Leather clipboard: children/check semantics remain in the original Shift controller. */
+.craft-phase-tabs {
+  display: flex;
+  gap: 6px;
+  margin: 16px 0 14px;
+}
+.craft-phase-tabs button {
+  min-height: 44px;
+  flex: 1;
+  border: 1px solid var(--craft-rule);
+  border-radius: 7px;
+  background: var(--craft-paper-light);
+  color: var(--craft-ink);
+  font-size: 14px;
+}
+.craft-clipboard {
+  position: relative;
+  padding: 24px 10px 12px;
+  border: 1px solid var(--craft-leather-hi);
+  border-radius: 12px;
+  background:
+    var(--craft-leather-grain),
+    linear-gradient(
+      120deg,
+      var(--craft-leather),
+      var(--craft-leather-hi) 65%,
+      var(--craft-leather-shadow)
+    );
+  box-shadow:
+    inset 0 1px 3px #ebbc8055,
+    0 6px 15px #30130945;
+}
+.craft-clipboard::before {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border: 1px dashed #dbad7277;
+  border-radius: 8px;
+  pointer-events: none;
+}
+.craft-clipboard-paper {
+  position: relative;
+  min-height: 320px;
+  background:
+    var(--craft-grain),
+    repeating-linear-gradient(transparent 0 29px, #c5ae8655 29px 30px),
+    var(--craft-paper-light);
+  border-radius: 3px 5px 3px 4px;
+  box-shadow: 0 3px 8px #23130855;
+}
+.craft-phase {
+  padding: 20px 12px 16px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+}
+.craft-phase > div:first-child h2 {
+  font-size: 29px;
+}
+.craft-phase .eyebrow {
+  display: none;
+}
+.craft-phase [role="checkbox"] {
+  border: 0;
+  border-bottom: 1px solid #c5ae8655;
+  background: transparent;
+  border-radius: 0;
+  padding: 7px 4px;
+  min-height: 44px;
+  gap: 8px;
+}
+.craft-phase [role="checkbox"] > span:first-child {
+  width: 22px;
+  height: 22px;
+  border-radius: 3px;
+  background: transparent;
+}
+.craft-phase [role="checkbox"][aria-checked="true"] > span:first-child {
+  color: var(--craft-success);
+  background: #365e3b18;
+}
+.craft-phase [role="checkbox"] > span:nth-child(2) {
+  font-weight: 500;
+}
+.craft-phase .rounded-\[18px\] {
+  border-radius: 2px;
+  padding: 3px;
+  background: #f4e5c975;
+}
+.craft-clipboard-clip {
+  position: absolute;
+  z-index: 3;
+  top: 9px;
+  left: 20%;
+  width: 60%;
+  height: 20px;
+  border: 2px solid #74512c;
+  border-radius: 5px;
+  background: linear-gradient(
+    #ab814c 0%,
+    #f3d9a2 24%,
+    #684c30 44%,
+    #e8c991 61%,
+    #947344 82%,
+    #edcf92
+  );
+  box-shadow:
+    0 3px 4px #2c160980,
+    inset 0 0 0 2px #e8cea0;
+  pointer-events: none;
+}
+.craft-clipboard-clip::after {
+  content: "";
+  position: absolute;
+  left: 9px;
+  right: 9px;
+  top: 3px;
+  bottom: 3px;
+  border: 1px solid #604628;
+  border-radius: 3px;
+}
+.craft-pen {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  right: 1px;
+  top: 62%;
+  width: 13px;
+  height: 124px;
+  transform: rotate(11deg);
+  border-radius: 7px 7px 4px 4px;
+  background: linear-gradient(
+    90deg,
+    #26180e,
+    #d9a44b 18%,
+    #30261c 32%,
+    #352b22 60%,
+    #cba66a 82%,
+    #382819
+  );
+  box-shadow: 2px 4px 5px #25150b50;
+}
+.craft-pen::before {
+  content: "";
+  position: absolute;
+  top: -13px;
+  left: 2px;
+  width: 9px;
+  height: 18px;
+  background: linear-gradient(90deg, #72522d, #e6c17a, #72522d);
+  clip-path: polygon(50% 0, 95% 100%, 5% 100%);
+}
+.craft-pen::after {
+  content: "";
+  position: absolute;
+  bottom: 18px;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: linear-gradient(#74512b, #f2d79b, #705432);
+}
+.craft-pen i {
+  position: absolute;
+  right: 1px;
+  top: 8px;
+  width: 3px;
+  height: 44px;
+  background: linear-gradient(90deg, #725735, #e7c993);
+  border-radius: 4px;
+}
+.craft-pen b {
+  position: absolute;
+  left: 2px;
+  bottom: -9px;
+  width: 9px;
+  height: 13px;
+  background: linear-gradient(90deg, #826132, #dfb972, #846635);
+  clip-path: polygon(0 0, 100% 0, 55% 100%, 45% 100%);
+}
+/* Unified folio/recipe/manager ledgers. Work inputs keep readable body typography. */
+.craft-page--article-editor {
+  border: 10px solid var(--craft-leather);
+  border-top-width: 15px;
+  padding: 14px 12px 22px;
+  border-radius: 12px;
+  box-shadow:
+    inset 0 0 2px var(--craft-leather-shadow),
+    0 8px 24px #0005;
+}
+.craft-page--article-editor::before {
+  background: var(--craft-leather-grain);
+  inset: -14px -9px auto;
+  height: 14px;
+  clip-path: none;
+}
+.craft-page--article-editor::after {
+  display: none;
+}
+.craft-page--article-editor .bf-article-editor {
+  max-width: 100%;
+}
+.craft-page--article-editor .bf-editor-element {
+  border-bottom: 1px solid var(--craft-rule);
+}
+.craft-page--article-editor textarea {
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+}
+.craft-page--article-editor .bf-editor-add {
+  color: var(--craft-copper);
+}
+.craft-page--article-editor .bf-editor-photo {
+  background: var(--craft-paper-light);
+}
+.craft-page--article-editor img {
+  border: 6px solid var(--craft-paper-light);
+  box-shadow: var(--craft-shadow);
+}
+.craft-page--article-editor .bf-editor-upload-status-card {
+  background: var(--craft-paper-light);
+  border-color: var(--craft-copper);
+}
+.craft-page--article-editor .bf-editor-upload-status-card strong {
+  color: var(--craft-ink);
+}
+.craft-page--article-editor .bf-editor-upload-status-card small {
+  color: var(--craft-muted);
+}
+.craft-recipe-editor {
+  padding: 18px;
+  border-top: 8px solid var(--craft-leather);
+  border-radius: 7px;
+}
+.craft-recipe-editor > div:first-child {
+  border-bottom: 1px solid var(--craft-rule);
+  padding-bottom: 12px;
+}
+.craft-page--knowledge-manage,
+.craft-page--admin {
+  background:
+    var(--craft-grain),
+    repeating-linear-gradient(transparent 0 39px, #c5ae8620 39px 40px),
+    var(--craft-paper);
+}
+.craft-page--knowledge-manage a[href$="/edit"] {
+  background: var(--craft-paper-light);
+  border-radius: 4px;
+}
+.craft-page--checklist-editor {
+  border-top: 12px solid var(--craft-leather);
+}
+.craft-page--checklist-editor :is(input, select) {
+  border-radius: 4px;
+}
+.craft-page--admin h2,
+.craft-page--checklist-editor h2 {
+  font-size: 28px;
+}
+.craft-page--admin button[class*="border-[var(--bf-copper-hi)]"] {
+  box-shadow: inset 0 -3px 0 var(--craft-copper);
+}
+.craft-page--feed .craft-paper-card {
+  position: relative;
+  border-radius: 3px 6px 4px 3px;
+}
+.craft-page--feed .craft-paper-card::before {
+  content: "";
+  position: absolute;
+  top: 7px;
+  right: 9px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: linear-gradient(#e5c07c, #8d4b20);
+  box-shadow: 0 1px 2px #41210c55;
+  pointer-events: none;
+}
+.craft-profile-id {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin: 20px 0;
+  padding: 8px 0 16px;
+  border-bottom: 1px solid var(--craft-rule);
+}
+.craft-profile-photo {
+  position: relative;
+  flex: 0 0 98px;
+  padding: 5px;
+  border: 1px solid var(--craft-rule);
+  background: var(--craft-paper-light);
+  box-shadow: var(--craft-shadow);
+  transform: rotate(-3deg);
+}
+.craft-profile-photo img {
+  width: 100%;
+  height: auto;
+}
+.craft-profile-photo::before,
+.craft-profile-photo::after {
+  content: "";
+  position: absolute;
+  width: 30px;
+  height: 13px;
+  background: #d0a36b99;
+  transform: rotate(-30deg);
+  pointer-events: none;
+}
+.craft-profile-photo::before {
+  top: -4px;
+  left: -4px;
+}
+.craft-profile-photo::after {
+  bottom: -3px;
+  right: -3px;
+}
+.craft-profile-heading {
+  margin: 0;
+  font-size: 28px;
+  color: var(--craft-copper);
+}
+.craft-profile-id h1 {
+  font-size: 38px;
+  overflow-wrap: anywhere;
+}
+.craft-page--attestation
+  [aria-label="Варианты ответа"]
+  button[aria-pressed="true"] {
+  background: var(--craft-paper-light);
+  color: var(--craft-success);
+  border: 2px solid var(--craft-success);
+  box-shadow: none;
+}
+.craft-page--attestation section {
+  border-radius: 4px;
+}
+.craft-page--attestation h2 {
+  font-size: 30px;
+}
+.auth-panel.craft-context {
+  border: 8px solid var(--craft-leather);
+  background: var(--craft-grain), var(--craft-paper);
+  border-radius: 10px;
+  padding: 22px;
+}
+.auth-panel.craft-context h1 {
+  font-size: 38px;
+}
+.craft-context dialog {
+  background: var(--craft-grain), var(--craft-paper-light);
+  color: var(--craft-ink);
+  border-color: var(--craft-rule);
+  border-radius: 10px;
+}
+.craft-context dialog::backdrop {
+  background: #1b100de0;
+}
+.craft-context .knowledge-image-dialog {
+  background: #160f0b;
+  color: var(--craft-paper-light);
+}
+.craft-context .knowledge-image-dialog button {
+  color: var(--craft-paper-light);
+}
+@media (min-width: 640px) {
+  .craft-page {
+    padding: 28px;
+  }
+  .craft-page--dashboard,
+  .craft-page--knowledge,
+  .craft-page--article {
+    padding: 0;
+  }
+  .craft-dashboard .bf-dashboard-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .craft-dashboard .bf-dashboard-hero {
+    min-height: 310px;
+  }
+  .craft-dashboard .bf-dashboard-hero h1 {
+    max-width: 430px;
+  }
+  .craft-dashboard .bf-dashboard-hero p {
+    max-width: 430px;
+  }
+  .craft-recipe-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .craft-page--article-editor {
+    padding: 24px;
+  }
+  .craft-clipboard {
+    max-width: 690px;
+    margin-inline: auto;
+    padding: 28px 18px 18px;
+  }
+  .craft-phase {
+    padding: 24px;
+  }
+  .craft-pen {
+    right: 2px;
+    width: 16px;
+    height: 160px;
+  }
+}
+@media (max-width: 359px) {
+  .bf-main {
+    padding-inline: 10px;
+  }
+  .craft-page {
+    padding-inline: 10px;
+  }
+  .craft-page--dashboard,
+  .craft-page--knowledge,
+  .craft-page--article {
+    padding: 0;
+  }
+  .craft-profile-photo {
+    flex-basis: 76px;
+  }
+  .craft-profile-id {
+    gap: 10px;
+  }
+  .craft-profile-id h1 {
+    font-size: 32px;
+  }
+  .craft-page--article-editor {
+    padding-inline: 8px;
+    border-width: 7px;
+  }
+  .craft-recipe-grid .recipe-list-row {
+    padding: 7px;
+  }
+  .craft-context h1 {
+    font-size: 38px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .craft-context *,
+  .craft-context *::before,
+  .craft-context *::after {
+    transition-duration: 0.001ms !important;
+    animation-duration: 0.001ms !important;
+  }
+}
+
+/* Compact operational status: preserve date/time/state, bring the paper forward. */
+.craft-page--shift {
+  padding-top: 16px;
+}
+.craft-page--shift > section > div:first-child h1 {
+  font-size: 42px;
+}
+.craft-page--shift > section > div:first-child p:last-child {
+  margin-top: 4px;
+  font-size: 12px;
+}
+.craft-shift-status {
+  margin-top: 10px;
+  padding: 9px;
+  border-radius: 5px;
+  background: var(--craft-paper-light);
+}
+.craft-shift-status h2 {
+  font-family: var(--craft-body);
+  font-size: 14px;
+  line-height: 1.2;
+}
+.craft-shift-status svg {
+  width: 16px;
+  height: 16px;
+}
+.craft-shift-status > div > div:last-child {
+  padding: 6px;
+  border: 0;
+  background: transparent;
+}
+.craft-shift-status > p {
+  margin-top: 8px;
+}
+.craft-phase-tabs {
+  margin: 12px 0 8px;
+}
+.craft-page--shift .craft-phase-tabs + div {
+  margin-top: 8px;
+}
+.craft-phase [role="checkbox"] {
+  min-height: 44px;
+}
+.craft-phase [role="checkbox"] > span:nth-child(2) {
+  font-size: 13px;
+}
+.craft-phase .rounded-\[18px\] {
+  border: 0;
+}
+.craft-pen {
+  top: 46%;
+  height: 145px;
+}
+.craft-page--article-editor .bf-editor-main-actions {
+  padding: 7px;
+  margin-inline: -5px;
+  border-radius: 7px;
+  background: var(--craft-leather-grain), var(--craft-leather);
+}
+.craft-page--article-editor
+  .bf-editor-main-actions
+  .craft-button[data-craft-variant="ghost"] {
+  color: var(--craft-paper-light);
+}
+.craft-page--article-editor .bf-editor-insertion > button {
+  border-radius: 3px 6px;
+  background: var(--craft-paper-light);
+  border: 1px solid var(--craft-rule);
+}
+.craft-page--article-editor .bf-editor-menu-panel {
+  background: var(--craft-grain), var(--craft-paper-light);
+  color: var(--craft-ink);
+}
+.craft-recipe-editor label:has(input[type="file"]) {
+  min-height: 44px;
+}
+.craft-recipe-editor img {
+  border: 6px solid var(--craft-paper-light);
+}
+.craft-page--feed article {
+  position: relative;
+  border-radius: 4px;
+  background: var(--craft-grain), var(--craft-paper-light);
+  box-shadow: var(--craft-shadow);
+}
+.craft-page--feed article::before {
+  content: "";
+  position: absolute;
+  top: 5px;
+  right: 7px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--craft-copper);
+  box-shadow: 0 1px 2px #41210c55;
+  pointer-events: none;
+}
+.craft-page--feed article h3 {
+  font-family: var(--craft-display);
+  font-size: 28px;
+}
+.craft-context [class*="text-[#a8d2ab]"] {
+  color: var(--craft-success);
+}
+.craft-context [class*="text-[#f0a29a]"] {
+  color: var(--craft-error);
+}
+.craft-context .bf-result-feedback-success {
+  background: #365e3b12;
+}
+.craft-context .bf-result-feedback-failure {
+  background: #9b3b2d12;
+}
+
+.craft-page--attestation h1[tabindex] {
+  margin-top: 12px;
+  padding: 18px 14px;
+  min-height: 135px;
+  border-radius: 2px 5px 3px 4px;
+  background: var(--craft-grain), var(--craft-paper-light);
+  border: 1px solid var(--craft-rule);
+  box-shadow: var(--craft-shadow);
+}
+.craft-page--admin button[class*="border-[var(--bf-copper-hi)]"] {
+  background: var(--craft-leather-grain), var(--craft-leather);
+  color: var(--craft-paper-light);
+}
+
+.craft-page--article-editor .bf-editor-main-actions {
+  gap: 3px;
+}
+.craft-page--article-editor .bf-editor-main-actions > .craft-button {
+  padding-inline: 8px;
+  font-size: 13px;
+}
+.craft-page--article-editor
+  .bf-editor-main-actions
+  > .craft-button:first-child {
+  min-width: 0;
+  flex: 1;
+}
+.craft-page--article-editor .bf-editor-main-actions > .craft-button:last-child {
+  flex: 0 0 44px;
+}
+.craft-context [class*="text-[#ff9d93]"] {
+  color: var(--craft-error);
+}
+.craft-context [role="dialog"] {
+  background: var(--craft-grain), var(--craft-paper-light);
+  color: var(--craft-ink);
+  border-radius: 8px;
+}
+.craft-context .knowledge-image-dialog {
+  background: #160f0b;
+}
+@media (max-width: 359px) {
+  .craft-page--article-editor .bf-editor-main-actions > .craft-button {
+    font-size: 12px;
+    padding-inline: 5px;
+  }
+  .craft-page--article-editor
+    .bf-editor-main-actions
+    > .craft-button:not(:last-child)
+    svg {
+    display: none;
+  }
+}
+
+.bf-bottom-nav {
+  max-width: 1000px;
+  margin-inline: auto;
+}
+.craft-context .craft-button:has(> svg:only-child) {
+  min-width: 44px;
+}
+.craft-page--knowledge .knowledge-brand-actions :is(a, button) {
+  min-width: 44px;
+  min-height: 44px;
+}
+.craft-page--knowledge-manage h2 {
+  font-size: 24px;
+}
+.craft-page--knowledge-manage h2 + p {
+  display: inline-block;
+  border: 1px solid var(--craft-rule);
+  border-radius: 3px;
+  padding: 3px 6px;
+  background: var(--craft-paper-light);
+}
+.craft-page--knowledge-manage a[href$="/edit"] {
+  padding-inline: 10px;
+  font-size: 12px;
+}
+.craft-page--menu .craft-recipe-grid .recipe-list-row {
+  min-height: 180px;
+}
+
+/* Keep the real lightbox close control legible on its dark viewing surface. */
+.craft-context .knowledge-image-dialog .craft-button {
+  color: var(--craft-paper-light);
+  background: var(--craft-leather-grain), var(--craft-leather);
+  border-color: var(--craft-leather-hi);
+}
+
+.craft-page--knowledge .knowledge-board-heading h1 {
+  text-transform: lowercase;
+}
+.craft-page--knowledge .knowledge-board-heading h1::first-letter {
+  text-transform: uppercase;
+}
+@media (min-width: 640px) {
+  .craft-page--article-editor
+    .bf-editor-main-actions
+    > .craft-button:first-child {
+    flex: 0 1 auto;
+  }
+}
+
+/* Material fidelity pass: original local artwork, same accepted V2 composition.
+   Thread, paper fibres and metal are decorative layers, never live controls. */
+:root {
+  --craft-paper-light: #fcf2de;
+  --craft-paper-shade: #ead9b9;
+  --craft-grain: url("/assets/craft/materials/paper-fibre.svg");
+  --craft-leather-grain: url("/assets/craft/materials/leather-pebble.svg");
+  --craft-thread-x: url("/assets/craft/materials/stitch-horizontal.svg");
+  --craft-thread-y: url("/assets/craft/materials/stitch-vertical.svg");
+  --craft-edge: url("/assets/craft/materials/paper-edge-1.svg");
+  --craft-leather-hi: #985b35;
+  --craft-leather: #63361f;
+  --craft-leather-shadow: #27160f;
+  --craft-shadow:
+    0 1px 0 #fff9e9b8, 0 2px 1px #6d4f2720, 0 4px 7px #3c241329;
+  --craft-leather-surface:
+    var(--craft-leather-grain),
+    radial-gradient(ellipse at 20% 0, #d7a06726, transparent 70%),
+    linear-gradient(115deg, #3a2218, #76452b 45%, #492b1c);
+}
+.craft-page {
+  background:
+    var(--craft-grain),
+    radial-gradient(ellipse at 3% 90%, #b08b4a0c, transparent 45%),
+    linear-gradient(120deg, #f7eace, #f4e5c9 63%, #efdfbf);
+  box-shadow: inset 0 1px 0 #fff8e5, inset 0 0 17px #94744010, 0 12px 32px #0006;
+}
+.craft-page::before {
+  height: 8px;
+  background: var(--craft-edge) top / 100% 8px no-repeat;
+  clip-path: none;
+}
+.craft-page--feed { --craft-edge: url("/assets/craft/materials/paper-edge-2.svg"); }
+.craft-page--profile { --craft-edge: url("/assets/craft/materials/paper-edge-3.svg"); }
+.craft-paper-card {
+  background:
+    var(--craft-grain),
+    radial-gradient(ellipse at 0 100%, #c9a36d0d, transparent 48%),
+    linear-gradient(110deg, #fcf2de, #f5e8cf);
+  box-shadow: var(--craft-shadow);
+}
+.craft-paper-card:nth-of-type(3n) {
+  border-radius: 5px 3px 6px 4px;
+  background: var(--craft-grain), linear-gradient(145deg, #fdf4e3, #f4e6cb);
+}
+.craft-context :is(input:not([type="checkbox"]):not([type="radio"]), textarea, select) {
+  background-color: #fff6e5;
+  box-shadow: inset 0 1px 2px #513a2419, 0 1px 0 #fffaf0a3;
+}
+.craft-context textarea {
+  background-image: var(--craft-grain);
+}
+.craft-page--dashboard,
+.craft-page--knowledge,
+.craft-page--article {
+  background: none;
+  box-shadow: none;
+}
+.craft-dashboard .bf-dashboard-content,
+.craft-dashboard > section:not(.bf-dashboard-hero),
+.craft-dashboard > div:not(.bf-dashboard-content) {
+  background: var(--craft-grain), linear-gradient(120deg, #f7eace, var(--craft-paper));
+}
+.craft-dashboard .bf-dashboard-action,
+.craft-dashboard .bf-day-status,
+.craft-dashboard .bf-dashboard-wide-action,
+.craft-page--feed article,
+.craft-recipe-grid .recipe-list-row {
+  background: var(--craft-grain), linear-gradient(115deg, #fcf2de, #f5e8ce);
+  box-shadow: var(--craft-shadow);
+  border-bottom-color: #bfa478a6;
+}
+.craft-dashboard .bf-dashboard-hero h1 {
+  background: var(--craft-grain), linear-gradient(125deg, #fff6e2, #f4e5c9);
+  border-bottom: 1px solid #ae895c80;
+  box-shadow: 0 1px 0 #fff8e3, 1px 4px 8px #0005;
+}
+.craft-context .craft-button[data-craft-variant="primary"],
+.craft-context button[aria-pressed="true"]:not([role="checkbox"]),
+.craft-phase-tabs button[aria-pressed="true"] {
+  background:
+    var(--craft-leather-grain),
+    radial-gradient(ellipse at 30% 0, #e7a56833, transparent 70%),
+    linear-gradient(165deg, #925b36, #6c3a22 70%, #4a2819);
+  border-color: #794829;
+  box-shadow:
+    inset 0 1px 1px #f7d4a477, inset 1px 0 1px #cc935d70,
+    inset 0 -2px 2px #29190f80, 0 2px 0 #342015b0, 0 4px 5px #30190e30;
+}
+.craft-context .craft-button[data-craft-variant="primary"] {
+  position: relative;
+  outline: none;
+}
+.craft-context .craft-button[data-craft-variant="primary"]::after,
+.bf-bottom-nav::before,
+.craft-clipboard::before {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border: 0;
+  border-radius: inherit;
+  background:
+    var(--craft-thread-x) left top / 12px 6px repeat-x,
+    var(--craft-thread-x) left bottom / 12px 6px repeat-x,
+    var(--craft-thread-y) left top / 6px 12px repeat-y,
+    var(--craft-thread-y) right top / 6px 12px repeat-y;
+  opacity: .76;
+  pointer-events: none;
+}
+.craft-context .craft-button[data-craft-variant="primary"]::after {
+  inset: 3px;
+  opacity: .58;
+}
+.craft-context .craft-button[data-craft-variant="primary"]:focus-visible {
+  outline: 2px solid var(--craft-copper);
+  outline-offset: 3px;
+}
+.bf-bottom-nav {
+  background: var(--craft-leather-surface);
+  border-color: #965e35;
+  box-shadow:
+    inset 0 1px 1px #edc79b90, inset 0 -2px 2px #17110c,
+    0 2px 0 #20170fe6, 0 -4px 15px #0005;
+}
+.bf-bottom-nav::before { border-radius: 11px; }
+.bf-bottom-nav a[aria-current="page"] {
+  background: radial-gradient(ellipse at 50% 35%, #d68b3a30, transparent 70%);
+}
+
+/* The paper rests on a padded leather board. The right gutter is for the pen,
+   not for checklist text: it is measured by the browser acceptance test. */
+.craft-clipboard {
+  padding: 33px 32px 16px 12px;
+  background:
+    var(--craft-leather-grain),
+    radial-gradient(ellipse at 0 0, #d2965545, transparent 65%),
+    linear-gradient(125deg, #804729, #663c27 53%, #3d251a);
+  border: 1px solid #925f3b;
+  box-shadow:
+    inset 0 1px 1px #e7ba8580, inset 2px 0 2px #b9814b55,
+    inset 0 -3px 2px #27180ec9, 0 3px 0 #392316, 0 7px 12px #33201445;
+}
+.craft-clipboard::before { inset: 5px; border-radius: 8px; opacity: .86; }
+.craft-clipboard-paper {
+  background:
+    var(--craft-grain),
+    repeating-linear-gradient(transparent 0 29px, #bdac8d40 29px 30px),
+    linear-gradient(105deg, #fcf2de, #f5e9d0);
+  border-radius: 2px 3px 4px 2px;
+  border-bottom: 1px solid #c4ae88;
+  box-shadow:
+    -1px 1px 0 #ede0c9, -2px 2px 0 #d4be9b, 0 4px 6px #28170d5c;
+}
+.craft-clipboard-paper::before {
+  content: "";
+  position: absolute;
+  inset: -3px 0 auto;
+  height: 8px;
+  background: url("/assets/craft/materials/paper-edge-2.svg") top / 100% 8px no-repeat;
+  pointer-events: none;
+}
+.craft-clipboard-clip {
+  top: 4px;
+  left: 50%;
+  width: 76%;
+  max-width: 300px;
+  height: 46px;
+  transform: translateX(-50%);
+  border: 0;
+  border-radius: 0;
+  background: url("/assets/craft/materials/clipboard-clip.svg") center / 100% 100% no-repeat;
+  box-shadow: none;
+}
+.craft-clipboard-clip::after { display: none; }
+.craft-pen {
+  top: min(46%, 320px);
+  right: 11px;
+  width: 12px;
+  height: 158px;
+  transform: rotate(5deg);
+  background: url("/assets/craft/materials/work-pen.svg") center / 100% 100% no-repeat;
+  border-radius: 0;
+  box-shadow: none;
+  filter: drop-shadow(2px 3px 2px #20130870);
+}
+.craft-pen::before,
+.craft-pen::after,
+.craft-pen i,
+.craft-pen b { display: none; }
+
+/* Catalogue stock keeps its accepted geometry and text density. */
+.craft-page--knowledge .bf-knowledge-board {
+  background: var(--craft-grain), linear-gradient(115deg, #f7ebd2, #f2e2c4);
+  box-shadow: inset 0 1px 0 #fff8e7, 0 8px 26px #0005;
+}
+.craft-page--knowledge .knowledge-sticker::before {
+  background: var(--craft-grain), linear-gradient(112deg, #fff7e6, #f5e8cf);
+  border-color: #cfb891;
+}
+.craft-page--knowledge .knowledge-sticker:nth-child(3n)::before {
+  background: var(--craft-grain), linear-gradient(145deg, #fff5e2, #f3e4c7);
+}
+.craft-page--knowledge .knowledge-sticker:nth-child(4n+2)::before {
+  clip-path: polygon(0 .7%,6% 0,15% .9%,23% 0,35% .7%,49% 0,63% .8%,77% 0,89% .8%,99% 0,100% 8%,99.4% 22%,100% 35%,99.5% 48%,100% 63%,99.6% 78%,100% 91%,99% 99%,88% 99.4%,75% 100%,59% 99.3%,46% 100%,32% 99.4%,20% 100%,7% 99.1%,0 100%,.5% 86%,0 73%,.5% 58%,0 45%,.4% 29%,0 14%);
+}
+.craft-page--knowledge .knowledge-sticker:nth-child(11n+8)::after {
+  top: -9px;
+  right: -7px;
+  bottom: auto;
+  width: 36px;
+  height: 31px;
+  opacity: .25;
+  background: url("/assets/craft/materials/coffee-trace.svg") center / contain no-repeat;
+  clip-path: inset(9px 7px 0 0);
+}
+
+/* Keep the protected reader renderer and geometry intact, enriching its materials. */
+.craft-page--article .knowledge-notebook-toolbar,
+.craft-page--article .knowledge-notebook-trim {
+  background: var(--craft-leather-surface);
+}
+.craft-page--article .knowledge-notebook-toolbar::after,
+.craft-page--article .knowledge-notebook-trim::after {
+  border: 0;
+  background:
+    var(--craft-thread-x) left top / 12px 6px repeat-x,
+    var(--craft-thread-x) left bottom / 12px 6px repeat-x;
+  opacity: .72;
+}
+.craft-page--article .knowledge-notebook-sheet {
+  background:
+    var(--craft-grain),
+    linear-gradient(90deg, transparent 17px, #be6b6259 17px, #be6b6259 18px, transparent 18px),
+    repeating-linear-gradient(transparent 0 27px, #bca58030 27px 28px), #f6ecd9;
+}
+
+/* Writer portfolio, recipe card and operations ledger receive the same material
+   quality. Borders retain the exact V2 widths and body fields stay system type. */
+.craft-page--article-editor,
+.auth-panel.craft-context {
+  border-color: transparent;
+  background:
+    var(--craft-grain) padding-box,
+    linear-gradient(120deg, #f7ebd2, #f4e5c9) padding-box,
+    var(--craft-leather-grain) border-box,
+    linear-gradient(115deg, #804a2d, #462b1c) border-box;
+}
+.craft-page--article-editor::before {
+  top: -14px;
+  right: -9px;
+  left: -9px;
+  height: 11px;
+  background: var(--craft-thread-x) left center / 12px 6px repeat-x;
+}
+.craft-page--article-editor textarea {
+  background: var(--craft-grain), #fbf0da;
+  box-shadow: none;
+}
+.craft-page--article-editor .bf-editor-main-actions {
+  position: relative;
+  border: 1px solid #925e39;
+  background: var(--craft-leather-surface);
+  box-shadow: inset 0 1px 1px #e4b28266, inset 0 -1px 2px #22150d80, 0 2px 4px #462a1d33;
+}
+.craft-page--article-editor .bf-editor-main-actions > :not([data-craft-variant="primary"]),
+.craft-page--article-editor .bf-editor-main-actions > :not([data-craft-variant="primary"]) button {
+  color: #fff1d9;
+}
+.craft-page--checklist-editor,
+.craft-recipe-editor {
+  position: relative;
+  border-top-color: transparent;
+  background:
+    var(--craft-grain) padding-box,
+    linear-gradient(120deg, #fcf2de, #f4e5c9) padding-box,
+    var(--craft-leather-grain) border-box,
+    linear-gradient(115deg, #814d2e, #4e3020) border-box;
+  box-shadow: inset 0 1px 0 #fff9e9b3, 0 4px 8px #36201436;
+}
+.craft-page--checklist-editor::before {
+  top: -10px;
+  background: var(--craft-thread-x) left top / 12px 6px repeat-x;
+  height: 6px;
+}
+.craft-recipe-editor::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  right: 5px;
+  top: -7px;
+  height: 6px;
+  background: var(--craft-thread-x) left top / 12px 6px repeat-x;
+  pointer-events: none;
+}
+.craft-page--knowledge-manage,
+.craft-page--admin {
+  background:
+    var(--craft-grain),
+    repeating-linear-gradient(transparent 0 39px, #c5ae8620 39px 40px),
+    linear-gradient(115deg, #f7ecd5, #f4e5c9);
+}
+.craft-page--knowledge-manage a[href$="/edit"] {
+  border-bottom: 2px solid #b98a5480;
+  box-shadow: 0 1px 2px #6e4b2920;
+}
+.craft-page--admin .craft-paper-card {
+  background: var(--craft-grain), #f9edd7;
+}
+
+/* Alpha masks reuse a bounded set of exact licensed SVG bytes. Existing Lucide
+   markup/classes in the protected Knowledge page stay intact; only its decorative
+   category drawing changes. Search/back/edit/save/read-check controls are untouched. */
+.craft-page--knowledge .knowledge-sticker-icons > svg {
+  background-color: currentColor;
+  mask: var(--craft-category-art, url("/assets/craft/icons/book-open.svg")) center / contain no-repeat;
+}
+.craft-page--knowledge .knowledge-sticker-icons > svg > * { opacity: 0; }
+.knowledge-sticker-icons > .lucide-book-open { --craft-category-art: url("/assets/craft/icons/book-open.svg"); }
+.knowledge-sticker-icons > .lucide-beer { --craft-category-art: url("/assets/craft/icons/beer.svg"); }
+.knowledge-sticker-icons > .lucide-wine { --craft-category-art: url("/assets/craft/icons/wine.svg"); }
+.knowledge-sticker-icons > .lucide-chef-hat { --craft-category-art: url("/assets/craft/icons/chef-hat.svg"); }
+.knowledge-sticker-icons > .lucide-clipboard-list { --craft-category-art: url("/assets/craft/icons/clipboard-list.svg"); }
+.knowledge-sticker-icons > .lucide-grape { --craft-category-art: url("/assets/craft/icons/grape.svg"); }
+.knowledge-sticker-icons > .lucide-users { --craft-category-art: url("/assets/craft/icons/users.svg"); }
+.knowledge-sticker-icons > .lucide-martini { --craft-category-art: url("/assets/craft/icons/martini.svg"); }
+.knowledge-sticker-icons > .lucide-glass-water { --craft-category-art: url("/assets/craft/icons/glass-water.svg"); }
+.knowledge-sticker-icons > .lucide-flask-conical { --craft-category-art: url("/assets/craft/icons/flask-conical.svg"); }
+.knowledge-sticker-icons > .lucide-sprout { --craft-category-art: url("/assets/craft/icons/sprout.svg"); }
+.knowledge-sticker-icons > .lucide-wheat { --craft-category-art: url("/assets/craft/icons/wheat.svg"); }
+.knowledge-sticker-icons > .lucide-history { --craft-category-art: url("/assets/craft/icons/clock.svg"); }
+.knowledge-sticker-icons > .lucide-sparkles { --craft-category-art: url("/assets/craft/icons/sparkles.svg"); }
+.knowledge-sticker-icons > .lucide-heart-handshake { --craft-category-art: url("/assets/craft/icons/heart-handshake.svg"); }
+.knowledge-sticker-icons > .lucide-message-circle { --craft-category-art: url("/assets/craft/icons/message-circle.svg"); }
+.knowledge-sticker-icons > .lucide-hand-coins { --craft-category-art: url("/assets/craft/icons/hand-coins.svg"); }
+.knowledge-sticker-icons > .lucide-hand-platter { --craft-category-art: url("/assets/craft/icons/hand-platter.svg"); }
+.knowledge-sticker-icons > .lucide-list-checks { --craft-category-art: url("/assets/craft/icons/list-checks.svg"); }
+.knowledge-sticker-icons > .lucide-shield-check { --craft-category-art: url("/assets/craft/icons/shield-check.svg"); }
+.knowledge-sticker-icons > .lucide-utensils-crossed { --craft-category-art: url("/assets/craft/icons/utensils-crossed.svg"); }
+.craft-page--menu::after { background: url("/assets/craft/icons/coffee.svg") center / contain no-repeat; }
+.craft-page--shift::after { background: url("/assets/craft/icons/beer.svg") center / contain no-repeat; }
+.craft-page--feed::after { background: url("/assets/craft/icons/newspaper.svg") center / contain no-repeat; }
+.craft-page--profile::after { background: url("/assets/craft/icons/users.svg") center / contain no-repeat; }
+.craft-page--attestation::after { background: url("/assets/craft/icons/trophy.svg") center / contain no-repeat; }
+.craft-page--admin::after { background: url("/assets/craft/icons/badge-check.svg") center / contain no-repeat; }
+.craft-page--knowledge-manage::after { background: url("/assets/craft/icons/archive.svg") center / contain no-repeat; }
+.craft-page--checklist-editor::after { background: url("/assets/craft/icons/notebook-pen.svg") center / contain no-repeat; }
+@media (min-width: 640px) {
+  .craft-clipboard { padding: 36px 38px 20px 18px; }
+  .craft-clipboard-clip { top: 4px; height: 50px; }
+  .craft-pen { right: 14px; width: 14px; height: 182px; }
+  .craft-page--article .knowledge-notebook-sheet {
+    background:
+      var(--craft-grain),
+      linear-gradient(90deg, transparent 28px, #be6b6259 28px, #be6b6259 29px, transparent 29px),
+      repeating-linear-gradient(transparent 0 27px, #bca58030 27px 28px), #f6ecd9;
+  }
+}
+@media (max-width: 359px) {
+  .craft-clipboard { padding-right: 12px; }
+  .craft-pen { display: none; }
+}
+
+/* Quiz selection is an ink mark on paper, not a leather tab. Keep the accepted
+   green selection semantic and its text contrast independent of active buttons. */
+.craft-page--attestation [aria-label="Варианты ответа"] button[aria-pressed="true"] {
+  background: var(--craft-grain), var(--craft-paper-light);
+  color: var(--craft-success);
+  border: 2px solid var(--craft-success);
+  box-shadow: none;
+}
+
+/* User-approved material refinement: vector paper silhouettes, gentle folds,
+   and a wholly pen-drawn hero. Only decorative alpha is torn: live DOM/focus
+   is never clipped. The original photograph remains a protected legacy asset. */
+:root {
+  --craft-sheet: url("/assets/craft/materials/paper-sheet-1.svg");
+  --craft-crease: url("/assets/craft/materials/paper-crease.svg");
+}
+.craft-page--feed, .craft-page--knowledge-manage {
+  --craft-sheet: url("/assets/craft/materials/paper-sheet-2.svg");
+}
+.craft-page--profile, .craft-page--attestation {
+  --craft-sheet: url("/assets/craft/materials/paper-sheet-3.svg");
+}
+.craft-page:is(.craft-page--menu, .craft-page--feed, .craft-page--profile,
+  .craft-page--attestation, .craft-page--admin, .craft-page--knowledge-manage) {
+  border-color: transparent;
+  background:
+    var(--craft-crease) center / 100% 100% no-repeat,
+    var(--craft-grain),
+    var(--craft-sheet) center / 100% 100% no-repeat;
+  box-shadow: none;
+}
+.craft-page:is(.craft-page--menu, .craft-page--feed, .craft-page--profile,
+  .craft-page--attestation, .craft-page--admin, .craft-page--knowledge-manage)::before {
+  display: none;
+}
+.craft-paper-card:not(.craft-recipe-editor),
+.craft-recipe-grid .recipe-list-row,
+.craft-dashboard .bf-dashboard-action,
+.craft-dashboard .bf-day-status,
+.craft-dashboard .bf-dashboard-wide-action,
+.craft-dashboard .bf-dashboard-hero h1 {
+  border-color: transparent;
+  background:
+    var(--craft-crease) center / 100% 100% no-repeat,
+    var(--craft-grain),
+    var(--craft-sheet) center / 100% 100% no-repeat;
+}
+.craft-paper-card:not(.craft-recipe-editor):nth-of-type(3n),
+.craft-recipe-grid .recipe-list-row:nth-child(3n+2) {
+  --craft-sheet: url("/assets/craft/materials/paper-sheet-2.svg");
+  background:
+    var(--craft-crease) center / 100% 100% no-repeat,
+    var(--craft-grain),
+    var(--craft-sheet) center / 100% 100% no-repeat;
+}
+.craft-recipe-grid .recipe-list-row:nth-child(3n),
+.knowledge-sticker:nth-child(3n) { --craft-sheet: url("/assets/craft/materials/paper-sheet-3.svg"); }
+.knowledge-sticker:nth-child(3n+2) { --craft-sheet: url("/assets/craft/materials/paper-sheet-2.svg"); }
+.craft-page--knowledge .knowledge-sticker::before,
+.craft-page--knowledge .knowledge-sticker:nth-child(n)::before {
+  clip-path: none;
+  border: 0;
+  background:
+    var(--craft-crease) center / 100% 100% no-repeat,
+    var(--craft-grain), linear-gradient(112deg, #fff7e6, #f5e8cf);
+  mask: var(--craft-sheet) center / 100% 100% no-repeat;
+}
+.craft-clipboard-paper {
+  background:
+    var(--craft-crease) center / 100% 100% no-repeat,
+    var(--craft-grain),
+    repeating-linear-gradient(transparent 0 29px, #bdac8d40 29px 30px),
+    url("/assets/craft/materials/paper-sheet-2.svg") center / 100% 100% no-repeat;
+}
+/* Admin remains a clean ledger: no crease under operational tables/statuses. */
+.craft-page--admin { --craft-crease: none; }
+.craft-recipe-editor.craft-paper-card {
+  background:
+    var(--craft-grain) padding-box,
+    linear-gradient(120deg, #fcf2de, #f4e5c9) padding-box,
+    var(--craft-leather-grain) border-box,
+    linear-gradient(115deg, #814d2e, #4e3020) border-box;
+}
+
+/* The sticker silhouette owns its edge/shadow; no rectangular legacy frame
+   remains around paper. The text and focus outline stay outside the alpha mask. */
+.craft-paper-card:not(.craft-recipe-editor),
+.craft-recipe-grid .recipe-list-row,
+.craft-dashboard .bf-dashboard-action,
+.craft-dashboard .bf-day-status,
+.craft-dashboard .bf-dashboard-wide-action,
+.craft-dashboard .bf-dashboard-hero h1,
+.craft-page--feed article {
+  border-color: transparent;
+  box-shadow: none;
+}
+.craft-page--feed article {
+  background: var(--craft-crease) center / 100% 100% no-repeat,
+    var(--craft-grain), var(--craft-sheet) center / 100% 100% no-repeat;
+}
+.craft-page--knowledge .bf-knowledge-board {
+  background: var(--craft-grain), var(--craft-sheet) center / 100% 100% no-repeat;
+  border-color: transparent;
+  box-shadow: none;
+}
+.craft-page--knowledge .bf-knowledge-board .knowledge-sticker,
+.craft-page--knowledge .bf-knowledge-board .knowledge-sticker:hover {
+  box-shadow: none;
+  filter: none;
+}
+.craft-page--knowledge .knowledge-sticker::before,
+.craft-page--knowledge .knowledge-sticker:nth-child(n)::before {
+  background: var(--craft-crease) center / 100% 100% no-repeat,
+    var(--craft-grain), var(--craft-sheet) center / 100% 100% no-repeat;
+  mask: none;
+  box-shadow: none;
+}
+.craft-page--knowledge .knowledge-sticker::after { display: none; }
+.craft-page--knowledge .knowledge-sticker:nth-child(11n+8)::after { display: block; }
+.craft-page--knowledge .knowledge-sticker:nth-child(9n+2)::after {
+  display: block;
+  top: -7px;
+  right: -9px;
+  bottom: auto;
+  width: 46px;
+  height: 41px;
+  background: url("/assets/craft/materials/coffee-trace.svg") center / contain no-repeat;
+  opacity: .65;
+  transform: rotate(9deg);
+  clip-path: inset(7px 9px 0 0);
+}
+/* Plain actions are tactile paper tags. Inputs stay modern readable fields;
+   leather primary/selected actions and reader toolbar are preserved. */
+.craft-context .craft-button:not([data-craft-variant="primary"]):not([aria-pressed="true"]) {
+  position: relative;
+  isolation: isolate;
+  background: none;
+  border-color: transparent;
+  border-radius: 2px;
+  box-shadow: none;
+}
+.craft-context .craft-button:not([data-craft-variant="primary"]):not([aria-pressed="true"])::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  background: var(--craft-grain), #fff3dc;
+  mask: url("/assets/craft/materials/paper-tag.svg") center / 100% 100% no-repeat;
+  filter: drop-shadow(.5px 1px 1px #60432125);
+  pointer-events: none;
+}
+.craft-context .craft-button:focus-visible,
+.craft-recipe-grid .recipe-list-row:focus-visible {
+  outline: 2px solid var(--craft-copper);
+  outline-offset: 3px;
+}
+.craft-page--article .knowledge-notebook-toolbar .craft-button::before { display: none; }
+.craft-page--article .knowledge-notebook-toolbar .craft-button[data-craft-variant] {
+  background: var(--craft-leather-surface);
+  border-color: var(--craft-leather-hi);
+  border-radius: 24px;
+  color: var(--craft-paper-light);
+}
+.craft-page--article-editor .bf-editor-main-actions .craft-button:not([data-craft-variant="primary"]) {
+  color: var(--craft-ink);
+}
+.craft-page--knowledge .knowledge-board-categories button:not([aria-pressed="true"]),
+.craft-page--attestation [aria-label="Варианты ответа"] button[aria-pressed="false"] {
+  background: var(--craft-grain), url("/assets/craft/materials/paper-tag.svg") center / 100% 100% no-repeat;
+  border-color: transparent;
+  border-radius: 2px;
+  box-shadow: none;
+}
+.craft-dashboard .bf-dashboard-hero {
+  background: radial-gradient(ellipse at 85% 30%, #302217, #19130d 75%);
+}
+.craft-dashboard .bf-dashboard-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("/assets/craft/illustrations/brewery-pen-caricature.webp") right center / 96% auto no-repeat;
+  mask-image: linear-gradient(90deg, transparent 18%, #000 58%);
+  opacity: .46;
+  pointer-events: none;
+}
+.craft-dashboard .bf-dashboard-brand { position: relative; }
+
+
+/* ==========================================================================
+   BFStaff visual architecture hardening · r40.5 paper-first pass
+   Locked from the approved craft mockup + real iPhone QA screenshots.
+   Principles:
+   - paper is the application canvas, never a floating sheet on a black shell;
+   - leather is a semantic material for dock/selected/clipboard/primary action;
+   - decorative art never sits under controls;
+   - paper textures use filter-free SVGs for iOS/Safari stability;
+   - depth comes from restrained physical shadows, not dark gutters.
+   ========================================================================== */
+:root {
+  --craft-canvas: #f4e5c9;
+  --craft-canvas-deep: #ead7b5;
+  --craft-paper-shadow:
+    0 1px 0 rgba(255, 251, 239, .88),
+    0 3px 8px rgba(73, 48, 27, .16),
+    0 12px 28px rgba(73, 48, 27, .10);
+  --craft-control-shadow:
+    0 1px 0 rgba(255, 252, 242, .96),
+    0 2px 4px rgba(75, 48, 25, .18),
+    0 7px 15px rgba(75, 48, 25, .08);
+}
+
+/* Paper-first application surface. The old dark shell was the source of the
+   black side/top gutters on iOS and made every page feel like a floating DOM card. */
+.bf-app-shell {
+  color-scheme: light;
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    radial-gradient(ellipse at 90% 5%, rgba(176, 119, 61, .08), transparent 32%),
+    linear-gradient(120deg, #f8ecd4, var(--craft-canvas) 58%, var(--craft-canvas-deep));
+  min-height: 100dvh;
+}
+.bf-main {
+  max-width: 760px;
+  padding-top: calc(10px + env(safe-area-inset-top));
+  padding-inline: 10px;
+}
+
+/* No global decorative stamp. It previously collided with refresh/actions on Shift. */
+.craft-page::after { display: none !important; }
+
+/* Internal pages are part of the paper canvas instead of a paper island on dark shell. */
+.craft-page:not(.craft-page--article) {
+  border: 0;
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    linear-gradient(118deg, rgba(255,247,228,.94), rgba(244,229,201,.96));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.62);
+}
+.craft-page:not(.craft-page--article)::before { display: none; }
+
+/* Dashboard: dark brewery art is now an inset physical hero on paper, not the page background. */
+.craft-page--dashboard {
+  padding: 8px 8px 26px;
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    linear-gradient(120deg, #f8ecd4, #f2e1c2) !important;
+}
+.craft-dashboard .bf-dashboard-hero {
+  margin: 0 !important;
+  min-height: 270px;
+  padding: 20px 16px 18px !important;
+  border: 1px solid rgba(110, 66, 34, .65);
+  border-radius: 13px 11px 15px 10px;
+  isolation: isolate;
+  box-shadow:
+    inset 0 1px 0 rgba(236,181,126,.22),
+    inset 0 -1px 0 rgba(32,17,9,.74),
+    0 3px 8px rgba(51,30,16,.28),
+    0 13px 28px rgba(51,30,16,.16);
+  background:
+    radial-gradient(ellipse at 84% 24%, #3b281c, #1a130e 72%);
+}
+.craft-dashboard .bf-dashboard-hero::before {
+  inset: 0;
+  background: url("/assets/craft/illustrations/brewery-pen-caricature.webp") 86% center / auto 96% no-repeat;
+  -webkit-mask-image: none;
+  mask-image: none;
+  opacity: .50;
+  z-index: -2;
+}
+.craft-dashboard .bf-dashboard-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(22,14,9,.93) 0%, rgba(22,14,9,.66) 36%, rgba(22,14,9,.10) 78%);
+  pointer-events: none;
+}
+.craft-dashboard .bf-dashboard-brand,
+.craft-dashboard .bf-dashboard-hero h1,
+.craft-dashboard .bf-dashboard-hero p { position: relative; z-index: 1; }
+.craft-dashboard .bf-dashboard-brand {
+  font-size: clamp(39px, 11vw, 50px);
+  text-shadow: 0 2px 0 rgba(31,17,10,.50);
+}
+.craft-dashboard .bf-dashboard-hero h1 {
+  width: min(76%, 390px);
+  margin-top: 24px;
+  padding: 16px 15px 32px;
+  border: 1px solid rgba(183,151,104,.55);
+  border-radius: 4px 7px 5px 3px;
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    linear-gradient(120deg, #fff7e5, #f4e3c3) !important;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.85),
+    0 4px 9px rgba(20,10,5,.34),
+    0 14px 22px rgba(20,10,5,.16) !important;
+}
+.craft-dashboard .bf-dashboard-content {
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.craft-dashboard > .craft-paper-card,
+.craft-dashboard .bf-dashboard-profile,
+.craft-dashboard .bf-day-status,
+.craft-dashboard .bf-dashboard-action,
+.craft-dashboard .bf-dashboard-wide-action,
+.craft-paper-card:not(.craft-recipe-editor),
+.craft-recipe-grid .recipe-list-row,
+.craft-page--feed article {
+  border: 1px solid rgba(190, 157, 111, .52) !important;
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    linear-gradient(115deg, #fff5df, #f4e5c9) !important;
+  box-shadow: var(--craft-paper-shadow) !important;
+}
+.craft-dashboard .bf-dashboard-action:nth-child(2n) { border-radius: 5px 8px 5px 7px; }
+.craft-dashboard .bf-dashboard-action:nth-child(3n) { border-radius: 8px 5px 7px 4px; }
+.craft-dashboard .bf-dashboard-action:active,
+.craft-dashboard .bf-dashboard-profile:active,
+.craft-dashboard .bf-dashboard-wide-action:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 3px rgba(75,48,25,.18) !important;
+}
+
+/* Search and input controls should look embedded in paper, not flat CSS rectangles. */
+.craft-context :is(input:not([type="checkbox"]):not([type="radio"]), textarea, select) {
+  border: 1px solid rgba(171,135,86,.70);
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    rgba(255, 247, 231, .96);
+  box-shadow:
+    inset 0 1px 3px rgba(92,62,31,.12),
+    0 1px 0 rgba(255,255,255,.78),
+    0 3px 8px rgba(91,60,31,.09);
+}
+
+/* Menu header is a clean paper header. No transparent/masked paper sheet can leak dark pixels. */
+.craft-page--menu {
+  overflow: hidden;
+  padding-top: 16px;
+}
+.craft-page--menu .bf-recipes-header {
+  position: relative;
+  z-index: 2;
+  padding: 2px 1px 1px;
+}
+.craft-page--menu .bf-recipes-header-actions .craft-button {
+  border-radius: 7px !important;
+  box-shadow: var(--craft-control-shadow) !important;
+}
+.craft-page--menu .bf-recipes-search {
+  position: relative;
+  z-index: 3;
+}
+.craft-page--menu .bf-recipe-categories button:not([aria-pressed="true"]) {
+  border-color: rgba(184,149,102,.66);
+  background: rgba(255,246,225,.62);
+  box-shadow: 0 1px 0 rgba(255,255,255,.62), 0 2px 5px rgba(76,50,28,.07);
+}
+
+/* Plain actions use stable paper tags without CSS masks or SVG filter artefacts. */
+.craft-context .craft-button:not([data-craft-variant="primary"]):not([aria-pressed="true"]) {
+  border: 1px solid rgba(188,153,106,.56);
+  border-radius: 6px;
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    linear-gradient(120deg, #fff6e2, #f3e3c5);
+  box-shadow: var(--craft-control-shadow);
+}
+.craft-context .craft-button:not([data-craft-variant="primary"]):not([aria-pressed="true"])::before {
+  display: none !important;
+  -webkit-mask: none !important;
+  mask: none !important;
+}
+
+/* Shift tools now live inside the paper page. */
+.bf-page-tools {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 0 12px;
+}
+.bf-page-tool-link {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 13px;
+  color: var(--craft-ink);
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: none;
+  border: 1px solid rgba(181,145,97,.62);
+  border-radius: 8px 6px 9px 7px;
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    linear-gradient(120deg, #fff5df, #f3e2c4);
+  box-shadow: var(--craft-control-shadow);
+}
+.bf-page-tool-link:focus-visible {
+  outline: 2px solid var(--craft-copper);
+  outline-offset: 3px;
+}
+.craft-page--shift {
+  padding-top: 14px;
+}
+.craft-page--shift > section > div:first-child {
+  position: relative;
+  z-index: 2;
+}
+.craft-page--shift button[aria-label="Обновить смену"] {
+  position: relative;
+  z-index: 4;
+  box-shadow: var(--craft-control-shadow) !important;
+}
+.craft-shift-status {
+  border-color: rgba(184,149,102,.58) !important;
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    linear-gradient(118deg, #fff5df, #f4e5c9) !important;
+  box-shadow: var(--craft-paper-shadow);
+}
+.craft-phase-tabs button:not([aria-pressed="true"]) {
+  border-color: rgba(181,145,97,.60);
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    #fff5df;
+  box-shadow: var(--craft-control-shadow);
+}
+.craft-clipboard {
+  margin-top: 4px;
+  box-shadow:
+    inset 0 1px 1px rgba(242,200,154,.50),
+    inset 0 -3px 2px rgba(39,24,14,.68),
+    0 3px 0 #392316,
+    0 9px 18px rgba(52,31,17,.25),
+    0 22px 42px rgba(52,31,17,.12);
+}
+.craft-clipboard-paper {
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    repeating-linear-gradient(transparent 0 29px, rgba(153,132,97,.18) 29px 30px),
+    linear-gradient(105deg, #fff5e2, #f3e5cb);
+  border: 1px solid rgba(193,165,124,.55);
+  box-shadow:
+    -1px 1px 0 #ede0c9,
+    -2px 2px 0 #d4be9b,
+    0 5px 9px rgba(40,23,13,.32);
+}
+.craft-clipboard-paper::before { display: none; }
+
+/* Bottom dock stays leather, but loses the oversized vertical mass seen on iPhone. */
+.bf-bottom-nav {
+  inset-inline: 10px;
+  bottom: 4px;
+  padding-bottom: max(5px, env(safe-area-inset-bottom)) !important;
+  border-radius: 14px 14px 10px 10px;
+}
+.bf-bottom-nav > div { min-height: 52px !important; }
+.bf-bottom-nav a { min-height: 48px !important; }
+.bf-bottom-nav svg { width: 20px; height: 20px; }
+.bf-bottom-nav a span { font-size: 10px; line-height: 1.1; }
+
+/* Editors/admin stay operational and light: no accidental dark gaps around their paper work surface. */
+.craft-page--article-editor,
+.craft-page--knowledge-manage,
+.craft-page--checklist-editor,
+.craft-page--admin,
+.craft-page--profile,
+.craft-page--attestation,
+.craft-page--feed,
+.craft-page--recipe,
+.craft-page--menu,
+.craft-page--shift {
+  color-scheme: light;
+}
+
+@media (max-width: 430px) {
+  .bf-main { padding-inline: 8px; }
+  .craft-page:not(.craft-page--article) { padding-inline: 12px; }
+  .craft-page--dashboard { padding-inline: 7px; }
+  .craft-dashboard .bf-dashboard-hero { min-height: 250px; }
+  .craft-dashboard .bf-dashboard-hero h1 { width: 74%; font-size: clamp(34px, 10vw, 40px); }
+  .craft-dashboard .bf-dashboard-hero p { max-width: 76%; }
+  .craft-clipboard { padding-right: 29px; }
+}
+
+@media (max-width: 359px) {
+  .bf-main { padding-inline: 5px; }
+  .craft-page:not(.craft-page--article) { padding-inline: 10px; }
+  .craft-dashboard .bf-dashboard-hero h1 { width: 82%; }
+  .bf-bottom-nav { inset-inline: 6px; }
+}
+
+/* Explicit semantic exception: notebook toolbar stays leather. */
+.craft-page--article .knowledge-notebook-toolbar .craft-button[data-craft-variant] {
+  color: var(--craft-paper-light);
+  border-color: var(--craft-leather-hi);
+  border-radius: 24px;
+  background: var(--craft-leather-surface);
+  box-shadow:
+    inset 0 1px 1px rgba(244, 205, 165, .36),
+    0 2px 4px rgba(45, 25, 14, .24);
+}
+
+/* r40.5 interaction pass · inline checklist editor, recipe sticker, scroll-to-top. */
+.bf-scroll-top {
+  position: fixed;
+  z-index: 60;
+  right: max(12px, env(safe-area-inset-right), calc((100vw - 760px) / 2 + 12px));
+  bottom: max(14px, calc(env(safe-area-inset-bottom) + 14px));
+  display: grid;
+  width: 46px;
+  height: 46px;
+  place-items: center;
+  padding: 0;
+  color: var(--craft-paper-light);
+  border: 1px solid rgba(223, 171, 112, .64);
+  border-radius: 50%;
+  background:
+    var(--craft-leather-grain),
+    linear-gradient(155deg, var(--craft-leather-hi), var(--craft-leather) 72%);
+  box-shadow:
+    inset 0 1px 1px rgba(244, 205, 165, .36),
+    inset 0 -2px 2px rgba(48, 25, 13, .28),
+    0 3px 7px rgba(45, 25, 14, .26),
+    0 10px 22px rgba(45, 25, 14, .14);
+  cursor: pointer;
+  animation: bf-scroll-top-in 150ms ease-out both;
+}
+.bf-scroll-top[data-with-bottom-nav="true"] {
+  bottom: calc(70px + env(safe-area-inset-bottom));
+}
+.bf-scroll-top::after {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border: 1px dashed rgba(219, 173, 114, .42);
+  border-radius: inherit;
+  pointer-events: none;
+}
+.bf-scroll-top:focus-visible {
+  outline: 2px solid var(--craft-copper);
+  outline-offset: 3px;
+}
+.bf-scroll-top:active { transform: translateY(1px); }
+@keyframes bf-scroll-top-in {
+  from { opacity: 0; transform: translateY(7px) scale(.94); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Existing checklist item editor lives in its own normal-flow panel.
+   Keeping it as a sibling of the item card prevents any overlap with the next item. */
+.craft-page--checklist-editor .bf-checklist-item-stack {
+  display: grid;
+  min-width: 0;
+  gap: 8px;
+  position: relative;
+  isolation: isolate;
+}
+.craft-page--checklist-editor .bf-checklist-editor-panel {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  margin: 0 6px 4px;
+  padding: 0 !important;
+  overflow: hidden;
+  border: 1px solid rgba(181, 138, 86, .62) !important;
+  border-radius: 7px 5px 9px 6px !important;
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    linear-gradient(115deg, #fff3da, #eed9b6) !important;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.78),
+    0 4px 9px rgba(73,48,27,.14),
+    0 12px 24px rgba(73,48,27,.08) !important;
+  animation: bf-checklist-editor-open 150ms ease-out both;
+}
+.craft-page--checklist-editor .bf-checklist-editor-panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 20px;
+  right: 20px;
+  height: 1px;
+  border-top: 1px dashed rgba(152, 80, 34, .30);
+  pointer-events: none;
+}
+.craft-page--checklist-editor .bf-checklist-inline-editor {
+  position: relative;
+  margin: 0;
+  padding: 17px 14px 15px;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  box-shadow: none;
+}
+.craft-page--checklist-editor .bf-checklist-inline-editor::before {
+  display: none;
+}
+@keyframes bf-checklist-editor-open {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.craft-page--recipe .recipe-ingredients-sticker {
+  position: relative;
+  isolation: isolate;
+  margin: 8px 3px 4px;
+  padding: 24px 18px 18px;
+  overflow: visible;
+  color: var(--craft-ink);
+  border: 1px solid rgba(198, 158, 99, .72);
+  border-radius: 4px 7px 3px 5px;
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    radial-gradient(circle at 86% 14%, rgba(217, 175, 91, .18), transparent 28%),
+    linear-gradient(125deg, #fff1cf, #f3dda9 78%);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.84),
+    1px 4px 7px rgba(77, 49, 24, .22),
+    0 13px 24px rgba(77, 49, 24, .08);
+  transform: rotate(-.35deg);
+}
+.craft-page--recipe .recipe-ingredients-sticker::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  top: -9px;
+  left: 17%;
+  width: 58px;
+  height: 19px;
+  border-inline: 1px solid rgba(180, 151, 107, .26);
+  background: linear-gradient(90deg, rgba(222, 201, 161, .62), rgba(238, 219, 181, .82), rgba(211, 190, 149, .58));
+  box-shadow: 0 1px 2px rgba(79, 55, 30, .08);
+  transform: rotate(-6deg);
+  pointer-events: none;
+}
+.craft-page--recipe .recipe-ingredients-sticker::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  right: -2px;
+  bottom: -2px;
+  width: 25px;
+  height: 24px;
+  background: linear-gradient(140deg, transparent 49%, rgba(186, 145, 88, .18) 50%, rgba(255, 248, 228, .64) 82%);
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  pointer-events: none;
+}
+.craft-page--recipe .recipe-ingredients-title {
+  position: relative;
+  margin: 0 0 12px;
+  width: fit-content;
+  color: var(--craft-ink);
+  font: 700 30px/1.05 var(--craft-display);
+  letter-spacing: 0;
+}
+.craft-page--recipe .recipe-ingredients-title::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 8%;
+  bottom: -5px;
+  height: 2px;
+  border-radius: 100%;
+  background: rgba(152, 80, 34, .44);
+  transform: rotate(-1deg);
+}
+.craft-page--recipe .recipe-ingredients-list {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: #41382e;
+  font-size: 15px;
+  line-height: 1.5;
+}
+.craft-page--recipe .recipe-ingredients-list li {
+  position: relative;
+  padding-left: 15px;
+  overflow-wrap: anywhere;
+}
+.craft-page--recipe .recipe-ingredients-list li::before {
+  content: "•";
+  position: absolute;
+  left: 1px;
+  top: 0;
+  color: var(--craft-copper);
+  font-weight: 900;
+}
+
+@media (max-width: 430px) {
+  .bf-scroll-top {
+    right: max(12px, env(safe-area-inset-right));
+    width: 44px;
+    height: 44px;
+  }
+  .bf-scroll-top[data-with-bottom-nav="true"] {
+    bottom: calc(69px + env(safe-area-inset-bottom));
+  }
+  .craft-page--recipe .recipe-ingredients-sticker {
+    margin-inline: 1px;
+    padding: 22px 15px 16px;
+  }
+  .craft-page--recipe .recipe-ingredients-title { font-size: 28px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bf-scroll-top,
+  .craft-page--checklist-editor .bf-checklist-inline-editor {
+    animation: none;
+  }
+}
+
+/* ==========================================================================
+   r40.5 recipe mood-board pass
+   Physical Polaroid + paper notes. Every object remains in normal document
+   flow, so rotation never becomes overlap. Photography is always contained,
+   never cropped.
+   ========================================================================== */
+.craft-page--recipe article {
+  overflow: visible;
+}
+
+.craft-page--recipe .recipe-moodboard-header {
+  display: grid;
+  gap: 24px;
+  align-items: start;
+  overflow: visible;
+}
+
+.craft-page--recipe .recipe-title-note {
+  position: relative;
+  width: calc(100% - 8px);
+  margin-inline: auto;
+  padding: 18px 16px 20px;
+  color: var(--craft-ink);
+  border: 1px solid rgba(177, 142, 96, .28);
+  border-radius: 5px 3px 7px 4px;
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    linear-gradient(117deg, rgba(255,248,231,.97), rgba(244,229,201,.96));
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.82),
+    1px 4px 8px rgba(71,46,26,.12),
+    0 12px 25px rgba(71,46,26,.06);
+  transform: rotate(-.55deg);
+  transform-origin: 48% 50%;
+}
+.craft-page--recipe .recipe-title-note .eyebrow {
+  color: #8f552f;
+}
+.craft-page--recipe .recipe-title-note h1 {
+  color: #322920;
+  font-family: var(--craft-display);
+  font-weight: 800;
+  letter-spacing: -.018em;
+}
+.craft-page--recipe .recipe-title-note [class*="rounded-full"] {
+  color: #6a5541;
+  border-color: rgba(151,112,70,.32);
+  background: rgba(255,250,237,.54);
+}
+
+/* Polaroid: classic near-square image well, wider white foot, no crop. */
+.craft-page--recipe .recipe-polaroid {
+  position: relative;
+  isolation: isolate;
+  display: block;
+  width: min(94%, 430px);
+  justify-self: center;
+  margin: 8px auto 14px;
+  padding: 14px 14px 0;
+  appearance: none;
+  overflow: visible;
+  color: #30271f;
+  text-align: left;
+  border: 1px solid rgba(117,103,84,.22);
+  border-radius: 2px 3px 2px 4px;
+  background:
+    linear-gradient(118deg, rgba(255,255,253,.99), rgba(247,242,230,.99));
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.96),
+    2px 5px 9px rgba(55,37,24,.24),
+    0 18px 31px rgba(55,37,24,.13);
+  transform: rotate(2deg);
+  transform-origin: 50% 18%;
+  cursor: zoom-in;
+  -webkit-tap-highlight-color: transparent;
+}
+.craft-page--recipe .recipe-polaroid:focus-visible {
+  outline: 2px solid var(--craft-copper);
+  outline-offset: 5px;
+}
+.craft-page--recipe .recipe-polaroid:active {
+  transform: rotate(2deg) translateY(1px) scale(.995);
+}
+.craft-page--recipe .recipe-polaroid-tape {
+  position: absolute;
+  z-index: 4;
+  top: -13px;
+  left: 50%;
+  width: 92px;
+  height: 27px;
+  transform: translateX(-50%) rotate(-4deg);
+  border-inline: 1px solid rgba(151,130,94,.18);
+  background:
+    linear-gradient(90deg, rgba(225,208,174,.58), rgba(245,230,195,.78) 50%, rgba(218,198,162,.54));
+  box-shadow: 0 1px 2px rgba(72,50,29,.10);
+  opacity: .88;
+  pointer-events: none;
+}
+.craft-page--recipe .recipe-polaroid-photo-well {
+  position: relative;
+  display: grid;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  place-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 38%, #38342f, #1f1d1b 76%);
+  box-shadow:
+    inset 0 0 0 1px rgba(0,0,0,.24),
+    inset 0 0 25px rgba(0,0,0,.24);
+}
+.craft-page--recipe .recipe-polaroid-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: center;
+  transform: none !important;
+}
+.craft-page--recipe .recipe-polaroid-caption {
+  display: flex;
+  min-height: 66px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 8px 10px 7px;
+  color: #5d4b3b;
+  font: 700 clamp(16px, 4.5vw, 19px)/1.25 var(--craft-display);
+  letter-spacing: .005em;
+}
+.craft-page--recipe .recipe-polaroid-caption svg {
+  flex: none;
+  color: #9b6239;
+  opacity: .74;
+}
+
+.craft-page--recipe .recipe-moodboard {
+  display: grid;
+  gap: 24px;
+  padding: 2px 5px 18px;
+  overflow: visible;
+}
+
+.craft-page--recipe .recipe-moodboard-card {
+  position: relative;
+  isolation: isolate;
+  width: calc(100% - 10px);
+  max-width: 100%;
+  margin-inline: auto;
+  padding: 25px 18px 20px;
+  overflow: visible;
+  color: #40352b;
+  border: 1px solid rgba(171,132,81,.25);
+  border-radius: 4px 7px 3px 5px;
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    radial-gradient(circle at 88% 12%, rgba(194,146,71,.08), transparent 28%),
+    linear-gradient(123deg, #fff3d8, #f2dfb9 83%);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.74),
+    1px 4px 8px rgba(72,48,25,.16),
+    0 14px 25px rgba(72,48,25,.07);
+  transform-origin: 50% 10%;
+}
+.craft-page--recipe .recipe-moodboard-card::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  right: -2px;
+  bottom: -2px;
+  width: 23px;
+  height: 22px;
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  background: linear-gradient(140deg, transparent 48%, rgba(171,132,81,.12) 50%, rgba(255,248,230,.56) 82%);
+  pointer-events: none;
+}
+.craft-page--recipe .recipe-note-left { transform: rotate(-1.55deg); }
+.craft-page--recipe .recipe-note-right { transform: rotate(1.25deg); }
+.craft-page--recipe .recipe-method-note { transform: rotate(1.45deg); }
+.craft-page--recipe .recipe-serving-note { transform: rotate(-1.1deg); }
+.craft-page--recipe .recipe-meta-note { transform: rotate(1.15deg); }
+.craft-page--recipe .recipe-change-note { transform: rotate(-1.3deg); }
+.craft-page--recipe .recipe-calculator-note { transform: rotate(.8deg); }
+
+.craft-page--recipe .recipe-note-title {
+  position: relative;
+  z-index: 1;
+  width: fit-content;
+  margin: 0 0 13px;
+  color: #352b23;
+  font: 800 clamp(27px, 7vw, 32px)/1.05 var(--craft-display);
+  letter-spacing: 0;
+}
+.craft-page--recipe .recipe-note-title::after {
+  content: "";
+  position: absolute;
+  left: 2px;
+  right: 7%;
+  bottom: -6px;
+  height: 2px;
+  border-radius: 999px;
+  background: rgba(151,80,38,.38);
+  transform: rotate(-1deg);
+}
+.craft-page--recipe .recipe-note-body {
+  margin: 0;
+  color: #55483b;
+  font-size: 15px;
+  line-height: 1.68;
+  overflow-wrap: anywhere;
+}
+
+/* Fasteners deliberately alternate so the board does not look templated. */
+.craft-page--recipe .recipe-fastener {
+  position: absolute;
+  z-index: 4;
+  display: block;
+  pointer-events: none;
+}
+.craft-page--recipe .recipe-fastener-pin {
+  top: 11px;
+  right: 18px;
+  width: 15px;
+  height: 15px;
+  border: 1px solid rgba(80,38,24,.32);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 28%, #f7c59f 0 15%, #b35d43 19% 53%, #743622 72% 100%);
+  box-shadow:
+    0 2px 2px rgba(58,32,20,.28),
+    2px 5px 8px rgba(58,32,20,.15);
+}
+.craft-page--recipe .recipe-fastener-pin::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 12px;
+  width: 1px;
+  height: 9px;
+  background: rgba(74,62,50,.45);
+  transform: rotate(11deg);
+  transform-origin: top;
+}
+.craft-page--recipe .recipe-fastener-pin-alt {
+  right: auto;
+  left: 18px;
+  background:
+    radial-gradient(circle at 35% 28%, #f6d8a4 0 15%, #b8813e 19% 53%, #6f4a24 72% 100%);
+}
+.craft-page--recipe .recipe-fastener-tape {
+  top: -11px;
+  left: 50%;
+  width: 72px;
+  height: 22px;
+  transform: translateX(-50%) rotate(-5deg);
+  border-inline: 1px solid rgba(166,143,105,.18);
+  background: linear-gradient(90deg, rgba(218,200,165,.54), rgba(242,224,186,.77), rgba(211,190,151,.50));
+  box-shadow: 0 1px 2px rgba(73,51,30,.07);
+  opacity: .86;
+}
+.craft-page--recipe .recipe-fastener-tape-short {
+  left: 64%;
+  width: 58px;
+  transform: translateX(-50%) rotate(7deg);
+}
+.craft-page--recipe .recipe-fastener-tape-corner {
+  top: -9px;
+  left: auto;
+  right: 12px;
+  width: 54px;
+  height: 19px;
+  transform: rotate(8deg);
+}
+.craft-page--recipe .recipe-fastener-tape-side {
+  top: 16px;
+  left: -15px;
+  width: 48px;
+  height: 18px;
+  transform: rotate(-73deg);
+}
+
+/* Ingredients use the same physical paper language as the other notes. */
+.craft-page--recipe .recipe-ingredients-sticker {
+  margin: 0 auto;
+  padding: 27px 18px 20px;
+  border-color: rgba(171,132,81,.25);
+  border-radius: 4px 7px 3px 5px;
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    radial-gradient(circle at 86% 14%, rgba(217,175,91,.13), transparent 29%),
+    linear-gradient(125deg, #fff0c9, #f0d8a1 82%);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.76),
+    1px 4px 8px rgba(77,49,24,.17),
+    0 14px 24px rgba(77,49,24,.07);
+}
+.craft-page--recipe .recipe-ingredients-sticker::before {
+  display: none;
+}
+.craft-page--recipe .recipe-ingredients-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: #4f4337;
+  font-size: 15px;
+  line-height: 1.55;
+}
+.craft-page--recipe .recipe-ingredients-list li {
+  position: relative;
+  padding-left: 17px;
+  overflow-wrap: anywhere;
+}
+.craft-page--recipe .recipe-ingredients-list li::before {
+  content: "•";
+  position: absolute;
+  left: 1px;
+  top: 0;
+  color: #98502f;
+  font-weight: 900;
+}
+
+/* Calculator keeps every control and behaviour, but loses the nested CSS-card shell. */
+.craft-page--recipe .recipe-calculator-note > section {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.craft-page--recipe .recipe-calculator-note > section > .eyebrow {
+  color: #905732;
+}
+.craft-page--recipe .recipe-calculator-note > section h2,
+.craft-page--recipe .recipe-calculator-note > section [class*="text-[var(--bf-cream)]"] {
+  color: #40352b;
+}
+.craft-page--recipe .recipe-calculator-note > section [class*="text-[var(--bf-muted)]"] {
+  color: #69594a;
+}
+.craft-page--recipe .recipe-calculator-note > section [class*="divide-y"],
+.craft-page--recipe .recipe-calculator-note > section [class*="border-y"] {
+  border-color: rgba(151,112,70,.27);
+}
+
+/* Recipe metadata becomes another attached note, still collapsible and fully functional. */
+.craft-page--recipe .recipe-meta-note {
+  padding: 0;
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    linear-gradient(122deg, #f9edcf, #ead3a8);
+}
+.craft-page--recipe .recipe-meta-summary {
+  position: relative;
+  display: flex;
+  min-height: 58px;
+  align-items: center;
+  padding: 18px 48px 15px 18px;
+  color: #352b23;
+  font: 800 clamp(25px, 6.4vw, 30px)/1.05 var(--craft-display);
+  cursor: pointer;
+  list-style: none;
+}
+.craft-page--recipe .recipe-meta-summary::-webkit-details-marker { display: none; }
+.craft-page--recipe .recipe-meta-summary::marker { content: ""; }
+.craft-page--recipe .recipe-meta-summary:focus-visible {
+  outline: 2px solid var(--craft-copper);
+  outline-offset: 4px;
+}
+.craft-page--recipe .recipe-meta-content {
+  padding: 0 18px 19px;
+}
+.craft-page--recipe .recipe-meta-status {
+  margin: 0 0 8px;
+  padding: 9px 0 11px;
+  color: #6a5541;
+  font-size: 12px;
+  font-weight: 800;
+  border-bottom: 1px dashed rgba(151,112,70,.30);
+}
+.craft-page--recipe .recipe-meta-line {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) minmax(0,1.25fr);
+  gap: 12px;
+  padding: 10px 0;
+  font-size: 14px;
+  border-bottom: 1px dashed rgba(151,112,70,.24);
+}
+.craft-page--recipe .recipe-meta-line:last-child { border-bottom: 0; }
+.craft-page--recipe .recipe-meta-label { color: #7a6755; }
+.craft-page--recipe .recipe-meta-value {
+  color: #3e332a;
+  text-align: right;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+.craft-page--recipe .recipe-admin-actions {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 13px;
+  border-top: 1px dashed rgba(151,112,70,.31);
+}
+
+.craft-page--recipe .recipe-cache-note {
+  width: fit-content;
+  max-width: calc(100% - 8px);
+  margin: 0 auto;
+  padding: 9px 13px;
+  color: #725f4e;
+  font-size: 12px;
+  line-height: 1.5;
+  border: 1px dashed rgba(151,112,70,.27);
+  background: rgba(255,246,225,.58);
+  transform: rotate(.6deg);
+}
+
+/* The fullscreen viewer is intentionally untouched: tapping the Polaroid still
+   opens RecipePhotoDialog, whose image uses object-fit: contain. */
+
+@media (min-width: 720px) {
+  .craft-page--recipe .recipe-moodboard-header {
+    grid-template-columns: minmax(0,1fr) minmax(320px,.88fr);
+    gap: 30px;
+  }
+  .craft-page--recipe .recipe-polaroid {
+    width: min(100%, 430px);
+    justify-self: end;
+    margin-top: 4px;
+  }
+  .craft-page--recipe .recipe-moodboard {
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 28px 24px;
+    align-items: start;
+  }
+  .craft-page--recipe .recipe-moodboard-card {
+    width: calc(100% - 12px);
+  }
+  .craft-page--recipe .recipe-ingredients-sticker,
+  .craft-page--recipe .recipe-method-note,
+  .craft-page--recipe .recipe-meta-note {
+    grid-column: 1 / -1;
+    width: min(96%, 760px);
+  }
+}
+
+@media (max-width: 430px) {
+  .craft-page--recipe .recipe-moodboard-header { gap: 22px; }
+  .craft-page--recipe .recipe-title-note { width: calc(100% - 6px); }
+  .craft-page--recipe .recipe-polaroid {
+    width: calc(100% - 12px);
+    padding: 11px 11px 0;
+    transform: rotate(1.55deg);
+  }
+  .craft-page--recipe .recipe-polaroid:active {
+    transform: rotate(1.55deg) translateY(1px) scale(.995);
+  }
+  .craft-page--recipe .recipe-polaroid-caption {
+    min-height: 58px;
+    padding: 10px 7px 9px;
+  }
+  .craft-page--recipe .recipe-moodboard {
+    gap: 22px;
+    padding-inline: 2px;
+  }
+  .craft-page--recipe .recipe-moodboard-card {
+    width: calc(100% - 10px);
+    padding-inline: 16px;
+  }
+  .craft-page--recipe .recipe-note-left { transform: rotate(-1.1deg); }
+  .craft-page--recipe .recipe-note-right,
+  .craft-page--recipe .recipe-method-note,
+  .craft-page--recipe .recipe-meta-note { transform: rotate(.9deg); }
+  .craft-page--recipe .recipe-serving-note,
+  .craft-page--recipe .recipe-change-note { transform: rotate(-.8deg); }
+  .craft-page--recipe .recipe-calculator-note { transform: rotate(.6deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .craft-page--recipe .recipe-polaroid,
+  .craft-page--recipe .recipe-moodboard-card {
+    transition: none;
+  }
+}
+
+/* Final board rhythm: actual rendered cards alternate direction even when
+   optional recipe sections are absent. */
+.craft-page--recipe .recipe-moodboard {
+  width: 100%;
+  max-width: 760px;
+  margin-inline: auto;
+  grid-template-columns: minmax(0, 1fr);
+}
+.craft-page--recipe .recipe-moodboard > .recipe-moodboard-card:nth-child(odd) {
+  transform: rotate(-1.35deg);
+}
+.craft-page--recipe .recipe-moodboard > .recipe-moodboard-card:nth-child(even) {
+  transform: rotate(1.15deg);
+}
+@media (min-width: 720px) {
+  .craft-page--recipe .recipe-moodboard {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .craft-page--recipe .recipe-moodboard-card,
+  .craft-page--recipe .recipe-ingredients-sticker,
+  .craft-page--recipe .recipe-method-note,
+  .craft-page--recipe .recipe-meta-note {
+    grid-column: auto;
+    width: min(96%, 760px);
+  }
+}
+@media (max-width: 430px) {
+  .craft-page--recipe .recipe-moodboard > .recipe-moodboard-card:nth-child(odd) {
+    transform: rotate(-.95deg);
+  }
+  .craft-page--recipe .recipe-moodboard > .recipe-moodboard-card:nth-child(even) {
+    transform: rotate(.8deg);
+  }
+}
+
+/* ==========================================================================
+   r40.5 utility controls · clean square restoration
+   Return compact icon actions to the original clean square language. No torn
+   paper or image-backed tiles. Subtle borders and shadows add depth without
+   turning controls into decorative stickers.
+   ========================================================================== */
+.craft-page--knowledge .knowledge-board-topline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+}
+
+.craft-page--knowledge .knowledge-board-heading {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.craft-page--knowledge .knowledge-board-heading h1 {
+  margin: 0;
+  padding-right: 0;
+  font-size: clamp(50px, 13.8vw, 62px);
+  line-height: .96;
+  letter-spacing: -.025em;
+}
+
+.craft-page--knowledge .knowledge-utility-actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+  margin-top: -2px;
+}
+
+/* Shared square utility/action buttons. */
+.craft-context .craft-button[data-craft-size="icon"] {
+  position: relative;
+  display: inline-grid !important;
+  width: 44px !important;
+  min-width: 44px !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  place-items: center;
+  padding: 0 !important;
+  overflow: hidden;
+  color: #755033 !important;
+  border: 1px solid rgba(155, 117, 73, .52) !important;
+  border-radius: 12px !important;
+  background-color: #f8ecd4 !important;
+  background-image: linear-gradient(180deg, rgba(255,255,255,.72), rgba(227,207,172,.28)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.86),
+    0 2px 4px rgba(66,43,25,.16),
+    0 7px 14px rgba(66,43,25,.08) !important;
+  transform: none !important;
+  transition: border-color 120ms ease, background-color 120ms ease, box-shadow 120ms ease, transform 120ms ease, opacity 120ms ease !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.craft-context .craft-button[data-craft-size="icon"][data-craft-variant="primary"]:not(:focus-visible) {
+  outline: none !important;
+}
+
+.craft-context .craft-button[data-craft-size="icon"]:focus-visible {
+  outline: 2px solid var(--craft-copper) !important;
+  outline-offset: 3px !important;
+}
+
+.craft-context .craft-button[data-craft-size="icon"]::before,
+.craft-context .craft-button[data-craft-size="icon"]::after {
+  display: none !important;
+}
+
+.craft-context .craft-button[data-craft-size="icon"] > svg,
+.craft-context .craft-button[data-craft-size="icon"] svg {
+  position: relative;
+  z-index: 1;
+  width: 19px;
+  height: 19px;
+  color: currentColor;
+  stroke: currentColor;
+  stroke-width: 1.9;
+}
+
+.craft-context .craft-button[data-craft-size="icon"]:hover:not(:disabled) {
+  border-color: rgba(145, 91, 50, .72) !important;
+  background-color: #fbf0dc !important;
+}
+
+.craft-context .craft-button[data-craft-size="icon"]:active:not(:disabled) {
+  transform: translateY(1px) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.72),
+    0 1px 2px rgba(66,43,25,.18),
+    0 3px 7px rgba(66,43,25,.07) !important;
+}
+
+/* Primary/selected actions keep the old copper hierarchy, still square. */
+.craft-context .craft-button[data-craft-size="icon"][data-craft-variant="primary"],
+.craft-context .craft-button[data-craft-size="icon"][aria-pressed="true"]:not([data-craft-variant="danger"]) {
+  color: #fffdf8 !important;
+  border-color: #8d4b2b !important;
+  background-color: #7f472b !important;
+  background-image: linear-gradient(180deg, #9f623c 0%, #724027 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,231,199,.28),
+    0 2px 4px rgba(56,29,18,.24),
+    0 7px 14px rgba(56,29,18,.12) !important;
+}
+
+.craft-context .craft-button[data-craft-size="icon"][data-craft-variant="danger"] {
+  color: #8f3d33 !important;
+  border-color: rgba(155,59,45,.46) !important;
+  background-color: #f7e4d7 !important;
+  background-image: linear-gradient(180deg, rgba(255,255,255,.62), rgba(155,59,45,.07)) !important;
+}
+
+/* Knowledge keeps its compact icon-only layout, but drops all paper/leather image tiles. */
+.craft-page--knowledge .knowledge-image-button,
+.craft-page--knowledge .knowledge-image-button[data-craft-variant="ghost"],
+.craft-page--knowledge .knowledge-image-button[data-craft-variant="secondary"] {
+  width: 44px !important;
+  min-width: 44px !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  color: #755033 !important;
+  border: 1px solid rgba(155,117,73,.52) !important;
+  border-radius: 12px !important;
+  background-color: #f8ecd4 !important;
+  background-image: linear-gradient(180deg, rgba(255,255,255,.72), rgba(227,207,172,.28)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.86),
+    0 2px 4px rgba(66,43,25,.16),
+    0 7px 14px rgba(66,43,25,.08) !important;
+  transform: none !important;
+}
+
+.craft-page--knowledge .knowledge-image-button--create,
+.craft-page--knowledge .knowledge-image-button--create[data-craft-variant="ghost"] {
+  color: #fffdf8 !important;
+  border-color: #8d4b2b !important;
+  background-color: #7f472b !important;
+  background-image: linear-gradient(180deg, #9f623c 0%, #724027 100%) !important;
+}
+
+.craft-page--knowledge .knowledge-image-button--create svg {
+  color: #fffdf8 !important;
+  stroke: #fffdf8 !important;
+}
+
+/* Notebook icon actions are squares too; text back-navigation keeps its existing shape. */
+.craft-page--article .knowledge-notebook-toolbar .craft-button[data-craft-size="icon"].knowledge-leather-action {
+  width: 44px !important;
+  min-width: 44px !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  color: #fffdf8 !important;
+  border: 1px solid #8d4b2b !important;
+  border-radius: 12px !important;
+  background-color: #7f472b !important;
+  background-image: linear-gradient(180deg, #9f623c 0%, #724027 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,231,199,.28),
+    0 2px 4px rgba(56,29,18,.24),
+    0 7px 14px rgba(56,29,18,.12) !important;
+}
+
+/* Restore ordinary text/mixed actions. The temporary global paper-tag override is gone. */
+.craft-context .craft-button[data-craft-size="default"]:not([data-craft-variant="primary"]),
+.craft-context .craft-button[data-craft-size="lg"]:not([data-craft-variant="primary"]) {
+  background-image: none;
+}
+
+/* Primary stitched actions stay visibly leather on every paper-first screen.
+   The previous generic background-image reset accidentally stripped their leather layers. */
+.craft-context .craft-button[data-craft-variant="primary"][data-craft-size="default"],
+.craft-context .craft-button[data-craft-variant="primary"][data-craft-size="lg"] {
+  color: var(--craft-paper-light) !important;
+  border-color: #794829 !important;
+  background:
+    var(--craft-leather-grain),
+    radial-gradient(ellipse at 30% 0, #e7a56833, transparent 70%),
+    linear-gradient(165deg, #925b36, #6c3a22 70%, #4a2819) !important;
+  box-shadow:
+    inset 0 1px 1px #f7d4a477,
+    inset 1px 0 1px #cc935d70,
+    inset 0 -2px 2px #29190f80,
+    0 2px 0 #342015b0,
+    0 4px 5px #30190e30 !important;
+}
+.craft-context .craft-button[data-craft-variant="primary"]:disabled {
+  opacity: .72;
+}
+
+.craft-page--knowledge .knowledge-board-search {
+  margin-top: 16px;
+}
+
+@media (max-width: 390px) {
+  .craft-page--knowledge .knowledge-board-topline { gap: 7px; }
+  .craft-page--knowledge .knowledge-board-heading h1 {
+    font-size: clamp(47px, 13vw, 54px);
+  }
+  .craft-page--knowledge .knowledge-utility-actions { gap: 4px; }
+}
+
+@media (max-width: 350px) {
+  .craft-page--knowledge .knowledge-board-heading h1 { font-size: 43px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .craft-context .craft-button[data-craft-size="icon"] {
+    transition: none !important;
+  }
+}
+
+
+/* ==========================================================================
+   r40.5 visual correction · Shift hierarchy + article icon actions
+   ========================================================================== */
+.craft-page--shift .craft-shift-role-line {
+  margin-top: 8px !important;
+  color: #725b46;
+  font-size: 13px !important;
+  line-height: 1.35;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.craft-page--shift .craft-shift-status-compact {
+  height: 76px !important;
+  min-height: 76px;
+  padding: 10px 12px !important;
+}
+
+.craft-page--shift .craft-phase .craft-checklist-row {
+  margin-block: 3px;
+  padding: 10px 9px;
+  border: 1px solid rgba(177, 148, 107, .54) !important;
+  border-radius: 8px !important;
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    linear-gradient(112deg, rgba(255, 248, 231, .96), rgba(245, 232, 207, .96)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .82),
+    0 2px 3px rgba(73, 48, 27, .16),
+    0 6px 12px rgba(73, 48, 27, .08);
+}
+
+.craft-page--shift .craft-phase .craft-checklist-row[aria-checked="true"],
+.craft-page--shift .craft-phase .craft-checklist-row.is-complete {
+  border-color: rgba(83, 127, 79, .48) !important;
+  background:
+    var(--craft-grain) 0 0 / 256px 256px repeat,
+    linear-gradient(112deg, rgba(116, 157, 107, .18), rgba(92, 139, 88, .12)),
+    linear-gradient(112deg, #fff8e8, #f4e4c7) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .70),
+    0 2px 3px rgba(57, 88, 54, .16),
+    0 6px 12px rgba(57, 88, 54, .07);
+}
+
+/* The article back control remains leather, but edit/share are ordinary square
+   action buttons. Remove decorative round stitches so icons stay centred. */
+.craft-page--article .knowledge-notebook-toolbar .knowledge-notebook-actions .craft-button[data-craft-size="icon"] {
+  width: 44px !important;
+  min-width: 44px !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  padding: 0 !important;
+  color: #755033 !important;
+  border: 1px solid rgba(155, 117, 73, .52) !important;
+  border-radius: 12px !important;
+  background-color: #f8ecd4 !important;
+  background-image: linear-gradient(180deg, rgba(255,255,255,.72), rgba(227,207,172,.28)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.86),
+    0 2px 4px rgba(66,43,25,.16),
+    0 7px 14px rgba(66,43,25,.08) !important;
+}
+.craft-page--article .knowledge-notebook-toolbar .knowledge-notebook-actions .craft-button[data-craft-size="icon"]::before,
+.craft-page--article .knowledge-notebook-toolbar .knowledge-notebook-actions .craft-button[data-craft-size="icon"]::after {
+  display: none !important;
+  content: none !important;
+}
+.craft-page--article .knowledge-notebook-toolbar .knowledge-notebook-actions .craft-button[data-craft-size="icon"] svg {
+  position: static;
+  width: 19px;
+  height: 19px;
+  color: currentColor;
+  stroke: currentColor;
+}

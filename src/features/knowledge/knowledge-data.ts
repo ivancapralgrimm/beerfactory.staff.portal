@@ -1,4 +1,17 @@
 import type { KnowledgeArticle } from "@/features/knowledge/types";
+import { loadServerKnowledgeArticles } from './knowledge-server';
+
+export const knowledgeSource = import.meta.env.VITE_KNOWLEDGE_SOURCE === 'supabase' ? 'supabase' : 'legacy';
+let cacheGeneration = 0;
+export function invalidateKnowledgeArticles() {
+  cacheGeneration++;
+  cachedArticles = null;
+  serverCache.clear();
+  serverInflight.clear();
+  window.dispatchEvent(new Event('bf-knowledge-changed'));
+}
+const serverCache = new Map<string,{ articles: KnowledgeArticle[]; at: number }>();
+const serverInflight = new Map<string,Promise<KnowledgeArticle[]>>();
 
 const ARTICLES_URL = "/assets/training-data.txt";
 
@@ -36,7 +49,7 @@ function readingMinutes(body: string) {
   return Math.max(1, Math.ceil(words / 180));
 }
 
-function parseArticles(text: string): KnowledgeArticle[] {
+export function parseArticles(text: string): KnowledgeArticle[] {
   const articles: Array<{
     id: string;
     category: string;
@@ -98,8 +111,36 @@ async function fetchArticles() {
   return articles;
 }
 
-export async function loadKnowledgeArticles(options?: { force?: boolean }) {
+export async function loadKnowledgeArticles(options?: {
+  force?: boolean;
+  scope?: string;
+  onMediaReady?: (articles: KnowledgeArticle[]) => void;
+}) {
   const force = options?.force === true;
+  if (knowledgeSource === 'supabase') {
+    const scope = options?.scope || '';
+    if (!scope) throw new Error('knowledge_session_required');
+    const cached = serverCache.get(scope);
+    if (!force && cached && Date.now() - cached.at < 120_000) return cached.articles;
+    const pending = serverInflight.get(scope);
+    if (pending) return pending;
+    const generation = cacheGeneration;
+    const onMediaReady = (articles: KnowledgeArticle[]) => {
+      if (generation !== cacheGeneration) return;
+      serverCache.set(scope, { articles, at: Date.now() });
+      options?.onMediaReady?.(articles);
+      window.dispatchEvent(
+        new CustomEvent("bf-knowledge-media-ready", {
+          detail: { scope, articles }
+        })
+      );
+    };
+    const request: Promise<KnowledgeArticle[]> = loadServerKnowledgeArticles(onMediaReady).then(articles => {
+      if (generation === cacheGeneration) serverCache.set(scope,{ articles, at: Date.now() }); return articles;
+    }).finally(() => { if (serverInflight.get(scope) === request) serverInflight.delete(scope); });
+    serverInflight.set(scope,request);
+    return request;
+  }
 
   if (!force && cachedArticles) return cachedArticles;
   if (!force && inflight) return inflight;

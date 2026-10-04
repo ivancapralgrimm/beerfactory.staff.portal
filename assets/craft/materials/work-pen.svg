@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="220" viewBox="0 0 20 220"><defs>
+<linearGradient id="barrel"><stop stop-color="#141816"/><stop offset=".2" stop-color="#33382f"/><stop offset=".37" stop-color="#a6a58c"/><stop offset=".45" stop-color="#494b3b"/><stop offset=".57" stop-color="#181e19"/><stop offset="1" stop-color="#070d0a"/></linearGradient>
+<linearGradient id="brass"><stop stop-color="#76603c"/><stop offset=".28" stop-color="#e9c58a"/><stop offset=".5" stop-color="#fff0bf"/><stop offset=".67" stop-color="#b4925b"/><stop offset="1" stop-color="#655434"/></linearGradient>
+</defs><path d="M6 9Q10 2 14 9L15 69L14 187H6L5 69Z" fill="url(#barrel)" stroke="#111a12" stroke-width=".5"/>
+<path d="M6 9Q10 2 14 9V18H6Z" fill="url(#brass)"/><path d="M6 68H14V73H6Z" fill="url(#brass)"/>
+<path d="M6 177H14L13.5 191L10.5 208H9.5L6.5 191Z" fill="url(#brass)"/>
+<path d="M9.5 207L10 215L10.5 207Z" fill="#20251d"/>
+<path d="M14 16Q18 17 17 22L15.5 62Q15.3 66 13 66" fill="none" stroke="#665838" stroke-width="2.7" stroke-linecap="round"/>
+<path d="M14 16Q17.4 17 16.5 22L15 61" fill="none" stroke="#eacb91" stroke-width="1" stroke-linecap="round"/>
+<path d="M8 20L8 63M8 78L8 173" stroke="#bfb897" stroke-width=".45" opacity=".65"/><path d="M8 184L10 199" stroke="#fff3c8" stroke-width=".7"/>
+</svg>
