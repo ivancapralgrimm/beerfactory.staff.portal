@@ -51,6 +51,31 @@ export function markLocalArticleRead(userId: string, articleId: string) {
   return new Set(record.read);
 }
 
+async function syncLocalReadIdsRemote(
+  userId: string,
+  local: ReadonlySet<string>,
+  remote: Set<string>
+) {
+  const missing = [...local].filter((articleId) => !remote.has(articleId));
+  if (!missing.length) return true;
+
+  const updatedAt = new Date().toISOString();
+  const { error } = await supabase.from("training_progress").upsert(
+    missing.map((articleId) => ({
+      user_id: userId,
+      article_id: articleId,
+      completed: true,
+      progress_percent: 100,
+      updated_at: updatedAt
+    })),
+    { onConflict: "user_id,article_id" }
+  );
+
+  if (error) return false;
+  missing.forEach((articleId) => remote.add(articleId));
+  return true;
+}
+
 export async function getKnowledgeReadState(
   userId: string,
   options?: { force?: boolean }
@@ -65,9 +90,12 @@ export async function getKnowledgeReadState(
   const force = options?.force === true;
 
   if (!force && cached && Date.now() - cached.loadedAt < REMOTE_FRESH_MS) {
+    const remote = new Set(cached.readIds);
+    const synced = await syncLocalReadIdsRemote(userId, local, remote);
+    remoteCache.set(userId, { readIds: remote, loadedAt: Date.now() });
     return {
-      readIds: new Set([...local, ...cached.readIds]),
-      source: "profile" as const
+      readIds: new Set([...local, ...remote]),
+      source: synced ? ("profile" as const) : ("device" as const)
     };
   }
 
@@ -79,11 +107,13 @@ export async function getKnowledgeReadState(
 
   if (error) throw error;
 
-  const remote = new Set(
+  const remote = new Set<string>(
     (data || [])
       .map((item) => item.article_id)
       .filter((id): id is string => Boolean(id))
   );
+
+  const synced = await syncLocalReadIdsRemote(userId, local, remote);
 
   remoteCache.set(userId, {
     readIds: remote,
@@ -96,7 +126,10 @@ export async function getKnowledgeReadState(
   record.read = [...merged];
   writeLocalRecord(userId, record);
 
-  return { readIds: merged, source: "profile" as const };
+  return {
+    readIds: merged,
+    source: synced ? ("profile" as const) : ("device" as const)
+  };
 }
 
 export async function markArticleReadRemote(
