@@ -8,10 +8,9 @@ Validate with `npm test`, `npm run typecheck` and `npm run build`.
 Publish the generated `dist` directory through the existing release process.
 
 ## Data
-- `assets/training-data.txt` powers Knowledge until verified Supabase cutover.
-- r40.5 article editor uses Supabase RPCs and private Storage; see
-  [integration and verification instructions](R40_5_EDITOR_INTEGRATION.md).
-- `assets/questions.txt` powers Attestation.
+- Production Knowledge reads from Supabase RPCs; the article editor writes to the same source of truth.
+- `VITE_KNOWLEDGE_SOURCE=legacy` is retained only as a temporary emergency rollback while the old static Knowledge files still exist.
+- `assets/question-banks.json` powers Attestation.
 - Menu tries the configured Cloudflare Worker and falls back to local demo data.
 
 ## Important

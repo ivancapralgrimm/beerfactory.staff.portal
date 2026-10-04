@@ -11,16 +11,24 @@ const srcDir = fileURLToPath(new URL("./src", import.meta.url));
 
 export default defineConfig(({ mode }) => {
   const env = { ...loadEnv(mode, process.cwd(), ""), ...process.env };
-  return {
-    define: {
-      "import.meta.env.VITE_KNOWLEDGE_SOURCE": JSON.stringify(
-        resolveKnowledgeSource({
-          requested: env.VITE_KNOWLEDGE_SOURCE,
+  const requestedKnowledgeSource = env.VITE_KNOWLEDGE_SOURCE;
+
+  // Production builds are server-authoritative: the editor and reader use the
+  // same Supabase source of truth. Keep an explicit legacy override only as a
+  // temporary emergency rollback while the old static Knowledge files exist.
+  const knowledgeSource =
+    mode === "production" && requestedKnowledgeSource !== "legacy"
+      ? "supabase"
+      : resolveKnowledgeSource({
+          requested: requestedKnowledgeSource,
           mode,
           deploymentEnv: env.VERCEL_ENV,
           branch: env.VERCEL_GIT_COMMIT_REF,
-        }),
-      ),
+        });
+
+  return {
+    define: {
+      "import.meta.env.VITE_KNOWLEDGE_SOURCE": JSON.stringify(knowledgeSource),
     },
     plugins: [
       react(),
