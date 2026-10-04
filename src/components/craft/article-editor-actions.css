@@ -1,0 +1,130 @@
+/* BFStaff: article editor action-bar correction.
+   Loaded after craft.css/workspace.css so the editor-specific rules are final. */
+
+.craft-page--article-editor .bf-editor-main-actions {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+}
+
+/* Editor / Preview is a proper stitched leather action, not black text on leather. */
+.craft-page--article-editor
+  .bf-editor-main-actions
+  > .craft-button[data-craft-variant="ghost"]:not([data-craft-size="icon"]) {
+  position: relative;
+  flex: 1 1 0 !important;
+  min-width: 0;
+  min-height: 48px;
+  padding-inline: 14px !important;
+  overflow: hidden;
+  color: var(--craft-paper-light) !important;
+  border: 1px solid #8b5636 !important;
+  border-radius: 12px !important;
+  background: var(--craft-leather-surface) !important;
+  box-shadow:
+    inset 0 1px 1px rgba(247, 212, 164, .34),
+    inset 0 -1px 2px rgba(41, 25, 15, .45),
+    0 2px 4px rgba(48, 25, 14, .24) !important;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.craft-page--article-editor
+  .bf-editor-main-actions
+  > .craft-button[data-craft-variant="ghost"]:not([data-craft-size="icon"])::before {
+  display: none !important;
+  content: none !important;
+}
+
+.craft-page--article-editor
+  .bf-editor-main-actions
+  > .craft-button[data-craft-variant="ghost"]:not([data-craft-size="icon"])::after {
+  content: "" !important;
+  display: block !important;
+  position: absolute;
+  inset: 5px;
+  border-radius: 8px;
+  background:
+    var(--craft-thread-x) left top / 12px 6px repeat-x,
+    var(--craft-thread-x) left bottom / 12px 6px repeat-x,
+    var(--craft-thread-y) left top / 6px 12px repeat-y,
+    var(--craft-thread-y) right top / 6px 12px repeat-y;
+  opacity: .72;
+  pointer-events: none;
+}
+
+.craft-page--article-editor
+  .bf-editor-main-actions
+  > .craft-button[data-craft-variant="ghost"]:not([data-craft-size="icon"]) svg {
+  color: currentColor !important;
+  stroke: currentColor !important;
+}
+
+/* Save gets enough real width for icon + label instead of the old forced 44 px slot. */
+.craft-page--article-editor
+  .bf-editor-main-actions
+  > .craft-button[data-craft-variant="primary"] {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 116px;
+  min-height: 48px;
+  padding-inline: 14px !important;
+  color: var(--craft-paper-light) !important;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.craft-page--article-editor
+  .bf-editor-main-actions
+  > .craft-button[data-craft-variant="primary"] svg {
+  flex: 0 0 auto;
+  color: currentColor !important;
+  stroke: currentColor !important;
+}
+
+/* The optional overflow menu remains a compact square utility action. */
+.craft-page--article-editor
+  .bf-editor-main-actions
+  > .craft-button[data-craft-size="icon"] {
+  flex: 0 0 44px !important;
+}
+
+@media (max-width: 390px) {
+  .craft-page--article-editor .bf-editor-main-actions {
+    gap: 6px;
+  }
+
+  .craft-page--article-editor
+    .bf-editor-main-actions
+    > .craft-button[data-craft-variant="ghost"]:not([data-craft-size="icon"]) {
+    padding-inline: 10px !important;
+    font-size: 13px;
+  }
+
+  .craft-page--article-editor
+    .bf-editor-main-actions
+    > .craft-button[data-craft-variant="primary"] {
+    min-width: 112px;
+    padding-inline: 12px !important;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 360px) {
+  .craft-page--article-editor
+    .bf-editor-main-actions
+    > .craft-button[data-craft-variant="ghost"]:not([data-craft-size="icon"]) {
+    padding-inline: 8px !important;
+  }
+
+  .craft-page--article-editor
+    .bf-editor-main-actions
+    > .craft-button[data-craft-variant="primary"] {
+    min-width: 108px;
+    padding-inline: 10px !important;
+  }
+}
