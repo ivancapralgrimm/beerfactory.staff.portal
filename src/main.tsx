@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { createHashRouter, RouterProvider } from "react-router-dom";
 import { App } from "@/app/App";
 import { AuthProvider } from "@/features/auth/auth-context";
+import { installRuntimeRecovery } from "@/pwa/runtime-recovery";
 import "@/styles.css";
 import "@/mobile-input-guard.css";
 import "@/components/craft/craft.css";
@@ -17,3 +18,5 @@ createRoot(document.getElementById("root")!).render(
     <RouterProvider router={router} />
   </StrictMode>
 );
+
+installRuntimeRecovery();
