@@ -481,10 +481,12 @@ async function fetchWithTimeout(url: string, timeoutMs: number) {
   }
 }
 
-async function fetchRecipes(cached: RecipeLoadResult | null) {
-  const timeoutMs = cached?.recipes.length ? 3000 : 7000;
+async function fetchRecipePayload(
+  base: string,
+  timeoutMs: number
+) {
   const response = await fetchWithTimeout(
-    `${config.recipeApiBase}/menu`,
+    `${base}/menu`,
     timeoutMs
   );
 
@@ -492,20 +494,41 @@ async function fetchRecipes(cached: RecipeLoadResult | null) {
     throw new Error(`menu_http_${response.status}`);
   }
 
-  const payload = (await response.json()) as unknown;
-  const recipes = rowsFromPayload(payload);
+  return await response.json() as unknown;
+}
 
-  if (!recipes.length) throw new Error("menu_empty");
+async function fetchRecipes(cached: RecipeLoadResult | null) {
+  const timeoutMs = cached?.recipes.length ? 3000 : 8000;
+  const bases = [
+    config.recipeApiBase,
+    config.recipeApiFallbackBase
+  ].filter((value, index, list) => list.indexOf(value) === index);
 
-  const result: RecipeLoadResult = {
-    recipes,
-    source: "api",
-    syncedAt: Date.now(),
-    capabilities: payloadCapabilities(payload)
-  };
+  let lastError: unknown = new Error("menu_unavailable");
 
-  writeCache(result);
-  return result;
+  for (const base of bases) {
+    try {
+      const payload = await fetchRecipePayload(base, timeoutMs);
+      const recipes = rowsFromPayload(payload);
+
+      if (!recipes.length) throw new Error("menu_empty");
+
+      const result: RecipeLoadResult = {
+        recipes,
+        source: "api",
+        syncedAt: Date.now(),
+        capabilities: payloadCapabilities(payload)
+      };
+
+      writeCache(result);
+      return result;
+    } catch (error) {
+      lastError = error;
+      console.warn(`BeerFactory recipe endpoint unavailable: ${base}`, error);
+    }
+  }
+
+  throw lastError;
 }
 
 export async function loadRecipes(options?: { force?: boolean }) {
