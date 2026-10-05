@@ -3,5 +3,35 @@
   "framework": "vite",
   "installCommand": "npm install --no-audit --no-fund",
   "buildCommand": "npm run build",
-  "outputDirectory": "dist"
+  "outputDirectory": "dist",
+  "rewrites": [
+    {
+      "source": "/api/recipes",
+      "destination": "https://beerfactory-menu-api.ivan-capral-grimm.workers.dev"
+    },
+    {
+      "source": "/api/recipes/:path*",
+      "destination": "https://beerfactory-menu-api.ivan-capral-grimm.workers.dev/:path*"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/sw.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/manifest.webmanifest",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    }
+  ]
 }

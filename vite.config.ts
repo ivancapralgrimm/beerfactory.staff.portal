@@ -34,8 +34,11 @@ export default defineConfig(({ mode }) => {
       react(),
       tailwindcss(),
       VitePWA({
+        // Registration is handled by src/pwa/runtime-recovery.ts so updates can
+        // be applied safely at launch instead of trapping installed PWAs on an
+        // old service worker.
         registerType: "prompt",
-        injectRegister: "auto",
+        injectRegister: null,
         includeAssets: [
           "assets/icons/apple-touch-icon.png",
           "assets/icons/icon-192.png",
@@ -49,6 +52,7 @@ export default defineConfig(({ mode }) => {
           name: "BeerFactory Staff Portal",
           short_name: "BF Staff",
           description: "Рабочий портал персонала BeerFactory",
+          lang: "ru",
           start_url: "/#/",
           scope: "/",
           display: "standalone",
@@ -79,17 +83,15 @@ export default defineConfig(({ mode }) => {
           cleanupOutdatedCaches: true,
           navigateFallback: "/index.html",
           importScripts: ["push-sw.js"],
-          // These shell icons are already revisioned by includeAssets / manifest.
-          // Avoid conflicting duplicate precache keys from the broad asset glob.
-          globIgnores: [
-            "assets/icons/apple-touch-icon.png",
-            "assets/icons/icon-192.png",
-            "assets/icons/icon-512.png",
-            "assets/icons/icon-maskable-512.png",
-            "assets/icons/profile-avatar.png",
-          ],
+          // Shell code and local font are precached. Heavy photos, legacy data
+          // and training files are no longer downloaded just to install the PWA.
           globPatterns: [
-            "**/*.{js,css,html,ico,png,svg,webp,jpg,jpeg,json,txt,woff,woff2}",
+            "**/*.{js,css,html,woff,woff2}",
+          ],
+          globIgnores: [
+            "assets/training-data.txt",
+            "assets/training-data.json",
+            "assets/questions.txt",
           ],
         },
       }),
@@ -100,7 +102,9 @@ export default defineConfig(({ mode }) => {
       },
     },
     build: {
-      target: "es2022",
+      // Use Vite's broadly-supported browser baseline instead of requiring
+      // ES2022 from every employee phone.
+      target: "baseline-widely-available",
       sourcemap: true,
     },
   };
