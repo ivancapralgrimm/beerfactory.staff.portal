@@ -8,6 +8,20 @@ import { Input } from "@/components/ui/input";
 
 const codePattern = /^\d{4,12}$/;
 
+function loginErrorMessage(error: unknown) {
+  const code = error instanceof Error ? error.message : "";
+
+  if (code === "rate_limited") {
+    return "Слишком много попыток входа. Подождите 15 минут и повторите.";
+  }
+
+  if (code === "auth_request_timeout" || code === "login_unavailable") {
+    return "Сеть отвечает слишком долго. Проверьте подключение и повторите.";
+  }
+
+  return "Не удалось войти. Проверь имя, фамилию и пароль.";
+}
+
 export function LoginPage() {
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -38,7 +52,7 @@ export function LoginPage() {
       });
     } catch (loginError) {
       console.error("BeerFactory login", loginError);
-      setError("Не удалось войти. Проверь имя, фамилию и пароль.");
+      setError(loginErrorMessage(loginError));
     } finally {
       setPending(false);
     }
