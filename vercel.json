@@ -4,14 +4,15 @@
   "installCommand": "npm install --no-audit --no-fund",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
+  "regions": ["fra1"],
   "rewrites": [
     {
       "source": "/api/recipes",
       "destination": "https://beerfactory-menu-api.ivan-capral-grimm.workers.dev"
     },
     {
-      "source": "/api/recipes/:path*",
-      "destination": "https://beerfactory-menu-api.ivan-capral-grimm.workers.dev/:path*"
+      "source": "/api/recipes/admin/:path*",
+      "destination": "https://beerfactory-menu-api.ivan-capral-grimm.workers.dev/admin/:path*"
     }
   ],
   "headers": [

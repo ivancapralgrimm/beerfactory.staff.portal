@@ -13,9 +13,6 @@ export default defineConfig(({ mode }) => {
   const env = { ...loadEnv(mode, process.cwd(), ""), ...process.env };
   const requestedKnowledgeSource = env.VITE_KNOWLEDGE_SOURCE;
 
-  // Production builds are server-authoritative: the editor and reader use the
-  // same Supabase source of truth. Keep an explicit legacy override only as a
-  // temporary emergency rollback while the old static Knowledge files exist.
   const knowledgeSource =
     mode === "production" && requestedKnowledgeSource !== "legacy"
       ? "supabase"
@@ -34,9 +31,6 @@ export default defineConfig(({ mode }) => {
       react(),
       tailwindcss(),
       VitePWA({
-        // Registration is handled by src/pwa/runtime-recovery.ts so updates can
-        // be applied safely at launch instead of trapping installed PWAs on an
-        // old service worker.
         registerType: "prompt",
         injectRegister: null,
         includeAssets: [
@@ -45,7 +39,6 @@ export default defineConfig(({ mode }) => {
           "assets/icons/icon-512.png",
           "assets/icons/icon-maskable-512.png",
           "assets/icons/profile-avatar.png",
-          "push-sw.js",
         ],
         manifest: {
           id: "/",
@@ -83,12 +76,11 @@ export default defineConfig(({ mode }) => {
           cleanupOutdatedCaches: true,
           navigateFallback: "/index.html",
           importScripts: ["push-sw.js"],
-          // Shell code and local font are precached. Heavy photos, legacy data
-          // and training files are no longer downloaded just to install the PWA.
           globPatterns: [
             "**/*.{js,css,html,woff,woff2}",
           ],
           globIgnores: [
+            "push-sw.js",
             "assets/training-data.txt",
             "assets/training-data.json",
             "assets/questions.txt",
@@ -102,8 +94,6 @@ export default defineConfig(({ mode }) => {
       },
     },
     build: {
-      // Use Vite's broadly-supported browser baseline instead of requiring
-      // ES2022 from every employee phone.
       target: "baseline-widely-available",
       sourcemap: true,
     },
