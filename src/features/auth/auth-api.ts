@@ -20,12 +20,41 @@ async function jsonOrEmpty(response: Response) {
   }
 }
 
+const AUTH_ACTION_TIMEOUT_MS = 15_000;
+
+async function fetchAuthAction(
+  input: RequestInfo | URL,
+  init?: RequestInit
+) {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(
+    () => controller.abort(),
+    AUTH_ACTION_TIMEOUT_MS
+  );
+
+  try {
+    return await fetch(input, {
+      ...init,
+      signal: controller.signal
+    });
+  } catch (error) {
+    if (controller.signal.aborted) {
+      const timeoutError = new Error("auth_request_timeout");
+      Object.assign(timeoutError, { code: "network_timeout" });
+      throw timeoutError;
+    }
+    throw error;
+  } finally {
+    window.clearTimeout(timeout);
+  }
+}
+
 export async function staffLogin(input: {
   firstName: string;
   lastName: string;
   code: string;
 }) {
-  const response = await fetch(edgeFunctions.login, {
+  const response = await fetchAuthAction(edgeFunctions.login, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -131,7 +160,7 @@ export async function updateStaffProfile(
     body.birth_date = input.birthDate || null;
   }
 
-  const response = await fetch(edgeFunctions.profile, {
+  const response = await fetchAuthAction(edgeFunctions.profile, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
@@ -160,7 +189,7 @@ export async function registerStaff(input: {
   password: string;
   secretCode: string;
 }) {
-  const response = await fetch(edgeFunctions.register, {
+  const response = await fetchAuthAction(edgeFunctions.register, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -188,7 +217,7 @@ export async function recoverStaff(input: {
   recoveryCode: string;
   newCode: string;
 }) {
-  const response = await fetch(edgeFunctions.recover, {
+  const response = await fetchAuthAction(edgeFunctions.recover, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -214,7 +243,7 @@ export async function setRecoveryCode(
   accessToken: string,
   recoveryCode: string
 ) {
-  const response = await fetch(edgeFunctions.setRecovery, {
+  const response = await fetchAuthAction(edgeFunctions.setRecovery, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

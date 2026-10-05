@@ -33,11 +33,47 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+type SessionFailure = {
+  status?: number;
+  code?: string;
+  message?: string;
+  fatalSession?: boolean;
+};
+
 function mergeUser(session: Session, profile: Awaited<ReturnType<typeof fetchStaffProfile>>) {
   return {
     ...session.user,
     ...(profile ?? {})
   } as AuthUser;
+}
+
+function isInvalidRefreshToken(error: unknown) {
+  const value = error as SessionFailure | null;
+  const code = String(value?.code || "").toLowerCase();
+  const message = String(value?.message || "").toLowerCase();
+
+  return (
+    value?.fatalSession === true ||
+    code.includes("refresh_token_not_found") ||
+    code.includes("invalid_refresh_token") ||
+    message.includes("refresh token not found") ||
+    message.includes("invalid refresh token")
+  );
+}
+
+function fatalSessionError(code: string) {
+  const error = new Error(code);
+  Object.assign(error, { fatalSession: true });
+  return error;
+}
+
+async function clearLocalSession() {
+  try {
+    await supabase.auth.signOut({ scope: "local" });
+  } catch {
+    // Local auth state is cleared by the state transition below even if
+    // Supabase cannot complete ancillary cleanup while the network is bad.
+  }
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -70,15 +106,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         // A profile request may finish with an old JWT after Supabase has
         // already refreshed it. Retry before treating the session as lost.
-        const { data } = await supabase.auth.getSession();
+        const current = await supabase.auth.getSession();
         if (generation !== hydrateGenerationRef.current) return;
-        const refreshed = data.session?.access_token !== currentSession.access_token
-          ? data.session
-          : (await supabase.auth.refreshSession()).data.session;
-        if (!refreshed) throw new Error("session_refresh_unavailable");
+
+        let refreshed =
+          current.data.session?.access_token !== currentSession.access_token
+            ? current.data.session
+            : null;
+
+        if (!refreshed) {
+          const refresh = await supabase.auth.refreshSession();
+          if (generation !== hydrateGenerationRef.current) return;
+
+          if (refresh.error) {
+            if (isInvalidRefreshToken(refresh.error)) {
+              throw fatalSessionError("session_refresh_token_invalid");
+            }
+            throw refresh.error;
+          }
+
+          refreshed = refresh.data.session;
+        }
+
+        if (!refreshed) {
+          throw fatalSessionError("session_refresh_unavailable");
+        }
+
         currentSession = refreshed;
         profile = await fetchStaffProfile(currentSession.access_token);
       }
+
       if (generation !== hydrateGenerationRef.current) return;
       const recoveryRequired =
         recoveryRequiredRef.current || profile?.recovery_configured === false;
@@ -91,9 +148,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
     } catch (error) {
       if (generation !== hydrateGenerationRef.current) return;
-      const status = (error as { status?: number }).status;
-      if (status === 401 || status === 403 || status === 404) {
-        await supabase.auth.signOut();
+      const status = (error as SessionFailure).status;
+
+      if (
+        isInvalidRefreshToken(error) ||
+        status === 401 ||
+        status === 403 ||
+        status === 404
+      ) {
+        await clearLocalSession();
         if (generation !== hydrateGenerationRef.current) return;
         recoveryRequiredRef.current = false;
         setState({ status: "anonymous", session: null, user: null });
@@ -146,8 +209,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [hydrateSession]);
 
   // Roles and positions are stored in the live profile, not in JWT claims.
-  // Refresh them while the app is active so access changes made by an admin
-  // appear without requiring the employee to sign out and sign back in.
+  // Refresh on meaningful resume/online events and periodically as a safety net.
+  // Five minutes avoids the old 30-second request churn on mobile networks.
   useEffect(() => {
     if (state.status !== "authenticated") return;
 
@@ -165,9 +228,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       refreshing = true;
       try {
-        const { data } = await supabase.auth.getSession();
-        if (active && data.session) {
+        const { data, error } = await supabase.auth.getSession();
+        if (!active) return;
+
+        if (data.session) {
           await hydrateSession(data.session);
+        } else if (!error || isInvalidRefreshToken(error)) {
+          await hydrateSession(null);
         }
       } finally {
         refreshing = false;
@@ -190,7 +257,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const interval = window.setInterval(() => {
       void refresh();
-    }, 30_000);
+    }, 5 * 60_000);
 
     window.addEventListener("focus", onFocus);
     window.addEventListener("online", onOnline);
@@ -233,7 +300,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     recoveryRequiredRef.current = false;
-    await supabase.auth.signOut();
+    await clearLocalSession();
     setState({ status: "anonymous", session: null, user: null });
   }, []);
 
