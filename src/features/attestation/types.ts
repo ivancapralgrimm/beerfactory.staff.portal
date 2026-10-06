@@ -13,7 +13,9 @@ export type QuizQuestion = {
   reviewUrl?: string;
   reviewLabel?: string;
   topic: string;
+  subcategory?: string | null;
   reviewNote?: string;
+  revision?: number;
 };
 
 export type QuizTicketPlanPart = {
@@ -31,6 +33,8 @@ export type QuizCategory = {
 export type QuestionBank = {
   passPercent: number;
   questionsPerTest: number;
+  revision?: number;
+  generatedAt?: string;
   categories: QuizCategory[];
 };
 
@@ -51,6 +55,7 @@ export type TopicResult = {
 };
 
 export type QuizResult = {
+  clientAttemptId?: string;
   categoryId: string;
   categoryLabel: string;
   passPercent: number;

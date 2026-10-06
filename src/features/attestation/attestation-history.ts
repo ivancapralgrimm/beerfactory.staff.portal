@@ -1,4 +1,9 @@
 import { supabase } from "@/lib/supabase";
+import {
+  enqueueAttestationAttempt,
+  listPendingAttestationAttempts,
+  removePendingAttestationAttempt
+} from "@/features/attestation/attestation-offline";
 import type {
   QuizHistoryItem,
   QuizHistorySource,
@@ -38,12 +43,10 @@ function storageKey(userId: string) {
 
 function readLocalRecord(userId: string): LocalLearningRecord {
   try {
-    return (
-      JSON.parse(localStorage.getItem(storageKey(userId)) || "null") || {
-        read: [],
-        history: []
-      }
-    );
+    return JSON.parse(localStorage.getItem(storageKey(userId)) || "null") || {
+      read: [],
+      history: []
+    };
   } catch {
     return { read: [], history: [] };
   }
@@ -58,6 +61,94 @@ function writeLocalRecord(userId: string, record: LocalLearningRecord) {
   }
 }
 
+function createClientAttemptId() {
+  const cryptoApi =
+    typeof globalThis.crypto !== "undefined"
+      ? globalThis.crypto
+      : null;
+
+  if (typeof cryptoApi?.randomUUID === "function") {
+    return cryptoApi.randomUUID();
+  }
+
+  const bytes = new Uint8Array(16);
+
+  if (typeof cryptoApi?.getRandomValues === "function") {
+    cryptoApi.getRandomValues(bytes);
+  } else {
+    for (let index = 0; index < bytes.length; index += 1) {
+      bytes[index] = Math.floor(Math.random() * 256);
+    }
+  }
+
+  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+
+  const hex = [...bytes]
+    .map((value) => value.toString(16).padStart(2, "0"))
+    .join("");
+
+  return [
+    hex.slice(0, 8),
+    hex.slice(8, 12),
+    hex.slice(12, 16),
+    hex.slice(16, 20),
+    hex.slice(20)
+  ].join("-");
+}
+
+function ensureClientAttemptId(result: QuizResult) {
+  if (!result.clientAttemptId) {
+    result.clientAttemptId = createClientAttemptId();
+  }
+  return result.clientAttemptId;
+}
+
+function questionRevisions(result: QuizResult) {
+  return result.questions.map((question) => ({
+    id: question.id,
+    revision: question.revision || 1
+  }));
+}
+
+async function uploadAttempt(
+  userId: string,
+  result: QuizResult,
+  syncedFromOffline: boolean
+) {
+  const clientAttemptId = ensureClientAttemptId(result);
+
+  const { data, error } = await supabase.rpc(
+    "submit_attestation_attempt",
+    {
+      p_client_attempt_id: clientAttemptId,
+      p_category: result.categoryLabel,
+      p_category_id: result.categoryId,
+      p_total_questions: result.total,
+      p_correct_answers: result.correct,
+      p_category_results: {
+        pass_percent: result.passPercent,
+        topics: result.topicResults,
+        weak_topics: result.weakTopics
+      },
+      p_started_at: result.startedAt,
+      p_finished_at: result.finishedAt,
+      p_question_revisions: questionRevisions(result),
+      p_synced_from_offline: syncedFromOffline
+    }
+  );
+
+  if (error || !data) {
+    throw error || new Error("attestation_sync_failed");
+  }
+
+  await removePendingAttestationAttempt(clientAttemptId).catch(
+    () => undefined
+  );
+
+  return data;
+}
+
 export async function getQuizHistory(
   userId: string,
   limit = 5
@@ -65,18 +156,14 @@ export async function getQuizHistory(
   items: QuizHistoryItem[];
   source: QuizHistorySource;
 }> {
-  if (!userId) {
-    return { items: [], source: "profile" };
-  }
+  if (!userId) return { items: [], source: "profile" };
 
   const { data, error } = await supabase.rpc(
     "get_recent_attestation_attempts",
     { p_limit: limit }
   );
 
-  if (error) {
-    return { items: [], source: "profile" };
-  }
+  if (error) return { items: [], source: "profile" };
 
   const attempts = (data || []) as RecentTeamAttempt[];
 
@@ -99,6 +186,7 @@ export function persistQuizResultLocally(
   result: QuizResult
 ) {
   const record = readLocalRecord(userId);
+  const clientAttemptId = ensureClientAttemptId(result);
 
   record.history = [
     ...(record.history || []),
@@ -114,6 +202,13 @@ export function persistQuizResultLocally(
     }
   ].slice(-100);
 
+  void enqueueAttestationAttempt({
+    clientAttemptId,
+    userId,
+    result,
+    queuedAt: new Date().toISOString()
+  }).catch(() => undefined);
+
   return writeLocalRecord(userId, record);
 }
 
@@ -123,22 +218,38 @@ export async function persistQuizResultRemote(
 ) {
   if (!userId) throw new Error("auth_required");
 
-  const { error } = await supabase.from("quiz_attempts").insert({
-    user_id: userId,
-    category: result.categoryLabel,
-    category_id: result.categoryId,
-    score: result.score,
-    passed: result.passed,
-    total_questions: result.total,
-    correct_answers: result.correct,
-    category_results: {
-      pass_percent: result.passPercent,
-      topics: result.topicResults,
-      weak_topics: result.weakTopics
-    },
-    started_at: result.startedAt,
-    finished_at: result.finishedAt
-  });
+  const clientAttemptId = ensureClientAttemptId(result);
 
-  if (error) throw error;
+  await enqueueAttestationAttempt({
+    clientAttemptId,
+    userId,
+    result,
+    queuedAt: new Date().toISOString()
+  }).catch(() => undefined);
+
+  return uploadAttempt(userId, result, false);
+}
+
+export async function syncPendingAttestationAttempts(userId: string) {
+  if (!userId) return { sent: 0, pending: 0 };
+
+  const pending = await listPendingAttestationAttempts(userId).catch(
+    () => []
+  );
+  let sent = 0;
+
+  for (const entry of pending) {
+    try {
+      await uploadAttempt(userId, entry.result, true);
+      sent += 1;
+    } catch {
+      break;
+    }
+  }
+
+  const remaining = await listPendingAttestationAttempts(userId).catch(
+    () => []
+  );
+
+  return { sent, pending: remaining.length };
 }

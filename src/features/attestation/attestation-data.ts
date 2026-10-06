@@ -1,3 +1,8 @@
+import { supabase } from "@/lib/supabase";
+import {
+  cacheAttestationBank,
+  readCachedAttestationBank
+} from "@/features/attestation/attestation-offline";
 import type {
   QuestionBank,
   QuizAnswer,
@@ -5,26 +10,11 @@ import type {
   QuizQuestion
 } from "@/features/attestation/types";
 
-const BANK_URL = "/assets/question-banks.json";
-const EXPECTED_LABELS: Record<string, string> = {
-  bar: "Бар",
-  kitchen: "Кухня",
-  wine: "Вино",
-  service: "Сервис"
-};
-const MINIMUM_QUESTIONS: Record<string, number> = {
-  bar: 50,
-  kitchen: 100,
-  wine: 50,
-  service: 100
-};
-
 let cachedBank: QuestionBank | null = null;
 let inflight: Promise<QuestionBank> | null = null;
 
 function shuffle<T>(input: readonly T[]) {
   const output = [...input];
-
   for (let index = output.length - 1; index > 0; index -= 1) {
     const randomIndex = Math.floor(Math.random() * (index + 1));
     [output[index], output[randomIndex]] = [
@@ -32,13 +22,11 @@ function shuffle<T>(input: readonly T[]) {
       output[index]
     ];
   }
-
   return output;
 }
 
 function isAnswer(value: unknown): value is QuizAnswer {
   if (!value || typeof value !== "object") return false;
-
   const answer = value as Record<string, unknown>;
   return (
     typeof answer.text === "string" &&
@@ -49,9 +37,7 @@ function isAnswer(value: unknown): value is QuizAnswer {
 
 function isQuestion(value: unknown): value is QuizQuestion {
   if (!value || typeof value !== "object") return false;
-
   const question = value as Record<string, unknown>;
-
   return (
     typeof question.id === "string" &&
     question.id.length > 0 &&
@@ -81,12 +67,18 @@ export function validateQuestionBank(value: unknown): QuestionBank {
   }
 
   const data = value as Record<string, unknown>;
+  const passPercent = Number(data.passPercent);
+  const questionsPerTest = Number(data.questionsPerTest);
 
   if (
-    data.passPercent !== 80 ||
-    data.questionsPerTest !== 15 ||
+    !Number.isInteger(passPercent) ||
+    passPercent < 50 ||
+    passPercent > 100 ||
+    !Number.isInteger(questionsPerTest) ||
+    questionsPerTest < 1 ||
+    questionsPerTest > 50 ||
     !Array.isArray(data.categories) ||
-    data.categories.length !== 4
+    data.categories.length < 1
   ) {
     throw new Error("question_bank_settings_invalid");
   }
@@ -100,14 +92,11 @@ export function validateQuestionBank(value: unknown): QuestionBank {
     }
 
     const category = rawCategory as unknown as QuizCategory;
-    const minimum = MINIMUM_QUESTIONS[category.id];
-
     if (
-      !minimum ||
-      EXPECTED_LABELS[category.id] !== category.label ||
+      !category.id ||
+      !category.label ||
       seenCategoryIds.has(category.id) ||
       !Array.isArray(category.questions) ||
-      category.questions.length < minimum ||
       !Array.isArray(category.ticketPlan)
     ) {
       throw new Error(`question_bank_category_invalid:${category.id || "unknown"}`);
@@ -116,15 +105,11 @@ export function validateQuestionBank(value: unknown): QuestionBank {
     seenCategoryIds.add(category.id);
 
     for (const question of category.questions) {
-      if (
-        !isQuestion(question) ||
-        seenQuestionIds.has(question.id)
-      ) {
+      if (!isQuestion(question) || seenQuestionIds.has(question.id)) {
         throw new Error(
           `question_bank_question_invalid:${question?.id || "unknown"}`
         );
       }
-
       seenQuestionIds.add(question.id);
     }
 
@@ -132,13 +117,11 @@ export function validateQuestionBank(value: unknown): QuestionBank {
       (total, part) => total + part.count,
       0
     );
-
-    if (ticketCount !== data.questionsPerTest) {
+    if (ticketCount !== questionsPerTest) {
       throw new Error(`question_bank_ticket_invalid:${category.id}`);
     }
 
     const seenTopics = new Set<string>();
-
     for (const part of category.ticketPlan) {
       if (
         !part ||
@@ -149,7 +132,6 @@ export function validateQuestionBank(value: unknown): QuestionBank {
       ) {
         throw new Error(`question_bank_ticket_invalid:${category.id}`);
       }
-
       seenTopics.add(part.topic);
 
       const groups = new Set(
@@ -157,7 +139,6 @@ export function validateQuestionBank(value: unknown): QuestionBank {
           .filter((question) => question.topic === part.topic)
           .map((question) => question.group)
       );
-
       if (groups.size < part.count) {
         throw new Error(
           `question_bank_ticket_capacity:${category.id}:${part.topic}`
@@ -169,26 +150,50 @@ export function validateQuestionBank(value: unknown): QuestionBank {
   return data as unknown as QuestionBank;
 }
 
-async function fetchQuestionBank() {
-  const response = await fetch(BANK_URL, { cache: "no-cache" });
-
-  if (!response.ok) {
-    throw new Error(`question_bank_http_${response.status}`);
+async function fetchOnlineQuestionBank() {
+  const { data, error } = await supabase.rpc("get_attestation_bank");
+  if (error || !data) {
+    throw new Error("question_bank_online_unavailable");
   }
 
-  const bank = validateQuestionBank(await response.json());
+  const bank = validateQuestionBank(data);
   cachedBank = bank;
+  void cacheAttestationBank(bank).catch(() => undefined);
   return bank;
+}
+
+async function fetchQuestionBank() {
+  try {
+    return await fetchOnlineQuestionBank();
+  } catch (onlineError) {
+    try {
+      const cached = await readCachedAttestationBank();
+      if (cached?.bank) {
+        const bank = validateQuestionBank(cached.bank);
+        cachedBank = bank;
+        return bank;
+      }
+    } catch {
+      // Fall through to the original online error.
+    }
+    throw onlineError;
+  }
+}
+
+export async function warmAttestationBank() {
+  try {
+    return await fetchOnlineQuestionBank();
+  } catch {
+    return null;
+  }
 }
 
 export async function loadQuestionBank(options?: { force?: boolean }) {
   const force = options?.force === true;
-
   if (!force && cachedBank) return cachedBank;
   if (!force && inflight) return inflight;
 
   inflight = fetchQuestionBank();
-
   try {
     return await inflight;
   } finally {
@@ -213,7 +218,6 @@ export function buildQuizTicket(category: QuizCategory) {
 
     for (const question of category.questions) {
       if (question.topic !== part.topic) continue;
-
       const group = groups.get(question.group) || [];
       group.push(question);
       groups.set(question.group, group);
@@ -246,23 +250,11 @@ export function normalizeReviewRoute(question: QuizQuestion) {
 
   if (reviewUrl === "#/menu") {
     const query = question.reviewNote?.trim();
-
-    return query
-      ? `/menu?q=${encodeURIComponent(query)}`
-      : "/menu";
+    return query ? `/menu?q=${encodeURIComponent(query)}` : "/menu";
   }
 
-  const legacyArticle = reviewUrl.match(
-    /^#\/article\/(lesson-\d+)$/
-  );
-
-  if (legacyArticle) {
-    return `/knowledge/${legacyArticle[1]}`;
-  }
-
-  if (reviewUrl.startsWith("#/knowledge/")) {
-    return reviewUrl.slice(1);
-  }
-
+  const legacyArticle = reviewUrl.match(/^#\/article\/(lesson-\d+)$/);
+  if (legacyArticle) return `/knowledge/${legacyArticle[1]}`;
+  if (reviewUrl.startsWith("#/knowledge/")) return reviewUrl.slice(1);
   return null;
 }
