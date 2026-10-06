@@ -1,0 +1,66 @@
+{
+  "name": "BFStaff r40.6 Attestation Editor FULL",
+  "base_main_sha": "e7b19d443eb4273afed394d86d23aba62a403f63",
+  "live_supabase": {
+    "migration_version": "20261006211201",
+    "migration_name": "attestation_editor_settings_categories",
+    "questions_total": 334,
+    "questions_active": 334,
+    "categories_total": 4,
+    "categories_active": 4,
+    "pass_percent": 80,
+    "questions_per_test": 15,
+    "temporary_qa_categories": 0
+  },
+  "features": [
+    "question create/edit/archive/restore/delete",
+    "pass threshold editor",
+    "questions-per-ticket editor",
+    "ticket plan editor by category/topic",
+    "category create/rename/order/disable/restore",
+    "inactive category draft workflow",
+    "capacity validation before category activation",
+    "optimistic concurrency for questions/settings/categories",
+    "offline bank cache and attempt outbox",
+    "post-auth-only attestation sync bridge"
+  ],
+  "verification": {
+    "architecture_tests": "11/11 PASS",
+    "typescript_tsx_transpile": "PASS",
+    "backend_transaction_smoke": "PASS with ROLLBACK",
+    "negative_backend_smoke": "PASS with ROLLBACK",
+    "public_anon_execute_leaks_new_mutation_rpcs": 0,
+    "auth_contour_untouched": true
+  },
+  "protected_files_intentionally_absent": [
+    "src/main.tsx",
+    "src/features/auth/auth-api.ts",
+    "src/features/auth/auth-context.tsx",
+    "src/lib/supabase.ts",
+    "src/lib/config.ts",
+    "supabase/functions/staff-login/index.ts",
+    "supabase/functions/staff-login/deno.json",
+    "src/features/attestation/attestation-sync.ts"
+  ],
+  "files": {
+    "docs/ATTESTATION_ONLINE_BANK.md": "e803b18d134fae4b3f00fdf36796fe363d96650be285017c97a22dc9803a539f",
+    "docs/R40.6_EDITOR_RELEASE_NOTES.md": "384e15806cf9020b926689b970b57540c67aecf511638ec46d5b7ab2622d7f49",
+    "docs/R40.6_INSTALL.md": "748f58bf34fe83e09e906f39eab2502c68d505d9c4e9cb7632b8db6c7ed8e210",
+    "src/components/layout/AppShell.tsx": "2ecadcb07c542ad53aa9d1890c0b9728b612f23604d0717bd04eb463e72e15d9",
+    "src/features/admin/AdminAttemptsPanel.tsx": "f44dea13bce1a59f2504697535fd118437111ff82656a2f0938db1300b628280",
+    "src/features/attestation/AttestationBankAdminPanel.tsx": "386935395fadb27fe6f30c69f79f94a215322044965a61c87415c99ca2f4ea50",
+    "src/features/attestation/AttestationSettingsAdminPanel.tsx": "86b1df4a36addafde98ab667a8fec00859bff986d23fb485a8559232c4982720",
+    "src/features/attestation/AttestationSyncBridge.tsx": "fdb17afc0825362568f76ca8b3aa0f75e3b82bc5a2c23fefee8f738c2be8699d",
+    "src/features/attestation/attestation-data.ts": "85941e952d3934d64dabe6bb94b6aad89e6c4c3c4ed4492955edf27c030fffb6",
+    "src/features/attestation/attestation-editor-api.ts": "a1c4a772d92315fc6eb6644a4411446428ae7becb23870839ee6961364e9b9aa",
+    "src/features/attestation/attestation-history.ts": "ac55384334cb346c3e2cce36e9a5dcbe59e52da1966194186fd071099e6ae5ac",
+    "src/features/attestation/attestation-offline.ts": "f55b6b179306c636bd6093da5106f8876473958fe5128b26c982026b11ae2f41",
+    "src/features/attestation/types.ts": "c87feabbfebd8f526747a8add062541e60d1aac64d14fdf4f7db800cdde944d7",
+    "supabase/migrations/20261005130639_attestation_bank_online_editor_foundation.sql": "24ef451a4d1136c72607c3d13d6078ad31021164bdc7eeb1861092dbbdbef385",
+    "supabase/migrations/20261005130711_seed_attestation_bank_from_legacy_json.sql": "b6d6c2a746e59cbcc56cfa0678d3201e92343919521fdc099bbe6ec993b2ffbd",
+    "supabase/migrations/20261005153815_attestation_attempt_snapshot_threshold.sql": "8eac3926940ed9c832d7bc924f5df6999813165b5890eba3276149962ba0d35a",
+    "supabase/migrations/20261005174308_attestation_question_subcategories.sql": "d0ce2a59088fc0dd1177efe07b6b264279fc38c297f44c0c026cce107647da7d",
+    "supabase/migrations/20261006211201_attestation_editor_settings_categories.sql": "b92f6c53ccd95e3de8d4433d95dffa7c1effaca91d88eb8842f7e874c50236df",
+    "tests/attestation-editor-r40.6.test.cjs": "97b180c79fd142c6894ce819d48038dda7cd3726a17f271cd0747c73f4dbd63e"
+  }
+}
