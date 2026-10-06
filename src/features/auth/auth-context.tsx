@@ -76,6 +76,8 @@ async function clearLocalSession() {
   }
 }
 
+const AUTH_BOOT_FAIL_OPEN_MS = 12_000;
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({
     status: "booting",
@@ -188,10 +190,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let active = true;
 
-    void supabase.auth.getSession().then(({ data }) => {
+    // Never let the application remain permanently on "Проверяем сессию…".
+    // If Supabase session restoration stalls (network, stale refresh token,
+    // iOS/PWA resume or browser lock), fail open to the login screen. A later
+    // auth event can still restore the authenticated state.
+    let bootstrapAbandoned = false;
+
+    const bootFallback = window.setTimeout(() => {
       if (!active) return;
-      void hydrateSession(data.session);
-    });
+      bootstrapAbandoned = true;
+
+      setState((current) =>
+        current.status === "booting"
+          ? { status: "anonymous", session: null, user: null }
+          : current
+      );
+    }, AUTH_BOOT_FAIL_OPEN_MS);
+
+    const bootstrapSession = async () => {
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        if (!active || bootstrapAbandoned) return;
+
+        if (error && isInvalidRefreshToken(error)) {
+          await clearLocalSession();
+          if (!active) return;
+          await hydrateSession(null);
+          return;
+        }
+
+        await hydrateSession(data.session);
+      } catch (error) {
+        if (!active || bootstrapAbandoned) return;
+
+        // A network/bootstrap failure must not trap the user on the splash
+        // screen forever. Show login and allow a fresh explicit auth attempt.
+        console.warn("BeerFactory auth bootstrap failed", error);
+        await hydrateSession(null);
+      } finally {
+        window.clearTimeout(bootFallback);
+      }
+    };
+
+    void bootstrapSession();
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!active) return;
@@ -204,6 +245,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => {
       active = false;
+      window.clearTimeout(bootFallback);
       listener.subscription.unsubscribe();
     };
   }, [hydrateSession]);
