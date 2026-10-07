@@ -138,12 +138,14 @@ function Editor({
   }
 
   const topics = useMemo(() => {
-    const values = bank.questions
+    const category = bank.categories.find((item) => item.id === draft.categoryId);
+    const configured = category?.ticketPlan.map((item) => item.topic) || [];
+    const existing = bank.questions
       .filter((question) => question.categoryId === draft.categoryId)
       .map((question) => question.topic)
       .filter(Boolean);
-    return [...new Set(values)].sort((a, b) => a.localeCompare(b, "ru"));
-  }, [bank.questions, draft.categoryId]);
+    return [...new Set([...configured, ...existing])].sort((a, b) => a.localeCompare(b, "ru"));
+  }, [bank.categories, bank.questions, draft.categoryId]);
 
   const subcategories = useMemo(() => {
     const values = bank.questions
@@ -163,7 +165,7 @@ function Editor({
       new Set(answerTexts.map((text) => text.toLowerCase())).size !== 4 ||
       draft.answers.filter((answer) => answer.correct).length !== 1
     ) {
-      setMessage("Заполните вопрос, тему и четыре разных ответа. Правильный ответ должен быть один.");
+      setMessage("Заполните вопрос, раздел и четыре разных ответа. Правильный ответ должен быть один.");
       return;
     }
 
@@ -219,13 +221,16 @@ function Editor({
             Категория
             <select
               value={draft.categoryId}
-              onChange={(event) => setDraft((current) => ({
-                ...current,
-                categoryId: event.target.value,
-                topic: "",
-                subcategory: ""
-              }))}
-              className="min-h-11 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3 text-sm text-[var(--bf-cream)]"
+              onChange={(event) => {
+                const nextCategory = bank.categories.find((item) => item.id === event.target.value);
+                setDraft((current) => ({
+                  ...current,
+                  categoryId: event.target.value,
+                  topic: nextCategory?.ticketPlan?.[0]?.topic || "",
+                  subcategory: ""
+                }));
+              }}
+              className="min-h-11 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3 text-[16px] text-[var(--bf-cream)]"
             >
               {bank.categories.map((category) => (
                 <option key={category.id} value={category.id}>{category.label}{category.active ? "" : " · черновик"}</option>
@@ -234,33 +239,17 @@ function Editor({
           </label>
 
           <label className="grid gap-1 text-xs font-bold text-[var(--bf-muted)]">
-            Тема
-            <input
+            Раздел вопросов
+            <select
               value={draft.topic}
-              list="attestation-topics"
               onChange={(event) => setDraft((current) => ({ ...current, topic: event.target.value }))}
-              className="min-h-11 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3 text-sm text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
-              placeholder="Например, Коктейли"
-            />
-            <datalist id="attestation-topics">
-              {topics.map((topic) => <option key={topic} value={topic} />)}
-            </datalist>
+              className="min-h-11 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3 text-[16px] text-[var(--bf-cream)]"
+            >
+              {!topics.length ? <option value="">Сначала создайте раздел</option> : null}
+              {topics.map((topic) => <option key={topic} value={topic}>{topic}</option>)}
+            </select>
           </label>
         </div>
-
-        <label className="grid gap-1 text-xs font-bold text-[var(--bf-muted)]">
-          Подкатегория
-          <input
-            value={draft.subcategory}
-            list="attestation-subcategories"
-            onChange={(event) => setDraft((current) => ({ ...current, subcategory: event.target.value }))}
-            className="min-h-11 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3 text-sm text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
-            placeholder="Можно оставить пустой и распределить позже"
-          />
-          <datalist id="attestation-subcategories">
-            {subcategories.map((item) => <option key={item} value={item} />)}
-          </datalist>
-        </label>
 
         <label className="grid gap-1 text-xs font-bold text-[var(--bf-muted)]">
           Вопрос
@@ -321,28 +310,29 @@ function Editor({
           <summary className="cursor-pointer text-sm font-black">Дополнительно</summary>
           <div className="mt-3 grid gap-3">
             <label className="grid gap-1 text-xs font-bold text-[var(--bf-muted)]">
-              Группа вопроса
-              <input value={draft.group} onChange={(event) => setDraft((current) => ({ ...current, group: event.target.value }))} className="min-h-11 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-3 text-sm text-[var(--bf-cream)]" />
+              Подкатегория
+              <input
+                value={draft.subcategory}
+                list="attestation-subcategories"
+                onChange={(event) => setDraft((current) => ({ ...current, subcategory: event.target.value }))}
+                className="min-h-11 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-3 text-[16px] text-[var(--bf-cream)]"
+                placeholder="Необязательно"
+              />
+              <datalist id="attestation-subcategories">
+                {subcategories.map((item) => <option key={item} value={item} />)}
+              </datalist>
             </label>
             <label className="grid gap-1 text-xs font-bold text-[var(--bf-muted)]">
-              Источник
-              <input value={draft.source} onChange={(event) => setDraft((current) => ({ ...current, source: event.target.value }))} className="min-h-11 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-3 text-sm text-[var(--bf-cream)]" />
+              Что повторить после ошибки
+              <input value={draft.reviewNote} onChange={(event) => setDraft((current) => ({ ...current, reviewNote: event.target.value }))} className="min-h-11 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-3 text-[16px] text-[var(--bf-cream)]" placeholder="Например, Коктейли" />
             </label>
             <label className="grid gap-1 text-xs font-bold text-[var(--bf-muted)]">
-              Ссылка / ID источника
-              <input value={draft.sourceRef} onChange={(event) => setDraft((current) => ({ ...current, sourceRef: event.target.value }))} className="min-h-11 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-3 text-sm text-[var(--bf-cream)]" />
+              Ссылка на материал
+              <input value={draft.reviewUrl} onChange={(event) => setDraft((current) => ({ ...current, reviewUrl: event.target.value }))} className="min-h-11 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-3 text-[16px] text-[var(--bf-cream)]" placeholder="#/menu или #/knowledge/..." />
             </label>
             <label className="grid gap-1 text-xs font-bold text-[var(--bf-muted)]">
-              Материал для повторения
-              <input value={draft.reviewNote} onChange={(event) => setDraft((current) => ({ ...current, reviewNote: event.target.value }))} className="min-h-11 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-3 text-sm text-[var(--bf-cream)]" placeholder="Название рецепта или темы" />
-            </label>
-            <label className="grid gap-1 text-xs font-bold text-[var(--bf-muted)]">
-              Ссылка для повторения
-              <input value={draft.reviewUrl} onChange={(event) => setDraft((current) => ({ ...current, reviewUrl: event.target.value }))} className="min-h-11 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-3 text-sm text-[var(--bf-cream)]" placeholder="#/menu или #/knowledge/..." />
-            </label>
-            <label className="grid gap-1 text-xs font-bold text-[var(--bf-muted)]">
-              Текст кнопки повторения
-              <input value={draft.reviewLabel} onChange={(event) => setDraft((current) => ({ ...current, reviewLabel: event.target.value }))} className="min-h-11 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-3 text-sm text-[var(--bf-cream)]" placeholder="Повторить тему" />
+              Текст кнопки
+              <input value={draft.reviewLabel} onChange={(event) => setDraft((current) => ({ ...current, reviewLabel: event.target.value }))} className="min-h-11 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-3 text-[16px] text-[var(--bf-cream)]" placeholder="Повторить тему" />
             </label>
           </div>
         </details>
@@ -474,7 +464,7 @@ export function AttestationBankAdminPanel() {
           <p className="eyebrow">ОНЛАЙН-БАНК</p>
           <h3 className="mt-1 text-2xl font-black">Вопросы аттестации</h3>
           <p className="mt-1 text-xs text-[var(--bf-dim)]">
-            {bank.settings.questionsPerTest} вопросов в билете · зачёт {bank.settings.passPercent}%
+            Размер аттестации задаётся отдельно для каждой категории · зачёт {bank.settings.passPercent}%
           </p>
         </div>
         <div className="flex gap-1">
@@ -517,7 +507,7 @@ export function AttestationBankAdminPanel() {
 
       <label className="relative mt-3 block">
         <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[var(--bf-dim)]" aria-hidden />
-        <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Поиск по вопросу, теме или ответам" className="min-h-12 w-full rounded-2xl border border-[var(--bf-line)] bg-[var(--bf-surface)] pl-10 pr-3 text-[16px] text-[var(--bf-cream)] outline-none placeholder:text-[var(--bf-dim)] focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]" />
+        <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Поиск по вопросу, разделу или ответам" className="min-h-12 w-full rounded-2xl border border-[var(--bf-line)] bg-[var(--bf-surface)] pl-10 pr-3 text-[16px] text-[var(--bf-cream)] outline-none placeholder:text-[var(--bf-dim)] focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]" />
       </label>
 
       <div className="mt-3 flex gap-2 overflow-x-auto pb-1 bf-scrollbar-none">
@@ -550,7 +540,6 @@ export function AttestationBankAdminPanel() {
                   {question.status === "archive" ? <span className="rounded-full border border-[var(--bf-line)] px-2 py-0.5">Архив</span> : null}
                 </div>
                 <h4 className="mt-1 text-[15px] font-extrabold leading-5 text-[var(--bf-cream)]">{question.q}</h4>
-                <p className="mt-2 text-[11px] text-[var(--bf-dim)]">rev. {question.revision} · {question.id}</p>
               </div>
               <Button type="button" variant="secondary" size="icon" onClick={() => setEditing(draftFromQuestion(question))} aria-label="Редактировать вопрос">
                 <Pencil className="size-4" aria-hidden />

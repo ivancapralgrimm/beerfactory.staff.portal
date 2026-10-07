@@ -38,6 +38,7 @@ export type AttestationEditorCategory = {
   label: string;
   sortOrder: number;
   active: boolean;
+  questionsPerTest: number;
   createdAt?: string | null;
   updatedAt?: string | null;
   ticketPlan: AttestationTicketPlanItem[];
@@ -67,6 +68,9 @@ function apiError(error: unknown, fallback: string) {
     "attestation_ticket_total_invalid",
     "attestation_ticket_plan_invalid",
     "attestation_ticket_plan_duplicate",
+    "attestation_settings_invalid",
+    "attestation_category_settings_duplicate",
+    "attestation_category_settings_incomplete",
     "attestation_answers_invalid",
     "attestation_category_invalid",
     "attestation_category_label_invalid",
@@ -166,8 +170,12 @@ export async function setAttestationQuestionStatus(
 
 export async function saveAttestationEditorSettings(input: {
   passPercent: number;
-  questionsPerTest: number;
   expectedRevision: number;
+  categories: Array<{
+    categoryId: string;
+    label: string;
+    questionsPerTest: number;
+  }>;
   ticketPlan: Array<{
     categoryId: string;
     topic: string;
@@ -176,10 +184,10 @@ export async function saveAttestationEditorSettings(input: {
   }>;
 }) {
   const { data, error } = await supabase.rpc(
-    "save_attestation_editor_settings",
+    "save_attestation_editor_settings_v2",
     {
       p_pass_percent: input.passPercent,
-      p_questions_per_test: input.questionsPerTest,
+      p_category_settings: input.categories,
       p_ticket_plan: input.ticketPlan,
       p_expected_revision: input.expectedRevision
     }
@@ -189,7 +197,7 @@ export async function saveAttestationEditorSettings(input: {
     throw apiError(error, "attestation_settings_save_failed");
   }
 
-  return data as AttestationEditorBank["settings"];
+  return data as Pick<AttestationEditorBank["settings"], "passPercent" | "revision">;
 }
 
 export async function saveAttestationCategory(

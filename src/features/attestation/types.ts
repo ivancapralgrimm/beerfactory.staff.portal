@@ -26,6 +26,7 @@ export type QuizTicketPlanPart = {
 export type QuizCategory = {
   id: string;
   label: string;
+  questionsPerTest: number;
   questions: QuizQuestion[];
   ticketPlan: QuizTicketPlanPart[];
 };

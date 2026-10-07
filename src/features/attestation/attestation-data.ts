@@ -92,10 +92,16 @@ export function validateQuestionBank(value: unknown): QuestionBank {
     }
 
     const category = rawCategory as unknown as QuizCategory;
+    const categoryQuestionsPerTest = Number(
+      (rawCategory as Record<string, unknown>).questionsPerTest ?? questionsPerTest
+    );
     if (
       !category.id ||
       !category.label ||
       seenCategoryIds.has(category.id) ||
+      !Number.isInteger(categoryQuestionsPerTest) ||
+      categoryQuestionsPerTest < 1 ||
+      categoryQuestionsPerTest > 50 ||
       !Array.isArray(category.questions) ||
       !Array.isArray(category.ticketPlan)
     ) {
@@ -103,6 +109,7 @@ export function validateQuestionBank(value: unknown): QuestionBank {
     }
 
     seenCategoryIds.add(category.id);
+    category.questionsPerTest = categoryQuestionsPerTest;
 
     for (const question of category.questions) {
       if (!isQuestion(question) || seenQuestionIds.has(question.id)) {
@@ -117,7 +124,7 @@ export function validateQuestionBank(value: unknown): QuestionBank {
       (total, part) => total + part.count,
       0
     );
-    if (ticketCount !== questionsPerTest) {
+    if (ticketCount !== category.questionsPerTest) {
       throw new Error(`question_bank_ticket_invalid:${category.id}`);
     }
 
@@ -245,12 +252,34 @@ export function hasPassed(
   return total > 0 && correct * 100 >= total * passPercent;
 }
 
+function directRecipeReviewRoute(question: QuizQuestion) {
+  const source = question.source?.trim() || "";
+  const match = source.match(
+    /^Карта\s+(Бар|Кухня):.*\(ID\s+([A-Za-z0-9_-]+)\)\s*$/iu
+  );
+
+  if (!match) return null;
+
+  const sourceKey = match[1].toLocaleLowerCase("ru") === "бар"
+    ? "bar"
+    : "kitchen";
+  const recipeId = `${sourceKey}:${match[2]}`;
+
+  return `/menu/${encodeURIComponent(recipeId)}`;
+}
+
 export function normalizeReviewRoute(question: QuizQuestion) {
   const reviewUrl = question.reviewUrl || "";
 
   if (reviewUrl === "#/menu") {
-    const query = question.reviewNote?.trim();
-    return query ? `/menu?q=${encodeURIComponent(query)}` : "/menu";
+    // Legacy question data stored a generic recipes URL plus a title for
+    // search. Review links must open the exact recipe instead, so derive
+    // the current source-aware route from the preserved source record ID.
+    return directRecipeReviewRoute(question);
+  }
+
+  if (reviewUrl.startsWith("#/menu/")) {
+    return reviewUrl.slice(1);
   }
 
   const legacyArticle = reviewUrl.match(/^#\/article\/(lesson-\d+)$/);
