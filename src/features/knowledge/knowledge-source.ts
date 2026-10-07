@@ -2,16 +2,13 @@ export function resolveKnowledgeSource(input: {
   requested?: string;
   mode?: string;
   deploymentEnv?: string;
-  branch?: string;
 }): "legacy" | "supabase" {
-  // Production remains on legacy until the separate reviewed cutover.
-  if (input.deploymentEnv === "production") return "legacy";
+  // Legacy is an explicit emergency rollback. Production and preview builds
+  // use the server-authoritative Knowledge implementation by default.
   if (input.requested === "legacy") return "legacy";
-  if (
-    input.requested === "supabase" ||
-    input.mode === "r40.5-preview" ||
-    (input.deploymentEnv === "preview" && input.branch === "r40.5")
-  )
+  if (input.requested === "supabase") return "supabase";
+  if (input.mode === "production" || input.mode === "preview")
     return "supabase";
+  if (input.deploymentEnv === "preview") return "supabase";
   return "legacy";
 }

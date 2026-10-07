@@ -1,7 +1,7 @@
 {
   "name": "beerfactory-staff-portal",
   "private": true,
-  "version": "40.4.0-alpha.1",
+  "version": "40.6.0-alpha.1",
   "type": "module",
   "engines": {
     "node": "24.x"
@@ -15,11 +15,11 @@
     "preview": "vite preview",
     "typecheck": "tsc -b --pretty false",
     "test": "npm run test:ci",
-    "test:ci": "node --test --test-isolation=none tests/edge-contract.test.cjs tests/backend-hardening.test.cjs tests/performance-network.test.cjs tests/visual-architecture-hardening.test.cjs tests/reliability-hardening.test.cjs tests/attestation-editor-r40.6.test.cjs",
+    "test:ci": "node --test --test-isolation=none tests/edge-contract.test.cjs tests/backend-hardening.test.cjs tests/performance-network.test.cjs tests/visual-architecture-hardening.test.cjs tests/reliability-hardening.test.cjs tests/attestation-editor-r40.6.test.cjs tests/repository-hygiene.test.cjs",
     "test:browser": "node tests/run-browser.mjs",
     "knowledge:seed:dry-run": "node scripts/build-knowledge-legacy-seed.mjs",
-    "dev:preview": "npm run sync:public && vite --mode r40.5-preview",
-    "build:preview": "npm run sync:public && tsc -b && vite build --mode r40.5-preview",
+    "dev:preview": "npm run sync:public && vite --mode preview",
+    "build:preview": "npm run sync:public && tsc -b && vite build --mode preview",
     "knowledge:seed:live-history": "node tools/build-knowledge-legacy-seed.mjs ."
   },
   "dependencies": {

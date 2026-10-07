@@ -17,8 +17,6 @@ for (const extension of [".ts", ".tsx"]) {
     let source = fs
       .readFileSync(filename, "utf8")
       .replaceAll("import.meta.env", "({})");
-    if (filename.endsWith("r40.5-knowledge-data.baseline.ts"))
-      source += "\nexport { parseArticles };";
     const output = ts.transpileModule(source, {
       compilerOptions: {
         target: ts.ScriptTarget.ES2022,
