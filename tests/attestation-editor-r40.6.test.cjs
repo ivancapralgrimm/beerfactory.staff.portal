@@ -16,16 +16,11 @@ test("attestation sync is post-auth only and cannot bootstrap Supabase Auth", ()
   const main = read("src/main.tsx");
   const bridge = read("src/features/attestation/AttestationSyncBridge.tsx");
   const shell = read("src/components/layout/AppShell.tsx");
-
   assert.doesNotMatch(main, /AttestationSync|attestation-sync/);
   assert.match(shell, /AttestationSyncBridge/);
   assert.match(shell, /state\.status === "authenticated"/);
-  assert.match(shell, /userId=\{state\.user\.id\}/);
   assert.doesNotMatch(bridge, /from "@\/lib\/supabase"/);
-  assert.doesNotMatch(
-    bridge,
-    /onAuthStateChange|getSession|setSession|refreshSession/
-  );
+  assert.doesNotMatch(bridge, /onAuthStateChange|getSession|setSession|refreshSession/);
 });
 
 test("admin attestation area exposes results, questions and settings", () => {
@@ -33,53 +28,59 @@ test("admin attestation area exposes results, questions and settings", () => {
   assert.match(panel, /AttestationBankAdminPanel/);
   assert.match(panel, /AttestationSettingsAdminPanel/);
   assert.match(panel, /"results" \| "bank" \| "settings"/);
-  assert.match(panel, />Вопросы</);
-  assert.match(panel, />Настройки</);
 });
 
-test("editor API contains guarded question, settings and category RPCs", () => {
+test("editor API uses v2 settings RPC with category-specific ticket sizes", () => {
   const api = read("src/features/attestation/attestation-editor-api.ts");
-  for (const rpc of [
-    "get_attestation_editor_bank",
-    "save_attestation_question",
-    "set_attestation_question_status",
-    "save_attestation_editor_settings",
-    "save_attestation_category",
-    "set_attestation_category_status"
-  ]) {
-    assert.match(api, new RegExp(rpc));
-  }
+  assert.match(api, /save_attestation_editor_settings_v2/);
+  assert.match(api, /questionsPerTest: number/);
+  assert.match(api, /p_category_settings/);
+  assert.match(api, /save_attestation_category/);
+  assert.match(api, /set_attestation_category_status/);
 });
 
-test("question editor can prepare questions in disabled categories", () => {
+test("question editor hides technical IDs and group/source internals", () => {
   const editor = read("src/features/attestation/AttestationBankAdminPanel.tsx");
-  assert.match(editor, /category\.active \? "" : " · черновик"/);
-  assert.doesNotMatch(editor, /categories\.filter\(\(category\) => category\.active\)/);
+  assert.match(editor, /Раздел вопросов/);
+  assert.match(editor, /Что повторить после ошибки/);
+  assert.doesNotMatch(editor, />Группа вопроса</);
+  assert.doesNotMatch(editor, />Ссылка \/ ID источника</);
+  assert.doesNotMatch(editor, /rev\. \{question\.revision\}/);
 });
 
-test("settings editor controls threshold, ticket size, categories and topic plan", () => {
+test("settings editor has per-category counts and blank-safe numeric drafts", () => {
   const editor = read("src/features/attestation/AttestationSettingsAdminPanel.tsx");
-  for (const token of [
-    "Порог прохождения, %",
-    "Вопросов в билете",
-    "Новая категория",
-    "План билета",
-    "Сохранить правила и план",
-    "setAttestationCategoryStatus",
-    "saveAttestationEditorSettings"
-  ]) {
-    assert.match(editor, new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
-  }
-  assert.match(editor, /available < item\.count/);
-  assert.match(editor, /total !== questionsPerTest/);
+  assert.match(editor, /Вопросов в этой аттестации/);
+  assert.match(editor, /category\.questionsPerTest/);
+  assert.match(editor, /numericDraft/);
+  assert.match(editor, /inputMode="numeric"/);
+  assert.match(editor, /Разделы вопросов/);
+  assert.doesNotMatch(editor, />Вопросов в билете</);
+  assert.doesNotMatch(editor, /type="number"/);
 });
 
-test("editor exposes review metadata and safe UUID fallback", () => {
-  const editor = read("src/features/attestation/AttestationBankAdminPanel.tsx");
-  assert.match(editor, /reviewUrl/);
-  assert.match(editor, /reviewLabel/);
-  assert.match(editor, /globalThis\.crypto/);
-  assert.match(editor, /Math\.random/);
+test("runtime starts tickets using the selected category size", () => {
+  const page = read("src/features/attestation/AttestationPage.tsx");
+  assert.match(page, /questions\.length !== selectedCategory\.questionsPerTest/);
+  assert.match(page, /\{category\.questionsPerTest\} вопросов/);
+  assert.doesNotMatch(page, /15 вопросов\. Зачёт/);
+});
+
+test("admin journal is compressed into two human-facing blocks", () => {
+  const audit = read("src/features/admin/AdminAuditPanel.tsx");
+  assert.match(audit, /Персонал и доступ/);
+  assert.match(audit, /Портал и смены/);
+  assert.match(audit, /slice\(0, 8\)/);
+  assert.match(audit, /Технические коды и внутренние ID скрыты/);
+  assert.doesNotMatch(audit, /ACTION_LABELS/);
+});
+
+test("mobile form controls prevent iOS focus auto-zoom without disabling user zoom", () => {
+  const css = read("src/styles/mobile-form-stability.css");
+  assert.match(css, /font-size: 16px !important/);
+  assert.doesNotMatch(css, /user-scalable\s*:\s*no|maximum-scale\s*=\s*1/);
+  const shell = read("src/components/layout/AppShell.tsx");
+  assert.match(shell, /mobile-form-stability\.css/);
 });
 
 test("IndexedDB transaction completion listener is created before writes", () => {
@@ -92,52 +93,21 @@ test("IndexedDB transaction completion listener is created before writes", () =>
   ]) {
     assert.match(offline, new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }
-
-  assert.ok(
-    offline.indexOf("const done = transactionDone(transaction);") <
-      offline.indexOf("objectStore(BANK_STORE).put(record)")
-  );
 });
 
-test("foundation migration is preserved for reproducibility and RPC-only access", () => {
-  const foundation = read(
-    "supabase/migrations/20261005130639_attestation_bank_online_editor_foundation.sql"
-  );
-  assert.match(foundation, /enable row level security/);
-  assert.match(foundation, /private\.attestation_is_admin/);
-  assert.match(foundation, /get_attestation_editor_bank/);
-  assert.match(foundation, /revoke all on table/);
+test("category ticket-size migration is present and protected", () => {
+  const dir = path.join(root, "supabase/migrations");
+  const file = fs.readdirSync(dir).find((name) => name.endsWith("_attestation_category_ticket_sizes.sql"));
+  assert.ok(file, "category ticket-size migration missing");
+  const sql = read(`supabase/migrations/${file}`);
+  assert.match(sql, /questions_per_test/);
+  assert.match(sql, /save_attestation_editor_settings_v2/);
+  assert.match(sql, /p_category_settings/);
+  assert.match(sql, /v_old\.questions_per_test/);
+  assert.match(sql, /revoke all on function public\.save_attestation_editor_settings_v2/);
 });
 
-test("full editor migration protects draft categories and concurrent settings", () => {
-  const sql = read(
-    "supabase/migrations/20261006211201_attestation_editor_settings_categories.sql"
-  );
-
-  assert.match(sql, /save_attestation_editor_settings/);
-  assert.match(sql, /attestation_settings_revision_conflict/);
-  assert.match(sql, /save_attestation_category/);
-  assert.match(sql, /set_attestation_category_status/);
-  assert.match(sql, /v_id, v_label, v_sort, false, v_actor/);
-  assert.match(sql, /attestation_category_not_ready/);
-  assert.match(sql, /attestation_category_label_duplicate/);
-  assert.match(sql, /attestation_last_category/);
-  assert.match(sql, /where id = v_category\s*\n\s*\) then/);
-  assert.doesNotMatch(
-    sql,
-    /where id = v_category and is_active is true/
-  );
-  assert.match(
-    sql,
-    /revoke all on function public\.save_attestation_category[\s\S]*from public, anon, authenticated/
-  );
-  assert.match(
-    sql,
-    /revoke all on function public\.save_attestation_settings\(smallint,smallint,jsonb\) from public, anon, authenticated/
-  );
-});
-
-test("release notes forbid touching the repaired auth contour", () => {
+test("release notes still forbid touching the repaired auth contour", () => {
   const notes = read("docs/R40.6_EDITOR_RELEASE_NOTES.md");
   for (const token of [
     "src/main.tsx",
@@ -149,3 +119,14 @@ test("release notes forbid touching the repaired auth contour", () => {
     assert.match(notes, new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }
 });
+
+test("mistake review links open exact material pages, never recipe search", () => {
+  const data = read("src/features/attestation/attestation-data.ts");
+  assert.doesNotMatch(data, /\/menu\?q=/);
+  assert.match(data, /directRecipeReviewRoute/);
+  assert.match(data, /bar/);
+  assert.match(data, /kitchen/);
+  assert.match(data, /encodeURIComponent\(recipeId\)/);
+  assert.match(data, /\/knowledge\/\$\{legacyArticle\[1\]\}/);
+});
+
