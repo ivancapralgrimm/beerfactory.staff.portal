@@ -23,6 +23,8 @@ import {
   type AttestationEditorBank,
   type AttestationEditorQuestion
 } from "@/features/attestation/attestation-editor-api";
+import { loadServerKnowledgeArticles } from "@/features/knowledge/knowledge-server";
+import { isArchive, loadRecipes } from "@/features/recipes/recipe-data";
 import { cn } from "@/lib/utils";
 
 const EMPTY_ANSWERS = () => [
@@ -82,6 +84,43 @@ type Draft = {
   reviewNote: string;
 };
 
+
+type ReviewMaterial = {
+  value: string;
+  label: string;
+  buttonLabel: string;
+};
+
+function legacyDirectReviewUrl(question: AttestationEditorQuestion) {
+  const reviewUrl = question.reviewUrl || "";
+
+  if (reviewUrl === "#/menu") {
+    const source = question.source?.trim() || "";
+    const match = source.match(
+      /^Карта\s+(Бар|Кухня):.*\(ID\s+([A-Za-z0-9_-]+)\)\s*$/iu
+    );
+
+    if (!match) return "";
+
+    const sourceKey =
+      match[1].toLocaleLowerCase("ru") === "бар" ? "bar" : "kitchen";
+    return `#/menu/${encodeURIComponent(`${sourceKey}:${match[2]}`)}`;
+  }
+
+  const legacyArticle = reviewUrl.match(/^#\/article\/(lesson-\d+)$/);
+  if (legacyArticle) return `#/knowledge/${legacyArticle[1]}`;
+
+  return reviewUrl;
+}
+
+function reviewUrlIsDirect(value: string) {
+  return (
+    value === "" ||
+    /^#\/menu\/[^/]+$/u.test(value) ||
+    /^#\/knowledge\/[A-Za-z0-9:_-]+$/u.test(value)
+  );
+}
+
 function draftFromQuestion(question: AttestationEditorQuestion): Draft {
   return {
     id: question.id,
@@ -94,7 +133,7 @@ function draftFromQuestion(question: AttestationEditorQuestion): Draft {
     answers: question.answers.map((answer) => ({ ...answer })),
     source: question.source || "",
     sourceRef: question.sourceRef || "",
-    reviewUrl: question.reviewUrl || "",
+    reviewUrl: legacyDirectReviewUrl(question),
     reviewLabel: question.reviewLabel || "",
     reviewNote: question.reviewNote || ""
   };
@@ -114,6 +153,9 @@ function Editor({
   const [draft, setDraft] = useState(initial);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const [reviewMaterials, setReviewMaterials] = useState<ReviewMaterial[]>([]);
+  const [materialsLoading, setMaterialsLoading] = useState(true);
+  const [materialsError, setMaterialsError] = useState(false);
 
   const initialSignature = useMemo(
     () => JSON.stringify(initial),
@@ -123,6 +165,57 @@ function Editor({
     () => JSON.stringify(draft) !== initialSignature,
     [draft, initialSignature]
   );
+
+
+  useEffect(() => {
+    let active = true;
+    setMaterialsLoading(true);
+    setMaterialsError(false);
+
+    void Promise.allSettled([
+      loadRecipes(),
+      loadServerKnowledgeArticles()
+    ]).then(([recipesResult, articlesResult]) => {
+      if (!active) return;
+
+      const items: ReviewMaterial[] = [];
+
+      if (recipesResult.status === "fulfilled") {
+        const seen = new Set<string>();
+        for (const recipe of recipesResult.value.recipes) {
+          if (isArchive(recipe) || !recipe.id || seen.has(recipe.id)) continue;
+          seen.add(recipe.id);
+          items.push({
+            value: `#/menu/${encodeURIComponent(recipe.id)}`,
+            label: `Рецепт · ${recipe.name}`,
+            buttonLabel: "Открыть рецепт"
+          });
+        }
+      }
+
+      if (articlesResult.status === "fulfilled") {
+        for (const article of articlesResult.value) {
+          items.push({
+            value: `#/knowledge/${article.id}`,
+            label: `Статья · ${article.title}`,
+            buttonLabel: "Открыть статью"
+          });
+        }
+      }
+
+      items.sort((a, b) => a.label.localeCompare(b.label, "ru"));
+      setReviewMaterials(items);
+      setMaterialsError(
+        recipesResult.status === "rejected" &&
+        articlesResult.status === "rejected"
+      );
+      setMaterialsLoading(false);
+    });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   function closeEditor() {
     if (saving) return;
@@ -166,6 +259,14 @@ function Editor({
       draft.answers.filter((answer) => answer.correct).length !== 1
     ) {
       setMessage("Заполните вопрос, раздел и четыре разных ответа. Правильный ответ должен быть один.");
+      return;
+    }
+
+    const reviewUrl = draft.reviewUrl.trim();
+    if (!reviewUrlIsDirect(reviewUrl)) {
+      setMessage(
+        "Материал для повторения должен вести сразу на конкретный рецепт или статью."
+      );
       return;
     }
 
@@ -327,12 +428,39 @@ function Editor({
               <input value={draft.reviewNote} onChange={(event) => setDraft((current) => ({ ...current, reviewNote: event.target.value }))} className="min-h-11 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-3 text-[16px] text-[var(--bf-cream)]" placeholder="Например, Коктейли" />
             </label>
             <label className="grid gap-1 text-xs font-bold text-[var(--bf-muted)]">
-              Ссылка на материал
-              <input value={draft.reviewUrl} onChange={(event) => setDraft((current) => ({ ...current, reviewUrl: event.target.value }))} className="min-h-11 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-3 text-[16px] text-[var(--bf-cream)]" placeholder="#/menu или #/knowledge/..." />
-            </label>
-            <label className="grid gap-1 text-xs font-bold text-[var(--bf-muted)]">
-              Текст кнопки
-              <input value={draft.reviewLabel} onChange={(event) => setDraft((current) => ({ ...current, reviewLabel: event.target.value }))} className="min-h-11 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-3 text-[16px] text-[var(--bf-cream)]" placeholder="Повторить тему" />
+              Материал после ошибки
+              <select
+                value={draft.reviewUrl}
+                disabled={materialsLoading}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  const material = reviewMaterials.find((item) => item.value === value);
+                  setDraft((current) => ({
+                    ...current,
+                    reviewUrl: value,
+                    reviewLabel: material?.buttonLabel || ""
+                  }));
+                }}
+                className="min-h-11 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-3 text-[16px] text-[var(--bf-cream)]"
+              >
+                <option value="">
+                  {materialsLoading ? "Загружаем материалы…" : "Не выбран"}
+                </option>
+                {draft.reviewUrl &&
+                !reviewMaterials.some((item) => item.value === draft.reviewUrl) ? (
+                  <option value={draft.reviewUrl}>Текущий материал</option>
+                ) : null}
+                {reviewMaterials.map((item) => (
+                  <option key={item.value} value={item.value}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+              <span className="text-[11px] font-medium leading-4 text-[var(--bf-dim)]">
+                {materialsError
+                  ? "Список материалов сейчас недоступен. Существующая ссылка сохранится."
+                  : "Выбирается конкретная страница. Системные ID и маршруты скрыты."}
+              </span>
             </label>
           </div>
         </details>
