@@ -29,7 +29,6 @@ export function KnowledgeImageDialog({
     }
     if (!open && dialog.open) dialog.close();
     return () => {
-      // React removes the modal on dismiss; return keyboard focus to its photo.
       const trigger = triggerRef.current;
       if (open && trigger?.isConnected) {
         trigger.focus({ preventScroll: true });
@@ -40,7 +39,7 @@ export function KnowledgeImageDialog({
   return (
     <dialog
       ref={dialogRef}
-      className="knowledge-image-dialog m-auto max-h-[92dvh] w-[min(94vw,1100px)] overflow-hidden rounded-2xl border border-[var(--bf-line)] bg-[var(--bf-bg)] p-0 text-[var(--bf-cream)]"
+      className="knowledge-image-dialog m-auto max-h-[94dvh] w-fit max-w-[94vw] overflow-hidden rounded-2xl border border-[var(--bf-line)] bg-[var(--bf-bg)] p-0 text-[var(--bf-cream)]"
       aria-label={alt ? `Изображение: ${alt}` : "Изображение статьи"}
       onCancel={(event) => {
         event.preventDefault();
@@ -51,21 +50,23 @@ export function KnowledgeImageDialog({
         if (event.target === event.currentTarget) onClose();
       }}
     >
-      <div className="relative grid min-h-[50dvh] place-items-center bg-black/30 p-3">
-        <img
-          src={src}
-          alt={alt}
-          className="max-h-[86dvh] max-w-full object-contain"
-        />
-        <Button
-          type="button"
-          size="icon"
-          aria-label="Закрыть изображение"
-          className="absolute right-3 top-3"
-          onClick={onClose}
-        >
-          <X className="size-5" aria-hidden />
-        </Button>
+      <div className="grid place-items-center bg-black/30 p-2">
+        <div className="relative inline-flex max-h-[90dvh] max-w-full">
+          <img
+            src={src}
+            alt={alt}
+            className="block max-h-[90dvh] max-w-[90vw] object-contain"
+          />
+          <Button
+            type="button"
+            size="icon"
+            aria-label="Закрыть изображение"
+            className="absolute right-2 top-2 z-10 size-10 min-h-10 rounded-full border border-black/20 bg-[color:color-mix(in_srgb,var(--bf-surface),transparent_8%)] p-0 shadow-lg backdrop-blur-sm"
+            onClick={onClose}
+          >
+            <X className="size-5" aria-hidden />
+          </Button>
+        </div>
       </div>
     </dialog>
   );
