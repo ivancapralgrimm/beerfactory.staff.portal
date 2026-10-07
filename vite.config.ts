@@ -83,7 +83,6 @@ export default defineConfig(({ mode }) => {
             "push-sw.js",
             "assets/training-data.txt",
             "assets/training-data.json",
-            "assets/questions.txt",
           ],
         },
       }),

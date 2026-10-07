@@ -64,10 +64,8 @@ Attestation synchronization is mounted only after authentication through `Attest
 
 The foundation migration `20261005130639_attestation_bank_online_editor_foundation.sql` is restored in source control to match the already-applied live schema. The full editor admin layer is recorded in `20261006211201_attestation_editor_settings_categories.sql`.
 
-## Repository cleanup after QA
+## Repository state after QA
 
-Delete the old attestation content payloads only after preview validation:
-- `assets/question-banks.json`
-- `assets/questions.txt`
-
-Do not delete Knowledge assets as part of this cutover.
+The old attestation payloads were removed after the online-bank preview passed.
+Question content now comes from Supabase and the authenticated offline cache.
+Knowledge fallback assets remain separate from this cutover.

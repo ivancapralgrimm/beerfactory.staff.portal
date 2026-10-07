@@ -1,5 +1,5 @@
 // Transport fixtures only. These checks do not prove deployed SQL/RLS/Edge security.
-// Start the two dev servers as documented in R40_5_EDITOR_INTEGRATION.md.
+// Start the current and legacy-fallback dev servers before running this transport fixture.
 import { chromium } from "playwright";
 import assert from "node:assert/strict";
 import fs from "node:fs";
