@@ -1,0 +1,15 @@
+/* iOS/PWA editor stability: keep editable controls at 16px to prevent focus auto-zoom. */
+@media (max-width: 768px) {
+  .bf-app-shell input:not([type="checkbox"]):not([type="radio"]),
+  .bf-app-shell textarea,
+  .bf-app-shell select {
+    font-size: 16px !important;
+  }
+}
+
+.bf-app-shell input,
+.bf-app-shell textarea,
+.bf-app-shell select {
+  scroll-margin-top: calc(env(safe-area-inset-top) + 72px);
+  scroll-margin-bottom: calc(env(safe-area-inset-bottom) + 96px);
+}
