@@ -55,7 +55,7 @@ test("installed PWA does not precache legacy training payload or push worker twi
   assert.match(vite, /importScripts:\s*\["push-sw\.js"\]/);
   assert.match(vite, /"push-sw\.js"/);
   assert.match(vite, /assets\/training-data\.txt/);
-  assert.match(vite, /assets\/training-data\.json/);
+  assert.doesNotMatch(vite, /assets\/training-data\.json/);
   assert.doesNotMatch(vite, /assets\/questions\.txt/);
 
   const includeBlock = vite.match(/includeAssets:\s*\[([\s\S]*?)\]/)?.[1] || "";

@@ -1,4 +1,8 @@
-# Supabase migrations already applied
+# Supabase production state and applied migrations
+
+Live state was checked through the connected Supabase API on 2026-10-07.
+Migration SQL files in this repository are schema history and must not be deleted,
+even when a later migration supersedes their behavior.
 
 These r40.4 migrations were applied through the connected Supabase migration API:
 
@@ -54,3 +58,45 @@ See BACKEND_CONTRACT_CHECK.md for provenance, hashes and exact Edge-source sync.
 - `knowledge-media-upload` Edge Function v2 ACTIVE, `verify_jwt=true`
 
 The migration and Edge source are included in this repository for reproducibility. They are already applied/deployed to the current Supabase project and must not be manually rerun merely because the files are uploaded to GitHub.
+
+## r40.6 auth and attestation — applied live
+
+The following newer migrations are present in live migration history and have
+matching SQL files in `supabase/migrations`:
+
+- `20261003213857` · `grant_authenticated_execute_is_manager_or_admin`
+- `20261005101209` · `add_staff_login_rate_limit`
+- `20261005130639` · `attestation_bank_online_editor_foundation`
+- `20261005130711` · `seed_attestation_bank_from_legacy_json`
+- `20261005153815` · `attestation_attempt_snapshot_threshold`
+- `20261005174308` · `attestation_question_subcategories`
+- `20261006211201` · `attestation_editor_settings_categories`
+- `20261007082211` · `attestation_category_ticket_sizes`
+
+The attestation bank, editor settings, categories, ticket sizes, attempt
+snapshots and staff login rate limiting are therefore production schema
+contracts. Do not remove, rename or manually rerun these migration files.
+
+## Active Edge Functions verified live
+
+- `staff-login` v8
+- `staff-register` v2
+- `staff-recover` v7
+- `staff-set-recovery` v4
+- `staff-profile` v8
+- `staff-admin-users` v7
+- `handover-push` v7
+- `knowledge-media-upload` v2
+
+`handover-push` remains a current dependency of the new Feed frontend. The old
+`src/features/handover` UI can be removed without deleting this function.
+
+The live project also contains `staff-login-qa` v3. It is a separately deployed
+QA function and has no source directory in this branch; repository cleanup must
+not be interpreted as deleting or redeploying it.
+
+## Clean-database and history rule
+
+Do not shorten `supabase/migrations` file by file. If migration compaction is
+needed later, create a separately reviewed baseline/squash and verify both a
+clean database bootstrap and agreement with the live migration history first.

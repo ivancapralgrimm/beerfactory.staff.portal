@@ -82,7 +82,6 @@ export default defineConfig(({ mode }) => {
           globIgnores: [
             "push-sw.js",
             "assets/training-data.txt",
-            "assets/training-data.json",
           ],
         },
       }),
