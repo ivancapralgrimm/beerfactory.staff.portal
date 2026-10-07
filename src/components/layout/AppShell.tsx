@@ -20,6 +20,7 @@ import { useAuth } from "@/features/auth/auth-context";
 import { canManageChecklistsClient } from "@/types/auth";
 import { clearPushBadge } from "@/features/notifications/notification-api";
 import { AttestationSyncBridge } from "@/features/attestation/AttestationSyncBridge";
+import "@/styles/mobile-form-stability.css";
 
 const navItems = [
   {
