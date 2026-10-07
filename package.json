@@ -15,7 +15,7 @@
     "preview": "vite preview",
     "typecheck": "tsc -b --pretty false",
     "test": "npm run test:ci",
-    "test:ci": "node --test --test-isolation=none tests/edge-contract.test.cjs tests/backend-hardening.test.cjs tests/performance-network.test.cjs tests/visual-architecture-hardening.test.cjs tests/reliability-hardening.test.cjs tests/attestation-editor-r40.6.test.cjs tests/repository-hygiene.test.cjs",
+    "test:ci": "node --test --test-isolation=none tests/edge-contract.test.cjs tests/backend-hardening.test.cjs tests/performance-network.test.cjs tests/visual-architecture-hardening.test.cjs tests/reliability-hardening.test.cjs tests/attestation-editor-r40.6.test.cjs tests/shift-workflow-r40.6.test.cjs tests/repository-hygiene.test.cjs",
     "test:browser": "node tests/run-browser.mjs",
     "knowledge:seed:dry-run": "node scripts/build-knowledge-legacy-seed.mjs",
     "dev:preview": "npm run sync:public && vite --mode preview",
