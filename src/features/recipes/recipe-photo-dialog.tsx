@@ -1,6 +1,58 @@
-import { X } from "lucide-react";
 import { useEffect, useRef } from "react";
-import { Button } from "@/components/ui/button";
+
+type ScrollLockSnapshot = {
+  scrollY: number;
+  rootOverflow: string;
+  rootOverscrollBehavior: string;
+  bodyPosition: string;
+  bodyTop: string;
+  bodyLeft: string;
+  bodyRight: string;
+  bodyWidth: string;
+  bodyOverflow: string;
+};
+
+function lockPageScroll(): () => void {
+  const root = document.documentElement;
+  const body = document.body;
+  const snapshot: ScrollLockSnapshot = {
+    scrollY: window.scrollY,
+    rootOverflow: root.style.overflow,
+    rootOverscrollBehavior: root.style.overscrollBehavior,
+    bodyPosition: body.style.position,
+    bodyTop: body.style.top,
+    bodyLeft: body.style.left,
+    bodyRight: body.style.right,
+    bodyWidth: body.style.width,
+    bodyOverflow: body.style.overflow
+  };
+
+  root.style.overflow = "hidden";
+  root.style.overscrollBehavior = "none";
+  body.style.position = "fixed";
+  body.style.top = `-${snapshot.scrollY}px`;
+  body.style.left = "0";
+  body.style.right = "0";
+  body.style.width = "100%";
+  body.style.overflow = "hidden";
+
+  return () => {
+    root.style.overflow = snapshot.rootOverflow;
+    root.style.overscrollBehavior = snapshot.rootOverscrollBehavior;
+    body.style.position = snapshot.bodyPosition;
+    body.style.top = snapshot.bodyTop;
+    body.style.left = snapshot.bodyLeft;
+    body.style.right = snapshot.bodyRight;
+    body.style.width = snapshot.bodyWidth;
+    body.style.overflow = snapshot.bodyOverflow;
+
+    window.scrollTo({
+      top: snapshot.scrollY,
+      left: 0,
+      behavior: "auto"
+    });
+  };
+}
 
 export function RecipePhotoDialog({
   open,
@@ -14,49 +66,63 @@ export function RecipePhotoDialog({
   onClose: () => void;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     const dialog = dialogRef.current;
-    if (!dialog) return;
+    if (!dialog || !open) return;
 
-    if (open && !dialog.open) {
+    triggerRef.current =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+
+    if (!dialog.open) {
       dialog.showModal();
-    } else if (!open && dialog.open) {
-      dialog.close();
     }
+
+    const unlock = lockPageScroll();
+
+    return () => {
+      unlock();
+
+      if (dialog.open) {
+        dialog.close();
+      }
+
+      const trigger = triggerRef.current;
+      if (trigger?.isConnected) {
+        trigger.focus({ preventScroll: true });
+      }
+    };
   }, [open]);
 
   return (
     <dialog
       ref={dialogRef}
-      className="recipe-photo-dialog m-auto max-h-[94dvh] w-fit max-w-[94vw] overflow-hidden rounded-2xl border border-[var(--bf-line)] bg-[var(--bf-bg)] p-0 text-[var(--bf-cream)]"
+      tabIndex={-1}
+      className="recipe-photo-dialog fixed inset-0 m-0 h-dvh w-screen max-h-none max-w-none overflow-hidden border-0 bg-transparent p-0"
       aria-label={`Фото рецепта ${alt}`}
+      aria-describedby="recipe-photo-dialog-help"
       onCancel={(event) => {
         event.preventDefault();
         onClose();
       }}
       onClose={onClose}
-      onClick={(event) => {
-        if (event.target === event.currentTarget) onClose();
-      }}
+      onClick={onClose}
     >
-      <div className="grid place-items-center bg-black/30 p-2">
-        <div className="relative inline-flex max-h-[90dvh] max-w-full">
-          <img
-            src={src}
-            alt={alt}
-            className="block max-h-[90dvh] max-w-[90vw] object-contain"
-          />
-          <Button
-            type="button"
-            size="icon"
-            aria-label="Закрыть фото"
-            className="absolute right-2 top-2 z-10 size-10 min-h-10 rounded-full border border-black/20 bg-[color:color-mix(in_srgb,var(--bf-surface),transparent_8%)] p-0 shadow-lg backdrop-blur-sm"
-            onClick={onClose}
-          >
-            <X className="size-5" aria-hidden />
-          </Button>
-        </div>
+      <p id="recipe-photo-dialog-help" className="sr-only">
+        Нажмите за пределами фотографии или клавишу Escape, чтобы закрыть просмотр.
+      </p>
+
+      <div className="grid h-full w-full place-items-center overflow-hidden p-3">
+        <img
+          src={src}
+          alt={alt}
+          draggable={false}
+          className="block max-h-[calc(100dvh-24px)] max-w-[calc(100vw-24px)] select-none object-contain"
+          onClick={(event) => event.stopPropagation()}
+        />
       </div>
     </dialog>
   );
