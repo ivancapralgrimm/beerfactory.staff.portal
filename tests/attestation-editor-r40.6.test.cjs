@@ -57,3 +57,16 @@ test("settings editor explains category distribution mismatch before save", () =
   assert.match(panel, /уберите \$\{Math\.abs\(remaining\)\}/);
   assert.match(panel, /Распределено \$\{total\} из \$\{questionCount\} · готово/);
 });
+
+test("admin and owner share the staff management and attestation editor access check", () => {
+  const admin = read("src/features/admin/AdminPage.tsx");
+  const roles = read("src/types/auth.ts");
+  const profile = read("src/pages/ProfilePage.tsx");
+  assert.match(roles, /return subject\.is_owner === true \|\| subject\.role === "admin"/);
+  assert.match(admin, /import \{ canManageStaffClient \} from "@\/types\/auth"/);
+  assert.match(admin, /const canManageStaff = authenticated && canManageStaffClient\(state\.user\)/);
+  assert.match(admin, /if \(!accessToken \|\| !canManageStaff\) return/);
+  assert.match(admin, /if \(!canManageStaff\) return <Navigate to="\/profile" replace \/>/);
+  assert.match(profile, /canManageStaffClient\(user\)/);
+  assert.doesNotMatch(admin, /state\.user\.role === "admin"/);
+});
