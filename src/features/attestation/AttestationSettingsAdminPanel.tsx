@@ -93,6 +93,9 @@ function editorErrorText(error: unknown) {
   if (code === "attestation_question_count_invalid") {
     return "Количество вопросов должно быть от 1 до 50.";
   }
+  if (code === "attestation_settings_verify_failed") {
+    return "Сервер ответил на сохранение, но повторная проверка не подтвердила новые значения. Обновите редактор и повторите.";
+  }
   if (code === "forbidden") {
     return "Недостаточно прав для изменения настроек аттестации.";
   }
@@ -127,6 +130,45 @@ function settingsSignature(passPercent: string, categories: CategoryDraft[]) {
   });
 }
 
+function settingsPersisted(
+  bank: AttestationEditorBank,
+  expectedPassPercent: number,
+  expectedCategories: CategoryDraft[]
+) {
+  if (bank.settings.passPercent !== expectedPassPercent) return false;
+
+  const actualById = new Map(
+    bank.categories.map((category) => [category.id, category])
+  );
+
+  return expectedCategories.every((expected) => {
+    const actual = actualById.get(expected.id);
+    if (!actual) return false;
+
+    if (
+      actual.label !== expected.label.trim() ||
+      actual.questionsPerTest !== Number(expected.questionsPerTest)
+    ) {
+      return false;
+    }
+
+    const expectedPlan = expected.plan.map((item) => ({
+      topic: item.topic.trim(),
+      count: Number(item.count)
+    }));
+
+    if (actual.ticketPlan.length !== expectedPlan.length) return false;
+
+    return expectedPlan.every((item, index) => {
+      const actualItem = actual.ticketPlan[index];
+      return (
+        actualItem?.topic === item.topic &&
+        actualItem?.count === item.count
+      );
+    });
+  });
+}
+
 export function AttestationSettingsAdminPanel() {
   const [bank, setBank] = useState<AttestationEditorBank | null>(null);
   const [passPercent, setPassPercent] = useState("80");
@@ -137,15 +179,19 @@ export function AttestationSettingsAdminPanel() {
   const [newCategory, setNewCategory] = useState("");
   const [message, setMessage] = useState<ActionMessage>(null);
 
+  function applyBank(next: AttestationEditorBank) {
+    setBank(next);
+    setPassPercent(String(next.settings.passPercent));
+    setCategories(draftCategories(next));
+  }
+
   async function load() {
     setLoading(true);
     setMessage(null);
 
     try {
       const next = await loadAttestationEditorBank(false);
-      setBank(next);
-      setPassPercent(String(next.settings.passPercent));
-      setCategories(draftCategories(next));
+      applyBank(next);
     } catch {
       setMessage({ tone: "error", text: "Не удалось загрузить настройки аттестации." });
     } finally {
@@ -296,28 +342,44 @@ export function AttestationSettingsAdminPanel() {
       return;
     }
 
+    const expectedPassPercent = Number(passPercent);
+    const expectedCategories = categories.map((category) => ({
+      ...category,
+      label: category.label.trim(),
+      plan: category.plan.map((item) => ({
+        ...item,
+        topic: item.topic.trim()
+      }))
+    }));
+
     setSavingSettings(true);
     setMessage(null);
     try {
       await saveAttestationEditorSettings({
-        passPercent: Number(passPercent),
+        passPercent: expectedPassPercent,
         expectedRevision: bank.settings.revision,
-        categories: categories.map((category) => ({
+        categories: expectedCategories.map((category) => ({
           categoryId: category.id,
-          label: category.label.trim(),
+          label: category.label,
           questionsPerTest: Number(category.questionsPerTest)
         })),
-        ticketPlan: categories.flatMap((category) =>
+        ticketPlan: expectedCategories.flatMap((category) =>
           category.plan.map((item, index) => ({
             categoryId: category.id,
-            topic: item.topic.trim(),
+            topic: item.topic,
             count: Number(item.count),
             sortOrder: (index + 1) * 10
           }))
         )
       });
-      await load();
-      setMessage({ tone: "success", text: "Настройки аттестации сохранены." });
+
+      const confirmed = await loadAttestationEditorBank(false);
+      if (!settingsPersisted(confirmed, expectedPassPercent, expectedCategories)) {
+        throw new Error("attestation_settings_verify_failed");
+      }
+
+      applyBank(confirmed);
+      setMessage({ tone: "success", text: "Сохранено на сервере." });
     } catch (error) {
       setMessage({ tone: "error", text: editorErrorText(error) });
     } finally {
@@ -442,7 +504,16 @@ export function AttestationSettingsAdminPanel() {
           {categories.map((category) => {
             const questionCount = Number(category.questionsPerTest || 0);
             const total = category.plan.reduce((sum, item) => sum + Number(item.count || 0), 0);
-            const invalidTotal = category.active && total !== questionCount;
+            const remaining = questionCount - total;
+            const invalidTotal = category.active && remaining !== 0;
+            const distributionText =
+              !category.questionsPerTest
+                ? `Распределено ${total}`
+                : remaining > 0
+                  ? `Распределено ${total} из ${questionCount} · осталось распределить ${remaining}`
+                  : remaining < 0
+                    ? `Распределено ${total} из ${questionCount} · уберите ${Math.abs(remaining)}`
+                    : `Распределено ${total} из ${questionCount} · готово`;
 
             return (
               <div key={category.id} className="rounded-2xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] p-3">
@@ -520,8 +591,16 @@ export function AttestationSettingsAdminPanel() {
                   {!category.plan.length ? <p className="rounded-xl border border-dashed border-[var(--bf-line)] p-3 text-xs text-[var(--bf-dim)]">Добавьте хотя бы один раздел вопросов.</p> : null}
                 </div>
 
-                <div className={cn("mt-2 text-xs font-bold", invalidTotal ? "text-[#e99990]" : "text-[var(--bf-dim)]")}>
-                  По разделам: {total}{category.questionsPerTest ? ` из ${category.questionsPerTest}` : ""}
+                <div
+                  className={cn(
+                    "mt-2 rounded-xl px-3 py-2 text-xs font-bold",
+                    invalidTotal
+                      ? "border border-[color:color-mix(in_srgb,var(--bf-red),transparent_55%)] bg-[color:color-mix(in_srgb,var(--bf-red),transparent_90%)] text-[#e99990]"
+                      : "text-[var(--bf-dim)]"
+                  )}
+                  role={invalidTotal ? "alert" : undefined}
+                >
+                  {distributionText}
                 </div>
 
                 <details className="mt-3 border-t border-[var(--bf-line)] pt-2">
