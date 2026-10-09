@@ -42,3 +42,18 @@ test("category ticket-size migration remains in schema history", () => {
   assert.match(sql, /p_category_settings/);
   assert.match(sql, /revoke all on function public\.save_attestation_editor_settings_v2/);
 });
+
+test("settings editor verifies persistence by reading the bank back from the server", () => {
+  const panel = read("src/features/attestation/AttestationSettingsAdminPanel.tsx");
+  assert.match(panel, /const confirmed = await loadAttestationEditorBank\(false\)/);
+  assert.match(panel, /settingsPersisted\(confirmed, expectedPassPercent, expectedCategories\)/);
+  assert.match(panel, /attestation_settings_verify_failed/);
+  assert.match(panel, /Сохранено на сервере\./);
+});
+
+test("settings editor explains category distribution mismatch before save", () => {
+  const panel = read("src/features/attestation/AttestationSettingsAdminPanel.tsx");
+  assert.match(panel, /осталось распределить/);
+  assert.match(panel, /уберите \$\{Math\.abs\(remaining\)\}/);
+  assert.match(panel, /Распределено \$\{total\} из \$\{questionCount\} · готово/);
+});
