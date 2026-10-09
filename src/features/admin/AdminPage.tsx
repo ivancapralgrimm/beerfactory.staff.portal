@@ -30,6 +30,7 @@ import type {
 } from "@/features/admin/types";
 import { useAuth } from "@/features/auth/auth-context";
 import { cn } from "@/lib/utils";
+import { canManageStaffClient } from "@/types/auth";
 
 type Tab = "team" | "attempts" | "audit";
 
@@ -77,11 +78,11 @@ export function AdminPage() {
   const [actionMessage, setActionMessage] = useState<{ tone: "success" | "error"; text: string } | null>(null);
 
   const authenticated = state.status === "authenticated";
-  const isAdmin = authenticated && state.user.role === "admin";
+  const canManageStaff = authenticated && canManageStaffClient(state.user);
   const accessToken = authenticated ? state.session.access_token : null;
 
   const load = useCallback(async (quiet = false) => {
-    if (!accessToken || !isAdmin) return;
+    if (!accessToken || !canManageStaff) return;
     if (!quiet) setLoading(true);
     setError(null);
     try {
@@ -93,7 +94,7 @@ export function AdminPage() {
     } finally {
       if (!quiet) setLoading(false);
     }
-  }, [accessToken, isAdmin]);
+  }, [accessToken, canManageStaff]);
 
   useEffect(() => { void load(false); }, [load]);
 
@@ -142,7 +143,7 @@ export function AdminPage() {
   }
 
   if (!authenticated) return null;
-  if (!isAdmin) return <Navigate to="/profile" replace />;
+  if (!canManageStaff) return <Navigate to="/profile" replace />;
 
   const tabs: Array<{ value: Tab; label: string; icon: typeof UsersRound }> = [
     { value: "team", label: "Команда", icon: UsersRound },
