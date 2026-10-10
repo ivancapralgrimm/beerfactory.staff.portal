@@ -1,5 +1,6 @@
 import {
   Archive,
+  ChevronDown,
   Pencil,
   Plus,
   RefreshCw,
@@ -627,10 +628,17 @@ export function AttestationBankAdminPanel() {
         </div>
       </div>
 
-      <div className="mt-3 grid grid-cols-3 gap-2">
-        <Surface className="p-3 text-center"><span className="text-[9px] font-black uppercase tracking-[.08em] text-[var(--bf-dim)]">Активных</span><strong className="mt-1 block text-xl">{active}</strong></Surface>
-        <Surface className="p-3 text-center"><span className="text-[9px] font-black uppercase tracking-[.08em] text-[var(--bf-dim)]">Архив</span><strong className="mt-1 block text-xl">{archived}</strong></Surface>
-        <Surface className="p-3 text-center"><span className="text-[9px] font-black uppercase tracking-[.08em] text-[var(--bf-dim)]">Показано</span><strong className="mt-1 block text-xl">{filtered.length}</strong></Surface>
+      <div className="mt-3 grid min-w-0 grid-cols-3 gap-1.5" aria-label="Количество вопросов">
+        {([
+          ["Активных", active],
+          ["Архив", archived],
+          ["Показано", filtered.length]
+        ] as const).map(([label, value]) => (
+          <div key={label} className="min-w-0 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-1.5 py-2 text-center shadow-sm">
+            <span className="block truncate text-[9px] font-black uppercase leading-3 tracking-[.04em] text-[var(--bf-dim)]">{label}</span>
+            <strong className="mt-0.5 block text-lg font-black leading-6 tabular-nums text-[var(--bf-cream)]">{value}</strong>
+          </div>
+        ))}
       </div>
 
       <label className="relative mt-3 block">
@@ -638,19 +646,36 @@ export function AttestationBankAdminPanel() {
         <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Поиск по вопросу, разделу или ответам" className="min-h-12 w-full rounded-2xl border border-[var(--bf-line)] bg-[var(--bf-surface)] pl-10 pr-3 text-[16px] text-[var(--bf-cream)] outline-none placeholder:text-[var(--bf-dim)] focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]" />
       </label>
 
-      <div className="mt-3 flex gap-2 overflow-x-auto pb-1 bf-scrollbar-none">
-        <button type="button" onClick={() => setCategory("all")} className={cn("min-h-11 shrink-0 rounded-xl border px-3 text-xs font-black", category === "all" ? "border-[var(--bf-copper-hi)] bg-[var(--bf-copper)] text-[#fff8ed]" : "border-[var(--bf-line)] bg-[var(--bf-surface)] text-[var(--bf-muted)]")}>Все</button>
-        {bank.categories.map((item) => (
-          <button key={item.id} type="button" onClick={() => setCategory(item.id)} className={cn("min-h-11 shrink-0 rounded-xl border px-3 text-xs font-black", category === item.id ? "border-[var(--bf-copper-hi)] bg-[var(--bf-copper)] text-[#fff8ed]" : "border-[var(--bf-line)] bg-[var(--bf-surface)] text-[var(--bf-muted)]")}>{item.label}</button>
-        ))}
-      </div>
-
-      <div className="mt-2 flex gap-2 overflow-x-auto pb-1 bf-scrollbar-none">
-        {([[
-          "active", "Активные"
-        ], ["archive", "Архив"], ["all", "Все статусы"]] as const).map(([value, label]) => (
-          <button key={value} type="button" onClick={() => setStatus(value)} className={cn("min-h-10 shrink-0 rounded-full border px-3 text-xs font-bold", status === value ? "border-[var(--bf-copper-hi)] text-[var(--bf-cream)]" : "border-[var(--bf-line)] text-[var(--bf-dim)]")}>{label}</button>
-        ))}
+      <div className="mt-3 grid min-w-0 max-w-full grid-cols-2 gap-2" role="group" aria-label="Фильтры вопросов">
+        <label className="relative flex min-w-0 flex-col gap-1 text-[11px] font-bold text-[var(--bf-dim)]">
+          <span>Категория</span>
+          <select
+            aria-label="Категория вопросов"
+            value={category}
+            onChange={(event) => setCategory(event.target.value)}
+            className="h-11 min-h-11 w-full min-w-0 max-w-full appearance-none truncate rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] py-2 pl-3 pr-9 text-[16px] font-bold text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
+          >
+            <option value="all">Все категории</option>
+            {bank.categories.map((item) => (
+              <option key={item.id} value={item.id}>{item.label}</option>
+            ))}
+          </select>
+          <ChevronDown className="pointer-events-none absolute bottom-[14px] right-3 size-4 text-[var(--bf-dim)]" aria-hidden />
+        </label>
+        <label className="relative flex min-w-0 flex-col gap-1 text-[11px] font-bold text-[var(--bf-dim)]">
+          <span>Статус</span>
+          <select
+            aria-label="Статус вопросов"
+            value={status}
+            onChange={(event) => setStatus(event.target.value as "all" | "active" | "archive")}
+            className="h-11 min-h-11 w-full min-w-0 max-w-full appearance-none truncate rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] py-2 pl-3 pr-9 text-[16px] font-bold text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
+          >
+            <option value="all">Все статусы</option>
+            <option value="active">Активные</option>
+            <option value="archive">Архив</option>
+          </select>
+          <ChevronDown className="pointer-events-none absolute bottom-[14px] right-3 size-4 text-[var(--bf-dim)]" aria-hidden />
+        </label>
       </div>
 
       <p className={cn("mt-2 min-h-5 text-xs", actionSucceeded ? "text-[#9dd0a0]" : "text-[#e99990]")} role="status" aria-live="polite">{actionMessage}</p>

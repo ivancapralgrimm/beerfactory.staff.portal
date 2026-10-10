@@ -454,7 +454,7 @@ export function AttestationSettingsAdminPanel() {
   }
 
   return (
-    <section className="mt-4 grid gap-4">
+    <section className="mt-4 grid min-w-0 max-w-full gap-4">
       <Surface className="p-4">
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -483,7 +483,7 @@ export function AttestationSettingsAdminPanel() {
         </p>
       </Surface>
 
-      <Surface className="p-4">
+      <Surface className="min-w-0 max-w-full p-3 sm:p-4">
         <p className="eyebrow">КАТЕГОРИИ</p>
         <h3 className="mt-1 text-xl font-black">Категории и разделы вопросов</h3>
 
@@ -516,7 +516,7 @@ export function AttestationSettingsAdminPanel() {
                     : `Распределено ${total} из ${questionCount} · готово`;
 
             return (
-              <div key={category.id} className="rounded-2xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] p-3">
+              <div key={category.id} className="min-w-0 max-w-full rounded-2xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] p-2.5 sm:p-3">
                 <div className="flex items-start gap-2">
                   <div className="min-w-0 flex-1">
                     <input
@@ -543,48 +543,61 @@ export function AttestationSettingsAdminPanel() {
                   />
                 </label>
 
-                <div className="mt-4 flex items-center justify-between gap-3">
-                  <div>
+                <div className="mt-4 flex min-w-0 items-center justify-between gap-2">
+                  <div className="min-w-0 flex-1">
                     <p className="text-sm font-black text-[var(--bf-cream)]">Разделы вопросов</p>
                     <p className="mt-0.5 text-[11px] text-[var(--bf-dim)]">Система возьмёт указанное количество из каждого раздела.</p>
                   </div>
-                  <Button type="button" variant="secondary" size="icon" aria-label="Добавить раздел" onClick={() => addPlanRow(category.id)}>
+                  <Button type="button" variant="secondary" size="icon" className="shrink-0" aria-label="Добавить раздел" onClick={() => addPlanRow(category.id)}>
                     <Plus className="size-4" aria-hidden />
                   </Button>
                 </div>
 
-                <div className="mt-2 grid gap-2">
+                <div className="mt-2 grid min-w-0 gap-2">
                   {category.plan.map((item) => {
                     const available = capacity.get(`${category.id}\u0000${item.topic.trim()}`) || 0;
                     return (
-                      <div key={item.key} className="grid grid-cols-[minmax(0,1fr)_78px_40px] gap-2 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] p-2">
-                        <label className="grid gap-1 text-[10px] font-bold text-[var(--bf-dim)]">
-                          Раздел
+                      <div
+                        key={item.key}
+                        className="grid min-w-0 max-w-full grid-cols-[minmax(0,1fr)_64px_44px] items-start gap-1.5 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] p-2 sm:grid-cols-[minmax(0,1fr)_76px_44px] sm:gap-2"
+                      >
+                        <label className="flex min-w-0 flex-col gap-1 text-[10px] font-bold text-[var(--bf-dim)]">
+                          <span className="flex h-[14px] items-center">Раздел</span>
                           <input
                             value={item.topic}
                             list={`attestation-topics-${category.id}`}
                             onChange={(event) => updatePlanRow(category.id, item.key, { topic: event.target.value })}
-                            className="min-h-10 min-w-0 rounded-lg border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-2 text-[16px] text-[var(--bf-cream)] outline-none"
+                            className="h-11 min-h-11 w-full min-w-0 max-w-full rounded-lg border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-2 text-[16px] text-[var(--bf-cream)] outline-none"
                             placeholder="Например, Коктейли"
                           />
                           <datalist id={`attestation-topics-${category.id}`}>
                             {(categoryTopics.get(category.id) || []).map((topic) => <option key={topic} value={topic} />)}
                           </datalist>
-                          {item.topic.trim() ? <span>Доступно: {available}</span> : null}
+                          {item.topic.trim() ? <span className="min-w-0 break-words leading-4">Доступно: {available}</span> : null}
                         </label>
-                        <label className="grid gap-1 text-[10px] font-bold text-[var(--bf-dim)]">
-                          Взять
+                        <label className="flex min-w-0 flex-col gap-1 text-[10px] font-bold text-[var(--bf-dim)]">
+                          <span className="flex h-[14px] items-center">Взять</span>
                           <input
                             inputMode="numeric"
                             pattern="[0-9]*"
                             value={item.count}
                             onChange={(event) => updatePlanRow(category.id, item.key, { count: numericDraft(event.target.value) })}
-                            className="min-h-10 rounded-lg border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-2 text-center text-[16px] font-black text-[var(--bf-cream)] outline-none"
+                            className="h-11 min-h-11 w-full min-w-0 rounded-lg border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-1 text-center text-[16px] font-black text-[var(--bf-cream)] outline-none"
                           />
                         </label>
-                        <Button type="button" variant="ghost" size="icon" aria-label="Удалить раздел" onClick={() => removePlanRow(category.id, item.key)}>
-                          <Trash2 className="size-4" aria-hidden />
-                        </Button>
+                        <div className="flex min-w-0 flex-col gap-1">
+                          <span className="h-[14px]" aria-hidden="true" />
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            size="icon"
+                            className="h-11 min-h-11 w-11 shrink-0 p-0"
+                            aria-label={`Удалить раздел «${item.topic || "без названия"}»`}
+                            onClick={() => removePlanRow(category.id, item.key)}
+                          >
+                            <Trash2 className="size-4" aria-hidden />
+                          </Button>
+                        </div>
                       </div>
                     );
                   })}
