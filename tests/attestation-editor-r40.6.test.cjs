@@ -155,3 +155,34 @@ test("r40.6 attestation start button stays disabled until a topic is chosen", ()
   assert.doesNotMatch(page, /Выбери блок вопросов/);
   assert.doesNotMatch(page, /КАТЕГОРИЯ/);
 });
+
+
+test("r40.6 knowledge topics use one native selector and preserve the URL filter", () => {
+  const knowledge = read("src/features/knowledge/KnowledgePage.tsx");
+  assert.match(knowledge, /htmlFor="knowledge-topic-select"/);
+  assert.match(knowledge, /Выбери тему статьи/);
+  assert.match(knowledge, /<select\s+id="knowledge-topic-select"/);
+  assert.match(knowledge, /value=\{category\}/);
+  assert.match(knowledge, /onChange=\{\(event\) => updateParam\("cat", event\.target\.value\)\}/);
+  assert.match(knowledge, /item === "Все" \? "Все темы" : item/);
+  assert.doesNotMatch(knowledge, /knowledge-board-categories bf-scrollbar-none/);
+  assert.match(knowledge, /const requestedCategory = params\.get\("cat"\) \|\| "Все"/);
+});
+
+test("r40.6 knowledge attestation link is an elevated accessible button", () => {
+  const knowledge = read("src/features/knowledge/KnowledgePage.tsx");
+  const styles = read("src/features/knowledge/knowledge-topic-selector.css");
+  assert.match(knowledge, /to="\/attestation" className="knowledge-attestation-action"/);
+  assert.match(knowledge, /<span>Аттестация<\/span>/);
+  assert.match(styles, /knowledge-board-summary \.knowledge-attestation-action/);
+  assert.match(styles, /min-height: 44px/);
+  assert.match(styles, /box-shadow:/);
+  assert.match(styles, /text-decoration: none/);
+});
+
+test("r40.6 back button is more compact without negative page offset", () => {
+  const page = read("src/features/attestation/AttestationPage.tsx");
+  assert.match(page, /variant="ghost" className="gap-1 px-2 text-\[13px\] leading-none"/);
+  assert.match(page, /<Link to="\/knowledge"><ArrowLeft/);
+  assert.doesNotMatch(page, /className="-ml-3 px-3"/);
+});
