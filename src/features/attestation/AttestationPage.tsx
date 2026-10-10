@@ -293,7 +293,7 @@ export function AttestationPage() {
     <section className="bf-attestation-page mx-auto max-w-3xl pb-6">
       <div className="max-w-2xl">
         <div className="flex min-h-11 items-center justify-between gap-3">
-          <Button asChild type="button" variant="ghost" className="-ml-3 px-3">
+          <Button asChild type="button" variant="ghost" className="gap-1 px-2 text-[13px] leading-none">
             <Link to="/knowledge"><ArrowLeft className="size-4" aria-hidden />Назад</Link>
           </Button>
           <Button type="button" variant="secondary" size="icon" className="size-9 min-h-9 rounded-full p-0" aria-label="Обновить вопросы" disabled={state.status === "loading"} onClick={() => void reload()}>
