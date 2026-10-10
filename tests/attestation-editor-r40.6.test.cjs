@@ -108,3 +108,31 @@ test("r40.6 results bank settings tabs have equal centered labels", () => {
   assert.match(attempts, /min-h-11 min-w-0 w-full items-center justify-center/);
   assert.match(attempts, /<span className="min-w-0 text-center">\{label\}<\/span>/);
 });
+
+
+test("r40.6 results statistics match compact bank counters", () => {
+  const results = read("src/features/admin/AdminAttemptsPanel.tsx");
+  const bank = read("src/features/attestation/AttestationBankAdminPanel.tsx");
+  const compactCounter = /min-w-0 rounded-xl border border-\[var\(--bf-line\)\] bg-\[var\(--bf-surface\)\] px-1\.5 py-2 text-center shadow-sm/;
+  assert.match(results, /aria-label="Статистика результатов аттестации"/);
+  assert.match(results, compactCounter);
+  assert.match(bank, compactCounter);
+  assert.match(results, /text-lg font-black leading-6 tabular-nums/);
+  assert.doesNotMatch(results, /<Surface className="p-3 text-center">/);
+});
+
+test("r40.6 results categories are selected with one native mobile picker", () => {
+  const results = read("src/features/admin/AdminAttemptsPanel.tsx");
+  assert.match(results, /aria-label="Категория результатов аттестации"/);
+  assert.match(results, /value=\{filter\}/);
+  assert.match(results, /onChange=\{\(event\) => setFilter\(event\.target\.value\)\}/);
+  assert.match(results, /<option value="all">Все категории<\/option>/);
+  assert.match(results, /categories\.map\(\(category\) => \(\s*<option/);
+  assert.doesNotMatch(results, /overflow-x-auto pb-1 bf-scrollbar-none/);
+});
+
+test("r40.6 results header has no duplicate eyebrow", () => {
+  const results = read("src/features/admin/AdminAttemptsPanel.tsx");
+  assert.match(results, /<h3 className="min-w-0 text-2xl font-black">Результаты команды<\/h3>/);
+  assert.doesNotMatch(results, /<p className="eyebrow">РЕЗУЛЬТАТЫ<\/p>/);
+});
