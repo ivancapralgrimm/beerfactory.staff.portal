@@ -70,3 +70,41 @@ test("admin and owner share the staff management and attestation editor access c
   assert.match(profile, /canManageStaffClient\(user\)/);
   assert.doesNotMatch(admin, /state\.user\.role === "admin"/);
 });
+
+
+test("r40.6 bank filters are native pickers on the same row", () => {
+  const bank = read("src/features/attestation/AttestationBankAdminPanel.tsx");
+  assert.match(bank, /grid-cols-2 gap-2" role="group" aria-label="Фильтры вопросов"/);
+  assert.match(bank, /aria-label="Категория вопросов"/);
+  assert.match(bank, /aria-label="Статус вопросов"/);
+  assert.match(bank, /onChange=\{\(event\) => setCategory\(event\.target\.value\)\}/);
+  assert.match(bank, /onChange=\{\(event\) => setStatus\(event\.target\.value as "all" \| "active" \| "archive"\)\}/);
+  assert.match(bank, /<option value="all">Все категории<\/option>/);
+  assert.match(bank, /<option value="archive">Архив<\/option>/);
+  assert.doesNotMatch(bank, /overflow-x-auto pb-1 bf-scrollbar-none/);
+});
+
+test("r40.6 statistics use compact paper counters", () => {
+  const bank = read("src/features/attestation/AttestationBankAdminPanel.tsx");
+  assert.match(bank, /aria-label="Количество вопросов"/);
+  assert.match(bank, /min-w-0 rounded-xl border border-\[var\(--bf-line\)\]/);
+  assert.match(bank, /text-lg font-black leading-6 tabular-nums/);
+  assert.doesNotMatch(bank, /<Surface className="p-3 text-center">/);
+});
+
+test("r40.6 ticket plan row is mobile-width-safe and its controls align", () => {
+  const settings = read("src/features/attestation/AttestationSettingsAdminPanel.tsx");
+  assert.match(settings, /grid-cols-\[minmax\(0,1fr\)_64px_44px\]/);
+  assert.match(settings, /sm:grid-cols-\[minmax\(0,1fr\)_76px_44px\]/);
+  assert.match(settings, /h-11 min-h-11 w-full min-w-0 max-w-full/);
+  assert.match(settings, /className="h-11 min-h-11 w-11 shrink-0 p-0"/);
+  assert.match(settings, /flex h-\[14px\] items-center">Раздел/);
+  assert.match(settings, /flex h-\[14px\] items-center">Взять/);
+});
+
+test("r40.6 results bank settings tabs have equal centered labels", () => {
+  const attempts = read("src/features/admin/AdminAttemptsPanel.tsx");
+  assert.match(attempts, /grid min-w-0 grid-cols-3 gap-1/);
+  assert.match(attempts, /min-h-11 min-w-0 w-full items-center justify-center/);
+  assert.match(attempts, /<span className="min-w-0 text-center">\{label\}<\/span>/);
+});
