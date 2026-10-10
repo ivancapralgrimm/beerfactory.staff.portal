@@ -113,10 +113,28 @@ export function AdminAttemptsPanel({ users }: { users: AdminUser[] }) {
 
   return (
     <section>
-      <div className="grid grid-cols-3 gap-1.5 rounded-2xl border border-[var(--bf-line)] bg-[var(--bf-surface)] p-1.5">
-        <button type="button" onClick={() => setView("results")} className={cn("flex min-h-11 items-center justify-center gap-2 rounded-xl border px-3 text-xs font-black", view === "results" ? "border-[var(--bf-copper-hi)] bg-[var(--bf-surface-2)] text-[var(--bf-cream)]" : "border-transparent text-[var(--bf-dim)]")}><ListChecks className="size-4" aria-hidden />Результаты</button>
-        <button type="button" onClick={() => setView("bank")} className={cn("flex min-h-11 items-center justify-center gap-1 rounded-xl border px-2 text-[10px] font-black sm:text-xs", view === "bank" ? "border-[var(--bf-copper-hi)] bg-[var(--bf-surface-2)] text-[var(--bf-cream)]" : "border-transparent text-[var(--bf-dim)]")}><BookOpenCheck className="size-4" aria-hidden />Вопросы</button>
-        <button type="button" onClick={() => setView("settings")} className={cn("flex min-h-11 items-center justify-center gap-1 rounded-xl border px-2 text-[10px] font-black sm:text-xs", view === "settings" ? "border-[var(--bf-copper-hi)] bg-[var(--bf-surface-2)] text-[var(--bf-cream)]" : "border-transparent text-[var(--bf-dim)]")}><Settings2 className="size-4" aria-hidden />Настройки</button>
+      <div className="grid min-w-0 grid-cols-3 gap-1 rounded-2xl border border-[var(--bf-line)] bg-[var(--bf-surface)] p-1.5">
+        {([
+          ["results", "Результаты", ListChecks],
+          ["bank", "Вопросы", BookOpenCheck],
+          ["settings", "Настройки", Settings2]
+        ] as const).map(([id, label, Icon]) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => setView(id)}
+            aria-pressed={view === id}
+            className={cn(
+              "flex min-h-11 min-w-0 w-full items-center justify-center gap-1 rounded-xl border px-1 text-center text-[11px] font-black leading-tight sm:gap-1.5 sm:px-2 sm:text-xs",
+              view === id
+                ? "border-[var(--bf-copper-hi)] bg-[var(--bf-surface-2)] text-[var(--bf-cream)]"
+                : "border-transparent text-[var(--bf-dim)]"
+            )}
+          >
+            <Icon className="hidden size-4 shrink-0 sm:block" aria-hidden />
+            <span className="min-w-0 text-center">{label}</span>
+          </button>
+        ))}
       </div>
       {view === "results" ? <ResultsPanel users={users} /> : null}
       {view === "bank" ? <AttestationBankAdminPanel /> : null}
