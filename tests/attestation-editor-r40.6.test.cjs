@@ -136,3 +136,22 @@ test("r40.6 results header has no duplicate eyebrow", () => {
   assert.match(results, /<h3 className="min-w-0 text-2xl font-black">Результаты команды<\/h3>/);
   assert.doesNotMatch(results, /<p className="eyebrow">РЕЗУЛЬТАТЫ<\/p>/);
 });
+
+test("r40.6 attestation landing page uses back navigation and a single topic picker", () => {
+  const page = read("src/features/attestation/AttestationPage.tsx");
+  assert.match(page, /<Link to="\/knowledge"><ArrowLeft className="size-4" aria-hidden \/>Назад<\/Link>/);
+  assert.doesNotMatch(page, /<p className="eyebrow">ПРОВЕРКА ЗНАНИЙ<\/p>/);
+  assert.match(page, /Тестирование по теме: \{selectedCategory \? selectedCategory\.label : "…"\}/);
+  assert.match(page, /<span>Выбери тему<\/span>/);
+  assert.match(page, /aria-label="Выбери тему"/);
+  assert.match(page, /<option value="" disabled>…<\/option>/);
+  assert.match(page, /state\.bank\.categories\.map\(\(category\) => <option key=\{category\.id\} value=\{category\.id\}>\{category\.label\}<\/option>\)/);
+});
+
+test("r40.6 attestation start button stays disabled until a topic is chosen", () => {
+  const page = read("src/features/attestation/AttestationPage.tsx");
+  assert.match(page, /<Button type="button" variant="primary" size="lg" disabled=\{!selectedCategory\} onClick=\{startQuiz\}>Начать<\/Button>/);
+  assert.doesNotMatch(page, /CategoryMotionIcon/);
+  assert.doesNotMatch(page, /Выбери блок вопросов/);
+  assert.doesNotMatch(page, /КАТЕГОРИЯ/);
+});
