@@ -1,6 +1,8 @@
 import {
   BookCheck,
   BookOpen,
+  ChevronDown,
+  ClipboardCheck,
   Beer,
   ChefHat,
   ClipboardList,
@@ -36,6 +38,7 @@ import { useKnowledgeEditorAccess } from "./editor/use-editor-access";
 import { useKnowledgeProgress } from "@/features/knowledge/use-knowledge-progress";
 import type { KnowledgeArticle } from "@/features/knowledge/types";
 import { cn } from "@/lib/utils";
+import "./knowledge-topic-selector.css";
 
 const SCROLL_KEY = "bf-r404-knowledge-scroll";
 
@@ -294,28 +297,33 @@ export function KnowledgePage() {
         )}
         {state.status === "ready" && (
           <>
-            <div
-              className="knowledge-board-categories bf-scrollbar-none"
-              role="group"
-              aria-label="Категории базы знаний"
-            >
-              {categories.map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  aria-pressed={item === category}
-                  onClick={() => updateParam("cat", item)}
+            <label className="knowledge-topic-selector" htmlFor="knowledge-topic-select">
+              <span>Выбери тему статьи</span>
+              <span className="knowledge-topic-selector-field">
+                <select
+                  id="knowledge-topic-select"
+                  aria-label="Выбери тему статьи"
+                  value={category}
+                  onChange={(event) => updateParam("cat", event.target.value)}
                 >
-                  {item}
-                </button>
-              ))}
-            </div>
+                  {categories.map((item) => (
+                    <option key={item} value={item}>
+                      {item === "Все" ? "Все темы" : item}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown size={18} strokeWidth={2} aria-hidden="true" />
+              </span>
+            </label>
             <div className="knowledge-board-summary">
               <span aria-live="polite">Найдено: {filtered.length}</span>
               <span>
                 Прочитано: {readCount}/{articles.length}
               </span>
-              <Link to="/attestation">Аттестация</Link>
+              <Link to="/attestation" className="knowledge-attestation-action">
+                <ClipboardCheck size={16} strokeWidth={1.9} aria-hidden="true" />
+                <span>Аттестация</span>
+              </Link>
             </div>
             {filtered.length ? (
               <div className="knowledge-sticker-grid">
