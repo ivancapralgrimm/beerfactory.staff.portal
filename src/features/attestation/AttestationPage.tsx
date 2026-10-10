@@ -2,6 +2,7 @@ import {
   ArrowLeft,
   BookOpen,
   CheckCircle2,
+  ChevronDown,
   CircleAlert,
   RefreshCw,
   RotateCcw
@@ -25,7 +26,6 @@ import {
   persistQuizResultLocally,
   persistQuizResultRemote
 } from "@/features/attestation/attestation-history";
-import { CategoryMotionIcon } from "@/features/attestation/CategoryMotionIcon";
 import { PassedScoreConfetti } from "@/features/attestation/PassedScoreConfetti";
 import { useAttestationBank } from "@/features/attestation/use-attestation-bank";
 import type {
@@ -292,13 +292,16 @@ export function AttestationPage() {
   return (
     <section className="bf-attestation-page mx-auto max-w-3xl pb-6">
       <div className="max-w-2xl">
-        <p className="eyebrow">ПРОВЕРКА ЗНАНИЙ</p>
-        <div className="mt-2 flex items-center justify-between gap-3">
-          <h1 className="text-[36px] font-black leading-none tracking-[-0.04em]">Аттестация</h1>
+        <div className="flex min-h-11 items-center justify-between gap-3">
+          <Button asChild type="button" variant="ghost" className="-ml-3 px-3">
+            <Link to="/knowledge"><ArrowLeft className="size-4" aria-hidden />Назад</Link>
+          </Button>
           <Button type="button" variant="secondary" size="icon" className="size-9 min-h-9 rounded-full p-0" aria-label="Обновить вопросы" disabled={state.status === "loading"} onClick={() => void reload()}>
             <RefreshCw className={cn("size-3.5", state.status === "loading" && "animate-spin")} aria-hidden />
           </Button>
         </div>
+
+        <h1 className="mt-3 text-[36px] font-black leading-none tracking-[-0.04em]">Аттестация</h1>
         <p className="mt-3 text-pretty text-[15px] leading-6 text-[var(--bf-muted)]">
           Количество вопросов зависит от выбранной категории{state.status === "ready" ? ` · зачёт от ${state.bank.passPercent}%` : ""}.
         </p>
@@ -308,10 +311,7 @@ export function AttestationPage() {
 
       {state.status === "error" ? <div className="mt-6 border-y border-[var(--bf-line)] py-6"><p className="text-lg font-extrabold">Не удалось загрузить вопросы</p><p className="mt-1 max-w-lg text-sm leading-6 text-[var(--bf-muted)]">Попробуйте ещё раз.</p><Button className="mt-4" onClick={reload}><RefreshCw className="size-4" aria-hidden />Повторить</Button></div> : null}
 
-      {state.status === "ready" ? <><section className="mt-6 border-y border-[var(--bf-line)] py-5"><p className="eyebrow">КАТЕГОРИЯ</p><h2 className="mt-1 text-xl font-extrabold">Выбери блок вопросов</h2><div className="bf-category-grid mt-4 grid grid-cols-2 gap-2.5" role="group" aria-label="Категория вопросов">{state.bank.categories.map((category) => {
-        const selected = category.id === selectedCategoryId;
-        return <button key={category.id} type="button" aria-pressed={selected} onClick={() => setSelectedCategoryId(category.id)} className={cn("bf-category-option grid min-h-[88px] grid-cols-[1fr_56px] items-center gap-3 rounded-2xl border p-4 text-left outline-none transition-[background-color,border-color,transform] focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)] active:translate-y-px", selected ? "border-[var(--bf-copper-hi)] bg-[color:color-mix(in_srgb,var(--bf-copper),transparent_82%)]" : "border-[var(--bf-line)] bg-[var(--bf-surface)]")}><span><strong className="block text-xl font-black text-[var(--bf-cream)]">{category.label}</strong><small className="mt-1 block text-[11px] font-bold text-[var(--bf-dim)]">{category.questionsPerTest} вопросов</small></span><CategoryMotionIcon categoryId={category.id} selected={selected} /></button>;
-      })}</div><div className="mt-4 flex flex-wrap gap-2"><Button type="button" variant="primary" size="lg" disabled={!selectedCategory} onClick={startQuiz}>Начать{selectedCategory ? ` · ${selectedCategory.label}` : ""}</Button><Button asChild size="lg"><Link to="/knowledge"><BookOpen className="size-4" aria-hidden />К знаниям</Link></Button></div></section>{historyLoading ? <section className="mt-5 border-t border-[var(--bf-line)] pt-5"><div className="h-20 animate-pulse rounded-xl bg-[var(--bf-surface)]" /></section> : <div className="mt-5"><HistoryList items={history} source={historySource} /></div>}</> : null}
+      {state.status === "ready" ? <><section className="mt-6 border-y border-[var(--bf-line)] py-5"><h2 className="text-xl font-extrabold">Тестирование по теме: {selectedCategory ? selectedCategory.label : "…"}</h2><label className="relative mt-4 flex min-w-0 max-w-full flex-col gap-1 text-[11px] font-bold text-[var(--bf-dim)]"><span>Выбери тему</span><select aria-label="Выбери тему" value={selectedCategoryId ?? ""} onChange={(event) => setSelectedCategoryId(event.target.value || null)} className="h-12 min-h-12 w-full min-w-0 max-w-full appearance-none rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] py-2 pl-3 pr-9 text-[16px] font-bold text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"><option value="" disabled>…</option>{state.bank.categories.map((category) => <option key={category.id} value={category.id}>{category.label}</option>)}</select><ChevronDown className="pointer-events-none absolute bottom-[14px] right-3 size-4 text-[var(--bf-dim)]" aria-hidden /></label><div className="mt-4 flex flex-wrap gap-2"><Button type="button" variant="primary" size="lg" disabled={!selectedCategory} onClick={startQuiz}>Начать</Button></div></section>{historyLoading ? <section className="mt-5 border-t border-[var(--bf-line)] pt-5"><div className="h-20 animate-pulse rounded-xl bg-[var(--bf-surface)]" /></section> : <div className="mt-5"><HistoryList items={history} source={historySource} /></div>}</> : null}
     </section>
   );
 }
