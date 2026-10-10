@@ -6,6 +6,7 @@ import {
 import {
   BookOpenCheck,
   CheckCircle2,
+  ChevronDown,
   ListChecks,
   RefreshCw,
   Settings2,
@@ -81,22 +82,40 @@ function ResultsPanel({ users }: { users: AdminUser[] }) {
   return (
     <section className="mt-4">
       <div className="flex items-end justify-between gap-3">
-        <div><p className="eyebrow">РЕЗУЛЬТАТЫ</p><h3 className="mt-1 text-2xl font-black">Результаты команды</h3></div>
+        <h3 className="min-w-0 text-2xl font-black">Результаты команды</h3>
         <Button type="button" variant="secondary" size="icon" aria-label="Обновить результаты" disabled={loading} onClick={() => void load()}>
           <RefreshCw className={cn("size-4", loading && "animate-spin")} aria-hidden />
         </Button>
       </div>
 
-      <div className="mt-4 grid grid-cols-3 gap-2">
-        <Surface className="p-3 text-center"><span className="text-[10px] font-black uppercase tracking-[0.08em] text-[var(--bf-dim)]">Попыток</span><strong className="mt-1 block text-2xl">{filtered.length}</strong></Surface>
-        <Surface className="p-3 text-center"><span className="text-[10px] font-black uppercase tracking-[0.08em] text-[var(--bf-dim)]">Зачтено</span><strong className="mt-1 block text-2xl">{passed}</strong></Surface>
-        <Surface className="p-3 text-center"><span className="text-[10px] font-black uppercase tracking-[0.08em] text-[var(--bf-dim)]">Средний</span><strong className="mt-1 block text-2xl">{average}%</strong></Surface>
+      <div className="mt-3 grid min-w-0 grid-cols-3 gap-1.5" aria-label="Статистика результатов аттестации">
+        {([
+          ["Попыток", filtered.length],
+          ["Зачтено", passed],
+          ["Средний", `${average}%`]
+        ] as const).map(([label, value]) => (
+          <div key={label} className="min-w-0 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-1.5 py-2 text-center shadow-sm">
+            <span className="block truncate text-[9px] font-black uppercase leading-3 tracking-[.04em] text-[var(--bf-dim)]">{label}</span>
+            <strong className="mt-0.5 block text-lg font-black leading-6 tabular-nums text-[var(--bf-cream)]">{value}</strong>
+          </div>
+        ))}
       </div>
 
-      <div className="mt-3 flex gap-2 overflow-x-auto pb-1 bf-scrollbar-none">
-        <button type="button" onClick={() => setFilter("all")} className={cn("min-h-11 shrink-0 rounded-xl border px-3 text-sm font-bold", filter === "all" ? "border-[var(--bf-copper-hi)] bg-[color:color-mix(in_srgb,var(--bf-copper),transparent_82%)] text-[var(--bf-cream)]" : "border-[var(--bf-line)] bg-[var(--bf-surface)] text-[var(--bf-muted)]")}>Все</button>
-        {categories.map((category) => <button key={category} type="button" onClick={() => setFilter(category)} className={cn("min-h-11 shrink-0 rounded-xl border px-3 text-sm font-bold", filter === category ? "border-[var(--bf-copper-hi)] bg-[color:color-mix(in_srgb,var(--bf-copper),transparent_82%)] text-[var(--bf-cream)]" : "border-[var(--bf-line)] bg-[var(--bf-surface)] text-[var(--bf-muted)]")}>{category}</button>)}
-      </div>
+      <label className="relative mt-3 flex min-w-0 max-w-full flex-col gap-1 text-[11px] font-bold text-[var(--bf-dim)]">
+        <span>Категория</span>
+        <select
+          aria-label="Категория результатов аттестации"
+          value={filter}
+          onChange={(event) => setFilter(event.target.value)}
+          className="h-11 min-h-11 w-full min-w-0 max-w-full appearance-none truncate rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] py-2 pl-3 pr-9 text-[16px] font-bold text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
+        >
+          <option value="all">Все категории</option>
+          {categories.map((category) => (
+            <option key={category} value={category}>{category}</option>
+          ))}
+        </select>
+        <ChevronDown className="pointer-events-none absolute bottom-[14px] right-3 size-4 text-[var(--bf-dim)]" aria-hidden />
+      </label>
 
       {loading ? <div className="mt-3 grid gap-2">{[0,1,2].map((item) => <div key={item} className="h-28 animate-pulse rounded-[20px] bg-[var(--bf-surface)]" />)}</div> : error ? <Surface className="mt-3 p-4 text-sm text-[#e99990]">{error}</Surface> : filtered.length ? <div className="mt-3 grid gap-2">{filtered.map((row) => {
         const person = userMap.get(row.user_id);
