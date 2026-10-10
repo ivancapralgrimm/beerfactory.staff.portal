@@ -186,3 +186,9 @@ test("r40.6 back button is more compact without negative page offset", () => {
   assert.match(page, /<Link to="\/knowledge"><ArrowLeft/);
   assert.doesNotMatch(page, /className="-ml-3 px-3"/);
 });
+
+
+test("r40.6 knowledge summary row has bottom spacing above articles", () => {
+  const styles = read("src/features/knowledge/knowledge-topic-selector.css");
+  assert.match(styles, /\.bf-knowledge-page \.knowledge-board-summary \{[\s\S]*margin-bottom: 14px/);
+});
