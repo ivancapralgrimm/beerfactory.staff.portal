@@ -3,6 +3,7 @@ import { MessageSquareText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Surface } from "@/components/ui/surface";
 import { FeedPostCard } from "@/features/feed/FeedPostCard";
+import { FeedPulseCard } from "@/features/feed/FeedPulseCard";
 import { useFeed } from "@/features/feed/use-feed";
 
 export function DashboardFeedSection() {
@@ -10,10 +11,6 @@ export function DashboardFeedSection() {
   const active = posts
     .filter((post) => post.status !== "resolved")
     .slice(0, 6);
-
-  if (!loading && !error && active.length === 0) {
-    return null;
-  }
 
   return (
     <section>
@@ -45,6 +42,10 @@ export function DashboardFeedSection() {
             Лента сейчас не загрузилась. Остальной Dashboard продолжает работать.
           </p>
         </Surface>
+      ) : active.length === 0 ? (
+        <div className="mt-3">
+          <FeedPulseCard compact />
+        </div>
       ) : (
         <>
           <div className="mt-3 flex items-center gap-2 text-xs text-[var(--bf-dim)]">

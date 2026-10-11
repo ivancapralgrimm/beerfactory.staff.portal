@@ -1,0 +1,168 @@
+/*
+ * r40.6 · Feed Pulse. Quiet, craft-paper system prompt shown only when the
+ * authoritative Feed has no active notes. Not a feed post or a notification.
+ */
+.bf-feed-pulse {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  width: 100%;
+  min-width: 0;
+  border: 1px solid #c6a980;
+  border-radius: 15px;
+  background: var(--craft-grain, none), linear-gradient(145deg, #fff4df, #f2dfbd);
+  color: #332518;
+  box-shadow: 0 2px 0 #b9966d55, 0 7px 18px #6b452324;
+}
+
+.bf-feed-pulse__accent {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  background: linear-gradient(180deg, #b97643, #734027);
+}
+
+.bf-feed-pulse__inner {
+  padding: 18px 17px 17px 21px;
+}
+
+.bf-feed-pulse__topline {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.bf-feed-pulse__mark {
+  display: grid;
+  flex: 0 0 33px;
+  height: 33px;
+  place-items: center;
+  border: 1px solid #d4b593;
+  border-radius: 9px;
+  background: #f6e3c4;
+  color: #92532f;
+  box-shadow: inset 0 1px 1px #fff9ec;
+}
+
+.bf-feed-pulse__eyebrow {
+  min-width: 0;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.105em;
+  line-height: 1.4;
+  color: #9b5731;
+}
+
+.bf-feed-pulse__kind {
+  display: block;
+  margin-top: 13px;
+  color: #735f4c;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.bf-feed-pulse__title {
+  max-width: 32ch;
+  margin: 5px 0 0;
+  color: #35271c;
+  font-size: clamp(20px, 5vw, 24px);
+  font-weight: 850;
+  line-height: 1.19;
+  letter-spacing: -0.025em;
+  overflow-wrap: anywhere;
+}
+
+.bf-feed-pulse__body {
+  max-width: 62ch;
+  margin: 11px 0 0;
+  color: #67523e;
+  font-size: 14px;
+  line-height: 1.58;
+  overflow-wrap: anywhere;
+}
+
+.bf-feed-pulse__bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 15px;
+  margin-top: 17px;
+  padding-top: 15px;
+  border-top: 1px solid #cfb492a8;
+}
+
+.bf-feed-pulse__action {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 13px;
+  border: 1px solid #693d25;
+  border-radius: 10px;
+  background: linear-gradient(150deg, #855035, #5b3422);
+  color: #fff0da;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.25;
+  text-align: center;
+  text-decoration: none;
+  box-shadow: inset 0 1px 1px #d9ae7970, 0 3px 0 #402718, 0 4px 7px #59362033;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bf-feed-pulse__action:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 1px 1px #d9ae7970, 0 2px 0 #402718;
+}
+
+.bf-feed-pulse__action:focus-visible {
+  outline: 3px solid #ac642c;
+  outline-offset: 3px;
+}
+
+.bf-feed-pulse__footnote {
+  max-width: 220px;
+  color: #796955;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.bf-feed-pulse--compact .bf-feed-pulse__inner {
+  padding: 15px 14px 14px 18px;
+}
+
+.bf-feed-pulse--compact .bf-feed-pulse__kind {
+  margin-top: 10px;
+}
+
+.bf-feed-pulse--compact .bf-feed-pulse__title {
+  font-size: 18px;
+  line-height: 1.24;
+}
+
+.bf-feed-pulse--compact .bf-feed-pulse__body {
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.47;
+}
+
+.bf-feed-pulse--compact .bf-feed-pulse__bottom {
+  margin-top: 12px;
+  padding-top: 12px;
+}
+
+@media (max-width: 360px) {
+  .bf-feed-pulse__inner { padding-right: 12px; }
+  .bf-feed-pulse__bottom { gap: 10px; }
+  .bf-feed-pulse__footnote { max-width: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bf-feed-pulse__action:active { transform: none; }
+}

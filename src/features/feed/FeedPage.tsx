@@ -11,6 +11,7 @@ import {
   useState,
   type FormEvent
 } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Surface } from "@/components/ui/surface";
 import {
@@ -19,6 +20,7 @@ import {
   resolveFeedPost
 } from "@/features/feed/feed-api";
 import { FeedPostCard } from "@/features/feed/FeedPostCard";
+import { FeedPulseCard } from "@/features/feed/FeedPulseCard";
 import { useFeed } from "@/features/feed/use-feed";
 import type { FeedPost } from "@/features/feed/types";
 import {
@@ -46,8 +48,9 @@ export function FeedPage() {
     error,
     refresh
   } = useFeed();
+  const [searchParams] = useSearchParams();
 
-  const [composerOpen, setComposerOpen] = useState(false);
+  const [composerOpen, setComposerOpen] = useState(() => searchParams.get("compose") === "1");
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [priority, setPriority] =
@@ -83,6 +86,11 @@ export function FeedPage() {
         ? current.filter((item) => item !== position)
         : [...current, position]
     );
+  }
+
+  function openComposerFromPulse() {
+    setComposerOpen(true);
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   }
 
   async function submitPost(
@@ -440,6 +448,10 @@ export function FeedPage() {
             />
           ))}
         </div>
+      ) : statusFilter === "active" ? (
+        <div className="mt-2">
+          <FeedPulseCard onCompose={openComposerFromPulse} />
+        </div>
       ) : (
         <Surface className="mt-2 p-5 text-center">
           <MessageSquareText
@@ -448,7 +460,9 @@ export function FeedPage() {
           />
           <p className="mt-2 text-sm font-bold">Здесь пока ничего нет</p>
           <p className="mt-1 text-xs leading-5 text-[var(--bf-dim)]">
-            Активных записей по этому фильтру нет.
+            {statusFilter === "resolved"
+              ? "Решённых записей пока нет."
+              : "Записей пока нет."}
           </p>
         </Surface>
       )}
