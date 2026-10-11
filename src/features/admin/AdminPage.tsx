@@ -273,12 +273,12 @@ export function AdminPage() {
             </Button>
           </div>
 
-          <div className="mt-3 grid grid-cols-4 gap-1.5 sm:gap-2">
+          <div className="mt-3 grid min-w-0 grid-cols-4 gap-1.5" aria-label="Статистика сотрудников">
             {[["Всего", stats.total], ["Активны", stats.active], ["Админы", stats.admins], ["Без должности", stats.noPosition]].map(([label, value]) => (
-              <Surface key={String(label)} className="min-w-0 p-2 text-center">
-                <span className="block break-words text-[9px] font-bold leading-4 text-[var(--bf-dim)]">{label}</span>
-                <strong className="mt-1 block text-lg font-black text-[var(--bf-cream)]">{value}</strong>
-              </Surface>
+              <div key={String(label)} className="min-w-0 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-1.5 py-2 text-center shadow-sm">
+                <span className="flex h-6 items-center justify-center text-[9px] font-black uppercase leading-3 tracking-[.04em] text-[var(--bf-dim)]">{label}</span>
+                <strong className="mt-0.5 block text-lg font-black leading-6 tabular-nums text-[var(--bf-cream)]">{value}</strong>
+              </div>
             ))}
           </div>
 
