@@ -192,3 +192,24 @@ test("r40.6 knowledge summary row has bottom spacing above articles", () => {
   const styles = read("src/features/knowledge/knowledge-topic-selector.css");
   assert.match(styles, /\.bf-knowledge-page \.knowledge-board-summary \{[\s\S]*margin-bottom: 14px/);
 });
+
+
+test("r40.6 employee statistics use compact counters matching attestation", () => {
+  const admin = read("src/features/admin/AdminPage.tsx");
+  const bank = read("src/features/attestation/AttestationBankAdminPanel.tsx");
+  const compactCounter = /min-w-0 rounded-xl border border-\[var\(--bf-line\)\] bg-\[var\(--bf-surface\)\] px-1\.5 py-2 text-center shadow-sm/;
+  assert.match(admin, /aria-label="Статистика сотрудников"/);
+  assert.match(admin, /grid min-w-0 grid-cols-4 gap-1\.5/);
+  assert.match(admin, compactCounter);
+  assert.match(bank, compactCounter);
+  assert.match(admin, /mt-0\.5 block text-lg font-black leading-6 tabular-nums/);
+  assert.doesNotMatch(admin, /<Surface key=\{String\(label\)\} className="min-w-0 p-2 text-center"/);
+});
+
+test("r40.6 compact team counters keep labels aligned and search nearby", () => {
+  const admin = read("src/features/admin/AdminPage.tsx");
+  assert.match(admin, /flex h-6 items-center justify-center text-\[9px\]/);
+  assert.match(admin, /\["Без должности", stats\.noPosition\]/);
+  assert.match(admin, /<label className="relative mt-3 block">/);
+  assert.match(admin, /aria-label="Поиск сотрудника"/);
+});
