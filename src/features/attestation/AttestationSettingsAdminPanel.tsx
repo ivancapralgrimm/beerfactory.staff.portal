@@ -24,6 +24,7 @@ import {
   type AttestationEditorCategory
 } from "@/features/attestation/attestation-editor-api";
 import { cn } from "@/lib/utils";
+import type { AttestationVenue, KnowledgeType } from "@/features/attestation/types";
 
 type PlanDraft = {
   key: string;
@@ -31,8 +32,9 @@ type PlanDraft = {
   count: string;
 };
 
-type CategoryDraft = Omit<AttestationEditorCategory, "questionsPerTest"> & {
+type CategoryDraft = Omit<AttestationEditorCategory, "questionsPerTest" | "specificQuestionCount"> & {
   questionsPerTest: string;
+  specificQuestionCount: string;
   plan: PlanDraft[];
 };
 
@@ -59,6 +61,18 @@ function editorErrorText(error: unknown) {
   }
   if (code === "attestation_category_revision_conflict") {
     return "Категория уже изменена в другой сессии. Обновите редактор.";
+  }
+  if (code === "attestation_ticket_group_cross_topic") {
+    return "Одна группа вопросов оказалась в разных разделах. Измените раздел одного из вопросов.";
+  }
+  if (code === "attestation_ticket_quota_capacity") {
+    return "Для заданной квоты не хватает общих вопросов или вопросов заведения в выбранных разделах.";
+  }
+  if (code === "attestation_ticket_quota_invalid") {
+    return "Проверьте число вопросов заведения: оно не может превышать размер билета. Общий билет содержит только общие вопросы.";
+  }
+  if (code === "attestation_ticket_type_required" || code === "attestation_ticket_type_invalid") {
+    return "Выберите тип знаний и заведение для билета.";
   }
   if (code === "attestation_ticket_capacity") {
     return "Для выбранного плана не хватает активных вопросов в одном из разделов.";
@@ -107,6 +121,7 @@ function draftCategories(bank: AttestationEditorBank): CategoryDraft[] {
   return bank.categories.map((category) => ({
     ...category,
     questionsPerTest: String(category.questionsPerTest || bank.settings.questionsPerTest || 15),
+    specificQuestionCount: category.specificQuestionCount === null ? "" : String(category.specificQuestionCount),
     plan: category.ticketPlan.map((item) => ({
       key: rowKey(),
       topic: item.topic,
@@ -122,6 +137,9 @@ function settingsSignature(passPercent: string, categories: CategoryDraft[]) {
       id: category.id,
       label: category.label,
       questionsPerTest: category.questionsPerTest,
+      knowledgeType: category.knowledgeType,
+      venue: category.venue,
+      specificQuestionCount: category.specificQuestionCount,
       plan: category.plan.map((item) => ({
         topic: item.topic.trim(),
         count: item.count
@@ -147,7 +165,10 @@ function settingsPersisted(
 
     if (
       actual.label !== expected.label.trim() ||
-      actual.questionsPerTest !== Number(expected.questionsPerTest)
+      actual.questionsPerTest !== Number(expected.questionsPerTest) ||
+      actual.knowledgeType !== expected.knowledgeType ||
+      actual.venue !== expected.venue ||
+      actual.specificQuestionCount !== (expected.specificQuestionCount === "" ? null : Number(expected.specificQuestionCount))
     ) {
       return false;
     }
@@ -219,21 +240,18 @@ export function AttestationSettingsAdminPanel() {
     const result = new Map<string, number>();
     if (!bank) return result;
 
-    const groups = new Map<string, Set<string>>();
-    for (const question of bank.questions) {
-      if (question.status !== "active") continue;
-      const key = `${question.categoryId}\u0000${question.topic}`;
-      const set = groups.get(key) || new Set<string>();
-      set.add(question.group);
-      groups.set(key, set);
+    for (const category of categories) {
+      for (const item of category.plan) {
+        const groups = new Set(bank.questions.filter((q) =>
+          q.status === "active" && q.knowledgeType === category.knowledgeType
+          && q.topic === item.topic.trim()
+          && (q.venue === "common" || (category.venue !== "common" && q.venue === category.venue))
+        ).map((q) => q.group));
+        result.set(`${category.id}\u0000${item.topic.trim()}`, groups.size);
+      }
     }
-
-    for (const [key, groupsForTopic] of groups) {
-      result.set(key, groupsForTopic.size);
-    }
-
     return result;
-  }, [bank]);
+  }, [bank, categories]);
 
   const categoryTopics = useMemo(() => {
     const result = new Map<string, string[]>();
@@ -241,7 +259,7 @@ export function AttestationSettingsAdminPanel() {
 
     for (const category of bank.categories) {
       const values = bank.questions
-        .filter((question) => question.categoryId === category.id)
+        .filter((question) => question.knowledgeType === category.knowledgeType)
         .map((question) => question.topic)
         .filter(Boolean);
       result.set(category.id, [...new Set(values)].sort((a, b) => a.localeCompare(b, "ru")));
@@ -250,7 +268,7 @@ export function AttestationSettingsAdminPanel() {
     return result;
   }, [bank]);
 
-  function updateCategory(categoryId: string, patch: Partial<Pick<CategoryDraft, "label" | "questionsPerTest">>) {
+  function updateCategory(categoryId: string, patch: Partial<Pick<CategoryDraft, "label" | "questionsPerTest" | "knowledgeType" | "venue" | "specificQuestionCount">>) {
     setCategories((current) =>
       current.map((category) => category.id === categoryId ? { ...category, ...patch } : category)
     );
@@ -315,7 +333,23 @@ export function AttestationSettingsAdminPanel() {
         seen.add(normalized);
       }
 
+      if (category.active && !category.knowledgeType) {
+        return `Билет «${category.label}»: выберите тип знаний.`;
+      }
+      const exact = category.specificQuestionCount === "" ? null : Number(category.specificQuestionCount);
+      if (exact !== null && (!Number.isInteger(exact) || exact < 0 || exact > questionCount || (category.venue === "common" && exact !== 0))) {
+        return `Билет «${category.label}»: неправильное число вопросов заведения.`;
+      }
       if (!category.active) continue;
+      if (exact !== null && bank) {
+        const plannedTopics = new Set(category.plan.map((part) => part.topic.trim()));
+        const candidates = bank.questions.filter((q) => q.status === "active" && q.knowledgeType === category.knowledgeType && plannedTopics.has(q.topic));
+        const venueGroups = new Set(candidates.filter((q) => q.venue === category.venue && category.venue !== "common").map((q) => q.group));
+        const commonGroups = new Set(candidates.filter((q) => q.venue === "common").map((q) => q.group));
+        if (venueGroups.size < exact || commonGroups.size < questionCount - exact) {
+          return `Билет «${category.label}»: недостаточно специфичных или общих вопросов для заданной квоты.`;
+        }
+      }
 
       const total = category.plan.reduce((sum, item) => sum + Number(item.count || 0), 0);
       if (total !== questionCount) {
@@ -361,7 +395,10 @@ export function AttestationSettingsAdminPanel() {
         categories: expectedCategories.map((category) => ({
           categoryId: category.id,
           label: category.label,
-          questionsPerTest: Number(category.questionsPerTest)
+          questionsPerTest: Number(category.questionsPerTest),
+          knowledgeType: category.knowledgeType,
+          venue: category.venue,
+          specificQuestionCount: category.specificQuestionCount === "" ? null : Number(category.specificQuestionCount)
         })),
         ticketPlan: expectedCategories.flatMap((category) =>
           category.plan.map((item, index) => ({
@@ -485,13 +522,13 @@ export function AttestationSettingsAdminPanel() {
 
       <Surface className="min-w-0 max-w-full p-3 sm:p-4">
         <p className="eyebrow">КАТЕГОРИИ</p>
-        <h3 className="mt-1 text-xl font-black">Категории и разделы вопросов</h3>
+        <h3 className="mt-1 text-xl font-black">Экзаменационные билеты и разделы</h3>
 
         <div className="mt-4 flex gap-2">
           <input
             value={newCategory}
             onChange={(event) => setNewCategory(event.target.value)}
-            placeholder="Новая категория"
+            placeholder="Новый билет"
             className="min-h-12 min-w-0 flex-1 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3 text-[16px] text-[var(--bf-cream)] outline-none placeholder:text-[var(--bf-dim)] focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
           />
           <Button type="button" variant="primary" disabled={pendingCategoryId === "new"} onClick={() => void createCategory()}>
@@ -526,6 +563,28 @@ export function AttestationSettingsAdminPanel() {
                       className="min-h-11 w-full rounded-xl border border-transparent bg-transparent px-2 text-[16px] font-black text-[var(--bf-cream)] outline-none focus:border-[var(--bf-line)] focus:bg-[var(--bf-surface)]"
                       aria-label="Название категории"
                     />
+                    <div className="mt-2 grid min-w-0 grid-cols-2 gap-2">
+                      <label className="grid min-w-0 gap-1 text-[11px] font-bold text-[var(--bf-muted)]">
+                        Тип билета
+                        <select aria-label={`Тип билета «${category.label}»`} value={category.knowledgeType ?? ""}
+                          onChange={(event) => updateCategory(category.id, { knowledgeType: event.target.value ? event.target.value as KnowledgeType : null })}
+                          className="min-h-11 min-w-0 w-full rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-2 text-[16px] text-[var(--bf-cream)]">
+                          <option value="">Не настроено</option>
+                          <option value="bar">Бар</option><option value="kitchen">Кухня</option>
+                          <option value="wine">Вино</option><option value="service">Сервис</option>
+                        </select>
+                      </label>
+                      <label className="grid min-w-0 gap-1 text-[11px] font-bold text-[var(--bf-muted)]">
+                        Заведение
+                        <select aria-label={`Заведение билета «${category.label}»`} value={category.venue}
+                          onChange={(event) => updateCategory(category.id, { venue: event.target.value as AttestationVenue, specificQuestionCount: "" })}
+                          className="min-h-11 min-w-0 w-full rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-2 text-[16px] text-[var(--bf-cream)]">
+                          <option value="bf">BeerFactory</option>
+                          <option value="bb">BeerBistro</option>
+                          <option value="common">BF/BB — Общий</option>
+                        </select>
+                      </label>
+                    </div>
                     <span className={cn("ml-2 text-[10px] font-black uppercase tracking-[.08em]", category.active ? "text-[#9dd0a0]" : "text-[var(--bf-dim)]")}>
                       {category.active ? "Включена" : "Черновик"}
                     </span>
@@ -539,10 +598,18 @@ export function AttestationSettingsAdminPanel() {
                     pattern="[0-9]*"
                     value={category.questionsPerTest}
                     onChange={(event) => updateCategory(category.id, { questionsPerTest: numericDraft(event.target.value) })}
-                    className="min-h-12 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-3 text-[16px] font-black text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
+                    className="min-h-12 min-w-0 w-full rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-3 text-[16px] font-black text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
                   />
                 </label>
 
+                <label className="mt-3 grid gap-1 text-xs font-bold text-[var(--bf-muted)]">
+                  Специфичных вопросов из общего числа (необязательно)
+                  <input inputMode="numeric" pattern="[0-9]*"
+                    value={category.specificQuestionCount}
+                    onChange={(event) => updateCategory(category.id, { specificQuestionCount: numericDraft(event.target.value) })}
+                    className="min-h-11 min-w-0 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-3 text-[16px] text-[var(--bf-cream)]"
+                    placeholder="Без ограничений" />
+                </label>
                 <div className="mt-4 flex min-w-0 items-center justify-between gap-2">
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-black text-[var(--bf-cream)]">Разделы вопросов</p>
@@ -553,6 +620,9 @@ export function AttestationSettingsAdminPanel() {
                   </Button>
                 </div>
 
+                <datalist id={`attestation-topics-${category.id}`}>
+                  {(categoryTopics.get(category.id) || []).map((topic) => <option key={topic} value={topic} />)}
+                </datalist>
                 <div className="mt-2 grid min-w-0 gap-2">
                   {category.plan.map((item) => {
                     const available = capacity.get(`${category.id}\u0000${item.topic.trim()}`) || 0;
@@ -570,9 +640,7 @@ export function AttestationSettingsAdminPanel() {
                             className="h-11 min-h-11 w-full min-w-0 max-w-full rounded-lg border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-2 text-[16px] text-[var(--bf-cream)] outline-none"
                             placeholder="Например, Коктейли"
                           />
-                          <datalist id={`attestation-topics-${category.id}`}>
-                            {(categoryTopics.get(category.id) || []).map((topic) => <option key={topic} value={topic} />)}
-                          </datalist>
+
                           {item.topic.trim() ? <span className="min-w-0 break-words leading-4">Доступно: {available}</span> : null}
                         </label>
                         <label className="flex min-w-0 flex-col gap-1 text-[10px] font-bold text-[var(--bf-dim)]">

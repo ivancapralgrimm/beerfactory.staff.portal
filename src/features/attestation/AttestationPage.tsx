@@ -32,7 +32,8 @@ import type {
   QuizAttempt,
   QuizHistoryItem,
   QuizHistorySource,
-  QuizResult
+  QuizResult,
+  QuizQuestion
 } from "@/features/attestation/types";
 import { cn } from "@/lib/utils";
 
@@ -94,7 +95,7 @@ function HistoryList({ items, source }: { items: QuizHistoryItem[]; source: Quiz
           <p className="eyebrow">ИСТОРИЯ</p>
           <h2 className="mt-1 text-xl font-extrabold">Последние попытки</h2>
         </div>
-        <span className="pt-1 text-[11px] text-[var(--bf-dim)]">Команда</span>
+        <span className="pt-1 text-[11px] text-[var(--bf-dim)]">{source === "device" ? "На устройстве" : "Команда"}</span>
       </div>
 
       {items.length ? (
@@ -146,7 +147,7 @@ function QuizQuestionView({
         <Button type="button" variant="ghost" className="-ml-3" onClick={onExit}>
           <ArrowLeft className="size-4" aria-hidden />Выйти
         </Button>
-        <span className="rounded-full border border-[var(--bf-line)] px-3 py-2 text-xs font-bold text-[var(--bf-muted)]">{attempt.categoryLabel} · {attempt.index + 1}/{attempt.questions.length}</span>
+        <span className="min-w-0 break-words rounded-full border border-[var(--bf-line)] px-3 py-2 text-xs font-bold text-[var(--bf-muted)]">{attempt.categoryLabel} · {attempt.index + 1}/{attempt.questions.length}</span>
       </div>
 
       <div className="mt-4 h-1 overflow-hidden rounded-full bg-[var(--bf-surface-2)]" role="progressbar" aria-label="Прогресс аттестации" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress}>
@@ -174,7 +175,7 @@ function QuizQuestionView({
   );
 }
 
-function ResultView({ result, saveStatus, onRestart }: { result: QuizResult; saveStatus: string; onRestart: () => void }) {
+function ResultView({ result, saveStatus, onRestart, onRetrySave }: { result: QuizResult; saveStatus: string; onRestart: () => void; onRetrySave: () => void }) {
   const mistakes = result.questions.flatMap((question, index) => {
     const chosen = question.answers[result.answers[index]];
     return chosen?.correct ? [] : [{ question, chosenIndex: result.answers[index] }];
@@ -197,6 +198,7 @@ function ResultView({ result, saveStatus, onRestart }: { result: QuizResult; sav
           <h1 className="mt-3 text-2xl font-black">{result.passed ? "Аттестация пройдена" : "Нужно повторить материал"}</h1>
           <p className="mt-2 text-sm text-[var(--bf-muted)]">{result.correct} из {result.total} · проходной порог {result.passPercent}%</p>
           <p className="mt-3 min-h-5 text-xs text-[var(--bf-dim)]" role="status" aria-live="polite">{saveStatus}</p>
+          {saveStatus.startsWith("Не удалось сохранить") ? <Button type="button" variant="secondary" className="mt-3" onClick={onRetrySave}>Повторить сохранение</Button> : null}
         </div>
 
         <div className="bf-result-meta" aria-label="Сведения о попытке"><div><strong>{result.categoryLabel}</strong><span>Категория</span></div><div><strong>{duration}</strong><span>Время</span></div><div><strong>{completedDate}</strong><span>Дата</span></div></div>
@@ -221,21 +223,34 @@ export function AttestationPage() {
   const userId = auth.status === "authenticated" ? auth.user.id : "";
   const { state, reload } = useAttestationBank();
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+  const [startError, setStartError] = useState("");
   const [attempt, setAttempt] = useState<QuizAttempt | null>(null);
   const [result, setResult] = useState<QuizResult | null>(null);
   const [saveStatus, setSaveStatus] = useState("");
   const [history, setHistory] = useState<QuizHistoryItem[]>([]);
   const [historySource, setHistorySource] = useState<QuizHistorySource>("device");
   const [historyLoading, setHistoryLoading] = useState(true);
+  const currentUserId = useRef(userId);
+  const attemptUserId = useRef(userId);
+  currentUserId.current = userId;
+
+  useEffect(() => {
+    setAttempt(null);
+    setResult(null);
+    setSaveStatus("");
+    setHistory([]);
+    setStartError("");
+  }, [userId]);
 
   async function refreshHistory() {
     setHistoryLoading(true);
     try {
       const loaded = await getQuizHistory(userId, 5);
+      if (currentUserId.current !== userId) return;
       setHistory(loaded.items);
       setHistorySource(loaded.source);
     } finally {
-      setHistoryLoading(false);
+      if (currentUserId.current === userId) setHistoryLoading(false);
     }
   }
 
@@ -248,10 +263,21 @@ export function AttestationPage() {
 
   function startQuiz() {
     if (state.status !== "ready" || !selectedCategory) return;
-    const questions = buildQuizTicket(selectedCategory);
-    if (questions.length !== selectedCategory.questionsPerTest) return;
+    let questions: QuizQuestion[];
+    try {
+      questions = buildQuizTicket(selectedCategory);
+      setStartError("");
+    } catch {
+      setStartError("В билете недостаточно подходящих вопросов. Сообщите администратору.");
+      return;
+    }
+    if (questions.length !== selectedCategory.questionsPerTest) {
+      setStartError("Не удалось сформировать полный билет.");
+      return;
+    }
     setSaveStatus("");
     setResult(null);
+    attemptUserId.current = userId;
     setAttempt({ categoryId: selectedCategory.id, categoryLabel: selectedCategory.label, passPercent: state.bank.passPercent, questions, index: 0, answers: [], selected: null, startedAt: new Date().toISOString() });
   }
 
@@ -271,23 +297,32 @@ export function AttestationPage() {
       return;
     }
     const completed = buildResult(attempt, answers);
-    persistQuizResultLocally(userId, completed);
     setAttempt(null);
     setResult(completed);
-    setSaveStatus("Сохраняем результат…");
     window.scrollTo(0, 0);
-    void persistQuizResultRemote(userId, completed)
-      .then(() => {
-        setSaveStatus("Результат сохранён.");
-        return refreshHistory();
-      })
-      .catch(() => {
-        setSaveStatus("Результат сохранён на этом устройстве.");
-      });
+    void saveCompletedResult(completed, attemptUserId.current);
+  }
+
+  async function saveCompletedResult(completed: QuizResult, ownerId: string) {
+    if (currentUserId.current !== ownerId) return;
+    setSaveStatus("Сохраняем результат…");
+    const durable = await persistQuizResultLocally(ownerId, completed).catch(() => false);
+    try {
+      await persistQuizResultRemote(ownerId, completed);
+      if (currentUserId.current !== ownerId) return;
+      setSaveStatus("Результат сохранён.");
+      await refreshHistory();
+    } catch (error) {
+      if (currentUserId.current !== ownerId) return;
+      const savedRemotely = Boolean(error && typeof error === "object" && "savedRemotely" in error && error.savedRemotely);
+      setSaveStatus(savedRemotely ? "Результат сохранён на сервере. Очередь будет обновлена при синхронизации." : durable
+        ? "Результат сохранён на этом устройстве."
+        : "Не удалось сохранить результат. Повторите сохранение, пока эта страница открыта.");
+    }
   }
 
   if (attempt) return <QuizQuestionView attempt={attempt} onSelect={(index) => setAttempt((current) => current ? { ...current, selected: index } : current)} onNext={submitAnswer} onExit={exitQuiz} />;
-  if (result) return <ResultView result={result} saveStatus={saveStatus} onRestart={() => { setResult(null); setSaveStatus(""); window.scrollTo(0, 0); }} />;
+  if (result) return <ResultView result={result} saveStatus={saveStatus} onRetrySave={() => void saveCompletedResult(result, attemptUserId.current)} onRestart={() => { setResult(null); setSaveStatus(""); window.scrollTo(0, 0); }} />;
 
   return (
     <section className="bf-attestation-page mx-auto max-w-3xl pb-6">
@@ -309,9 +344,9 @@ export function AttestationPage() {
 
       {state.status === "loading" ? <div className="mt-6 grid grid-cols-2 gap-2.5" aria-label="Загрузка вопросов">{Array.from({ length: 4 }, (_, index) => <div key={index} className="h-28 animate-pulse rounded-2xl border border-[var(--bf-line)] bg-[var(--bf-surface)]" />)}</div> : null}
 
-      {state.status === "error" ? <div className="mt-6 border-y border-[var(--bf-line)] py-6"><p className="text-lg font-extrabold">Не удалось загрузить вопросы</p><p className="mt-1 max-w-lg text-sm leading-6 text-[var(--bf-muted)]">Попробуйте ещё раз.</p><Button className="mt-4" onClick={reload}><RefreshCw className="size-4" aria-hidden />Повторить</Button></div> : null}
+      {state.status === "error" ? <div className="mt-6 border-y border-[var(--bf-line)] py-6"><p className="text-lg font-extrabold">Не удалось загрузить вопросы</p><p className="mt-1 max-w-lg text-sm leading-6 text-[var(--bf-muted)]">{state.error.message === "question_bank_cache_incompatible" ? "Офлайн-банк устарел. Подключитесь к интернету и обновите вопросы." : "Проверьте соединение и повторите."}</p><Button className="mt-4" onClick={reload}><RefreshCw className="size-4" aria-hidden />Повторить</Button></div> : null}
 
-      {state.status === "ready" ? <><section className="mt-6 border-y border-[var(--bf-line)] py-5"><h2 className="text-xl font-extrabold">Тестирование по теме: {selectedCategory ? selectedCategory.label : "…"}</h2><label className="relative mt-4 flex min-w-0 max-w-full flex-col gap-1 text-[11px] font-bold text-[var(--bf-dim)]"><span>Выбери тему</span><select aria-label="Выбери тему" value={selectedCategoryId ?? ""} onChange={(event) => setSelectedCategoryId(event.target.value || null)} className="h-12 min-h-12 w-full min-w-0 max-w-full appearance-none rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] py-2 pl-3 pr-9 text-[16px] font-bold text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"><option value="" disabled>…</option>{state.bank.categories.map((category) => <option key={category.id} value={category.id}>{category.label}</option>)}</select><ChevronDown className="pointer-events-none absolute bottom-[14px] right-3 size-4 text-[var(--bf-dim)]" aria-hidden /></label><div className="mt-4 flex flex-wrap gap-2"><Button type="button" variant="primary" size="lg" disabled={!selectedCategory} onClick={startQuiz}>Начать</Button></div></section>{historyLoading ? <section className="mt-5 border-t border-[var(--bf-line)] pt-5"><div className="h-20 animate-pulse rounded-xl bg-[var(--bf-surface)]" /></section> : <div className="mt-5"><HistoryList items={history} source={historySource} /></div>}</> : null}
+      {state.status === "ready" ? <><section className="mt-6 border-y border-[var(--bf-line)] py-5"><h2 className="text-xl font-extrabold">Тестирование по теме: {selectedCategory ? selectedCategory.label : "…"}</h2><label className="relative mt-4 flex min-w-0 max-w-full flex-col gap-1 text-[11px] font-bold text-[var(--bf-dim)]"><span>Выбери тему</span><select aria-label="Выбери тему" value={selectedCategoryId ?? ""} onChange={(event) => { setSelectedCategoryId(event.target.value || null); setStartError(""); }} className="h-12 min-h-12 w-full min-w-0 max-w-full appearance-none rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] py-2 pl-3 pr-9 text-[16px] font-bold text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"><option value="" disabled>…</option>{state.bank.categories.map((category) => <option key={category.id} value={category.id}>{category.label} · {category.questionsPerTest} вопросов · {category.venue === "bf" ? "BeerFactory" : category.venue === "bb" ? "BeerBistro" : "BF/BB — Общий"}</option>)}</select><ChevronDown className="pointer-events-none absolute bottom-[14px] right-3 size-4 text-[var(--bf-dim)]" aria-hidden /></label><div className="mt-4 flex flex-wrap items-center gap-2"><Button type="button" variant="primary" size="lg" disabled={!selectedCategory} onClick={startQuiz}>Начать</Button></div>{startError ? <p role="alert" className="mt-2 text-xs text-[#e99990]">{startError}</p> : null}</section>{historyLoading ? <section className="mt-5 border-t border-[var(--bf-line)] pt-5"><div className="h-20 animate-pulse rounded-xl bg-[var(--bf-surface)]" /></section> : <div className="mt-5"><HistoryList items={history} source={historySource} /></div>}</> : null}
     </section>
   );
 }

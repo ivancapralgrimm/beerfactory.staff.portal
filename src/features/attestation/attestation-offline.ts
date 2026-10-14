@@ -10,6 +10,19 @@ const OUTBOX_STORE = "outbox";
 const CURRENT_BANK_KEY = "current";
 const FALLBACK_BANK_KEY = "bfstaff-attestation-bank-fallback-v1";
 const FALLBACK_OUTBOX_KEY = "bfstaff-attestation-outbox-fallback-v1";
+let outboxMutations: Promise<void> = Promise.resolve();
+
+function mutateOutbox<T>(operation: () => Promise<T>): Promise<T> {
+  const run = async (): Promise<T> => {
+    if (typeof navigator !== "undefined" && navigator.locks) {
+      return await navigator.locks.request("bfstaff-attestation-outbox", operation);
+    }
+    return operation();
+  };
+  const pending = outboxMutations.then(run, run);
+  outboxMutations = pending.then(() => undefined, () => undefined);
+  return pending;
+}
 
 export type CachedAttestationBank = {
   key: typeof CURRENT_BANK_KEY;
@@ -116,7 +129,7 @@ function writeFallbackOutbox(entries: AttestationOutboxEntry[]) {
   try {
     localStorage.setItem(
       FALLBACK_OUTBOX_KEY,
-      JSON.stringify(entries.slice(-200))
+      JSON.stringify(entries)
     );
     return true;
   } catch {
@@ -165,6 +178,7 @@ export async function cacheAttestationBank(bank: QuestionBank) {
 }
 
 export async function readCachedAttestationBank() {
+  const fallback = readFallbackBank();
   try {
     const db = await openDatabase();
 
@@ -176,7 +190,18 @@ export async function readCachedAttestationBank() {
       ) as CachedAttestationBank | undefined;
       await done;
 
-      if (value?.bank) return value;
+      if (value?.bank) {
+        // A failed IndexedDB write can leave an older bank beside a newer fallback.
+        if (fallback?.bank) {
+          const primaryIsV3 = (value.bank as { schemaVersion?: number }).schemaVersion === 3;
+          const fallbackIsV3 = (fallback.bank as { schemaVersion?: number }).schemaVersion === 3;
+          if ((!primaryIsV3 && fallbackIsV3)
+            || (primaryIsV3 === fallbackIsV3 && fallback.savedAt > value.savedAt)) {
+            return fallback;
+          }
+        }
+        return value;
+      }
     } finally {
       db.close();
     }
@@ -184,12 +209,18 @@ export async function readCachedAttestationBank() {
     // Safari/private-mode fallback is handled below.
   }
 
-  return readFallbackBank();
+  return fallback;
 }
 
-export async function enqueueAttestationAttempt(
+export function enqueueAttestationAttempt(
   entry: AttestationOutboxEntry
 ) {
+  // Detach the completed attempt before waiting for storage or another mutation.
+  const snapshot = JSON.parse(JSON.stringify(entry)) as AttestationOutboxEntry;
+  return mutateOutbox(() => writeAttestationAttempt(snapshot));
+}
+
+async function writeAttestationAttempt(entry: AttestationOutboxEntry) {
   try {
     const db = await openDatabase();
 
@@ -215,6 +246,7 @@ export async function enqueueAttestationAttempt(
 }
 
 export async function listPendingAttestationAttempts(userId: string) {
+  await outboxMutations;
   const merged = new Map<string, AttestationOutboxEntry>();
 
   try {
@@ -236,22 +268,29 @@ export async function listPendingAttestationAttempts(userId: string) {
     .sort((a, b) => a.queuedAt.localeCompare(b.queuedAt));
 }
 
-export async function removePendingAttestationAttempt(
+export function removePendingAttestationAttempt(
   clientAttemptId: string
 ) {
-  try {
-    const db = await openDatabase();
+  return mutateOutbox(() => deleteAttestationAttempt(clientAttemptId));
+}
 
+async function deleteAttestationAttempt(clientAttemptId: string) {
+  let indexedError: unknown;
+  if (typeof indexedDB !== "undefined") {
     try {
-      const transaction = db.transaction(OUTBOX_STORE, "readwrite");
-      const done = transactionDone(transaction);
-      transaction.objectStore(OUTBOX_STORE).delete(clientAttemptId);
-      await done;
-    } finally {
-      db.close();
+      const db = await openDatabase();
+
+      try {
+        const transaction = db.transaction(OUTBOX_STORE, "readwrite");
+        const done = transactionDone(transaction);
+        transaction.objectStore(OUTBOX_STORE).delete(clientAttemptId);
+        await done;
+      } finally {
+        db.close();
+      }
+    } catch (error) {
+      indexedError = error;
     }
-  } catch {
-    // The fallback removal below is still attempted.
   }
 
   const entries = readFallbackOutbox();
@@ -259,9 +298,10 @@ export async function removePendingAttestationAttempt(
     (entry) => entry.clientAttemptId !== clientAttemptId
   );
 
-  if (filtered.length !== entries.length) {
-    writeFallbackOutbox(filtered);
+  if (filtered.length !== entries.length && !writeFallbackOutbox(filtered)) {
+    throw new Error("attestation_outbox_delete_failed");
   }
+  if (indexedError) throw indexedError;
 }
 
 export async function pendingAttestationAttemptCount(userId: string) {

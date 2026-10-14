@@ -13,6 +13,7 @@ import type {
 type LocalLearningRecord = {
   read?: string[];
   history?: Array<{
+    clientAttemptId?: string;
     time?: number | string;
     correct?: number;
     total?: number;
@@ -23,6 +24,30 @@ type LocalLearningRecord = {
     passPercent?: number;
   }>;
 };
+
+const uploadFlights = new Map<string, Promise<unknown>>();
+const syncFlights = new Map<string, Promise<{ sent: number; pending: number }>>();
+// Only retain acknowledgments whose local deletion failed. A retry cleans up
+// without resubmitting an attempt already accepted by the server in this tab.
+const acknowledgedUploads = new Map<string, unknown>();
+// A background sync can finish between local durability and the page's direct
+// save. Remember successful IDs in this tab so that direct save drains its
+// re-enqueued copy without making a second ordinary request.
+const completedUploads = new Map<string, unknown>();
+
+async function requireCurrentUser(userId: string) {
+  const { data, error } = await supabase.auth.getSession();
+  if (error || !userId || data.session?.user.id !== userId) {
+    throw new Error("attestation_account_changed");
+  }
+}
+
+async function withUploadLock<T>(key: string, operation: () => Promise<T>): Promise<T> {
+  if (typeof navigator !== "undefined" && navigator.locks) {
+    return await navigator.locks.request(`bfstaff-attestation-upload:${key}`, operation);
+  }
+  return operation();
+}
 
 type RecentTeamAttempt = {
   id: string;
@@ -43,10 +68,10 @@ function storageKey(userId: string) {
 
 function readLocalRecord(userId: string): LocalLearningRecord {
   try {
-    return JSON.parse(localStorage.getItem(storageKey(userId)) || "null") || {
-      read: [],
-      history: []
-    };
+    const record = JSON.parse(localStorage.getItem(storageKey(userId)) || "null");
+    return record && typeof record === "object" && !Array.isArray(record)
+      ? { ...record, history: Array.isArray(record.history) ? record.history : [] }
+      : { read: [], history: [] };
   } catch {
     return { read: [], history: [] };
   }
@@ -111,42 +136,115 @@ function questionRevisions(result: QuizResult) {
   }));
 }
 
-async function uploadAttempt(
+function uploadAttempt(
   userId: string,
   result: QuizResult,
-  syncedFromOffline: boolean
+  syncedFromOffline: boolean,
+  requireQueued = true
 ) {
   const clientAttemptId = ensureClientAttemptId(result);
+  const key = `${userId}:${clientAttemptId}`;
+  const existing = uploadFlights.get(key);
+  if (existing) return existing;
 
-  const { data, error } = await supabase.rpc(
-    "submit_attestation_attempt",
-    {
-      p_client_attempt_id: clientAttemptId,
-      p_category: result.categoryLabel,
-      p_category_id: result.categoryId,
-      p_total_questions: result.total,
-      p_correct_answers: result.correct,
-      p_category_results: {
-        pass_percent: result.passPercent,
-        topics: result.topicResults,
-        weak_topics: result.weakTopics
-      },
-      p_started_at: result.startedAt,
-      p_finished_at: result.finishedAt,
-      p_question_revisions: questionRevisions(result),
-      p_synced_from_offline: syncedFromOffline
+  const flight = withUploadLock(key, async () => {
+    const pending = await listPendingAttestationAttempts(userId);
+    const queued = pending.find((entry) => entry.clientAttemptId === clientAttemptId);
+    if (requireQueued && !queued) {
+      // Another tab may have uploaded and deleted it while we waited for its lock.
+      acknowledgedUploads.delete(key);
+      return null;
     }
-  );
+    const snapshot = queued?.result || result;
+    if (snapshot.clientAttemptId && snapshot.clientAttemptId !== clientAttemptId) {
+      throw new Error("attestation_attempt_id_mismatch");
+    }
+    await requireCurrentUser(userId);
 
-  if (error || !data) {
-    throw error || new Error("attestation_sync_failed");
+    let data = completedUploads.get(key) || acknowledgedUploads.get(key);
+    if (!data) {
+      const response = await supabase.rpc(
+        "submit_attestation_attempt",
+        {
+          p_client_attempt_id: clientAttemptId,
+          p_category: snapshot.categoryLabel,
+          p_category_id: snapshot.categoryId,
+          p_total_questions: snapshot.total,
+          p_correct_answers: snapshot.correct,
+          p_category_results: {
+            pass_percent: snapshot.passPercent,
+            topics: snapshot.topicResults,
+            weak_topics: snapshot.weakTopics
+          },
+          p_started_at: snapshot.startedAt,
+          p_finished_at: snapshot.finishedAt,
+          p_question_revisions: questionRevisions(snapshot),
+          p_synced_from_offline: syncedFromOffline
+        }
+      );
+
+      if (response.error || !response.data) {
+        throw response.error || new Error("attestation_sync_failed");
+      }
+      data = response.data;
+      acknowledgedUploads.set(key, data);
+    }
+
+    try {
+      await removePendingAttestationAttempt(clientAttemptId);
+    } catch (cause) {
+      throw Object.assign(new Error("attestation_ack_cleanup_failed"), {
+        savedRemotely: true,
+        cause
+      });
+    }
+    acknowledgedUploads.delete(key);
+    completedUploads.set(key, data);
+    if (completedUploads.size > 500) completedUploads.delete(completedUploads.keys().next().value!);
+    return data;
+  });
+
+  uploadFlights.set(key, flight);
+  const clear = () => uploadFlights.delete(key);
+  void flight.then(clear, clear);
+  return flight;
+}
+
+async function deviceHistory(userId: string, limit: number) {
+  const items = new Map<string, QuizHistoryItem>();
+  const record = readLocalRecord(userId);
+  for (const [index, item] of (record.history || []).entries()) {
+    if (!item || typeof item.total !== "number" || typeof item.correct !== "number"
+      || typeof item.score !== "number" || typeof item.passed !== "boolean"
+      || item.time == null) continue;
+    items.set(item.clientAttemptId || `legacy:${index}`, {
+      category: item.category || "Общий тест",
+      categoryId: item.categoryId,
+      time: item.time,
+      correct: item.correct,
+      total: item.total,
+      score: item.score,
+      passed: item.passed
+    });
   }
-
-  await removePendingAttestationAttempt(clientAttemptId).catch(
-    () => undefined
-  );
-
-  return data;
+  for (const entry of await listPendingAttestationAttempts(userId)) {
+    const result = entry.result;
+    items.set(entry.clientAttemptId, {
+      category: result.categoryLabel,
+      categoryId: result.categoryId,
+      time: result.finishedAt,
+      correct: result.correct,
+      total: result.total,
+      score: result.score,
+      passed: result.passed
+    });
+  }
+  return {
+    items: [...items.values()]
+      .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+      .slice(0, Math.max(1, Math.min(limit, 10))),
+    source: "device" as const
+  };
 }
 
 export async function getQuizHistory(
@@ -158,40 +256,47 @@ export async function getQuizHistory(
 }> {
   if (!userId) return { items: [], source: "profile" };
 
-  const { data, error } = await supabase.rpc(
-    "get_recent_attestation_attempts",
-    { p_limit: limit }
-  );
+  try {
+    await requireCurrentUser(userId);
+    const { data, error } = await supabase.rpc(
+      "get_recent_attestation_attempts",
+      { p_limit: limit }
+    );
 
-  if (error) return { items: [], source: "profile" };
+    if (error) throw error;
 
-  const attempts = (data || []) as RecentTeamAttempt[];
+    const attempts = (data || []) as RecentTeamAttempt[];
 
-  return {
-    items: attempts.map((item) => ({
-      category: `${item.display_name} · ${item.category || "Общий тест"}`,
-      categoryId: item.category_id,
-      time: item.attempted_at,
-      correct: item.correct_answers,
-      total: item.total_questions,
-      score: item.score,
-      passed: item.passed
-    })),
-    source: "profile"
-  };
+    return {
+      items: attempts.map((item) => ({
+        category: `${item.display_name} · ${item.category || "Общий тест"}`,
+        categoryId: item.category_id,
+        time: item.attempted_at,
+        correct: item.correct_answers,
+        total: item.total_questions,
+        score: item.score,
+        passed: item.passed
+      })),
+      source: "profile"
+    };
+  } catch {
+    return deviceHistory(userId, limit);
+  }
 }
 
-export function persistQuizResultLocally(
+export async function persistQuizResultLocally(
   userId: string,
   result: QuizResult
-) {
+): Promise<boolean> {
+  if (!userId) return false;
   const record = readLocalRecord(userId);
   const clientAttemptId = ensureClientAttemptId(result);
 
   record.history = [
-    ...(record.history || []),
+    ...(record.history || []).filter((item) => item?.clientAttemptId !== clientAttemptId),
     {
-      time: Date.now(),
+      clientAttemptId,
+      time: result.finishedAt,
       correct: result.correct,
       total: result.total,
       score: result.score,
@@ -202,14 +307,18 @@ export function persistQuizResultLocally(
     }
   ].slice(-100);
 
-  void enqueueAttestationAttempt({
-    clientAttemptId,
-    userId,
-    result,
-    queuedAt: new Date().toISOString()
-  }).catch(() => undefined);
-
-  return writeLocalRecord(userId, record);
+  writeLocalRecord(userId, record);
+  try {
+    await enqueueAttestationAttempt({
+      clientAttemptId,
+      userId,
+      result,
+      queuedAt: new Date().toISOString()
+    });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export async function persistQuizResultRemote(
@@ -220,36 +329,41 @@ export async function persistQuizResultRemote(
 
   const clientAttemptId = ensureClientAttemptId(result);
 
-  await enqueueAttestationAttempt({
+  const queued = await enqueueAttestationAttempt({
     clientAttemptId,
     userId,
     result,
     queuedAt: new Date().toISOString()
-  }).catch(() => undefined);
+  }).then(() => true, () => false);
 
-  return uploadAttempt(userId, result, false);
+  return uploadAttempt(userId, result, false, queued);
 }
 
-export async function syncPendingAttestationAttempts(userId: string) {
-  if (!userId) return { sent: 0, pending: 0 };
+export function syncPendingAttestationAttempts(userId: string) {
+  if (!userId) return Promise.resolve({ sent: 0, pending: 0 });
+  const existing = syncFlights.get(userId);
+  if (existing) return existing;
+  const flight = syncUserAttempts(userId);
+  syncFlights.set(userId, flight);
+  const clear = () => syncFlights.delete(userId);
+  void flight.then(clear, clear);
+  return flight;
+}
 
-  const pending = await listPendingAttestationAttempts(userId).catch(
-    () => []
-  );
+async function syncUserAttempts(userId: string) {
+  const pending = await listPendingAttestationAttempts(userId);
   let sent = 0;
 
   for (const entry of pending) {
     try {
-      await uploadAttempt(userId, entry.result, true);
-      sent += 1;
+      const result = { ...entry.result, clientAttemptId: entry.clientAttemptId };
+      if (await uploadAttempt(userId, result, true)) sent += 1;
     } catch {
       break;
     }
   }
 
-  const remaining = await listPendingAttestationAttempts(userId).catch(
-    () => []
-  );
+  const remaining = await listPendingAttestationAttempts(userId);
 
   return { sent, pending: remaining.length };
 }

@@ -1,8 +1,7 @@
-export type QuizAnswer = {
-  text: string;
-  correct: boolean;
-};
+export type KnowledgeType = "bar" | "kitchen" | "wine" | "service";
+export type AttestationVenue = "bf" | "bb" | "common";
 
+export type QuizAnswer = { text: string; correct: boolean };
 export type QuizQuestion = {
   id: string;
   q: string;
@@ -16,29 +15,28 @@ export type QuizQuestion = {
   subcategory?: string | null;
   reviewNote?: string;
   revision?: number;
+  knowledgeType: KnowledgeType;
+  venue: AttestationVenue;
 };
-
-export type QuizTicketPlanPart = {
-  topic: string;
-  count: number;
-};
-
+export type QuizTicketPlanPart = { topic: string; count: number };
 export type QuizCategory = {
   id: string;
   label: string;
   questionsPerTest: number;
+  knowledgeType: KnowledgeType;
+  venue: AttestationVenue;
+  specificQuestionCount: number | null;
   questions: QuizQuestion[];
   ticketPlan: QuizTicketPlanPart[];
 };
-
 export type QuestionBank = {
+  schemaVersion: 3;
   passPercent: number;
   questionsPerTest: number;
   revision?: number;
   generatedAt?: string;
   categories: QuizCategory[];
 };
-
 export type QuizAttempt = {
   categoryId: string;
   categoryLabel: string;
@@ -49,12 +47,7 @@ export type QuizAttempt = {
   selected: number | null;
   startedAt: string;
 };
-
-export type TopicResult = {
-  total: number;
-  correct: number;
-};
-
+export type TopicResult = { total: number; correct: number };
 export type QuizResult = {
   clientAttemptId?: string;
   categoryId: string;
@@ -69,13 +62,8 @@ export type QuizResult = {
   startedAt: string;
   finishedAt: string;
   topicResults: Record<string, TopicResult>;
-  weakTopics: Array<{
-    topic: string;
-    total: number;
-    correct: number;
-  }>;
+  weakTopics: Array<{ topic: string; total: number; correct: number }>;
 };
-
 export type QuizHistoryItem = {
   category: string;
   categoryId?: string | null;
@@ -85,5 +73,4 @@ export type QuizHistoryItem = {
   score: number;
   passed: boolean;
 };
-
 export type QuizHistorySource = "profile" | "device";

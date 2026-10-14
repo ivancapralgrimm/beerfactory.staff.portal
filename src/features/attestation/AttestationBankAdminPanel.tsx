@@ -27,6 +27,7 @@ import {
 import { loadServerKnowledgeArticles } from "@/features/knowledge/knowledge-server";
 import { isArchive, loadRecipes } from "@/features/recipes/recipe-data";
 import { cn } from "@/lib/utils";
+import type { AttestationVenue, KnowledgeType } from "@/features/attestation/types";
 
 const EMPTY_ANSWERS = () => [
   { text: "", correct: true },
@@ -42,6 +43,12 @@ function errorText(error: unknown) {
   }
   if (code === "attestation_ticket_capacity") {
     return "Нельзя убрать этот вопрос: после изменения по теме не соберётся полный билет.";
+  }
+  if (code === "attestation_ticket_quota_capacity") {
+    return "Изменение нарушит квоту активного билета. Сначала добавьте подходящие вопросы или измените квоту.";
+  }
+  if (code === "attestation_ticket_group_cross_topic") {
+    return "Одна группа вопросов оказалась в разных разделах. Перенесите вопрос в отдельную группу.";
   }
   if (code === "attestation_answers_invalid") {
     return "Нужно четыре разных ответа и ровно один правильный.";
@@ -73,6 +80,8 @@ type Draft = {
   id?: string;
   revision?: number;
   categoryId: string;
+  knowledgeType: KnowledgeType | null;
+  venue: AttestationVenue;
   q: string;
   topic: string;
   subcategory: string;
@@ -127,6 +136,8 @@ function draftFromQuestion(question: AttestationEditorQuestion): Draft {
     id: question.id,
     revision: question.revision,
     categoryId: question.categoryId,
+    knowledgeType: question.knowledgeType,
+    venue: question.venue,
     q: question.q,
     topic: question.topic,
     subcategory: question.subcategory || "",
@@ -232,28 +243,28 @@ function Editor({
   }
 
   const topics = useMemo(() => {
-    const category = bank.categories.find((item) => item.id === draft.categoryId);
-    const configured = category?.ticketPlan.map((item) => item.topic) || [];
+    const configured = bank.categories
+      .filter((category) => category.knowledgeType === draft.knowledgeType)
+      .flatMap((category) => category.ticketPlan.map((part) => part.topic));
     const existing = bank.questions
-      .filter((question) => question.categoryId === draft.categoryId)
-      .map((question) => question.topic)
-      .filter(Boolean);
+      .filter((question) => question.knowledgeType === draft.knowledgeType)
+      .map((question) => question.topic).filter(Boolean);
     return [...new Set([...configured, ...existing])].sort((a, b) => a.localeCompare(b, "ru"));
-  }, [bank.categories, bank.questions, draft.categoryId]);
+  }, [bank.categories, bank.questions, draft.knowledgeType]);
 
   const subcategories = useMemo(() => {
     const values = bank.questions
-      .filter((question) => question.categoryId === draft.categoryId)
-      .map((question) => question.subcategory || "")
-      .filter(Boolean);
+      .filter((question) => question.knowledgeType === draft.knowledgeType)
+      .map((question) => question.subcategory || "").filter(Boolean);
     return [...new Set(values)].sort((a, b) => a.localeCompare(b, "ru"));
-  }, [bank.questions, draft.categoryId]);
+  }, [bank.questions, draft.knowledgeType]);
 
   async function save() {
     const answerTexts = draft.answers.map((answer) => answer.text.trim());
     if (
       !draft.q.trim() ||
       !draft.categoryId ||
+      !draft.knowledgeType ||
       !draft.topic.trim() ||
       answerTexts.some((text) => !text) ||
       new Set(answerTexts.map((text) => text.toLowerCase())).size !== 4 ||
@@ -278,6 +289,8 @@ function Editor({
         {
           id: draft.id,
           categoryId: draft.categoryId,
+          knowledgeType: draft.knowledgeType,
+          venue: draft.venue,
           q: draft.q.trim(),
           topic: draft.topic.trim(),
           subcategory: draft.subcategory.trim() || null,
@@ -318,34 +331,42 @@ function Editor({
       </div>
 
       <div className="grid gap-4 p-4">
-        <div className="grid grid-cols-2 gap-2">
-          <label className="grid gap-1 text-xs font-bold text-[var(--bf-muted)]">
-            Категория
+        <div className="grid min-w-0 grid-cols-2 gap-2">
+          <label className="grid min-w-0 gap-1 text-xs font-bold text-[var(--bf-muted)]">
+            Тип знаний
             <select
-              value={draft.categoryId}
+              aria-label="Тип знаний"
+              value={draft.knowledgeType ?? ""}
               onChange={(event) => {
-                const nextCategory = bank.categories.find((item) => item.id === event.target.value);
+                const knowledgeType = event.target.value as KnowledgeType;
+                const home = bank.categories.find((item) => item.id === knowledgeType && item.knowledgeType === knowledgeType)
+                  || bank.categories.find((item) => item.knowledgeType === knowledgeType);
                 setDraft((current) => ({
                   ...current,
-                  categoryId: event.target.value,
-                  topic: nextCategory?.ticketPlan?.[0]?.topic || "",
+                  categoryId: home?.id || current.categoryId,
+                  knowledgeType,
+                  group: current.knowledgeType === knowledgeType ? current.group : newGroupKey(),
+                  topic: home?.ticketPlan?.[0]?.topic || bank.questions.find((q) => q.knowledgeType === knowledgeType)?.topic || "Общее",
                   subcategory: ""
                 }));
               }}
-              className="min-h-11 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3 text-[16px] text-[var(--bf-cream)]"
+              className="min-h-11 min-w-0 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-2 text-[16px] text-[var(--bf-cream)]"
             >
-              {bank.categories.map((category) => (
-                <option key={category.id} value={category.id}>{category.label}{category.active ? "" : " · черновик"}</option>
-              ))}
+              <option value="" disabled>Выберите тип</option>
+              <option value="bar">Бар</option>
+              <option value="kitchen">Кухня</option>
+              <option value="wine">Вино</option>
+              <option value="service">Сервис</option>
             </select>
           </label>
 
-          <label className="grid gap-1 text-xs font-bold text-[var(--bf-muted)]">
+          <label className="grid min-w-0 gap-1 text-xs font-bold text-[var(--bf-muted)]">
             Раздел вопросов
             <select
+              aria-label="Раздел вопросов"
               value={draft.topic}
-              onChange={(event) => setDraft((current) => ({ ...current, topic: event.target.value }))}
-              className="min-h-11 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3 text-[16px] text-[var(--bf-cream)]"
+              onChange={(event) => setDraft((current) => ({ ...current, topic: event.target.value, group: current.topic === event.target.value ? current.group : newGroupKey() }))}
+              className="min-h-11 min-w-0 w-full rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-2 text-[16px] text-[var(--bf-cream)]"
             >
               {!topics.length ? <option value="">Сначала создайте раздел</option> : null}
               {topics.map((topic) => <option key={topic} value={topic}>{topic}</option>)}
@@ -353,9 +374,10 @@ function Editor({
           </label>
         </div>
 
-        <label className="grid gap-1 text-xs font-bold text-[var(--bf-muted)]">
+        <label className="grid min-w-0 gap-1 text-xs font-bold text-[var(--bf-muted)]">
           Вопрос
           <textarea
+            aria-label="Вопрос"
             value={draft.q}
             onChange={(event) => setDraft((current) => ({ ...current, q: event.target.value }))}
             rows={4}
@@ -411,7 +433,17 @@ function Editor({
         <details className="rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] p-3">
           <summary className="cursor-pointer text-sm font-black">Дополнительно</summary>
           <div className="mt-3 grid gap-3">
-            <label className="grid gap-1 text-xs font-bold text-[var(--bf-muted)]">
+            <label className="grid min-w-0 gap-1 text-xs font-bold text-[var(--bf-muted)]">
+              Для какого заведения вопрос?
+              <select aria-label="Для какого заведения вопрос?" value={draft.venue}
+                onChange={(event) => setDraft((current) => ({ ...current, venue: event.target.value as AttestationVenue }))}
+                className="min-h-11 min-w-0 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-3 text-[16px] text-[var(--bf-cream)]">
+                <option value="bf">BeerFactory</option>
+                <option value="bb">BeerBistro</option>
+                <option value="common">BF/BB — Общий</option>
+              </select>
+            </label>
+            <label className="grid min-w-0 gap-1 text-xs font-bold text-[var(--bf-muted)]">
               Подкатегория
               <input
                 value={draft.subcategory}
@@ -424,11 +456,11 @@ function Editor({
                 {subcategories.map((item) => <option key={item} value={item} />)}
               </datalist>
             </label>
-            <label className="grid gap-1 text-xs font-bold text-[var(--bf-muted)]">
+            <label className="grid min-w-0 gap-1 text-xs font-bold text-[var(--bf-muted)]">
               Что повторить после ошибки
               <input value={draft.reviewNote} onChange={(event) => setDraft((current) => ({ ...current, reviewNote: event.target.value }))} className="min-h-11 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-3 text-[16px] text-[var(--bf-cream)]" placeholder="Например, Коктейли" />
             </label>
-            <label className="grid gap-1 text-xs font-bold text-[var(--bf-muted)]">
+            <label className="grid min-w-0 gap-1 text-xs font-bold text-[var(--bf-muted)]">
               Материал после ошибки
               <select
                 value={draft.reviewUrl}
@@ -508,7 +540,7 @@ export function AttestationBankAdminPanel() {
     if (!bank) return [];
     const needle = search.trim().toLowerCase();
     return bank.questions.filter((question) => {
-      if (category !== "all" && question.categoryId !== category) return false;
+      if (category !== "all" && question.knowledgeType !== category) return false;
       if (status !== "all" && question.status !== status) return false;
       if (!needle) return true;
       return [
@@ -521,7 +553,7 @@ export function AttestationBankAdminPanel() {
   }, [bank, category, search, status]);
 
   const categoryMap = useMemo(
-    () => new Map((bank?.categories || []).map((item) => [item.id, item.label])),
+    () => new Map([["bar", "Бар"], ["kitchen", "Кухня"], ["wine", "Вино"], ["service", "Сервис"]]),
     [bank]
   );
 
@@ -606,10 +638,12 @@ export function AttestationBankAdminPanel() {
             size="icon"
             aria-label="Добавить вопрос"
             onClick={() => {
-              const firstCategory = bank.categories.find((item) => item.active) || bank.categories[0];
+              const firstCategory = bank.categories.find((item) => item.id === "bar") || bank.categories.find((item) => item.knowledgeType) || bank.categories[0];
               const firstTopic = firstCategory?.ticketPlan?.[0]?.topic || "Общее";
               setEditing({
                 categoryId: firstCategory?.id || "bar",
+                knowledgeType: firstCategory?.knowledgeType || "bar",
+                venue: "bf",
                 q: "",
                 topic: firstTopic,
                 subcategory: "",
@@ -648,17 +682,18 @@ export function AttestationBankAdminPanel() {
 
       <div className="mt-3 grid min-w-0 max-w-full grid-cols-2 gap-2" role="group" aria-label="Фильтры вопросов">
         <label className="relative flex min-w-0 flex-col gap-1 text-[11px] font-bold text-[var(--bf-dim)]">
-          <span>Категория</span>
+          <span>Тип знаний</span>
           <select
-            aria-label="Категория вопросов"
+            aria-label="Тип знаний вопросов"
             value={category}
             onChange={(event) => setCategory(event.target.value)}
             className="h-11 min-h-11 w-full min-w-0 max-w-full appearance-none truncate rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] py-2 pl-3 pr-9 text-[16px] font-bold text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
           >
-            <option value="all">Все категории</option>
-            {bank.categories.map((item) => (
-              <option key={item.id} value={item.id}>{item.label}</option>
-            ))}
+            <option value="all">Все типы знаний</option>
+            <option value="bar">Бар</option>
+            <option value="kitchen">Кухня</option>
+            <option value="wine">Вино</option>
+            <option value="service">Сервис</option>
           </select>
           <ChevronDown className="pointer-events-none absolute bottom-[14px] right-3 size-4 text-[var(--bf-dim)]" aria-hidden />
         </label>
@@ -686,9 +721,11 @@ export function AttestationBankAdminPanel() {
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap gap-1.5 text-[10px] font-black uppercase tracking-[.06em] text-[var(--bf-dim)]">
-                  <span>{categoryMap.get(question.categoryId) || question.categoryId}</span>
+                  <span>{categoryMap.get(question.knowledgeType || "") || "Не настроено"}</span>
                   <span>·</span>
                   <span>{question.topic}</span>
+                  <span>·</span>
+                  <span>{question.venue === "bf" ? "BeerFactory" : question.venue === "bb" ? "BeerBistro" : "BF/BB — Общий"}</span>
                   {question.subcategory ? <><span>·</span><span>{question.subcategory}</span></> : null}
                   {question.status === "archive" ? <span className="rounded-full border border-[var(--bf-line)] px-2 py-0.5">Архив</span> : null}
                 </div>
