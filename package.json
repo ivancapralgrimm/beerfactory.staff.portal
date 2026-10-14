@@ -15,8 +15,10 @@
     "preview": "vite preview",
     "typecheck": "tsc -b --pretty false",
     "test": "npm run test:ci",
-    "test:ci": "node --test --test-isolation=none tests/edge-contract.test.cjs tests/backend-hardening.test.cjs tests/performance-network.test.cjs tests/visual-architecture-hardening.test.cjs tests/reliability-hardening.test.cjs tests/attestation-editor-r40.6.test.cjs tests/shift-workflow-r40.6.test.cjs tests/repository-hygiene.test.cjs tests/recipe-photo-dialog-r40.6.test.cjs tests/feed-pulse-r40.6.test.cjs",
+    "test:ci": "node --test --test-isolation=none tests/edge-contract.test.cjs tests/backend-hardening.test.cjs tests/performance-network.test.cjs tests/visual-architecture-hardening.test.cjs tests/reliability-hardening.test.cjs tests/attestation-editor-r40.6.test.cjs tests/attestation-independent-tickets-v3.test.cjs tests/attestation-offline-sync-v3.test.cjs tests/shift-workflow-r40.6.test.cjs tests/repository-hygiene.test.cjs tests/recipe-photo-dialog-r40.6.test.cjs tests/feed-pulse-r40.6.test.cjs",
     "test:browser": "node tests/run-browser.mjs",
+    "test:attestation:sql": "node tests/attestation-sql-v3.mjs",
+    "test:attestation:browser": "node tests/attestation-browser-v3.mjs",
     "knowledge:seed:dry-run": "node scripts/build-knowledge-legacy-seed.mjs",
     "dev:preview": "npm run sync:public && vite --mode preview",
     "build:preview": "npm run sync:public && tsc -b && vite build --mode preview",
@@ -35,6 +37,7 @@
     "tailwind-merge": "3.7.0"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.8",
     "@tailwindcss/vite": "4.3.3",
     "@types/node": "^24.0.0",
     "@types/react": "^19.0.0",
