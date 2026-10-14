@@ -8,7 +8,7 @@ const read = (name) => fs.readFileSync(path.join(root, name), "utf8");
 
 test("r40.6 attestation uses the server bank without legacy question assets", () => {
   const data = read("src/features/attestation/attestation-data.ts");
-  assert.match(data, /supabase\.rpc\(\s*"get_attestation_bank"/);
+  assert.match(data, /supabase\.rpc\(\s*"get_attestation_bank_v3"/);
   assert.doesNotMatch(data, /question-banks\.json|questions\.txt/);
 });
 
@@ -22,7 +22,7 @@ test("admin exposes the question bank and category settings editors", () => {
 test("editor API persists questions, categories and per-category ticket sizes", () => {
   const api = read("src/features/attestation/attestation-editor-api.ts");
   assert.match(api, /save_attestation_question/);
-  assert.match(api, /save_attestation_editor_settings_v2/);
+  assert.match(api, /save_attestation_editor_settings_v3/);
   assert.match(api, /save_attestation_category/);
   assert.match(api, /set_attestation_category_status/);
   assert.match(api, /p_category_settings/);
@@ -63,7 +63,7 @@ test("admin and owner share the staff management and attestation editor access c
   const roles = read("src/types/auth.ts");
   const profile = read("src/pages/ProfilePage.tsx");
   assert.match(roles, /return subject\.is_owner === true \|\| subject\.role === "admin"/);
-  assert.match(admin, /import \{ canManageStaffClient \} from "@\/types\/auth"/);
+  assert.match(admin, /import \{[^}]*\bcanManageStaffClient\b[^}]*\} from "@\/types\/auth"/);
   assert.match(admin, /const canManageStaff = authenticated && canManageStaffClient\(state\.user\)/);
   assert.match(admin, /if \(!accessToken \|\| !canManageStaff\) return/);
   assert.match(admin, /if \(!canManageStaff\) return <Navigate to="\/profile" replace \/>/);
@@ -75,11 +75,11 @@ test("admin and owner share the staff management and attestation editor access c
 test("r40.6 bank filters are native pickers on the same row", () => {
   const bank = read("src/features/attestation/AttestationBankAdminPanel.tsx");
   assert.match(bank, /grid-cols-2 gap-2" role="group" aria-label="Фильтры вопросов"/);
-  assert.match(bank, /aria-label="Категория вопросов"/);
+  assert.match(bank, /aria-label="Тип знаний вопросов"/);
   assert.match(bank, /aria-label="Статус вопросов"/);
   assert.match(bank, /onChange=\{\(event\) => setCategory\(event\.target\.value\)\}/);
   assert.match(bank, /onChange=\{\(event\) => setStatus\(event\.target\.value as "all" \| "active" \| "archive"\)\}/);
-  assert.match(bank, /<option value="all">Все категории<\/option>/);
+  assert.match(bank, /<option value="all">Все типы знаний<\/option>/);
   assert.match(bank, /<option value="archive">Архив<\/option>/);
   assert.doesNotMatch(bank, /overflow-x-auto pb-1 bf-scrollbar-none/);
 });
@@ -145,12 +145,13 @@ test("r40.6 attestation landing page uses back navigation and a single topic pic
   assert.match(page, /<span>Выбери тему<\/span>/);
   assert.match(page, /aria-label="Выбери тему"/);
   assert.match(page, /<option value="" disabled>…<\/option>/);
-  assert.match(page, /state\.bank\.categories\.map\(\(category\) => <option key=\{category\.id\} value=\{category\.id\}>\{category\.label\}<\/option>\)/);
+  assert.match(page, /state\.bank\.categories\.map\(\(category\) => <option key=\{category\.id\} value=\{category\.id\}>\{category\.label\}/);
 });
 
 test("r40.6 attestation start button stays disabled until a topic is chosen", () => {
   const page = read("src/features/attestation/AttestationPage.tsx");
   assert.match(page, /<Button type="button" variant="primary" size="lg" disabled=\{!selectedCategory\} onClick=\{startQuiz\}>Начать<\/Button>/);
+  // The approved picker is compact and must not restore SVG category animation.
   assert.doesNotMatch(page, /CategoryMotionIcon/);
   assert.doesNotMatch(page, /Выбери блок вопросов/);
   assert.doesNotMatch(page, /КАТЕГОРИЯ/);
