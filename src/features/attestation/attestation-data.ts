@@ -147,9 +147,58 @@ export function validateQuestionBank(value: unknown): QuestionBank {
   return value as QuestionBank;
 }
 
+/** Legacy reads are permitted only when PostgREST confirms that the *new RPC*
+ * does not exist yet. Network failures and forbidden responses must not downgrade.
+ * This bridge is intentionally limited to the four original BF category IDs.
+ */
+function isMissingV3Rpc(error: unknown): boolean {
+  if (!isRecord(error)) return false;
+  const code = error.code;
+  const message = typeof error.message === "string" ? error.message : "";
+  return code === "PGRST202" || (code === "42883" && message.includes("get_attestation_bank_v3"));
+}
+
+function adaptLegacyBank(value: unknown): QuestionBank {
+  if (!isRecord(value) || !Array.isArray(value.categories)) {
+    throw new Error("question_bank_legacy_unsupported");
+  }
+  const originalTypes = new Set(["bar", "kitchen", "wine", "service"]);
+  const categories = value.categories.map((raw) => {
+    if (!isRecord(raw) || !originalTypes.has(String(raw.id))
+      || !Array.isArray(raw.questions) || !Array.isArray(raw.ticketPlan)) {
+      // Never guess the knowledge type of custom categories or new tickets.
+      throw new Error("question_bank_legacy_unsupported");
+    }
+    const knowledgeType = raw.id as QuizCategory["knowledgeType"];
+    const questions = raw.questions.map((question) => {
+      if (!isRecord(question) || "knowledgeType" in question || "venue" in question) {
+        // A partially migrated backend is not safe to reinterpret as the old model.
+        throw new Error("question_bank_legacy_unsupported");
+      }
+      return { ...question, knowledgeType, venue: "bf" };
+    });
+    return {
+      ...raw, knowledgeType, venue: "bf", specificQuestionCount: null, questions
+    };
+  });
+  const converted = validateQuestionBank({
+    ...value, schemaVersion: 3, legacyCompatibility: true, categories
+  });
+  return converted;
+}
+
 async function fetchOnlineQuestionBank(generation: number) {
   const { data, error } = await supabase.rpc("get_attestation_bank_v3");
-  if (error || !data) throw new Error("question_bank_online_unavailable");
+  if (error || !data) {
+    if (!isMissingV3Rpc(error)) throw new Error("question_bank_online_unavailable");
+    const legacy = await supabase.rpc("get_attestation_bank");
+    if (legacy.error || !legacy.data) throw new Error("question_bank_online_unavailable");
+    const bank = adaptLegacyBank(legacy.data);
+    if (generation === bankGeneration) cachedBank = bank;
+    // Do not write synthetic v3 to IndexedDB: when the migration lands,
+    // an offline launch must never mistake the old pool for the new server.
+    return bank;
+  }
   const bank = validateQuestionBank(data);
   if (generation === bankGeneration) {
     cachedBank = bank;

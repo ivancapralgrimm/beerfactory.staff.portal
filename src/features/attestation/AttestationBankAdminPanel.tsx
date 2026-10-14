@@ -527,8 +527,11 @@ export function AttestationBankAdminPanel() {
     setError("");
     try {
       setBank(await loadAttestationEditorBank(false));
-    } catch {
-      setError("Не удалось загрузить онлайн-банк вопросов.");
+    } catch (error) {
+      const needsUpgrade = error instanceof Error && error.message === "attestation_server_upgrade_required";
+      setError(needsUpgrade
+        ? "Редактор банка ещё недоступен: требуется обновление серверной базы аттестации."
+        : "Не удалось загрузить онлайн-банк вопросов.");
     } finally {
       setLoading(false);
     }

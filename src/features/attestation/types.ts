@@ -31,6 +31,8 @@ export type QuizCategory = {
 };
 export type QuestionBank = {
   schemaVersion: 3;
+  /** Transitional, in-memory view of the original BF tickets before v3 SQL. Never persisted. */
+  legacyCompatibility?: true;
   passPercent: number;
   questionsPerTest: number;
   revision?: number;

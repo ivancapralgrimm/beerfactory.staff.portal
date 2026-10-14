@@ -48,6 +48,10 @@ export type AttestationEditorBank = {
 };
 
 function apiError(error: unknown, fallback: string) {
+  if (error && typeof error === "object" && "code" in error
+    && (error as { code?: unknown }).code === "PGRST202") {
+    return new Error("attestation_server_upgrade_required");
+  }
   const message = error && typeof error === "object" && "message" in error
     ? String((error as { message?: unknown }).message || "") : "";
   for (const code of [

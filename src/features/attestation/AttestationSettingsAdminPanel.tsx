@@ -213,8 +213,11 @@ export function AttestationSettingsAdminPanel() {
     try {
       const next = await loadAttestationEditorBank(false);
       applyBank(next);
-    } catch {
-      setMessage({ tone: "error", text: "Не удалось загрузить настройки аттестации." });
+    } catch (error) {
+      const needsUpgrade = error instanceof Error && error.message === "attestation_server_upgrade_required";
+      setMessage({ tone: "error", text: needsUpgrade
+        ? "База аттестации ещё не обновлена. Новые настройки появятся после серверной миграции."
+        : "Не удалось загрузить настройки аттестации." });
     } finally {
       setLoading(false);
     }
