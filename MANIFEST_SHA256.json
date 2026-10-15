@@ -1,0 +1,22 @@
+{
+  "base_branch": "r40.6-attestation-editor",
+  "base_sha": "a5b10002feadacebce16ff1413436f0f6118b328",
+  "base_blob_sha": "443aa629a9ca7eac0946a81fe33a288a7583b013",
+  "files": [
+    {
+      "path": "README_INSTALL_FROM_PHONE.md",
+      "bytes": 5556,
+      "sha256": "a523b47c0728a0898c285da362ff92f8812e07d5e337c9bb62c8d544f284282e"
+    },
+    {
+      "path": "tests/attestation-create-ticket-feedback-v4-2.test.cjs",
+      "bytes": 1679,
+      "sha256": "b1d444bf81abc9ec4ca7b67067b0fcfa60421a1638449469a66a0193cea6189a"
+    },
+    {
+      "path": "src/features/attestation/AttestationSettingsAdminPanel.tsx",
+      "bytes": 37051,
+      "sha256": "551b419933370549ac2989e764d982b8d8908a9d223135eb8eb56e23fb7afd19"
+    }
+  ]
+}
