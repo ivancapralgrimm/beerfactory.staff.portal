@@ -11,6 +11,7 @@ import {
 import {
   useEffect,
   useMemo,
+  useRef,
   useState
 } from "react";
 import { Button } from "@/components/ui/button";
@@ -198,6 +199,9 @@ export function AttestationSettingsAdminPanel() {
   const [savingSettings, setSavingSettings] = useState(false);
   const [pendingCategoryId, setPendingCategoryId] = useState("");
   const [newCategory, setNewCategory] = useState("");
+  const [createMessage, setCreateMessage] = useState<ActionMessage>(null);
+  const [newTicketId, setNewTicketId] = useState<string | null>(null);
+  const newTicketRef = useRef<HTMLDivElement | null>(null);
   const [message, setMessage] = useState<ActionMessage>(null);
 
   function applyBank(next: AttestationEditorBank) {
@@ -238,6 +242,24 @@ export function AttestationSettingsAdminPanel() {
   );
 
   const settingsDirty = Boolean(bank) && currentSignature !== originalSignature;
+
+  // A newly created draft used to be appended below all existing ticket cards,
+  // making a successful save appear to do nothing on a phone. Reorder only the
+  // rendered cards: changing the draft-array order would create false unsaved
+  // settings because settingsSignature uses the original server order.
+  const visibleCategories = useMemo(() => {
+    if (!newTicketId) return categories;
+    const created = categories.find((category) => category.id === newTicketId);
+    return created ? [created, ...categories.filter((category) => category.id !== newTicketId)] : categories;
+  }, [categories, newTicketId]);
+
+  useEffect(() => {
+    if (!newTicketId) return;
+    const frame = requestAnimationFrame(() => {
+      newTicketRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [newTicketId, categories.length]);
 
   const capacity = useMemo(() => {
     const result = new Map<string, number>();
@@ -430,23 +452,34 @@ export function AttestationSettingsAdminPanel() {
   async function createCategory() {
     const label = newCategory.trim();
     if (!label) {
-      setMessage({ tone: "error", text: "Введите название новой категории." });
+      setCreateMessage({ tone: "error", text: "Введите название нового билета." });
       return;
     }
     if (settingsDirty) {
-      setMessage({ tone: "error", text: "Сначала сохраните или сбросьте текущие изменения." });
+      setCreateMessage({ tone: "error", text: "Сначала сохраните текущие изменения кнопкой «Сохранить настройки» внизу страницы." });
       return;
     }
 
     setPendingCategoryId("new");
+    setCreateMessage(null);
     setMessage(null);
+    let created: AttestationEditorCategory | null = null;
     try {
-      await saveAttestationCategory({ label });
+      created = await saveAttestationCategory({ label });
+      // The INSERT is committed before the reload. If the second request
+      // fails, never claim that creation failed or suggest retrying INSERT.
       setNewCategory("");
-      await load();
-      setMessage({ tone: "success", text: "Категория создана как черновик. Настройте её и затем включите." });
+      const fresh = await loadAttestationEditorBank(false);
+      if (!fresh.categories.some((ticket) => ticket.id === created?.id)) {
+        throw new Error("attestation_category_refresh_unverified");
+      }
+      applyBank(fresh);
+      setNewTicketId(created.id);
+      setCreateMessage({ tone: "success", text: `Билет «${label}» сохранён на сервере как черновик. Он показан первым. Настройте разделы и количество вопросов, нажмите «Сохранить настройки», затем «Включить категорию».` });
     } catch (error) {
-      setMessage({ tone: "error", text: editorErrorText(error) });
+      setCreateMessage(created
+        ? { tone: "error", text: `Билет «${label}» создан на сервере, но список не обновился. Обновите редактор. Не добавляйте тот же билет повторно.` }
+        : { tone: "error", text: editorErrorText(error) });
     } finally {
       setPendingCategoryId("");
     }
@@ -530,7 +563,7 @@ export function AttestationSettingsAdminPanel() {
         <div className="mt-4 flex gap-2">
           <input
             value={newCategory}
-            onChange={(event) => setNewCategory(event.target.value)}
+            onChange={(event) => { setNewCategory(event.target.value); setCreateMessage(null); }}
             placeholder="Новый билет"
             className="min-h-12 min-w-0 flex-1 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3 text-[16px] text-[var(--bf-cream)] outline-none placeholder:text-[var(--bf-dim)] focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
           />
@@ -539,9 +572,15 @@ export function AttestationSettingsAdminPanel() {
             Добавить
           </Button>
         </div>
+        <p className="mt-2 text-[11px] leading-5 text-[var(--bf-dim)]">«Добавить» создаёт черновик. Для публикации настройте билет, сохраните настройки и включите его.</p>
+        {createMessage ? (
+          <p className={cn("mt-2 rounded-xl border border-[var(--bf-line)] p-3 text-xs font-bold leading-5",
+            createMessage.tone === "success" ? "text-[#9dd0a0]" : "text-[#e99990]")}
+            role="status" aria-live="polite">{createMessage.text}</p>
+        ) : null}
 
         <div className="mt-4 grid gap-3">
-          {categories.map((category) => {
+          {visibleCategories.map((category) => {
             const questionCount = Number(category.questionsPerTest || 0);
             const total = category.plan.reduce((sum, item) => sum + Number(item.count || 0), 0);
             const remaining = questionCount - total;
@@ -556,7 +595,10 @@ export function AttestationSettingsAdminPanel() {
                     : `Распределено ${total} из ${questionCount} · готово`;
 
             return (
-              <div key={category.id} className="min-w-0 max-w-full rounded-2xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] p-2.5 sm:p-3">
+              <div key={category.id} ref={category.id === newTicketId ? newTicketRef : undefined}
+                className={cn("min-w-0 max-w-full scroll-mt-24 rounded-2xl border bg-[var(--bf-surface-2)] p-2.5 sm:p-3",
+                  category.id === newTicketId ? "border-[var(--bf-copper-hi)]" : "border-[var(--bf-line)]")}>
+                {category.id === newTicketId ? <p className="mb-2 text-[11px] font-black uppercase tracking-[.08em] text-[var(--bf-copper-hi)]">Новый билет · сохранён как черновик</p> : null}
                 <div className="flex items-start gap-2">
                   <div className="min-w-0 flex-1">
                     <input
