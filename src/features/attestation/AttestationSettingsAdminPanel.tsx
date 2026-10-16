@@ -39,6 +39,34 @@ type CategoryDraft = Omit<AttestationEditorCategory, "questionsPerTest" | "speci
   plan: PlanDraft[];
 };
 
+type AvailableTopic = { topic: string; available: number };
+
+// Tickets draw distinct question groups, not individual answer variants.
+// The server uses the same venue rule: a venue ticket may use local + common;
+// a BF/BB common ticket can only use questions marked common.
+function availableTopics(bank: AttestationEditorBank, category: Pick<CategoryDraft, "knowledgeType" | "venue">): AvailableTopic[] {
+  if (!category.knowledgeType) return [];
+  const topics = new Map<string, Set<string>>();
+  for (const question of bank.questions) {
+    if (question.status !== "active" || question.knowledgeType !== category.knowledgeType) continue;
+    if (question.venue !== "common" && (category.venue === "common" || question.venue !== category.venue)) continue;
+    const topic = question.topic.trim();
+    if (!topic || !question.group) continue;
+    if (!topics.has(topic)) topics.set(topic, new Set());
+    topics.get(topic)!.add(question.group);
+  }
+  return [...topics.entries()]
+    .map(([topic, groups]) => ({ topic, available: groups.size }))
+    .filter((item) => item.available > 0)
+    .sort((a, b) => a.topic.localeCompare(b.topic, "ru"));
+}
+
+function sizedDraft(category: CategoryDraft, plan: PlanDraft[], manuallySized: Set<string>): CategoryDraft {
+  const total = plan.reduce((sum, item) => sum + Number(item.count || 0), 0);
+  return { ...category, plan, questionsPerTest: !category.active && !manuallySized.has(category.id)
+    && total >= 1 && total <= 50 ? String(total) : category.questionsPerTest };
+}
+
 type ActionMessage = {
   tone: "success" | "error";
   text: string;
@@ -199,6 +227,10 @@ export function AttestationSettingsAdminPanel() {
   const [savingSettings, setSavingSettings] = useState(false);
   const [pendingCategoryId, setPendingCategoryId] = useState("");
   const [newCategory, setNewCategory] = useState("");
+  const [newKnowledgeType, setNewKnowledgeType] = useState<KnowledgeType>("bar");
+  const [newVenue, setNewVenue] = useState<AttestationVenue>("bf");
+  const [manualQuestionCountIds, setManualQuestionCountIds] = useState<string[]>([]);
+  const [inlineSaveMessage, setInlineSaveMessage] = useState<{ categoryId: string; tone: "success" | "error"; text: string } | null>(null);
   const [createMessage, setCreateMessage] = useState<ActionMessage>(null);
   const [newTicketId, setNewTicketId] = useState<string | null>(null);
   const newTicketRef = useRef<HTMLDivElement | null>(null);
@@ -208,6 +240,7 @@ export function AttestationSettingsAdminPanel() {
     setBank(next);
     setPassPercent(String(next.settings.passPercent));
     setCategories(draftCategories(next));
+    setManualQuestionCountIds([]);
   }
 
   async function load() {
@@ -279,54 +312,52 @@ export function AttestationSettingsAdminPanel() {
   }, [bank, categories]);
 
   const categoryTopics = useMemo(() => {
-    const result = new Map<string, string[]>();
+    const result = new Map<string, AvailableTopic[]>();
     if (!bank) return result;
-
-    for (const category of bank.categories) {
-      const values = bank.questions
-        .filter((question) => question.knowledgeType === category.knowledgeType)
-        .map((question) => question.topic)
-        .filter(Boolean);
-      result.set(category.id, [...new Set(values)].sort((a, b) => a.localeCompare(b, "ru")));
+    for (const category of categories) {
+      result.set(category.id, availableTopics(bank, category));
     }
-
     return result;
-  }, [bank]);
+  }, [bank, categories]);
 
   function updateCategory(categoryId: string, patch: Partial<Pick<CategoryDraft, "label" | "questionsPerTest" | "knowledgeType" | "venue" | "specificQuestionCount">>) {
-    setCategories((current) =>
-      current.map((category) => category.id === categoryId ? { ...category, ...patch } : category)
-    );
+    if (patch.questionsPerTest !== undefined) {
+      setManualQuestionCountIds((current) => current.includes(categoryId) ? current : [...current, categoryId]);
+    }
+    setInlineSaveMessage(null);
+    setCategories((current) => current.map((category) => {
+      if (category.id !== categoryId) return category;
+      const changed = { ...category, ...patch };
+      if (!bank || (patch.knowledgeType === undefined && patch.venue === undefined)) return changed;
+      const valid = new Set(availableTopics(bank, changed).map((part) => part.topic));
+      // Prevent a stale section from a different knowledge type / venue silently blocking save.
+      return sizedDraft(changed, changed.plan.filter((row) => valid.has(row.topic)), new Set(manualQuestionCountIds));
+    }));
   }
 
   function addPlanRow(categoryId: string) {
-    setCategories((current) =>
-      current.map((category) =>
-        category.id === categoryId
-          ? { ...category, plan: [...category.plan, { key: rowKey(), topic: "", count: "1" }] }
-          : category
-      )
-    );
+    setInlineSaveMessage(null);
+    setCategories((current) => current.map((category) => {
+      if (category.id !== categoryId) return category;
+      return sizedDraft(category, [...category.plan, { key: rowKey(), topic: "", count: "1" }], new Set(manualQuestionCountIds));
+    }));
   }
 
   function updatePlanRow(categoryId: string, row: string, patch: Partial<Pick<PlanDraft, "topic" | "count">>) {
-    setCategories((current) =>
-      current.map((category) =>
-        category.id === categoryId
-          ? { ...category, plan: category.plan.map((item) => item.key === row ? { ...item, ...patch } : item) }
-          : category
-      )
-    );
+    setInlineSaveMessage(null);
+    setCategories((current) => current.map((category) => {
+      if (category.id !== categoryId) return category;
+      const plan = category.plan.map((item) => item.key === row ? { ...item, ...patch } : item);
+      return sizedDraft(category, plan, new Set(manualQuestionCountIds));
+    }));
   }
 
   function removePlanRow(categoryId: string, row: string) {
-    setCategories((current) =>
-      current.map((category) =>
-        category.id === categoryId
-          ? { ...category, plan: category.plan.filter((item) => item.key !== row) }
-          : category
-      )
-    );
+    setInlineSaveMessage(null);
+    setCategories((current) => current.map((category) => {
+      if (category.id !== categoryId) return category;
+      return sizedDraft(category, category.plan.filter((item) => item.key !== row), new Set(manualQuestionCountIds));
+    }));
   }
 
   function validateSettings() {
@@ -393,12 +424,13 @@ export function AttestationSettingsAdminPanel() {
     return "";
   }
 
-  async function saveSettings() {
-    if (!bank) return;
+  async function saveSettings(feedbackCategoryId: string | null = newTicketId): Promise<AttestationEditorBank | null> {
+    if (!bank) return null;
     const validation = validateSettings();
     if (validation) {
       setMessage({ tone: "error", text: validation });
-      return;
+      setInlineSaveMessage(feedbackCategoryId ? { categoryId: feedbackCategoryId, tone: "error", text: validation } : null);
+      return null;
     }
 
     const expectedPassPercent = Number(passPercent);
@@ -413,6 +445,7 @@ export function AttestationSettingsAdminPanel() {
 
     setSavingSettings(true);
     setMessage(null);
+    setInlineSaveMessage(null);
     try {
       await saveAttestationEditorSettings({
         passPercent: expectedPassPercent,
@@ -442,8 +475,13 @@ export function AttestationSettingsAdminPanel() {
 
       applyBank(confirmed);
       setMessage({ tone: "success", text: "Сохранено на сервере." });
+      setInlineSaveMessage(feedbackCategoryId ? { categoryId: feedbackCategoryId, tone: "success", text: "Настройки билета сохранены. Теперь его можно включить в аттестацию." } : null);
+      return confirmed;
     } catch (error) {
-      setMessage({ tone: "error", text: editorErrorText(error) });
+      const text = editorErrorText(error);
+      setMessage({ tone: "error", text });
+      setInlineSaveMessage(feedbackCategoryId ? { categoryId: feedbackCategoryId, tone: "error", text } : null);
+      return null;
     } finally {
       setSavingSettings(false);
     }
@@ -465,7 +503,7 @@ export function AttestationSettingsAdminPanel() {
     setMessage(null);
     let created: AttestationEditorCategory | null = null;
     try {
-      created = await saveAttestationCategory({ label });
+      created = await saveAttestationCategory({ label, knowledgeType: newKnowledgeType, venue: newVenue });
       // The INSERT is committed before the reload. If the second request
       // fails, never claim that creation failed or suggest retrying INSERT.
       setNewCategory("");
@@ -475,11 +513,49 @@ export function AttestationSettingsAdminPanel() {
       }
       applyBank(fresh);
       setNewTicketId(created.id);
-      setCreateMessage({ tone: "success", text: `Билет «${label}» сохранён на сервере как черновик. Он показан первым. Настройте разделы и количество вопросов, нажмите «Сохранить настройки», затем «Включить категорию».` });
+      setCreateMessage({ tone: "success", text: `Билет «${label}» создан как черновик. Выберите разделы и число вопросов, затем нажмите «Сохранить и включить билет».` });
     } catch (error) {
       setCreateMessage(created
         ? { tone: "error", text: `Билет «${label}» создан на сервере, но список не обновился. Обновите редактор. Не добавляйте тот же билет повторно.` }
         : { tone: "error", text: editorErrorText(error) });
+    } finally {
+      setPendingCategoryId("");
+    }
+  }
+
+  // One explicit action for a draft: persist the plan first, then activate the ticket.
+  // A successful save is never rolled back or falsely reported as missing if the
+  // separate activation request is rejected by the server's capacity checks.
+  async function saveAndEnableTicket(categoryId: string) {
+    const source = settingsDirty ? await saveSettings(categoryId) : bank;
+    if (!source) return;
+    const ticket = source.categories.find((item) => item.id === categoryId);
+    if (!ticket || !ticket.updatedAt) {
+      const text = "Не удалось подтвердить данные билета. Обновите редактор.";
+      setInlineSaveMessage({ categoryId, tone: "error", text });
+      return;
+    }
+    if (ticket.active) return;
+
+    setPendingCategoryId(categoryId);
+    let activated = false;
+    try {
+      await setAttestationCategoryStatus(categoryId, true, ticket.updatedAt);
+      activated = true;
+      const refreshed = await loadAttestationEditorBank(false);
+      applyBank(refreshed);
+      if (!refreshed.categories.some((item) => item.id === categoryId && item.active)) {
+        throw new Error("attestation_category_refresh_unverified");
+      }
+      const text = `Билет «${ticket.label}» сохранён, включён и доступен в аттестации.`;
+      setInlineSaveMessage({ categoryId, tone: "success", text });
+      setMessage({ tone: "success", text });
+    } catch (error) {
+      const text = activated
+        ? "Билет включён на сервере, но список не обновился. Перезагрузите редактор, не повторяйте включение вслепую."
+        : `Черновик сохранён, но включение не удалось: ${editorErrorText(error)}`;
+      setInlineSaveMessage({ categoryId, tone: "error", text });
+      setMessage({ tone: "error", text });
     } finally {
       setPendingCategoryId("");
     }
@@ -572,6 +648,20 @@ export function AttestationSettingsAdminPanel() {
             Добавить
           </Button>
         </div>
+        <div className="mt-2 grid min-w-0 grid-cols-2 gap-2">
+          <label className="grid min-w-0 gap-1 text-xs font-bold text-[var(--bf-dim)]">Тип знаний
+            <select value={newKnowledgeType} onChange={(event) => setNewKnowledgeType(event.target.value as KnowledgeType)}
+              className="min-h-11 min-w-0 w-full rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-2 text-[16px] text-[var(--bf-cream)]">
+              <option value="bar">Бар</option><option value="kitchen">Кухня</option><option value="wine">Вино</option><option value="service">Сервис</option>
+            </select>
+          </label>
+          <label className="grid min-w-0 gap-1 text-xs font-bold text-[var(--bf-dim)]">Заведение
+            <select value={newVenue} onChange={(event) => setNewVenue(event.target.value as AttestationVenue)}
+              className="min-h-11 min-w-0 w-full rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-2 text-[16px] text-[var(--bf-cream)]">
+              <option value="bf">BeerFactory</option><option value="bb">BeerBistro</option><option value="common">BF/BB — Общий</option>
+            </select>
+          </label>
+        </div>
         <p className="mt-2 text-[11px] leading-5 text-[var(--bf-dim)]">«Добавить» создаёт черновик. Для публикации настройте билет, сохраните настройки и включите его.</p>
         {createMessage ? (
           <p className={cn("mt-2 rounded-xl border border-[var(--bf-line)] p-3 text-xs font-bold leading-5",
@@ -646,6 +736,9 @@ export function AttestationSettingsAdminPanel() {
                     className="min-h-12 min-w-0 w-full rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-3 text-[16px] font-black text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
                   />
                 </label>
+                {!category.active && !manualQuestionCountIds.includes(category.id) ? (
+                  <p className="mt-1 text-[11px] leading-4 text-[var(--bf-dim)]">При выборе разделов размер черновика автоматически равен сумме «Взять». При необходимости укажи число вручную.</p>
+                ) : null}
 
                 <label className="mt-3 grid gap-1 text-xs font-bold text-[var(--bf-muted)]">
                   Специфичных вопросов из общего числа (необязательно)
@@ -658,16 +751,17 @@ export function AttestationSettingsAdminPanel() {
                 <div className="mt-4 flex min-w-0 items-center justify-between gap-2">
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-black text-[var(--bf-cream)]">Разделы вопросов</p>
-                    <p className="mt-0.5 text-[11px] text-[var(--bf-dim)]">Система возьмёт указанное количество из каждого раздела.</p>
+                    <p className="mt-0.5 text-[11px] text-[var(--bf-dim)]">Разделы только из активного банка выбранного типа и заведения. Число «Доступно» учитывает независимые группы вопросов.</p>
                   </div>
-                  <Button type="button" variant="secondary" size="icon" className="shrink-0" aria-label="Добавить раздел" onClick={() => addPlanRow(category.id)}>
+                  <Button type="button" variant="secondary" size="icon" className="shrink-0" aria-label="Добавить раздел" disabled={!category.knowledgeType || (categoryTopics.get(category.id) || []).every((choice) => category.plan.some((row) => row.topic === choice.topic))} onClick={() => addPlanRow(category.id)}>
                     <Plus className="size-4" aria-hidden />
                   </Button>
                 </div>
 
-                <datalist id={`attestation-topics-${category.id}`}>
-                  {(categoryTopics.get(category.id) || []).map((topic) => <option key={topic} value={topic} />)}
-                </datalist>
+                {!category.knowledgeType ? <p className="mt-1 text-xs text-[var(--bf-dim)]">Сначала выберите тип билета.</p> : null}
+                {category.knowledgeType && !(categoryTopics.get(category.id) || []).length ? (
+                  <p className="mt-1 text-xs font-bold text-[#e99990]">Для этого типа знаний и заведения нет активных вопросов. Измените выбор или сначала добавьте вопросы в банк.</p>
+                ) : null}
                 <div className="mt-2 grid min-w-0 gap-2">
                   {category.plan.map((item) => {
                     const available = capacity.get(`${category.id}\u0000${item.topic.trim()}`) || 0;
@@ -678,15 +772,25 @@ export function AttestationSettingsAdminPanel() {
                       >
                         <label className="flex min-w-0 flex-col gap-1 text-[10px] font-bold text-[var(--bf-dim)]">
                           <span className="flex h-[14px] items-center">Раздел</span>
-                          <input
+                          <select
                             value={item.topic}
-                            list={`attestation-topics-${category.id}`}
+                            aria-label={`Выберите раздел вопросов для билета «${category.label}»`}
                             onChange={(event) => updatePlanRow(category.id, item.key, { topic: event.target.value })}
-                            className="h-11 min-h-11 w-full min-w-0 max-w-full rounded-lg border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-2 text-[16px] text-[var(--bf-cream)] outline-none"
-                            placeholder="Например, Коктейли"
-                          />
+                            className="h-11 min-h-11 w-full min-w-0 max-w-full rounded-lg border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-1 text-[16px] text-[var(--bf-cream)] outline-none"
+                          >
+                            <option value="" disabled>Выберите раздел…</option>
+                            {item.topic && !(categoryTopics.get(category.id) || []).some((choice) => choice.topic === item.topic) ? (
+                              <option value={item.topic} disabled>{item.topic} · нет доступных вопросов</option>
+                            ) : null}
+                            {(categoryTopics.get(category.id) || []).map((choice) => (
+                              <option key={choice.topic} value={choice.topic}
+                                disabled={category.plan.some((row) => row.key !== item.key && row.topic === choice.topic)}>
+                                {choice.topic} · {choice.available} групп
+                              </option>
+                            ))}
+                          </select>
 
-                          {item.topic.trim() ? <span className="min-w-0 break-words leading-4">Доступно: {available}</span> : null}
+                          {item.topic.trim() ? <span className="min-w-0 break-words leading-4">Доступно: {available} независимых вопросов</span> : null}
                         </label>
                         <label className="flex min-w-0 flex-col gap-1 text-[10px] font-bold text-[var(--bf-dim)]">
                           <span className="flex h-[14px] items-center">Взять</span>
@@ -729,13 +833,32 @@ export function AttestationSettingsAdminPanel() {
                   {distributionText}
                 </div>
 
-                <details className="mt-3 border-t border-[var(--bf-line)] pt-2">
-                  <summary className="min-h-10 cursor-pointer py-2 text-xs font-bold text-[var(--bf-dim)]">Дополнительно</summary>
-                  <Button type="button" variant="secondary" disabled={pendingCategoryId === category.id} onClick={() => void toggleCategory(category)}>
-                    {category.active ? <Archive className="size-4" aria-hidden /> : <RotateCcw className="size-4" aria-hidden />}
-                    {category.active ? "Скрыть категорию" : "Включить категорию"}
-                  </Button>
-                </details>
+                {!category.active ? (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {settingsDirty ? (
+                      <Button type="button" variant="secondary" disabled={savingSettings || pendingCategoryId === category.id} onClick={() => void saveSettings(category.id)}>
+                        <Save className="size-4" aria-hidden />Сохранить черновик
+                      </Button>
+                    ) : null}
+                    <Button type="button" variant="primary" disabled={savingSettings || pendingCategoryId === category.id}
+                      onClick={() => void saveAndEnableTicket(category.id)}>
+                      {pendingCategoryId === category.id ? <RefreshCw className="size-4 animate-spin" aria-hidden /> : <RotateCcw className="size-4" aria-hidden />}
+                      {settingsDirty ? "Сохранить и включить билет" : "Включить билет"}
+                    </Button>
+                  </div>
+                ) : null}
+                {inlineSaveMessage?.categoryId === category.id ? (
+                  <p className={cn("mt-2 rounded-lg border border-[var(--bf-line)] p-3 text-xs font-bold leading-5", inlineSaveMessage.tone === "success" ? "text-[#9dd0a0]" : "text-[#e99990]")} role="status" aria-live="polite">{inlineSaveMessage.text}</p>
+                ) : null}
+
+                {category.active ? (
+                  <details className="mt-3 border-t border-[var(--bf-line)] pt-2">
+                    <summary className="min-h-10 cursor-pointer py-2 text-xs font-bold text-[var(--bf-dim)]">Дополнительно</summary>
+                    <Button type="button" variant="secondary" disabled={pendingCategoryId === category.id} onClick={() => void toggleCategory(category)}>
+                      <Archive className="size-4" aria-hidden />Скрыть категорию
+                    </Button>
+                  </details>
+                ) : null}
               </div>
             );
           })}
