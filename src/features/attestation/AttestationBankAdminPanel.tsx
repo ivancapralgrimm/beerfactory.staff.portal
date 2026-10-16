@@ -160,7 +160,7 @@ function Editor({
   bank: AttestationEditorBank;
   draft: Draft;
   onClose: () => void;
-  onSaved: () => Promise<void>;
+  onSaved: (savedQuestion: AttestationEditorQuestion) => Promise<void>;
 }) {
   const [draft, setDraft] = useState(initial);
   const [saving, setSaving] = useState(false);
@@ -285,7 +285,7 @@ function Editor({
     setSaving(true);
     setMessage("");
     try {
-      await saveAttestationQuestion(
+      const savedQuestion = await saveAttestationQuestion(
         {
           id: draft.id,
           categoryId: draft.categoryId,
@@ -307,7 +307,7 @@ function Editor({
         },
         draft.revision ?? null
       );
-      await onSaved();
+      await onSaved(savedQuestion);
       onClose();
     } catch (error) {
       setMessage(errorText(error));
@@ -576,11 +576,19 @@ export function AttestationBankAdminPanel() {
     setPendingId(question.id);
     setActionMessage("");
     try {
-      await setAttestationQuestionStatus(
+      const savedQuestion = await setAttestationQuestionStatus(
         question.id,
         nextStatus,
         question.revision
       );
+      // Server write succeeded: update the visible bank before a second network call.
+      // A failed refresh must never make a successful archive/restore look unsaved.
+      setBank((current) => current ? {
+        ...current,
+        questions: nextStatus === "deleted"
+          ? current.questions.filter((item) => item.id !== savedQuestion.id)
+          : current.questions.map((item) => item.id === savedQuestion.id ? savedQuestion : item)
+      } : current);
       setActionMessage(
         nextStatus === "archive"
           ? "Вопрос перемещён в архив."
@@ -612,14 +620,26 @@ export function AttestationBankAdminPanel() {
   if (!bank) return null;
 
   if (editing) {
-    return <Editor bank={bank} draft={editing} onClose={() => setEditing(null)} onSaved={load} />;
+    return <Editor bank={bank} draft={editing} onClose={() => setEditing(null)}
+      onSaved={async (savedQuestion) => {
+        // Use the confirmed server snapshot. If the follow-up load fails,
+        // keep this snapshot visible rather than silently losing the success.
+        setBank((current) => current ? {
+          ...current,
+          questions: current.questions.some((item) => item.id === savedQuestion.id)
+            ? current.questions.map((item) => item.id === savedQuestion.id ? savedQuestion : item)
+            : [...current.questions, savedQuestion]
+        } : current);
+        setActionMessage("Вопрос сохранён на сервере.");
+        await load();
+      }} />;
   }
 
   const active = bank.questions.filter((question) => question.status === "active").length;
   const archived = bank.questions.filter((question) => question.status === "archive").length;
   const actionSucceeded =
     !actionMessage ||
-    /^Вопрос (перемещён|возвращён|удалён)/.test(actionMessage);
+    /^Вопрос (перемещён|возвращён|удалён|сохранён)/.test(actionMessage);
 
   return (
     <section className="mt-4">
@@ -717,6 +737,7 @@ export function AttestationBankAdminPanel() {
       </div>
 
       <p className={cn("mt-2 min-h-5 text-xs", actionSucceeded ? "text-[#9dd0a0]" : "text-[#e99990]")} role="status" aria-live="polite">{actionMessage}</p>
+      {error && bank ? <p role="status" className="mt-1 text-xs font-bold text-[#e99990]">{error} Сохранённые изменения остаются в списке. Для сверки с сервером нажмите «Обновить банк».</p> : null}
 
       <div className="mt-1 grid gap-2">
         {filtered.map((question) => (
