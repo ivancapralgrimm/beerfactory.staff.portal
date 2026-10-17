@@ -2,10 +2,10 @@ import {
   ArrowLeft,
   BookOpen,
   CheckCircle2,
+  ChevronDown,
   CircleAlert,
   RefreshCw,
-  RotateCcw,
-  Trophy
+  RotateCcw
 } from "lucide-react";
 import {
   useEffect,
@@ -26,15 +26,14 @@ import {
   persistQuizResultLocally,
   persistQuizResultRemote
 } from "@/features/attestation/attestation-history";
-import { CategoryMotionIcon } from "@/features/attestation/CategoryMotionIcon";
 import { PassedScoreConfetti } from "@/features/attestation/PassedScoreConfetti";
 import { useAttestationBank } from "@/features/attestation/use-attestation-bank";
 import type {
   QuizAttempt,
   QuizHistoryItem,
   QuizHistorySource,
-  QuizQuestion,
-  QuizResult
+  QuizResult,
+  QuizQuestion
 } from "@/features/attestation/types";
 import { cn } from "@/lib/utils";
 
@@ -88,13 +87,7 @@ function buildResult(attempt: QuizAttempt, answers: number[]): QuizResult {
   };
 }
 
-function HistoryList({
-  items,
-  source
-}: {
-  items: QuizHistoryItem[];
-  source: QuizHistorySource;
-}) {
+function HistoryList({ items, source }: { items: QuizHistoryItem[]; source: QuizHistorySource }) {
   return (
     <section className="border-t border-[var(--bf-line)] pt-5">
       <div className="flex items-start justify-between gap-3">
@@ -102,7 +95,7 @@ function HistoryList({
           <p className="eyebrow">ИСТОРИЯ</p>
           <h2 className="mt-1 text-xl font-extrabold">Последние попытки</h2>
         </div>
-        <span className="pt-1 text-[11px] text-[var(--bf-dim)]">Команда</span>
+        <span className="pt-1 text-[11px] text-[var(--bf-dim)]">{source === "device" ? "На устройстве" : "Команда"}</span>
       </div>
 
       {items.length ? (
@@ -154,7 +147,7 @@ function QuizQuestionView({
         <Button type="button" variant="ghost" className="-ml-3" onClick={onExit}>
           <ArrowLeft className="size-4" aria-hidden />Выйти
         </Button>
-        <span className="rounded-full border border-[var(--bf-line)] px-3 py-2 text-xs font-bold text-[var(--bf-muted)]">{attempt.categoryLabel} · {attempt.index + 1}/{attempt.questions.length}</span>
+        <span className="min-w-0 break-words rounded-full border border-[var(--bf-line)] px-3 py-2 text-xs font-bold text-[var(--bf-muted)]">{attempt.categoryLabel} · {attempt.index + 1}/{attempt.questions.length}</span>
       </div>
 
       <div className="mt-4 h-1 overflow-hidden rounded-full bg-[var(--bf-surface-2)]" role="progressbar" aria-label="Прогресс аттестации" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress}>
@@ -182,7 +175,7 @@ function QuizQuestionView({
   );
 }
 
-function ResultView({ result, saveStatus, onRestart }: { result: QuizResult; saveStatus: string; onRestart: () => void }) {
+function ResultView({ result, saveStatus, onRestart, onRetrySave }: { result: QuizResult; saveStatus: string; onRestart: () => void; onRetrySave: () => void }) {
   const mistakes = result.questions.flatMap((question, index) => {
     const chosen = question.answers[result.answers[index]];
     return chosen?.correct ? [] : [{ question, chosenIndex: result.answers[index] }];
@@ -192,7 +185,7 @@ function ResultView({ result, saveStatus, onRestart }: { result: QuizResult; sav
   const duration = Number.isFinite(durationSeconds) ? `${String(Math.floor(durationSeconds / 3600)).padStart(2, "0")}:${String(Math.floor(durationSeconds % 3600 / 60)).padStart(2, "0")}:${String(durationSeconds % 60).padStart(2, "0")}` : "—";
   const date = new Date(result.finishedAt);
   const completedDate = Number.isNaN(date.getTime()) ? "—" : new Intl.DateTimeFormat("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric" }).format(date);
-  const feedback = result.score === 100 ? ["Отличный результат!", "Ты отлично знаешь материал."] : result.passed ? ["Хороший результат!", "Аттестация пройдена. Продолжай учиться."] : ["Повтори материал", "Изучи темы с ошибками и попробуй ещё раз."];
+  const feedback = result.score === 100 ? ["Отличный результат!", "Ты отлично знаешь материал."] : result.passed ? ["Хороший результат!", "Аттестация пройдена. Продолжай учиться."] : ["Повтори материал", "Изучи разделы с ошибками и попробуй ещё раз."];
 
   return (
     <section className="bf-result-page mx-auto max-w-3xl pb-7">
@@ -205,6 +198,7 @@ function ResultView({ result, saveStatus, onRestart }: { result: QuizResult; sav
           <h1 className="mt-3 text-2xl font-black">{result.passed ? "Аттестация пройдена" : "Нужно повторить материал"}</h1>
           <p className="mt-2 text-sm text-[var(--bf-muted)]">{result.correct} из {result.total} · проходной порог {result.passPercent}%</p>
           <p className="mt-3 min-h-5 text-xs text-[var(--bf-dim)]" role="status" aria-live="polite">{saveStatus}</p>
+          {saveStatus.startsWith("Не удалось сохранить") ? <Button type="button" variant="secondary" className="mt-3" onClick={onRetrySave}>Повторить сохранение</Button> : null}
         </div>
 
         <div className="bf-result-meta" aria-label="Сведения о попытке"><div><strong>{result.categoryLabel}</strong><span>Категория</span></div><div><strong>{duration}</strong><span>Время</span></div><div><strong>{completedDate}</strong><span>Дата</span></div></div>
@@ -212,13 +206,13 @@ function ResultView({ result, saveStatus, onRestart }: { result: QuizResult; sav
         <div className="mt-5 flex flex-wrap justify-center gap-2"><Button type="button" variant="primary" onClick={onRestart}><RotateCcw className="size-4" aria-hidden />Новая попытка</Button><Button asChild><Link to="/knowledge"><BookOpen className="size-4" aria-hidden />К знаниям</Link></Button></div>
       </div>
 
-      {result.weakTopics.length ? <section className="mt-6 border-b border-[var(--bf-line)] pb-5"><p className="eyebrow">ПОВТОРИТЬ</p><h2 className="mt-1 text-xl font-extrabold">Темы с ошибками</h2><div className="mt-3 flex flex-wrap gap-2">{result.weakTopics.map((topic) => <span key={topic.topic} className="rounded-full border border-[var(--bf-line)] px-3 py-2 text-xs font-bold text-[var(--bf-muted)]">{topic.topic} · {topic.correct}/{topic.total}</span>)}</div></section> : null}
+      {result.weakTopics.length ? <section className="mt-6 border-b border-[var(--bf-line)] pb-5"><p className="eyebrow">ПОВТОРИТЬ</p><h2 className="mt-1 text-xl font-extrabold">Разделы с ошибками</h2><div className="mt-3 flex flex-wrap gap-2">{result.weakTopics.map((topic) => <span key={topic.topic} className="rounded-full border border-[var(--bf-line)] px-3 py-2 text-xs font-bold text-[var(--bf-muted)]">{topic.topic} · {topic.correct}/{topic.total}</span>)}</div></section> : null}
 
       {mistakes.length ? <section className="mt-6"><p className="eyebrow">РАЗБОР ОШИБОК</p><h2 className="mt-1 text-2xl font-black">Что стоит повторить</h2><div className="mt-3 divide-y divide-[var(--bf-line)] border-y border-[var(--bf-line)]">{mistakes.map(({ question, chosenIndex }, index) => {
         const chosen = question.answers[chosenIndex];
         const correct = question.answers.find((answer) => answer.correct);
         const reviewRoute = normalizeReviewRoute(question);
-        return <article key={question.id} className="py-5"><div className="flex items-start gap-3"><span className="grid size-7 shrink-0 place-items-center rounded-full border border-[color:color-mix(in_srgb,var(--bf-red),transparent_55%)] text-xs font-black text-[#e99990]">{index + 1}</span><div className="min-w-0 flex-1"><p className="text-[10px] font-black uppercase tracking-[0.12em] text-[var(--bf-copper-hi)]">{question.topic}</p><h3 className="mt-1 text-lg font-extrabold leading-6">{question.q}</h3><p className="mt-3 text-sm leading-6 text-[var(--bf-muted)]">Ваш ответ: <span className="text-[#e99990]">{chosen?.text || "Нет ответа"}</span></p><p className="mt-1 text-sm leading-6 text-[var(--bf-muted)]">Верно: <span className="font-bold text-[#9dd0a0]">{correct?.text || "Ответ не найден"}</span></p>{question.reviewNote ? <p className="mt-2 text-xs text-[var(--bf-dim)]">{question.reviewNote}</p> : null}{reviewRoute ? <Button asChild variant="secondary" className="mt-3"><Link to={reviewRoute}><BookOpen className="size-4" aria-hidden />{question.reviewLabel || "Повторить тему"}</Link></Button> : null}</div></div></article>;
+        return <article key={question.id} className="py-5"><div className="flex items-start gap-3"><span className="grid size-7 shrink-0 place-items-center rounded-full border border-[color:color-mix(in_srgb,var(--bf-red),transparent_55%)] text-xs font-black text-[#e99990]">{index + 1}</span><div className="min-w-0 flex-1"><p className="text-[10px] font-black uppercase tracking-[0.12em] text-[var(--bf-copper-hi)]">{question.topic}</p><h3 className="mt-1 text-lg font-extrabold leading-6">{question.q}</h3><p className="mt-3 text-sm leading-6 text-[var(--bf-muted)]">Ваш ответ: <span className="text-[#e99990]">{chosen?.text || "Нет ответа"}</span></p><p className="mt-1 text-sm leading-6 text-[var(--bf-muted)]">Верно: <span className="font-bold text-[#9dd0a0]">{correct?.text || "Ответ не найден"}</span></p>{question.reviewNote ? <p className="mt-2 text-xs text-[var(--bf-dim)]">{question.reviewNote}</p> : null}{reviewRoute ? <Button asChild variant="secondary" className="mt-3"><Link to={reviewRoute}><BookOpen className="size-4" aria-hidden />{question.reviewLabel || "Повторить раздел"}</Link></Button> : null}</div></div></article>;
       })}</div></section> : <section className="mt-6 flex items-start gap-3 border-y border-[var(--bf-line)] py-5"><CheckCircle2 className="mt-0.5 size-5 shrink-0 text-[var(--bf-green)]" aria-hidden /><div><h2 className="font-extrabold">Без ошибок</h2><p className="mt-1 text-sm leading-6 text-[var(--bf-muted)]">Все ответы в этой попытке верные.</p></div></section>}
     </section>
   );
@@ -229,21 +223,34 @@ export function AttestationPage() {
   const userId = auth.status === "authenticated" ? auth.user.id : "";
   const { state, reload } = useAttestationBank();
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+  const [startError, setStartError] = useState("");
   const [attempt, setAttempt] = useState<QuizAttempt | null>(null);
   const [result, setResult] = useState<QuizResult | null>(null);
   const [saveStatus, setSaveStatus] = useState("");
   const [history, setHistory] = useState<QuizHistoryItem[]>([]);
   const [historySource, setHistorySource] = useState<QuizHistorySource>("device");
   const [historyLoading, setHistoryLoading] = useState(true);
+  const currentUserId = useRef(userId);
+  const attemptUserId = useRef(userId);
+  currentUserId.current = userId;
+
+  useEffect(() => {
+    setAttempt(null);
+    setResult(null);
+    setSaveStatus("");
+    setHistory([]);
+    setStartError("");
+  }, [userId]);
 
   async function refreshHistory() {
     setHistoryLoading(true);
     try {
       const loaded = await getQuizHistory(userId, 5);
+      if (currentUserId.current !== userId) return;
       setHistory(loaded.items);
       setHistorySource(loaded.source);
     } finally {
-      setHistoryLoading(false);
+      if (currentUserId.current === userId) setHistoryLoading(false);
     }
   }
 
@@ -256,10 +263,21 @@ export function AttestationPage() {
 
   function startQuiz() {
     if (state.status !== "ready" || !selectedCategory) return;
-    const questions = buildQuizTicket(selectedCategory);
-    if (questions.length !== state.bank.questionsPerTest) return;
+    let questions: QuizQuestion[];
+    try {
+      questions = buildQuizTicket(selectedCategory);
+      setStartError("");
+    } catch {
+      setStartError("В билете недостаточно подходящих вопросов. Сообщите администратору.");
+      return;
+    }
+    if (questions.length !== selectedCategory.questionsPerTest) {
+      setStartError("Не удалось сформировать полный билет.");
+      return;
+    }
     setSaveStatus("");
     setResult(null);
+    attemptUserId.current = userId;
     setAttempt({ categoryId: selectedCategory.id, categoryLabel: selectedCategory.label, passPercent: state.bank.passPercent, questions, index: 0, answers: [], selected: null, startedAt: new Date().toISOString() });
   }
 
@@ -279,53 +297,62 @@ export function AttestationPage() {
       return;
     }
     const completed = buildResult(attempt, answers);
-    persistQuizResultLocally(userId, completed);
     setAttempt(null);
     setResult(completed);
-    setSaveStatus("Сохраняем результат…");
     window.scrollTo(0, 0);
-    void persistQuizResultRemote(userId, completed)
-      .then(() => {
-        setSaveStatus("Результат сохранён.");
-        return refreshHistory();
-      })
-      .catch(() => {
-        setSaveStatus("Результат сохранён на этом устройстве.");
-      });
+    void saveCompletedResult(completed, attemptUserId.current);
+  }
+
+  async function saveCompletedResult(completed: QuizResult, ownerId: string) {
+    if (currentUserId.current !== ownerId) return;
+    setSaveStatus("Сохраняем результат…");
+    const durable = await persistQuizResultLocally(ownerId, completed).catch(() => false);
+    try {
+      await persistQuizResultRemote(ownerId, completed);
+      if (currentUserId.current !== ownerId) return;
+      setSaveStatus("Результат сохранён.");
+      await refreshHistory();
+    } catch (error) {
+      if (currentUserId.current !== ownerId) return;
+      const savedRemotely = Boolean(error && typeof error === "object" && "savedRemotely" in error && error.savedRemotely);
+      setSaveStatus(savedRemotely ? "Результат сохранён на сервере. Очередь будет обновлена при синхронизации." : durable
+        ? "Результат сохранён на этом устройстве."
+        : "Не удалось сохранить результат. Повторите сохранение, пока эта страница открыта.");
+    }
   }
 
   if (attempt) return <QuizQuestionView attempt={attempt} onSelect={(index) => setAttempt((current) => current ? { ...current, selected: index } : current)} onNext={submitAnswer} onExit={exitQuiz} />;
-  if (result) return <ResultView result={result} saveStatus={saveStatus} onRestart={() => { setResult(null); setSaveStatus(""); window.scrollTo(0, 0); }} />;
+  if (result) return <ResultView result={result} saveStatus={saveStatus} onRetrySave={() => void saveCompletedResult(result, attemptUserId.current)} onRestart={() => { setResult(null); setSaveStatus(""); window.scrollTo(0, 0); }} />;
 
   return (
     <section className="bf-attestation-page mx-auto max-w-3xl pb-6">
       <div className="max-w-2xl">
-        <p className="eyebrow">ПРОВЕРКА ЗНАНИЙ</p>
-        <div className="mt-2 flex items-center justify-between gap-3">
-          <h1 className="text-[36px] font-black leading-none tracking-[-0.04em]">Аттестация</h1>
-          <Button
-            type="button"
-            variant="secondary"
-            size="icon"
-            className="size-9 min-h-9 rounded-full p-0"
-            aria-label="Обновить вопросы"
-            disabled={state.status === "loading"}
-            onClick={() => void reload()}
-          >
+        <div className="flex min-h-11 items-center justify-between gap-3">
+          <Button asChild type="button" variant="ghost" className="gap-1 px-2 text-[13px] leading-none">
+            <Link to="/knowledge"><ArrowLeft className="size-4" aria-hidden />Назад</Link>
+          </Button>
+          <Button type="button" variant="secondary" size="icon" className="size-9 min-h-9 rounded-full p-0" aria-label="Обновить вопросы" disabled={state.status === "loading"} onClick={() => void reload()}>
             <RefreshCw className={cn("size-3.5", state.status === "loading" && "animate-spin")} aria-hidden />
           </Button>
         </div>
-        <p className="mt-3 text-pretty text-[15px] leading-6 text-[var(--bf-muted)]">15 вопросов. Зачёт от 12 верных ответов (80%).</p>
+
+        <h1 className="mt-3 text-[36px] font-black leading-none tracking-[-0.04em]">Аттестация</h1>
+        <p className="mt-3 text-pretty text-[15px] leading-6 text-[var(--bf-muted)]">
+          Количество вопросов зависит от выбранной категории{state.status === "ready" ? ` · зачёт от ${state.bank.passPercent}%` : ""}.
+        </p>
       </div>
 
       {state.status === "loading" ? <div className="mt-6 grid grid-cols-2 gap-2.5" aria-label="Загрузка вопросов">{Array.from({ length: 4 }, (_, index) => <div key={index} className="h-28 animate-pulse rounded-2xl border border-[var(--bf-line)] bg-[var(--bf-surface)]" />)}</div> : null}
 
-      {state.status === "error" ? <div className="mt-6 border-y border-[var(--bf-line)] py-6"><p className="text-lg font-extrabold">Не удалось загрузить вопросы</p><p className="mt-1 max-w-lg text-sm leading-6 text-[var(--bf-muted)]">Попробуйте ещё раз.</p><Button className="mt-4" onClick={reload}><RefreshCw className="size-4" aria-hidden />Повторить</Button></div> : null}
+      {state.status === "error" ? <div className="mt-6 border-y border-[var(--bf-line)] py-6"><p className="text-lg font-extrabold">Не удалось загрузить вопросы</p><p className="mt-1 max-w-lg text-sm leading-6 text-[var(--bf-muted)]">{state.error.message === "question_bank_cache_incompatible" ? "Офлайн-банк устарел. Подключитесь к интернету и обновите вопросы." : "Проверьте соединение и повторите."}</p><Button className="mt-4" onClick={reload}><RefreshCw className="size-4" aria-hidden />Повторить</Button></div> : null}
 
-      {state.status === "ready" ? <><section className="mt-6 border-y border-[var(--bf-line)] py-5"><p className="eyebrow">КАТЕГОРИЯ</p><h2 className="mt-1 text-xl font-extrabold">Выбери блок вопросов</h2><div className="bf-category-grid mt-4 grid grid-cols-2 gap-2.5" role="group" aria-label="Категория вопросов">{state.bank.categories.map((category) => {
-        const selected = category.id === selectedCategoryId;
-        return <button key={category.id} type="button" aria-pressed={selected} onClick={() => setSelectedCategoryId(category.id)} className={cn("bf-category-option grid min-h-[88px] grid-cols-[1fr_56px] items-center gap-3 rounded-2xl border p-4 text-left outline-none transition-[background-color,border-color,transform] focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)] active:translate-y-px", selected ? "border-[var(--bf-copper-hi)] bg-[color:color-mix(in_srgb,var(--bf-copper),transparent_82%)]" : "border-[var(--bf-line)] bg-[var(--bf-surface)]")}><strong className="block text-xl font-black text-[var(--bf-cream)]">{category.label}</strong><CategoryMotionIcon categoryId={category.id} selected={selected} /></button>;
-      })}</div><div className="mt-4 flex flex-wrap gap-2"><Button type="button" variant="primary" size="lg" disabled={!selectedCategory} onClick={startQuiz}>Начать{selectedCategory ? ` · ${selectedCategory.label}` : ""}</Button><Button asChild size="lg"><Link to="/knowledge"><BookOpen className="size-4" aria-hidden />К знаниям</Link></Button></div></section>{historyLoading ? <section className="mt-5 border-t border-[var(--bf-line)] pt-5"><div className="h-20 animate-pulse rounded-xl bg-[var(--bf-surface)]" /></section> : <div className="mt-5"><HistoryList items={history} source={historySource} /></div>}</> : null}
+      {state.status === "ready" && state.bank.legacyCompatibility ? (
+        <p role="status" className="mt-4 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] p-3 text-xs leading-5 text-[var(--bf-muted)]">
+          Доступны прежние билеты BeerFactory. Новые билеты появятся после обновления серверной базы.
+        </p>
+      ) : null}
+
+      {state.status === "ready" ? <><section className="mt-6 border-y border-[var(--bf-line)] py-5"><h2 className="text-xl font-extrabold">Тестирование по теме: {selectedCategory ? selectedCategory.label : "…"}</h2><label className="relative mt-4 flex min-w-0 max-w-full flex-col gap-1 text-[11px] font-bold text-[var(--bf-dim)]"><span>Выбери тему</span><select aria-label="Выбери тему" value={selectedCategoryId ?? ""} onChange={(event) => { setSelectedCategoryId(event.target.value || null); setStartError(""); }} className="h-12 min-h-12 w-full min-w-0 max-w-full appearance-none rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] py-2 pl-3 pr-9 text-[16px] font-bold text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"><option value="" disabled>…</option>{state.bank.categories.map((category) => <option key={category.id} value={category.id}>{category.label} · {category.questionsPerTest} вопросов · {category.venue === "bf" ? "BeerFactory" : category.venue === "bb" ? "BeerBistro" : "BF/BB — Общий"}</option>)}</select><ChevronDown className="pointer-events-none absolute bottom-[14px] right-3 size-4 text-[var(--bf-dim)]" aria-hidden /></label><div className="mt-4 flex flex-wrap items-center gap-2"><Button type="button" variant="primary" size="lg" disabled={!selectedCategory} onClick={startQuiz}>Начать</Button></div>{startError ? <p role="alert" className="mt-2 text-xs text-[#e99990]">{startError}</p> : null}</section>{historyLoading ? <section className="mt-5 border-t border-[var(--bf-line)] pt-5"><div className="h-20 animate-pulse rounded-xl bg-[var(--bf-surface)]" /></section> : <div className="mt-5"><HistoryList items={history} source={historySource} /></div>}</> : null}
     </section>
   );
 }

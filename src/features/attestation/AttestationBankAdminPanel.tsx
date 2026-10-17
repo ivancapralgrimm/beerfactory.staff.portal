@@ -1,0 +1,788 @@
+import {
+  Archive,
+  ChevronDown,
+  Pencil,
+  Plus,
+  RefreshCw,
+  RotateCcw,
+  Save,
+  Search,
+  Trash2,
+  X
+} from "lucide-react";
+import {
+  useEffect,
+  useMemo,
+  useState
+} from "react";
+import { Button } from "@/components/ui/button";
+import { Surface } from "@/components/ui/surface";
+import {
+  loadAttestationEditorBank,
+  saveAttestationQuestion,
+  setAttestationQuestionStatus,
+  type AttestationEditorBank,
+  type AttestationEditorQuestion
+} from "@/features/attestation/attestation-editor-api";
+import { loadServerKnowledgeArticles } from "@/features/knowledge/knowledge-server";
+import { isArchive, loadRecipes } from "@/features/recipes/recipe-data";
+import { cn } from "@/lib/utils";
+import type { AttestationVenue, KnowledgeType } from "@/features/attestation/types";
+
+const EMPTY_ANSWERS = () => [
+  { text: "", correct: true },
+  { text: "", correct: false },
+  { text: "", correct: false },
+  { text: "", correct: false }
+];
+
+function errorText(error: unknown) {
+  const code = error instanceof Error ? error.message : "";
+  if (code === "attestation_revision_conflict") {
+    return "Вопрос уже изменён в другой сессии. Обновите банк и повторите правку.";
+  }
+  if (code === "attestation_ticket_capacity") {
+    return "Нельзя убрать этот вопрос: после изменения по теме не соберётся полный билет.";
+  }
+  if (code === "attestation_ticket_quota_capacity") {
+    return "Изменение нарушит квоту активного билета. Сначала добавьте подходящие вопросы или измените квоту.";
+  }
+  if (code === "attestation_ticket_group_cross_topic") {
+    return "Одна группа вопросов оказалась в разных разделах. Перенесите вопрос в отдельную группу.";
+  }
+  if (code === "attestation_answers_invalid") {
+    return "Нужно четыре разных ответа и ровно один правильный.";
+  }
+  if (code === "attestation_category_invalid") {
+    return "Выбранная категория больше недоступна. Обновите банк.";
+  }
+  if (code === "attestation_topic_invalid") {
+    return "Укажите корректную тему вопроса.";
+  }
+  if (code === "attestation_subcategory_invalid") {
+    return "Подкатегория слишком длинная или заполнена некорректно.";
+  }
+  if (code === "forbidden") return "Недостаточно прав для изменения банка.";
+  return "Изменение не сохранено. Проверьте сеть и повторите.";
+}
+
+function newGroupKey() {
+  const uuid = globalThis.crypto?.randomUUID?.();
+
+  if (uuid) return `manual:${uuid}`;
+
+  return `manual:${Date.now().toString(36)}-${Math.random()
+    .toString(36)
+    .slice(2, 10)}`;
+}
+
+type Draft = {
+  id?: string;
+  revision?: number;
+  categoryId: string;
+  knowledgeType: KnowledgeType | null;
+  venue: AttestationVenue;
+  q: string;
+  topic: string;
+  subcategory: string;
+  group: string;
+  answers: Array<{ text: string; correct: boolean }>;
+  source: string;
+  sourceRef: string;
+  reviewUrl: string;
+  reviewLabel: string;
+  reviewNote: string;
+};
+
+
+type ReviewMaterial = {
+  value: string;
+  label: string;
+  buttonLabel: string;
+};
+
+function legacyDirectReviewUrl(question: AttestationEditorQuestion) {
+  const reviewUrl = question.reviewUrl || "";
+
+  if (reviewUrl === "#/menu") {
+    const source = question.source?.trim() || "";
+    const match = source.match(
+      /^Карта\s+(Бар|Кухня):.*\(ID\s+([A-Za-z0-9_-]+)\)\s*$/iu
+    );
+
+    if (!match) return "";
+
+    const sourceKey =
+      match[1].toLocaleLowerCase("ru") === "бар" ? "bar" : "kitchen";
+    return `#/menu/${encodeURIComponent(`${sourceKey}:${match[2]}`)}`;
+  }
+
+  const legacyArticle = reviewUrl.match(/^#\/article\/(lesson-\d+)$/);
+  if (legacyArticle) return `#/knowledge/${legacyArticle[1]}`;
+
+  return reviewUrl;
+}
+
+function reviewUrlIsDirect(value: string) {
+  return (
+    value === "" ||
+    /^#\/menu\/[^/]+$/u.test(value) ||
+    /^#\/knowledge\/[A-Za-z0-9:_-]+$/u.test(value)
+  );
+}
+
+function draftFromQuestion(question: AttestationEditorQuestion): Draft {
+  return {
+    id: question.id,
+    revision: question.revision,
+    categoryId: question.categoryId,
+    knowledgeType: question.knowledgeType,
+    venue: question.venue,
+    q: question.q,
+    topic: question.topic,
+    subcategory: question.subcategory || "",
+    group: question.group,
+    answers: question.answers.map((answer) => ({ ...answer })),
+    source: question.source || "",
+    sourceRef: question.sourceRef || "",
+    reviewUrl: legacyDirectReviewUrl(question),
+    reviewLabel: question.reviewLabel || "",
+    reviewNote: question.reviewNote || ""
+  };
+}
+
+function Editor({
+  bank,
+  draft: initial,
+  onClose,
+  onSaved
+}: {
+  bank: AttestationEditorBank;
+  draft: Draft;
+  onClose: () => void;
+  onSaved: (savedQuestion: AttestationEditorQuestion) => Promise<void>;
+}) {
+  const [draft, setDraft] = useState(initial);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState("");
+  const [reviewMaterials, setReviewMaterials] = useState<ReviewMaterial[]>([]);
+  const [materialsLoading, setMaterialsLoading] = useState(true);
+  const [materialsError, setMaterialsError] = useState(false);
+
+  const initialSignature = useMemo(
+    () => JSON.stringify(initial),
+    [initial]
+  );
+  const dirty = useMemo(
+    () => JSON.stringify(draft) !== initialSignature,
+    [draft, initialSignature]
+  );
+
+
+  useEffect(() => {
+    let active = true;
+    setMaterialsLoading(true);
+    setMaterialsError(false);
+
+    void Promise.allSettled([
+      loadRecipes(),
+      loadServerKnowledgeArticles()
+    ]).then(([recipesResult, articlesResult]) => {
+      if (!active) return;
+
+      const items: ReviewMaterial[] = [];
+
+      if (recipesResult.status === "fulfilled") {
+        const seen = new Set<string>();
+        for (const recipe of recipesResult.value.recipes) {
+          if (isArchive(recipe) || !recipe.id || seen.has(recipe.id)) continue;
+          seen.add(recipe.id);
+          items.push({
+            value: `#/menu/${encodeURIComponent(recipe.id)}`,
+            label: `Рецепт · ${recipe.name}`,
+            buttonLabel: "Открыть рецепт"
+          });
+        }
+      }
+
+      if (articlesResult.status === "fulfilled") {
+        for (const article of articlesResult.value) {
+          items.push({
+            value: `#/knowledge/${article.id}`,
+            label: `Статья · ${article.title}`,
+            buttonLabel: "Открыть статью"
+          });
+        }
+      }
+
+      items.sort((a, b) => a.label.localeCompare(b.label, "ru"));
+      setReviewMaterials(items);
+      setMaterialsError(
+        recipesResult.status === "rejected" &&
+        articlesResult.status === "rejected"
+      );
+      setMaterialsLoading(false);
+    });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  function closeEditor() {
+    if (saving) return;
+
+    if (
+      dirty &&
+      !window.confirm("Закрыть редактор без сохранения изменений?")
+    ) {
+      return;
+    }
+
+    onClose();
+  }
+
+  const topics = useMemo(() => {
+    const configured = bank.categories
+      .filter((category) => category.knowledgeType === draft.knowledgeType)
+      .flatMap((category) => category.ticketPlan.map((part) => part.topic));
+    const existing = bank.questions
+      .filter((question) => question.knowledgeType === draft.knowledgeType)
+      .map((question) => question.topic).filter(Boolean);
+    return [...new Set([...configured, ...existing])].sort((a, b) => a.localeCompare(b, "ru"));
+  }, [bank.categories, bank.questions, draft.knowledgeType]);
+
+  const subcategories = useMemo(() => {
+    const values = bank.questions
+      .filter((question) => question.knowledgeType === draft.knowledgeType)
+      .map((question) => question.subcategory || "").filter(Boolean);
+    return [...new Set(values)].sort((a, b) => a.localeCompare(b, "ru"));
+  }, [bank.questions, draft.knowledgeType]);
+
+  async function save() {
+    const answerTexts = draft.answers.map((answer) => answer.text.trim());
+    if (
+      !draft.q.trim() ||
+      !draft.categoryId ||
+      !draft.knowledgeType ||
+      !draft.topic.trim() ||
+      answerTexts.some((text) => !text) ||
+      new Set(answerTexts.map((text) => text.toLowerCase())).size !== 4 ||
+      draft.answers.filter((answer) => answer.correct).length !== 1
+    ) {
+      setMessage("Заполните вопрос, раздел и четыре разных ответа. Правильный ответ должен быть один.");
+      return;
+    }
+
+    const reviewUrl = draft.reviewUrl.trim();
+    if (!reviewUrlIsDirect(reviewUrl)) {
+      setMessage(
+        "Материал для повторения должен вести сразу на конкретный рецепт или статью."
+      );
+      return;
+    }
+
+    setSaving(true);
+    setMessage("");
+    try {
+      const savedQuestion = await saveAttestationQuestion(
+        {
+          id: draft.id,
+          categoryId: draft.categoryId,
+          knowledgeType: draft.knowledgeType,
+          venue: draft.venue,
+          q: draft.q.trim(),
+          topic: draft.topic.trim(),
+          subcategory: draft.subcategory.trim() || null,
+          group: draft.group || newGroupKey(),
+          answers: draft.answers.map((answer) => ({
+            text: answer.text.trim(),
+            correct: answer.correct
+          })),
+          source: draft.source.trim() || null,
+          sourceRef: draft.sourceRef.trim() || null,
+          reviewUrl: draft.reviewUrl.trim() || null,
+          reviewLabel: draft.reviewLabel.trim() || null,
+          reviewNote: draft.reviewNote.trim() || null
+        },
+        draft.revision ?? null
+      );
+      await onSaved(savedQuestion);
+      onClose();
+    } catch (error) {
+      setMessage(errorText(error));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Surface className="mt-4 overflow-hidden p-0">
+      <div className="flex items-start justify-between gap-3 border-b border-[var(--bf-line)] p-4">
+        <div>
+          <p className="eyebrow">БАНК ВОПРОСОВ</p>
+          <h3 className="mt-1 text-xl font-black">
+            {draft.id ? "Редактирование вопроса" : "Новый вопрос"}
+          </h3>
+        </div>
+        <Button type="button" variant="ghost" size="icon" onClick={closeEditor} aria-label="Закрыть редактор">
+          <X className="size-4" aria-hidden />
+        </Button>
+      </div>
+
+      <div className="grid gap-4 p-4">
+        <div className="grid min-w-0 grid-cols-2 gap-2">
+          <label className="grid min-w-0 gap-1 text-xs font-bold text-[var(--bf-muted)]">
+            Тип знаний
+            <select
+              aria-label="Тип знаний"
+              value={draft.knowledgeType ?? ""}
+              onChange={(event) => {
+                const knowledgeType = event.target.value as KnowledgeType;
+                const home = bank.categories.find((item) => item.id === knowledgeType && item.knowledgeType === knowledgeType)
+                  || bank.categories.find((item) => item.knowledgeType === knowledgeType);
+                setDraft((current) => ({
+                  ...current,
+                  categoryId: home?.id || current.categoryId,
+                  knowledgeType,
+                  group: current.knowledgeType === knowledgeType ? current.group : newGroupKey(),
+                  topic: home?.ticketPlan?.[0]?.topic || bank.questions.find((q) => q.knowledgeType === knowledgeType)?.topic || "Общее",
+                  subcategory: ""
+                }));
+              }}
+              className="min-h-11 min-w-0 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-2 text-[16px] text-[var(--bf-cream)]"
+            >
+              <option value="" disabled>Выберите тип</option>
+              <option value="bar">Бар</option>
+              <option value="kitchen">Кухня</option>
+              <option value="wine">Вино</option>
+              <option value="service">Сервис</option>
+            </select>
+          </label>
+
+          <label className="grid min-w-0 gap-1 text-xs font-bold text-[var(--bf-muted)]">
+            Раздел вопросов
+            <select
+              aria-label="Раздел вопросов"
+              value={draft.topic}
+              onChange={(event) => setDraft((current) => ({ ...current, topic: event.target.value, group: current.topic === event.target.value ? current.group : newGroupKey() }))}
+              className="min-h-11 min-w-0 w-full rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-2 text-[16px] text-[var(--bf-cream)]"
+            >
+              {!topics.length ? <option value="">Сначала создайте раздел</option> : null}
+              {topics.map((topic) => <option key={topic} value={topic}>{topic}</option>)}
+            </select>
+          </label>
+        </div>
+
+        <label className="grid min-w-0 gap-1 text-xs font-bold text-[var(--bf-muted)]">
+          Вопрос
+          <textarea
+            aria-label="Вопрос"
+            value={draft.q}
+            onChange={(event) => setDraft((current) => ({ ...current, q: event.target.value }))}
+            rows={4}
+            maxLength={1000}
+            className="w-full resize-y rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] p-3 text-[16px] font-semibold leading-6 text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
+          />
+        </label>
+
+        <fieldset className="grid gap-2">
+          <legend className="mb-1 text-xs font-black uppercase tracking-[0.08em] text-[var(--bf-dim)]">
+            Ответы · отметьте один правильный
+          </legend>
+          {draft.answers.map((answer, index) => (
+            <label
+              key={index}
+              className={cn(
+                "grid min-h-12 grid-cols-[36px_1fr] items-center gap-2 rounded-xl border p-2",
+                answer.correct
+                  ? "border-[var(--bf-copper-hi)] bg-[color:color-mix(in_srgb,var(--bf-copper),transparent_84%)]"
+                  : "border-[var(--bf-line)] bg-[var(--bf-surface-2)]"
+              )}
+            >
+              <input
+                type="radio"
+                name="correct-answer"
+                checked={answer.correct}
+                onChange={() => setDraft((current) => ({
+                  ...current,
+                  answers: current.answers.map((item, answerIndex) => ({
+                    ...item,
+                    correct: answerIndex === index
+                  }))
+                }))}
+                className="size-5 justify-self-center accent-[var(--bf-copper-hi)]"
+                aria-label={`Ответ ${index + 1} правильный`}
+              />
+              <input
+                value={answer.text}
+                maxLength={500}
+                onChange={(event) => setDraft((current) => ({
+                  ...current,
+                  answers: current.answers.map((item, answerIndex) =>
+                    answerIndex === index ? { ...item, text: event.target.value } : item
+                  )
+                }))}
+                className="min-h-11 min-w-0 bg-transparent px-1 text-[16px] text-[var(--bf-cream)] outline-none"
+                placeholder={`Ответ ${index + 1}`}
+              />
+            </label>
+          ))}
+        </fieldset>
+
+        <details className="rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] p-3">
+          <summary className="cursor-pointer text-sm font-black">Дополнительно</summary>
+          <div className="mt-3 grid gap-3">
+            <label className="grid min-w-0 gap-1 text-xs font-bold text-[var(--bf-muted)]">
+              Для какого заведения вопрос?
+              <select aria-label="Для какого заведения вопрос?" value={draft.venue}
+                onChange={(event) => setDraft((current) => ({ ...current, venue: event.target.value as AttestationVenue }))}
+                className="min-h-11 min-w-0 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-3 text-[16px] text-[var(--bf-cream)]">
+                <option value="bf">BeerFactory</option>
+                <option value="bb">BeerBistro</option>
+                <option value="common">BF/BB — Общий</option>
+              </select>
+            </label>
+            <label className="grid min-w-0 gap-1 text-xs font-bold text-[var(--bf-muted)]">
+              Подкатегория
+              <input
+                value={draft.subcategory}
+                list="attestation-subcategories"
+                onChange={(event) => setDraft((current) => ({ ...current, subcategory: event.target.value }))}
+                className="min-h-11 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-3 text-[16px] text-[var(--bf-cream)]"
+                placeholder="Необязательно"
+              />
+              <datalist id="attestation-subcategories">
+                {subcategories.map((item) => <option key={item} value={item} />)}
+              </datalist>
+            </label>
+            <label className="grid min-w-0 gap-1 text-xs font-bold text-[var(--bf-muted)]">
+              Что повторить после ошибки
+              <input value={draft.reviewNote} onChange={(event) => setDraft((current) => ({ ...current, reviewNote: event.target.value }))} className="min-h-11 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-3 text-[16px] text-[var(--bf-cream)]" placeholder="Например, Коктейли" />
+            </label>
+            <label className="grid min-w-0 gap-1 text-xs font-bold text-[var(--bf-muted)]">
+              Материал после ошибки
+              <select
+                value={draft.reviewUrl}
+                disabled={materialsLoading}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  const material = reviewMaterials.find((item) => item.value === value);
+                  setDraft((current) => ({
+                    ...current,
+                    reviewUrl: value,
+                    reviewLabel: material?.buttonLabel || ""
+                  }));
+                }}
+                className="min-h-11 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-3 text-[16px] text-[var(--bf-cream)]"
+              >
+                <option value="">
+                  {materialsLoading ? "Загружаем материалы…" : "Не выбран"}
+                </option>
+                {draft.reviewUrl &&
+                !reviewMaterials.some((item) => item.value === draft.reviewUrl) ? (
+                  <option value={draft.reviewUrl}>Текущий материал</option>
+                ) : null}
+                {reviewMaterials.map((item) => (
+                  <option key={item.value} value={item.value}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+              <span className="text-[11px] font-medium leading-4 text-[var(--bf-dim)]">
+                {materialsError
+                  ? "Список материалов сейчас недоступен. Существующая ссылка сохранится."
+                  : "Выбирается конкретная страница. Системные ID и маршруты скрыты."}
+              </span>
+            </label>
+          </div>
+        </details>
+
+        <p className={cn("min-h-5 text-xs", message ? "text-[#e99990]" : "text-[var(--bf-dim)]")} role="status" aria-live="polite">
+          {message}
+        </p>
+
+        <Button type="button" variant="primary" size="lg" onClick={() => void save()} disabled={saving}>
+          {saving ? <RefreshCw className="size-4 animate-spin" aria-hidden /> : <Save className="size-4" aria-hidden />}
+          {saving ? "Сохраняем…" : "Сохранить вопрос"}
+        </Button>
+      </div>
+    </Surface>
+  );
+}
+
+export function AttestationBankAdminPanel() {
+  const [bank, setBank] = useState<AttestationEditorBank | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("all");
+  const [status, setStatus] = useState<"all" | "active" | "archive">("active");
+  const [editing, setEditing] = useState<Draft | null>(null);
+  const [pendingId, setPendingId] = useState("");
+  const [actionMessage, setActionMessage] = useState("");
+
+  async function load() {
+    setLoading(true);
+    setError("");
+    try {
+      setBank(await loadAttestationEditorBank(false));
+    } catch (error) {
+      const needsUpgrade = error instanceof Error && error.message === "attestation_server_upgrade_required";
+      setError(needsUpgrade
+        ? "Редактор банка ещё недоступен: требуется обновление серверной базы аттестации."
+        : "Не удалось загрузить онлайн-банк вопросов.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => { void load(); }, []);
+
+  const filtered = useMemo(() => {
+    if (!bank) return [];
+    const needle = search.trim().toLowerCase();
+    return bank.questions.filter((question) => {
+      if (category !== "all" && question.knowledgeType !== category) return false;
+      if (status !== "all" && question.status !== status) return false;
+      if (!needle) return true;
+      return [
+        question.q,
+        question.topic,
+        question.subcategory || "",
+        question.answers.map((answer) => answer.text).join(" ")
+      ].join(" ").toLowerCase().includes(needle);
+    });
+  }, [bank, category, search, status]);
+
+  const categoryMap = useMemo(
+    () => new Map([["bar", "Бар"], ["kitchen", "Кухня"], ["wine", "Вино"], ["service", "Сервис"]]),
+    [bank]
+  );
+
+  async function setQuestionStatus(
+    question: AttestationEditorQuestion,
+    nextStatus: "active" | "archive" | "deleted"
+  ) {
+    if (
+      nextStatus === "deleted" &&
+      !window.confirm(
+        "Удалить вопрос из рабочего банка? Историческая версия сохранится."
+      )
+    ) {
+      return;
+    }
+
+    setPendingId(question.id);
+    setActionMessage("");
+    try {
+      const savedQuestion = await setAttestationQuestionStatus(
+        question.id,
+        nextStatus,
+        question.revision
+      );
+      // Server write succeeded: update the visible bank before a second network call.
+      // A failed refresh must never make a successful archive/restore look unsaved.
+      setBank((current) => current ? {
+        ...current,
+        questions: nextStatus === "deleted"
+          ? current.questions.filter((item) => item.id !== savedQuestion.id)
+          : current.questions.map((item) => item.id === savedQuestion.id ? savedQuestion : item)
+      } : current);
+      setActionMessage(
+        nextStatus === "archive"
+          ? "Вопрос перемещён в архив."
+          : nextStatus === "active"
+            ? "Вопрос возвращён в активный банк."
+            : "Вопрос удалён из рабочего банка."
+      );
+      await load();
+    } catch (actionError) {
+      setActionMessage(errorText(actionError));
+    } finally {
+      setPendingId("");
+    }
+  }
+
+  if (loading && !bank) {
+    return <div className="mt-4 h-48 animate-pulse rounded-[22px] bg-[var(--bf-surface)]" />;
+  }
+
+  if (error && !bank) {
+    return (
+      <Surface className="mt-4 p-4 text-sm text-[#e99990]">
+        {error}
+        <Button className="mt-3" onClick={() => void load()}><RefreshCw className="size-4" />Повторить</Button>
+      </Surface>
+    );
+  }
+
+  if (!bank) return null;
+
+  if (editing) {
+    return <Editor bank={bank} draft={editing} onClose={() => setEditing(null)}
+      onSaved={async (savedQuestion) => {
+        // Use the confirmed server snapshot. If the follow-up load fails,
+        // keep this snapshot visible rather than silently losing the success.
+        setBank((current) => current ? {
+          ...current,
+          questions: current.questions.some((item) => item.id === savedQuestion.id)
+            ? current.questions.map((item) => item.id === savedQuestion.id ? savedQuestion : item)
+            : [...current.questions, savedQuestion]
+        } : current);
+        setActionMessage("Вопрос сохранён на сервере.");
+        await load();
+      }} />;
+  }
+
+  const active = bank.questions.filter((question) => question.status === "active").length;
+  const archived = bank.questions.filter((question) => question.status === "archive").length;
+  const actionSucceeded =
+    !actionMessage ||
+    /^Вопрос (перемещён|возвращён|удалён|сохранён)/.test(actionMessage);
+
+  return (
+    <section className="mt-4">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="eyebrow">ОНЛАЙН-БАНК</p>
+          <h3 className="mt-1 text-2xl font-black">Вопросы аттестации</h3>
+          <p className="mt-1 text-xs text-[var(--bf-dim)]">
+            Размер аттестации задаётся отдельно для каждой категории · зачёт {bank.settings.passPercent}%
+          </p>
+        </div>
+        <div className="flex gap-1">
+          <Button type="button" variant="secondary" size="icon" onClick={() => void load()} aria-label="Обновить банк">
+            <RefreshCw className={cn("size-4", loading && "animate-spin")} aria-hidden />
+          </Button>
+          <Button
+            type="button"
+            variant="primary"
+            size="icon"
+            aria-label="Добавить вопрос"
+            onClick={() => {
+              const firstCategory = bank.categories.find((item) => item.id === "bar") || bank.categories.find((item) => item.knowledgeType) || bank.categories[0];
+              const firstTopic = firstCategory?.ticketPlan?.[0]?.topic || "Общее";
+              setEditing({
+                categoryId: firstCategory?.id || "bar",
+                knowledgeType: firstCategory?.knowledgeType || "bar",
+                venue: "bf",
+                q: "",
+                topic: firstTopic,
+                subcategory: "",
+                group: newGroupKey(),
+                answers: EMPTY_ANSWERS(),
+                source: "",
+                sourceRef: "",
+                reviewUrl: "",
+                reviewLabel: "",
+                reviewNote: ""
+              });
+            }}
+          >
+            <Plus className="size-4" aria-hidden />
+          </Button>
+        </div>
+      </div>
+
+      <div className="mt-3 grid min-w-0 grid-cols-3 gap-1.5" aria-label="Количество вопросов">
+        {([
+          ["Активных", active],
+          ["Архив", archived],
+          ["Показано", filtered.length]
+        ] as const).map(([label, value]) => (
+          <div key={label} className="min-w-0 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-1.5 py-2 text-center shadow-sm">
+            <span className="block truncate text-[9px] font-black uppercase leading-3 tracking-[.04em] text-[var(--bf-dim)]">{label}</span>
+            <strong className="mt-0.5 block text-lg font-black leading-6 tabular-nums text-[var(--bf-cream)]">{value}</strong>
+          </div>
+        ))}
+      </div>
+
+      <label className="relative mt-3 block">
+        <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[var(--bf-dim)]" aria-hidden />
+        <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Поиск по вопросу, разделу или ответам" className="min-h-12 w-full rounded-2xl border border-[var(--bf-line)] bg-[var(--bf-surface)] pl-10 pr-3 text-[16px] text-[var(--bf-cream)] outline-none placeholder:text-[var(--bf-dim)] focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]" />
+      </label>
+
+      <div className="mt-3 grid min-w-0 max-w-full grid-cols-2 gap-2" role="group" aria-label="Фильтры вопросов">
+        <label className="relative flex min-w-0 flex-col gap-1 text-[11px] font-bold text-[var(--bf-dim)]">
+          <span>Тип знаний</span>
+          <select
+            aria-label="Тип знаний вопросов"
+            value={category}
+            onChange={(event) => setCategory(event.target.value)}
+            className="h-11 min-h-11 w-full min-w-0 max-w-full appearance-none truncate rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] py-2 pl-3 pr-9 text-[16px] font-bold text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
+          >
+            <option value="all">Все типы знаний</option>
+            <option value="bar">Бар</option>
+            <option value="kitchen">Кухня</option>
+            <option value="wine">Вино</option>
+            <option value="service">Сервис</option>
+          </select>
+          <ChevronDown className="pointer-events-none absolute bottom-[14px] right-3 size-4 text-[var(--bf-dim)]" aria-hidden />
+        </label>
+        <label className="relative flex min-w-0 flex-col gap-1 text-[11px] font-bold text-[var(--bf-dim)]">
+          <span>Статус</span>
+          <select
+            aria-label="Статус вопросов"
+            value={status}
+            onChange={(event) => setStatus(event.target.value as "all" | "active" | "archive")}
+            className="h-11 min-h-11 w-full min-w-0 max-w-full appearance-none truncate rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] py-2 pl-3 pr-9 text-[16px] font-bold text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
+          >
+            <option value="all">Все статусы</option>
+            <option value="active">Активные</option>
+            <option value="archive">Архив</option>
+          </select>
+          <ChevronDown className="pointer-events-none absolute bottom-[14px] right-3 size-4 text-[var(--bf-dim)]" aria-hidden />
+        </label>
+      </div>
+
+      <p className={cn("mt-2 min-h-5 text-xs", actionSucceeded ? "text-[#9dd0a0]" : "text-[#e99990]")} role="status" aria-live="polite">{actionMessage}</p>
+      {error && bank ? <p role="status" className="mt-1 text-xs font-bold text-[#e99990]">{error} Сохранённые изменения остаются в списке. Для сверки с сервером нажмите «Обновить банк».</p> : null}
+
+      <div className="mt-1 grid gap-2">
+        {filtered.map((question) => (
+          <Surface key={question.id} className="p-3.5">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap gap-1.5 text-[10px] font-black uppercase tracking-[.06em] text-[var(--bf-dim)]">
+                  <span>{categoryMap.get(question.knowledgeType || "") || "Не настроено"}</span>
+                  <span>·</span>
+                  <span>{question.topic}</span>
+                  <span>·</span>
+                  <span>{question.venue === "bf" ? "BeerFactory" : question.venue === "bb" ? "BeerBistro" : "BF/BB — Общий"}</span>
+                  {question.subcategory ? <><span>·</span><span>{question.subcategory}</span></> : null}
+                  {question.status === "archive" ? <span className="rounded-full border border-[var(--bf-line)] px-2 py-0.5">Архив</span> : null}
+                </div>
+                <h4 className="mt-1 text-[15px] font-extrabold leading-5 text-[var(--bf-cream)]">{question.q}</h4>
+              </div>
+              <Button type="button" variant="secondary" size="icon" onClick={() => setEditing(draftFromQuestion(question))} aria-label="Редактировать вопрос">
+                <Pencil className="size-4" aria-hidden />
+              </Button>
+            </div>
+
+            <div className="mt-3 flex flex-wrap gap-2">
+              {question.status === "active" ? (
+                <Button type="button" variant="secondary" disabled={pendingId === question.id} onClick={() => void setQuestionStatus(question, "archive")}>
+                  <Archive className="size-4" aria-hidden />В архив
+                </Button>
+              ) : (
+                <Button type="button" variant="secondary" disabled={pendingId === question.id} onClick={() => void setQuestionStatus(question, "active")}>
+                  <RotateCcw className="size-4" aria-hidden />Вернуть
+                </Button>
+              )}
+              <Button type="button" variant="ghost" disabled={pendingId === question.id} onClick={() => void setQuestionStatus(question, "deleted")}>
+                <Trash2 className="size-4" aria-hidden />Удалить
+              </Button>
+            </div>
+          </Surface>
+        ))}
+
+        {!filtered.length ? (
+          <Surface className="p-5 text-center text-sm text-[var(--bf-muted)]">
+            Вопросов по этим фильтрам нет.
+          </Surface>
+        ) : null}
+      </div>
+    </section>
+  );
+}

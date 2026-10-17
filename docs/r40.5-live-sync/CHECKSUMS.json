@@ -1,9 +1,0 @@
-{
-  "README_FIRST.md": "4d3b085cbfe89dba2a72dfa2564b33fd2aa3dc5be18f203a25f5e167205b5daa",
-  "SERVER_STATE.json": "068fa55f607b0952e06389f93f540982b8977f0cf4e7e8e032d1bd6cb0c449b9",
-  "docs/BACKEND_CONTRACT.md": "d2d942cb66480f5be43e73cb921649ae5c3e6015fde85e9d6a3e5f6ce66c3476",
-  "supabase/functions/knowledge-media-upload/index.ts": "1ef3dbadcb8fa6d8eb580d2ca777d79a7543782a67d854f4914a8ad4ed965017",
-  "supabase/migrations/20260930151257_r40_5_knowledge_content_foundation.sql": "0ee91cc3d4bb3494304d66136097e113c60f90c9a485d6926f50bdca5e0d18b7",
-  "supabase/migrations/20260930151818_r40_5_knowledge_security_hardening.sql": "8626fcec365e342206788dd09d628e0b49a508dbe94243f6798ea24dbc9846b2",
-  "tools/build-knowledge-legacy-seed.mjs": "e6e6e8a901a0f2d180d04c30c87e174f4ab5df53014ddb3291231c240d267d11"
-}

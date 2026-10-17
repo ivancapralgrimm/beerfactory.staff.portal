@@ -13,15 +13,11 @@ export default defineConfig(({ mode }) => {
   const env = { ...loadEnv(mode, process.cwd(), ""), ...process.env };
   const requestedKnowledgeSource = env.VITE_KNOWLEDGE_SOURCE;
 
-  const knowledgeSource =
-    mode === "production" && requestedKnowledgeSource !== "legacy"
-      ? "supabase"
-      : resolveKnowledgeSource({
-          requested: requestedKnowledgeSource,
-          mode,
-          deploymentEnv: env.VERCEL_ENV,
-          branch: env.VERCEL_GIT_COMMIT_REF,
-        });
+  const knowledgeSource = resolveKnowledgeSource({
+    requested: requestedKnowledgeSource,
+    mode,
+    deploymentEnv: env.VERCEL_ENV,
+  });
 
   return {
     define: {
@@ -82,8 +78,6 @@ export default defineConfig(({ mode }) => {
           globIgnores: [
             "push-sw.js",
             "assets/training-data.txt",
-            "assets/training-data.json",
-            "assets/questions.txt",
           ],
         },
       }),

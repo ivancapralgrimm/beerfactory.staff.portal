@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { loadRecipes } from "@/features/recipes/recipe-data";
 import type { RecipeLoadResult } from "@/features/recipes/types";
 
@@ -13,8 +13,12 @@ export function useRecipes() {
     data: null,
     error: null
   });
+  // The component can trigger an initial GET and a post-save forced reload.
+  // A slower old GET must never replace the result of the newer request.
+  const requestVersion = useRef(0);
 
   const load = useCallback(async (force = false) => {
+    const version = ++requestVersion.current;
     setState((current) =>
       current.status === "ready"
         ? current
@@ -23,28 +27,33 @@ export function useRecipes() {
 
     try {
       const data = await loadRecipes({ force });
-      setState({ status: "ready", data, error: null });
+      if (version === requestVersion.current) {
+        setState({ status: "ready", data, error: null });
+      }
     } catch (error) {
-      setState({
-        status: "error",
-        data: null,
-        error:
-          error instanceof Error
-            ? error
-            : new Error("recipe_load_failed")
-      });
+      if (version === requestVersion.current) {
+        setState({
+          status: "error",
+          data: null,
+          error:
+            error instanceof Error
+              ? error
+              : new Error("recipe_load_failed")
+        });
+      }
     }
   }, []);
 
   useEffect(() => {
-    let active = true;
-
+    const version = ++requestVersion.current;
     void loadRecipes()
       .then((data) => {
-        if (active) setState({ status: "ready", data, error: null });
+        if (version === requestVersion.current) {
+          setState({ status: "ready", data, error: null });
+        }
       })
       .catch((error) => {
-        if (!active) return;
+        if (version !== requestVersion.current) return;
         setState({
           status: "error",
           data: null,
@@ -56,7 +65,7 @@ export function useRecipes() {
       });
 
     return () => {
-      active = false;
+      ++requestVersion.current;
     };
   }, []);
 

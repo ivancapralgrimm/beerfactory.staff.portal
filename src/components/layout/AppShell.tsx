@@ -19,6 +19,8 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/features/auth/auth-context";
 import { canManageChecklistsClient } from "@/types/auth";
 import { clearPushBadge } from "@/features/notifications/notification-api";
+import { AttestationSyncBridge } from "@/features/attestation/AttestationSyncBridge";
+import "@/styles/mobile-form-stability.css";
 
 const navItems = [
   {
@@ -166,6 +168,10 @@ export function AppShell() {
 
   return (
     <div className={cn("bf-app-shell min-h-dvh", `bf-app-shell--${screen}`, isDashboard ? "pb-[env(safe-area-inset-bottom)]" : "pb-[calc(64px+env(safe-area-inset-bottom))]")}>
+      {state.status === "authenticated" ? (
+        <AttestationSyncBridge userId={state.user.id} />
+      ) : null}
+
       <a
         className="bf-skip-link"
         href="#mainContent"

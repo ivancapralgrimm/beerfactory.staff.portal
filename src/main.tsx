@@ -9,6 +9,7 @@ import "@/mobile-input-guard.css";
 import "@/components/craft/craft.css";
 import "@/workspace.css";
 import "@/components/craft/article-editor-actions.css";
+import "@/styles/photo-frame-safety.css";
 
 // A data router provides navigation blocking while retaining existing hash URLs.
 const router = createHashRouter([{ path: "*", element: <AuthProvider><App /></AuthProvider> }]);

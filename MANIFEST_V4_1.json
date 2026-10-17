@@ -1,0 +1,61 @@
+{
+  "base_head": "b827444e905f8b36cf0f2261e4e0cdb7b07e71be",
+  "changes": {
+    "package.json": {
+      "old_git_blob": "0cbc0ccefbd8092f8a567591e9cec8222fde5278",
+      "old_sha256": "9787876ac89cc2f45e941febb1cb05247578fa2692607c53462497fee406de06",
+      "new_sha256": "3d315aab0ce6cd95ce2a252aaa4ecbb4fc2b7323ea12adeb934de4330f2d326f",
+      "new_git_blob": "121bed51c839d154a75edbdf43ea8fffee37fd92",
+      "action": "replace"
+    },
+    "src/features/attestation/AttestationBankAdminPanel.tsx": {
+      "old_git_blob": "742065734dc2761e909a8f0788ec754f15034773",
+      "old_sha256": "07c832b4151a947e1cc8e3b0f205c96a1bb03a2c8f4c058771d00233bbe89813",
+      "new_sha256": "bc592b1f1b23fa70b80663ac701f631eca8afeafeae3dbdd9c7445521b8f165a",
+      "new_git_blob": "41478875e6e4665ddc5f097e5352f76f152953bd",
+      "action": "replace"
+    },
+    "src/features/attestation/AttestationPage.tsx": {
+      "old_git_blob": "4b78f0f0e4531934bf599618da09404be231a659",
+      "old_sha256": "4a537587b7201b209348c8a967048b642431db7d50bd1fb5434b8f08448dc57a",
+      "new_sha256": "fee4e8165dbe892504aece275be587fbde0de0ec359f9be12f5375b833c616d9",
+      "new_git_blob": "1d3cf3058e1d95b75a8de9accf0ce2070ff71b49",
+      "action": "replace"
+    },
+    "src/features/attestation/AttestationSettingsAdminPanel.tsx": {
+      "old_git_blob": "88080025ebf57f131be567a5b6e940d29a15ca5b",
+      "old_sha256": "9e83391608e45f70a8d051f51d5fef290d00243954169dfd90a8acd3d5011bf0",
+      "new_sha256": "f6fe864a5f839f5e8483cf1455095aa6a04958294adf5a63069d49b3379a496a",
+      "new_git_blob": "443aa629a9ca7eac0946a81fe33a288a7583b013",
+      "action": "replace"
+    },
+    "src/features/attestation/attestation-data.ts": {
+      "old_git_blob": "c20153c881a88816c737a868b05841f8710dcf24",
+      "old_sha256": "abb4a6de0b17f85c1cca76f51939d7d5e3c84bff0ce46badea952561b1e56516",
+      "new_sha256": "2f7d309393504c5a4c93750bf6ca2ffa8dd415cc4d0422e1c3f57a4e62257feb",
+      "new_git_blob": "568c009c59f5c7253e9fb363a83c960ee33b09a7",
+      "action": "replace"
+    },
+    "src/features/attestation/attestation-editor-api.ts": {
+      "old_git_blob": "cdb39cb058e79bfc443a38cefc9a3115faf4aec3",
+      "old_sha256": "2ebb608220c0503dc7a49409ec1888d21632acb12b00a5653f103e2e3ea2917a",
+      "new_sha256": "12506aa1c169831158e1d3241a977695888ed14ba72239b16b4fd23433303f29",
+      "new_git_blob": "4da61e33975f0943a31df619feb6b8cb4178bbaf",
+      "action": "replace"
+    },
+    "src/features/attestation/types.ts": {
+      "old_git_blob": "3be273b5f2f16d0db94da917df7e20f795bcbde8",
+      "old_sha256": "046de10c38a87cb65decd7aec41b1a0e3a6a82936c7876d76c952c25276f8b9a",
+      "new_sha256": "38ce8570ff06b8041e47b6a3d6364e4fc549e16cdcb257ab68871b6b423e25c4",
+      "new_git_blob": "50caa16ad75f2fb515eeafe7e53ec68c77902d9c",
+      "action": "replace"
+    },
+    "tests/attestation-staged-upgrade-v4.test.cjs": {
+      "old_git_blob": null,
+      "old_sha256": null,
+      "new_sha256": "ad232a77e79913eeb55f9dc28ced2613d9e69c7be61a260e0efa8e38f2cd6140",
+      "new_git_blob": "2f20afc45d1c2aba611477f06d5e10535793a1bc",
+      "action": "add"
+    }
+  }
+}

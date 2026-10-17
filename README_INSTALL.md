@@ -1,104 +1,34 @@
-# BFStaff r40.4 — MEGA FEED + SHIFT v1
+# BFStaff r40.6 v4.8 — сохранение рецептов с первого раза
 
-**Target branch:** `r40.4-react`  
-**Expected base HEAD:** `cf491189a6c6a108708966dbf82eb588fde66959`  
-**Do not apply to `main`.**
+Целевая ветка: `r40.6-attestation-editor`.
+Проверенная база для этого пакета: `c5cd3356c1ce997d48604c899a9a7d1ad9c47d31`.
+Установка только вручную через GitHub (репозиторий ассистент не менял).
 
-## Included
+## Заменить три файла (точные пути)
 
-### Feed / «Лента»
-- `/feed` replaces the user-facing «Передача».
-- Old `/handover` redirects to `/feed`.
-- Create post with `+`.
-- Fields: **Тема** + **Сообщение**.
-- Priorities available to staff: **Обычная** / **Критичная**.
-- Notification audience: everyone or selected working positions.
-- «Ознакомился» is a per-user mark and does not close the post.
-- «Решено» is a separate lifecycle state.
-- Dashboard shows up to **6 active posts** in a compact vertical scroll block sized for about **2 visible cards**.
-- Critical unresolved posts sort above ordinary unresolved posts.
-- Push notifications open `/#/feed`.
+1. `api/recipes/menu.js` — отключает кеширование ответа меню в Vercel CDN (раньше было `s-maxage=30, stale-while-revalidate=300`). Запрос на чтение NocoDB производится заново, отдается `Cache-Control: private, no-store`.
+2. `src/features/admin/recipe-admin-api.ts` — убирает **дополнительные фоновые GET**, которые запускались параллельно с уже предусмотренным `reload()` страницы. Запись в Cloudflare Worker остаётся ровно одной; фото, разрешения и остальные payload-поля не затронуты.
+3. `src/features/recipes/use-recipes.ts` — игнорирует результат более старого запроса, если позже начался новый. Это защищает UI от перезаписи свежих данных устаревшим ответом.
 
-### Shift
-- One authoritative server operational window: **11:00 → 03:00**, timezone `Asia/Novosibirsk`.
-- Closing can be intentionally unlocked before Opening is fully completed.
-- Early Closing unlock does **not** lock Opening.
-- Closing can be prepared in parallel.
-- Final Close confirmation still requires confirmed Opening.
-- Ordinary checkbox writes do not create audit-log noise.
-- Server writes one compact shift summary at the end of the operational window.
+Дополнительно, при желании, добавьте `tests/recipe-save-consistency-v4-8.test.cjs`. Это автономная регрессия, которую можно запустить из корня проекта командой `node --test tests/recipe-save-consistency-v4-8.test.cjs`.
 
-### Manager
-Opening and Closing are split into **BF / BB** groups.
+**SQL и Cloudflare Worker НЕ нужно заменять.** Не меняйте Vercel rewrite и NocoDB вручную.
 
-BF/BB are group controls with states:
-- empty;
-- partial / mixed;
-- completed.
+## Проверка после установки
 
-Clicking a group checkbox updates all child items in **one RPC transaction**.
-The child items remain the source of truth. BF/BB themselves are not fake checklist rows.
+1. Убедитесь, что Vercel preview ветки `r40.6-attestation-editor` в статусе READY.
+2. Войдите в портал с правами администратора. Выберите неиспользуемый для срочной работы рецепт.
+3. Откройте «Данные рецепта», нажмите **один раз** «Переместить в архив». Дождитесь завершения, обновите страницу. Рецепт должен остаться в архиве.
+4. Нажмите **один раз** «Вернуть из архива». Обновите страницу и проверьте статус.
+5. Откройте редактор этого рецепта и измените «Заведение» с BF на BB либо BF/BB. Сохраните один раз, откройте рецепт заново и проверьте поле «Заведение» и соответствующие фильтры.
+6. Восстановите исходное заведение, если это была проверка.
+7. Повторите при возможности с одним рецептом бара и одним рецептом кухни.
+8. Если есть возможность посмотреть DevTools Network, проверьте, что `/api/recipes/menu` отвечает `Cache-Control: ... no-store`; новый `PATCH` не должен отправляться дважды автоматически.
 
-The package replaces Manager demo definitions with the real checklist supplied in the current project discussion.
+Важно: проверку **реального авторизованного PATCH к NocoDB** может подтвердить только пользователь после установки либо проверка логов Cloudflare. Локальная регрессия не заменяет этого шага.
 
-### Waiter
-The package replaces Waiter demo definitions with the real Opening and Closing checklist supplied in the current project discussion.
+## Если повторится
 
-### Sunday General Cleaning / «Генуборка»
-- Infrastructure and UI are included now.
-- Appears **above Opening and Closing** only when the server operational date is Sunday.
-- Sunday `11:00` → Monday `02:59:59` is one Sunday operational window.
-- At Monday `03:00` the window closes.
-- General Cleaning remains editable during the whole shared operational window, even if ordinary Closing was confirmed earlier.
-- **Actual General Cleaning task rows are intentionally not seeded yet**, because they have not been supplied yet. On Sunday the UI shows a compact prepared placeholder until the seed is added.
+Если `PATCH` вернул ошибку, это уже отдельная проблема Worker/NocoDB, а не задержка CDN: зафиксируйте время, источник (Бар/Кухня), HTTP-код и безопасный `diagnostic_id` из ответа (не пересылайте токены). Повторять запись вслепую не нужно.
 
-### Admin Journal
-At the end of the window the server creates one compact summary per position:
-- General Cleaning progress (Sunday only);
-- Opening progress;
-- Closing progress;
-- only incomplete items are expanded in the UI;
-- Manager incomplete items are prefixed with `BF:` / `BB:`;
-- early Closing unlock fact/time remains in metadata.
-
-The finalizer counts **current active definitions**, so old demo checklist rows do not pollute the new summary.
-
-## Not replaced in this package
-- Bartender checklist stays as currently configured.
-- Hostess checklist stays as currently configured.
-
-Their real lists can be added later as small seed patches.
-
-## Install into a local checkout
-
-From the root of the repository checkout on the exact target HEAD:
-
-```bash
-python /path/to/BFStaff_r40.4_MEGA_FEED_SHIFT_v1/tools/apply_megapack.py
-npm run typecheck
-npm run build
-git diff
-```
-
-The installer is intentionally strict. If expected source anchors or the HEAD do not match, it stops instead of silently mangling the project.
-
-## Supabase
-
-Cumulative migration:
-`supabase/migrations/20260928230000_bfstaff_feed_shift_megapack.sql`
-
-It tolerates the Feed / early-closing / Sunday foundation already being present.
-
-Edge Function source:
-`supabase/functions/handover-push/`
-
-Deploy it as the existing `handover-push` function with JWT verification enabled.
-
-## Recommended install order
-1. Apply source package to `r40.4-react`.
-2. Run typecheck and production build.
-3. Review Git diff.
-4. Apply Supabase migration.
-5. Deploy `handover-push`.
-6. Deploy/preview `r40.4-react`.
-7. Smoke-test Feed, Manager/Waiter Shift, early Closing unlock, and Journal.
+Оценка: до установки в `main` **PASS WITH RISKS**. После пользовательской проверки возможен PASS.

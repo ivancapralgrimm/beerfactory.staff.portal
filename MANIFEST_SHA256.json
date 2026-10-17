@@ -1,0 +1,13 @@
+{
+  "version": "r40.6-v4.6",
+  "source_branch": "r40.6-attestation-editor",
+  "files": {
+    "src/features/attestation/AttestationSettingsAdminPanel.tsx": "aeb110d0a3553e00c543f9d99d2f14c67cc17bdd1020367dfc5f15fc53522ad2",
+    "src/features/attestation/delete-attestation-ticket.ts": "6d2fbb466a135628a919f325d74d76c2239aef3756f8f5791380e1c2f20c0528",
+    "supabase/migrations/20261016221500_r406_attestation_save_safeupdate_fix.sql": "0a3d0f0337912641fc7d3c959755e8c94ac6f37acf868b8fc3b0ae9cbaa06343",
+    "supabase/migrations/20261017080000_r406_delete_attestation_tickets_v4_6.sql": "13a2f0f35aa768161deffec7a8f4c9ca3e39a88f124819215ee92f9cfa634407",
+    "tests/attestation-delete-ticket-v4-6.test.cjs": "4f7db94b474c4ac97135953037d2ac0c04589e4966b4a626fb1d2882408f16fe",
+    "README_INSTALL_FROM_PHONE.md": "d3264edf55d0306c4a3ccfb3933e6341104f3e993b3e2f366c5e2ce6ed305b82",
+    "REVIEW_FINDINGS.md": "d42126d8631e088047461de4ce122d3b23bad0363e33eeb8062cdb275532b9bd"
+  }
+}

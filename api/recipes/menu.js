@@ -74,6 +74,14 @@ function compactRecipe(row) {
 }
 
 export default async function handler(request, response) {
+  // A recipe save must be immediately visible on the very next GET.
+  // This endpoint is a server-side read-through proxy, not a CDN snapshot.
+  // Previously s-maxage=30 + stale-while-revalidate=300 served pre-save
+  // statuses/venues for minutes after NocoDB accepted a PATCH.
+  response.setHeader("Cache-Control", "private, no-store, max-age=0, must-revalidate");
+  response.setHeader("CDN-Cache-Control", "no-store");
+  response.setHeader("Vercel-CDN-Cache-Control", "no-store");
+
   if (request.method !== "GET") {
     response.setHeader("Allow", "GET");
     response.statusCode = 405;
@@ -89,7 +97,8 @@ export default async function handler(request, response) {
       cache: "no-store",
       signal: controller.signal,
       headers: {
-        Accept: "application/json"
+        Accept: "application/json",
+        "Cache-Control": "no-cache"
       }
     });
 
@@ -119,10 +128,6 @@ export default async function handler(request, response) {
     }
 
     response.setHeader("Content-Type", "application/json; charset=utf-8");
-    response.setHeader(
-      "Cache-Control",
-      "public, s-maxage=30, stale-while-revalidate=300"
-    );
     response.statusCode = 200;
     response.end(JSON.stringify({
       ok: true,

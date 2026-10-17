@@ -1,5 +1,4 @@
 import { config } from "@/lib/config";
-import { loadRecipes } from "@/features/recipes/recipe-data";
 import type { Recipe, RecipeVenue } from "@/features/recipes/types";
 
 export type AdminRecipeSource = "bar" | "kitchen";
@@ -104,7 +103,10 @@ async function mutateRecipe(
     throw new AdminRecipeApiError(errorCode(response, data), data);
   }
 
-  void loadRecipes({ force: true }).catch(() => undefined);
+  // Deliberately do NOT kick off another uncoupled loadRecipes(force:true).
+  // Both RecipeEditor/RecipeDetailPage and RecipesPage already await reload().
+  // The old fire-and-forget GET could race with that reload and overwrite the
+  // just-saved status/venue with an older, previously CDN-cached menu response.
   return data as unknown as AdminRecipeMutationResponse;
 }
 
@@ -161,7 +163,7 @@ export async function setAdminRecipeStatus(
     throw new AdminRecipeApiError(errorCode(response, data), data);
   }
 
-  void loadRecipes({ force: true }).catch(() => undefined);
+  // Caller performs exactly one awaited reload after a successful PATCH.
   return data as unknown as AdminRecipeMutationResponse;
 }
 
@@ -183,6 +185,6 @@ export async function deleteAdminRecipe(
     throw new AdminRecipeApiError(errorCode(response, data), data);
   }
 
-  void loadRecipes({ force: true }).catch(() => undefined);
+  // Delete navigation performs its own refresh.
   return data;
 }
