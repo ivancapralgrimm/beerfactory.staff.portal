@@ -1,6 +1,7 @@
 import {
   Archive,
   CircleAlert,
+  AlertTriangle,
   Plus,
   RefreshCw,
   RotateCcw,
@@ -24,6 +25,7 @@ import {
   type AttestationEditorBank,
   type AttestationEditorCategory
 } from "@/features/attestation/attestation-editor-api";
+import { deleteAttestationTicket } from "@/features/attestation/delete-attestation-ticket";
 import { cn } from "@/lib/utils";
 import type { AttestationVenue, KnowledgeType } from "@/features/attestation/types";
 
@@ -143,6 +145,25 @@ function editorErrorText(error: unknown) {
     return "Недостаточно прав для изменения настроек аттестации.";
   }
 
+  if (code === "attestation_ticket_delete_questions_exist") {
+    return "К билету привязаны вопросы банка. Перенесите их в другой билет прежде, чем удалять этот.";
+  }
+  if (code === "attestation_ticket_last_active") {
+    return "Нельзя удалить последний включённый билет.";
+  }
+  if (code === "attestation_ticket_delete_revision_conflict") {
+    return "Билет уже изменён в другой сессии. Обновите настройки.";
+  }
+  if (code === "attestation_category_not_found") {
+    return "Билет уже удалён или недоступен. Обновите редактор.";
+  }
+  if (code === "attestation_ticket_delete_function_missing") {
+    return "Сервер не обновлён: сначала установите SQL-миграцию удаления билетов.";
+  }
+  if (code === "attestation_ticket_delete_failed") {
+    return "Сервер не подтвердил удаление билета.";
+  }
+
   return "Изменение не сохранено. Проверьте соединение и повторите.";
 }
 
@@ -233,8 +254,16 @@ export function AttestationSettingsAdminPanel() {
   const [inlineSaveMessage, setInlineSaveMessage] = useState<{ categoryId: string; tone: "success" | "error"; text: string } | null>(null);
   const [createMessage, setCreateMessage] = useState<ActionMessage>(null);
   const [newTicketId, setNewTicketId] = useState<string | null>(null);
+  const [deleteTicketId, setDeleteTicketId] = useState<string | null>(null);
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
+  const [deletingTicketId, setDeletingTicketId] = useState("");
   const newTicketRef = useRef<HTMLDivElement | null>(null);
   const [message, setMessage] = useState<ActionMessage>(null);
+
+  function dismissDeleteConfirmation() {
+    setDeleteTicketId(null);
+    setDeleteConfirmation("");
+  }
 
   function applyBank(next: AttestationEditorBank) {
     setBank(next);
@@ -561,6 +590,58 @@ export function AttestationSettingsAdminPanel() {
     }
   }
 
+  async function permanentlyDeleteTicket(category: CategoryDraft) {
+    if (!bank || deletingTicketId || deleteConfirmation !== category.label) return;
+    if (settingsDirty) {
+      setInlineSaveMessage({ categoryId: category.id, tone: "error", text: "Сначала сохраните или отмените другие изменения в настройках." });
+      return;
+    }
+    if (!category.updatedAt) {
+      setInlineSaveMessage({ categoryId: category.id, tone: "error", text: "Не удалось проверить версию билета. Обновите редактор." });
+      return;
+    }
+
+    // This guard mirrors the authoritative SQL guard. No bank question is
+    // silently deleted, archived or reassigned together with a ticket.
+    const questionCount = bank.questions.filter((question) => question.categoryId === category.id).length;
+    if (questionCount > 0) {
+      setInlineSaveMessage({ categoryId: category.id, tone: "error", text: `Этот билет содержит ${questionCount} привязанных вопросов. Сначала перенесите их в другие билеты.` });
+      return;
+    }
+
+    setDeletingTicketId(category.id);
+    setInlineSaveMessage(null);
+    setMessage(null);
+    let removed = false;
+    try {
+      await deleteAttestationTicket(category.id, category.updatedAt);
+      removed = true;
+      // Prevent a successful DELETE from being presented as failure when the
+      // subsequent readback experiences an unrelated connection problem.
+      setBank((current) => current ? {
+        ...current,
+        categories: current.categories.filter((item) => item.id !== category.id),
+        settings: { ...current.settings, revision: current.settings.revision + 1 }
+      } : current);
+      setCategories((current) => current.filter((item) => item.id !== category.id));
+      setNewTicketId((current) => current === category.id ? null : current);
+      dismissDeleteConfirmation();
+      setMessage({ tone: "success", text: `Билет «${category.label}» удалён навсегда. Результаты сотрудников сохранены.` });
+      try {
+        const fresh = await loadAttestationEditorBank(false);
+        applyBank(fresh);
+      } catch {
+        setMessage({ tone: "success", text: `Билет «${category.label}» удалён. Проверка списка не удалась, при необходимости обновите редактор. Результаты сотрудников сохранены.` });
+      }
+    } catch (error) {
+      if (!removed) {
+        setInlineSaveMessage({ categoryId: category.id, tone: "error", text: editorErrorText(error) });
+      }
+    } finally {
+      setDeletingTicketId("");
+    }
+  }
+
   async function toggleCategory(category: CategoryDraft) {
     if (settingsDirty) {
       setMessage({ tone: "error", text: "Сначала сохраните текущие изменения." });
@@ -578,7 +659,7 @@ export function AttestationSettingsAdminPanel() {
       await load();
       setMessage({
         tone: "success",
-        text: category.active ? "Категория скрыта из аттестации." : "Категория включена в аттестацию."
+        text: category.active ? "Билет отключён." : "Билет включён."
       });
     } catch (error) {
       setMessage({ tone: "error", text: editorErrorText(error) });
@@ -851,14 +932,63 @@ export function AttestationSettingsAdminPanel() {
                   <p className={cn("mt-2 rounded-lg border border-[var(--bf-line)] p-3 text-xs font-bold leading-5", inlineSaveMessage.tone === "success" ? "text-[#9dd0a0]" : "text-[#e99990]")} role="status" aria-live="polite">{inlineSaveMessage.text}</p>
                 ) : null}
 
-                {category.active ? (
-                  <details className="mt-3 border-t border-[var(--bf-line)] pt-2">
-                    <summary className="min-h-10 cursor-pointer py-2 text-xs font-bold text-[var(--bf-dim)]">Дополнительно</summary>
-                    <Button type="button" variant="secondary" disabled={pendingCategoryId === category.id} onClick={() => void toggleCategory(category)}>
-                      <Archive className="size-4" aria-hidden />Скрыть категорию
-                    </Button>
-                  </details>
-                ) : null}
+                <details className="mt-3 border-t border-[var(--bf-line)] pt-2" onToggle={(event) => {
+                  if (!event.currentTarget.open && deleteTicketId === category.id) dismissDeleteConfirmation();
+                }}>
+                  <summary className="min-h-11 cursor-pointer py-2 text-sm font-bold text-[var(--bf-dim)]">Дополнительно</summary>
+                  <div className="grid gap-3 pb-2">
+                    {category.active ? (
+                      <Button type="button" variant="secondary"
+                        disabled={pendingCategoryId === category.id || Boolean(deletingTicketId)}
+                        onClick={() => void toggleCategory(category)}>
+                        <Archive className="size-4" aria-hidden />Отключить билет
+                      </Button>
+                    ) : null}
+                    <div className="grid gap-1">
+                      <Button type="button" variant="secondary"
+                        disabled={Boolean(deletingTicketId) || pendingCategoryId === category.id}
+                        onClick={() => {
+                          setInlineSaveMessage(null);
+                          if (deleteTicketId === category.id) dismissDeleteConfirmation();
+                          else { setDeleteTicketId(category.id); setDeleteConfirmation(""); }
+                        }}>
+                        <Trash2 className="size-4" aria-hidden />Удалить билет навсегда
+                      </Button>
+                      {bank?.questions.some((question) => question.categoryId === category.id) ? (
+                        <p className="text-xs leading-5 text-[var(--bf-dim)]">
+                          К билету привязаны вопросы банка. Удаление будет заблокировано, пока вопросы не перенесены в другие билеты.
+                        </p>
+                      ) : null}
+                    </div>
+                    {deleteTicketId === category.id ? (
+                      <div className="grid gap-3 rounded-xl border border-[var(--bf-red)] bg-[var(--bf-surface)] p-3" role="group" aria-label={`Удаление билета «${category.label}»`}>
+                        <div className="flex items-start gap-2">
+                          <AlertTriangle className="mt-0.5 size-5 shrink-0 text-[var(--bf-red)]" aria-hidden />
+                          <p className="text-xs leading-5 text-[var(--bf-cream)]">
+                            <strong>Необратимое удаление.</strong> Билет и его распределение разделов будут удалены. Банк вопросов и история пройденных экзаменов сохранятся. Для подтверждения введи точное название билета.
+                          </p>
+                        </div>
+                        <label className="grid gap-1 text-xs font-bold text-[var(--bf-muted)]">
+                          Название билета: «{category.label}»
+                          <input type="text" autoComplete="off" spellCheck={false} value={deleteConfirmation}
+                            onChange={(event) => setDeleteConfirmation(event.target.value)}
+                            className="min-h-12 w-full min-w-0 rounded-lg border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3 text-[16px] text-[var(--bf-cream)]"
+                            placeholder="Введи название полностью" />
+                        </label>
+                        <div className="flex flex-wrap gap-2">
+                          <Button type="button" variant="secondary" onClick={dismissDeleteConfirmation}>Отмена</Button>
+                          <Button type="button" variant="primary"
+                            disabled={deleteConfirmation !== category.label || Boolean(deletingTicketId) || pendingCategoryId === category.id || settingsDirty}
+                            onClick={() => void permanentlyDeleteTicket(category)}>
+                            {deletingTicketId === category.id ? <RefreshCw className="size-4 animate-spin" aria-hidden /> : <Trash2 className="size-4" aria-hidden />}
+                            {deletingTicketId === category.id ? "Удаляем…" : "Подтвердить удаление"}
+                          </Button>
+                        </div>
+                        {settingsDirty ? <p className="text-xs font-bold text-[var(--bf-red)]">Сначала сохрани или отмени несохранённые изменения в настройках.</p> : null}
+                      </div>
+                    ) : null}
+                  </div>
+                </details>
               </div>
             );
           })}
