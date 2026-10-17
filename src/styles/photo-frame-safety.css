@@ -1,0 +1,226 @@
+/* BFStaff r40.6 pre-merge: photo / paper-mat geometry.
+ * Loaded after workspace.css and craft.css to resolve their conflicting rules.
+ * Do not globally change img or dialog: icons, carousels and fullscreen viewers
+ * must keep their independent layout and behavior.
+ */
+
+/* 1. Recipe catalog and Dashboard > "Что почитать" both use PhotoMount.
+ * The old grid item could size itself from a portrait image's intrinsic
+ * dimensions, so the photo was occasionally larger than the paper mat.
+ * Keep the mat rotated and its tape visible; take the img out of grid sizing.
+ */
+.craft-context .craft-recipe-thumb,
+.bf-reading-card .craft-recipe-thumb {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  place-items: center;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  box-sizing: border-box;
+  /* Keep tape (::before) outside the photo without clipping it. */
+  overflow: visible;
+  background-color: #fff9ee;
+}
+
+.craft-context .craft-recipe-thumb > img,
+.bf-reading-card .craft-recipe-thumb > img {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  bottom: 5px;
+  left: 5px;
+  display: block;
+  width: calc(100% - 10px);
+  height: calc(100% - 10px);
+  min-width: 0;
+  min-height: 0;
+  max-width: calc(100% - 10px);
+  max-height: calc(100% - 10px);
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  object-fit: cover; /* Existing thumbnail crop, no distortion. */
+  object-position: center;
+  transform: none;
+}
+
+/* The recipe list has two columns; never allow image intrinsic dimensions to
+ * widen a card or create mobile horizontal scrolling. */
+.craft-recipe-grid .recipe-list-row,
+.bf-reading-card {
+  min-width: 0;
+}
+
+/* 2. Recipe detail: the Polaroid itself already supplies a 14px white mat.
+ * An unrelated craft-page rule put an additional 7px border directly on its
+ * img. That border was not part of the photo well and caused geometry drift.
+ */
+.craft-page--recipe .recipe-polaroid {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+}
+.craft-page--recipe .recipe-polaroid-photo-well {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+.craft-page--recipe .recipe-polaroid-photo-well > .recipe-polaroid-image {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  max-width: 100%;
+  max-height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0 !important; /* Override .craft-page--recipe article img border. */
+  border-radius: 0;
+  box-shadow: none !important;
+  object-fit: contain; /* Never crop the photo on its detail page. */
+  object-position: center;
+  transform: none !important;
+}
+
+/* 3. Both the legacy article page and the server-backed document renderer
+ * emit knowledge-figure > knowledge-image-button > img. The figure is the
+ * white backing, not the photo. Keep its existing paper tilt, tape and caption.
+ */
+.knowledge-notebook .knowledge-figure {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: min(560px, calc(100% - 16px));
+  padding: 9px 9px 12px;
+  /* Tape positioned above ::before must remain visible. */
+  overflow: visible;
+}
+.knowledge-notebook .knowledge-figure > .knowledge-image-button {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  height: auto;
+  min-height: 0;
+  aspect-ratio: auto;
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  background: #e7d9c2;
+}
+.knowledge-notebook .knowledge-figure > .knowledge-image-button > img {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: auto;
+  min-width: 0;
+  max-width: 100%;
+  max-height: 560px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  object-fit: contain;
+  object-position: center;
+  transform: none;
+}
+.knowledge-notebook .knowledge-figure > figcaption {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+/* The article editor's Preview renders the same KnowledgeDocumentView outside
+ * the leather notebook. Give it a real paper mat rather than a forced 16:9
+ * button, which formerly let tall images overflow and falsely appear cropped. */
+.craft-page--article-editor .knowledge-prose .knowledge-figure {
+  box-sizing: border-box;
+  width: min(100%, 560px);
+  max-width: 100%;
+  min-width: 0;
+  margin: 18px auto;
+  padding: 8px 8px 12px;
+  border: 1px solid rgba(173, 148, 110, .48);
+  border-radius: 3px;
+  background: var(--craft-paper-light);
+}
+.craft-page--article-editor .knowledge-prose .knowledge-figure > .knowledge-image-button {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: auto;
+  min-width: 0;
+  min-height: 0;
+  max-width: 100%;
+  aspect-ratio: auto;
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  border-radius: 1px;
+}
+.craft-page--article-editor .knowledge-prose .knowledge-figure > .knowledge-image-button > img {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: auto;
+  min-width: 0;
+  max-width: 100%;
+  max-height: 560px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  object-fit: contain;
+  object-position: center;
+}
+.craft-page--article-editor .knowledge-prose .knowledge-figure > figcaption {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+/* 4. Article editor: standalone image blocks provide their own 6px paper
+ * edge. Intrinsic dimensions must not stretch the editor column. */
+.craft-page--article-editor img.bf-editor-photo {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  height: auto;
+  max-height: 360px;
+  object-fit: contain;
+  object-position: center;
+  border: 6px solid var(--craft-paper-light);
+}
+
+/* 5. Recipe editor preview. Keep its existing 16:9 viewport, but ensure that
+ * portrait uploads stay completely inside the preview panel. */
+.craft-recipe-editor img[alt="Предпросмотр фото рецепта"] {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  max-width: 100%;
+  max-height: 100%;
+  box-sizing: border-box;
+  object-fit: contain;
+  object-position: center;
+}
+
+/* Photo lightboxes intentionally retain their own contain/viewport rules. */
