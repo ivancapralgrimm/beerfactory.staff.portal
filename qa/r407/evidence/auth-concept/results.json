@@ -1,0 +1,531 @@
+{
+  "scope": "Actual compiled app, fixture HTTP/WS; no production login or writes.",
+  "results": [
+    {
+      "name": "login 375px labels/font/overflow/images",
+      "status": "PASS",
+      "inputs": [
+        {
+          "label": "Имя и фамилия",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 305
+        },
+        {
+          "label": "Пароль",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 305
+        }
+      ]
+    },
+    {
+      "name": "register 375px labels/font/overflow/images",
+      "status": "PASS",
+      "inputs": [
+        {
+          "label": "Имя",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 305
+        },
+        {
+          "label": "Фамилия",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 305
+        },
+        {
+          "label": "Пароль",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 305
+        },
+        {
+          "label": "Повторите пароль",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 305
+        },
+        {
+          "label": "Секретный код",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 305
+        },
+        {
+          "label": "Повторите секретный код",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 305
+        }
+      ]
+    },
+    {
+      "name": "recovery 375px labels/font/overflow/images",
+      "status": "PASS",
+      "inputs": [
+        {
+          "label": "Имя",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 305
+        },
+        {
+          "label": "Фамилия",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 305
+        },
+        {
+          "label": "Секретный код",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 305
+        },
+        {
+          "label": "Новый пароль",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 305
+        }
+      ]
+    },
+    {
+      "name": "login 390px labels/font/overflow/images",
+      "status": "PASS",
+      "inputs": [
+        {
+          "label": "Имя и фамилия",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 320
+        },
+        {
+          "label": "Пароль",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 320
+        }
+      ]
+    },
+    {
+      "name": "register 390px labels/font/overflow/images",
+      "status": "PASS",
+      "inputs": [
+        {
+          "label": "Имя",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 320
+        },
+        {
+          "label": "Фамилия",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 320
+        },
+        {
+          "label": "Пароль",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 320
+        },
+        {
+          "label": "Повторите пароль",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 320
+        },
+        {
+          "label": "Секретный код",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 320
+        },
+        {
+          "label": "Повторите секретный код",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 320
+        }
+      ]
+    },
+    {
+      "name": "recovery 390px labels/font/overflow/images",
+      "status": "PASS",
+      "inputs": [
+        {
+          "label": "Имя",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 320
+        },
+        {
+          "label": "Фамилия",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 320
+        },
+        {
+          "label": "Секретный код",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 320
+        },
+        {
+          "label": "Новый пароль",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 320
+        }
+      ]
+    },
+    {
+      "name": "login 430px labels/font/overflow/images",
+      "status": "PASS",
+      "inputs": [
+        {
+          "label": "Имя и фамилия",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 360
+        },
+        {
+          "label": "Пароль",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 360
+        }
+      ]
+    },
+    {
+      "name": "register 430px labels/font/overflow/images",
+      "status": "PASS",
+      "inputs": [
+        {
+          "label": "Имя",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 360
+        },
+        {
+          "label": "Фамилия",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 360
+        },
+        {
+          "label": "Пароль",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 360
+        },
+        {
+          "label": "Повторите пароль",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 360
+        },
+        {
+          "label": "Секретный код",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 360
+        },
+        {
+          "label": "Повторите секретный код",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 360
+        }
+      ]
+    },
+    {
+      "name": "recovery 430px labels/font/overflow/images",
+      "status": "PASS",
+      "inputs": [
+        {
+          "label": "Имя",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 360
+        },
+        {
+          "label": "Фамилия",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 360
+        },
+        {
+          "label": "Секретный код",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 360
+        },
+        {
+          "label": "Новый пароль",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 360
+        }
+      ]
+    },
+    {
+      "name": "login 768px labels/font/overflow/images",
+      "status": "PASS",
+      "inputs": [
+        {
+          "label": "Имя и фамилия",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 402
+        },
+        {
+          "label": "Пароль",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 402
+        }
+      ]
+    },
+    {
+      "name": "register 768px labels/font/overflow/images",
+      "status": "PASS",
+      "inputs": [
+        {
+          "label": "Имя",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 402
+        },
+        {
+          "label": "Фамилия",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 402
+        },
+        {
+          "label": "Пароль",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 402
+        },
+        {
+          "label": "Повторите пароль",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 402
+        },
+        {
+          "label": "Секретный код",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 402
+        },
+        {
+          "label": "Повторите секретный код",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 402
+        }
+      ]
+    },
+    {
+      "name": "recovery 768px labels/font/overflow/images",
+      "status": "PASS",
+      "inputs": [
+        {
+          "label": "Имя",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 402
+        },
+        {
+          "label": "Фамилия",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 402
+        },
+        {
+          "label": "Секретный код",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 402
+        },
+        {
+          "label": "Новый пароль",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 402
+        }
+      ]
+    },
+    {
+      "name": "login 1280px labels/font/overflow/images",
+      "status": "PASS",
+      "inputs": [
+        {
+          "label": "Имя и фамилия",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 402
+        },
+        {
+          "label": "Пароль",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 402
+        }
+      ]
+    },
+    {
+      "name": "register 1280px labels/font/overflow/images",
+      "status": "PASS",
+      "inputs": [
+        {
+          "label": "Имя",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 402
+        },
+        {
+          "label": "Фамилия",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 402
+        },
+        {
+          "label": "Пароль",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 402
+        },
+        {
+          "label": "Повторите пароль",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 402
+        },
+        {
+          "label": "Секретный код",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 402
+        },
+        {
+          "label": "Повторите секретный код",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 402
+        }
+      ]
+    },
+    {
+      "name": "recovery 1280px labels/font/overflow/images",
+      "status": "PASS",
+      "inputs": [
+        {
+          "label": "Имя",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 402
+        },
+        {
+          "label": "Фамилия",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 402
+        },
+        {
+          "label": "Секретный код",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 402
+        },
+        {
+          "label": "Новый пароль",
+          "visible": true,
+          "above": true,
+          "font": 16,
+          "width": 402
+        }
+      ]
+    },
+    {
+      "name": "Keyboard order and all auth navigation links",
+      "status": "PASS"
+    },
+    {
+      "name": "Image failure preserves usable login form",
+      "status": "PASS"
+    },
+    {
+      "name": "Recovery setup retains same visual system and labels",
+      "status": "PASS"
+    },
+    {
+      "name": "All auth artwork/texture/font assets precached",
+      "status": "PASS"
+    }
+  ]
+}

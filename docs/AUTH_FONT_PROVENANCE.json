@@ -1,0 +1,8 @@
+{
+  "source": "https://github.com/google/fonts/tree/main/ofl/geist",
+  "inputSHA256": "73894e0448cae90a92b6c2f8732b7bb9acb7b94c418bff559dad4a18e1de9659",
+  "output": "assets/auth/heading-black.woff",
+  "outputSHA256": "845653923c73ef2999b970ad8bac74ae9b15735686789197be0674fe74c00c06",
+  "processing": "Official Geist variable font instantiated at weight900; WOFF compressed for auth headings only",
+  "license": "SIL OFL 1.1; licenses/beer-collection/Auth-Geist-OFL.txt"
+}

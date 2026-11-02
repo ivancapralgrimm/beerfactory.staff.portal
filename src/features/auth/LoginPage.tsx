@@ -64,21 +64,20 @@ export function LoginPage() {
 
   return (
     <AuthLayout
-      eyebrow="ВХОД ДЛЯ КОМАНДЫ"
+      variant="login"
       title="Войти в портал"
-      description="Имя, фамилия и пароль. Без почты и телефона."
     >
-      <form className="grid gap-2.5" onSubmit={onSubmit}>
-        <label className="sr-only" htmlFor="fullName">Имя и фамилия</label>
-        <Input id="fullName" name="fullName" autoComplete="username" placeholder="Имя и фамилия" required maxLength={161}/>
-        <label className="sr-only" htmlFor="code">Пароль</label>
+      <form className="auth-concept-form" onSubmit={onSubmit}>
+        <label className="auth-concept-label" htmlFor="fullName">Имя и фамилия</label>
+        <Input id="fullName" name="fullName" autoComplete="username" placeholder="" required maxLength={161}/>
+        <label className="auth-concept-label" htmlFor="code">Пароль</label>
         <Input
           id="code"
           name="code"
           type="password"
           inputMode="numeric"
           autoComplete="current-password"
-          placeholder="Пароль · 4–12 цифр"
+          placeholder="4–12 цифр"
           required
           maxLength={12}
         />
@@ -88,19 +87,15 @@ export function LoginPage() {
           {pending ? "Проверяем…" : "Войти"}
         </Button>
 
-        <div className="grid grid-cols-2 gap-2">
-          <Button asChild variant="ghost">
-            <Link to="/recovery">Забыл пароль?</Link>
-          </Button>
-          <Button asChild variant="ghost">
-            <Link to="/register">Создать аккаунт</Link>
-          </Button>
+        <div className="auth-concept-links">
+          <Link to="/recovery">Забыл пароль?</Link>
+          <Link to="/register">Создать аккаунт</Link>
         </div>
 
         <div
           role="alert"
           aria-live="polite"
-          className="min-h-5 text-sm font-medium text-[var(--bf-red)]"
+          className="auth-concept-error"
         >
           {error}
         </div>

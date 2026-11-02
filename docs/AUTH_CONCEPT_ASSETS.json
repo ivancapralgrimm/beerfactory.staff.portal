@@ -1,0 +1,28 @@
+{
+  "source": "User attachments, concept image 1 and separate icon image 2",
+  "assets": [
+    {
+      "path": "assets/auth/paper.webp",
+      "bytes": 21508,
+      "sha256": "b3f10e9fc4a66bcb692973c816056a00c7da0a277fd8046793411841df8aa25d"
+    },
+    {
+      "path": "assets/auth/heading-black.woff",
+      "bytes": 45092,
+      "sha256": "845653923c73ef2999b970ad8bac74ae9b15735686789197be0674fe74c00c06"
+    },
+    {
+      "path": "assets/auth/portal-emblem.webp",
+      "bytes": 182892,
+      "sha256": "755f7f9bb212ccdde7e05b947243d049c4a3fa369098eeb282451045b8006828"
+    },
+    {
+      "path": "assets/auth/button-copper.webp",
+      "bytes": 252,
+      "sha256": "4b40b511b74efb87375a96e283aa663cf775a62943303c9b61c4e717c58154ce"
+    }
+  ],
+  "emblem": "Original second image, resized/compressed without redrawing. Circular display crop and multiply blending only in CSS.",
+  "paper": "Generated seamless plain cream paper texture matching selected concept; original generated image retained outside repo. No rasterized form/text/background UI used.",
+  "button": "Blank copper button-face crop (75,1027,240,1086) from user concept, no text. Real HTML button keeps working and supports pending/disabled/focus states."
+}

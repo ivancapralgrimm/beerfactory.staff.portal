@@ -50,22 +50,20 @@ export function RecoveryPage() {
 
   return (
     <AuthLayout
-      eyebrow="ВОССТАНОВЛЕНИЕ ДОСТУПА"
+      variant="recovery"
       title="Задать новый пароль"
       description="Имя, фамилия и секретный код подтверждают доступ к аккаунту."
     >
-      <Button asChild variant="ghost" className="-ml-3 mb-2">
-        <Link to="/login"><WarmIcon name="back"/>К входу</Link>
-      </Button>
+      <Link className="auth-concept-back" to="/login"><WarmIcon name="back" size={17}/>К входу</Link>
 
-      <form className="grid gap-2.5" onSubmit={onSubmit}>
-        <label className="sr-only" htmlFor="rFirstName">Имя</label>
+      <form className="auth-concept-form" onSubmit={onSubmit}>
+        <label className="auth-concept-label" htmlFor="rFirstName">Имя</label>
         <Input id="rFirstName" name="firstName" placeholder="Имя" required maxLength={80} />
-        <label className="sr-only" htmlFor="rLastName">Фамилия</label>
+        <label className="auth-concept-label" htmlFor="rLastName">Фамилия</label>
         <Input id="rLastName" name="lastName" placeholder="Фамилия" required maxLength={80} />
-        <label className="sr-only" htmlFor="recoveryCode">Секретный код</label>
+        <label className="auth-concept-label" htmlFor="recoveryCode">Секретный код</label>
         <Input id="recoveryCode" name="recoveryCode" type="password" inputMode="numeric" autoComplete="off" placeholder="Секретный код" required maxLength={12} />
-        <label className="sr-only" htmlFor="newCode">Новый пароль</label>
+        <label className="auth-concept-label" htmlFor="newCode">Новый пароль</label>
         <Input id="newCode" name="newCode" type="password" inputMode="numeric" autoComplete="new-password" placeholder="Новый пароль · 4–12 цифр" required maxLength={12} />
 
         <Button variant="primary" size="lg" className="mt-1 w-full" disabled={pending}>
@@ -73,7 +71,7 @@ export function RecoveryPage() {
           {pending ? "Сохраняем…" : "Изменить пароль"}
         </Button>
 
-        <div role="alert" aria-live="polite" className="min-h-5 text-sm font-medium text-[var(--bf-red)]">
+        <div role="alert" aria-live="polite" className="auth-concept-error">
           {error}
         </div>
       </form>

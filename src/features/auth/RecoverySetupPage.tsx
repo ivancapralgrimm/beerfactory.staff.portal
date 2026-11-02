@@ -46,14 +46,14 @@ export function RecoverySetupPage() {
 
   return (
     <AuthLayout
-      eyebrow="ЗАЩИТА АККАУНТА"
+      variant="setup"
       title="Создайте секретный код"
       description="Он понадобится, если вы забудете личный пароль."
     >
-      <form className="grid gap-2.5" onSubmit={onSubmit}>
-        <label className="sr-only" htmlFor="setupRecoveryCode">Секретный код</label>
+      <form className="auth-concept-form" onSubmit={onSubmit}>
+        <label className="auth-concept-label" htmlFor="setupRecoveryCode">Секретный код</label>
         <Input id="setupRecoveryCode" name="recoveryCode" type="password" inputMode="numeric" autoComplete="off" placeholder="Секретный код · 4–12 цифр" required maxLength={12} />
-        <label className="sr-only" htmlFor="setupRecoveryCode2">Повторите секретный код</label>
+        <label className="auth-concept-label" htmlFor="setupRecoveryCode2">Повторите секретный код</label>
         <Input id="setupRecoveryCode2" name="recoveryCode2" type="password" inputMode="numeric" autoComplete="off" placeholder="Повторите секретный код" required maxLength={12} />
 
         <Button variant="primary" size="lg" className="mt-1 w-full" disabled={pending}>
@@ -61,7 +61,7 @@ export function RecoverySetupPage() {
           {pending ? "Сохраняем…" : "Сохранить"}
         </Button>
 
-        <div role="alert" aria-live="polite" className="min-h-5 text-sm font-medium text-[var(--bf-red)]">
+        <div role="alert" aria-live="polite" className="auth-concept-error">
           {error}
         </div>
       </form>
