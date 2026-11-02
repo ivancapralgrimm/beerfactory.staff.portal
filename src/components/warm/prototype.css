@@ -277,6 +277,7 @@
 .bfstaff-app .bf-bank-tools .bf-field{gap:4px}
 .bfstaff-app .bf-bank-tools .bf-field-label{font-size:var(--bf-type-support)}
 .bfstaff-app .bf-bank-filter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,8.5rem),1fr));gap:8px}
+.bfstaff-app .bf-bank-filter-grid>.bf-bank-venue-filter{grid-column:1/-1}
 .bfstaff-app .bf-bank-search{position:relative;min-width:0}
 .bfstaff-app .bf-bank-search>.bf-icon{position:absolute;inset-inline-start:13px;bottom:calc(.7rem + 3px);pointer-events:none;color:var(--bf-muted)}
 .bfstaff-app .bf-bank-search .bf-field input{padding-inline-start:39px}
