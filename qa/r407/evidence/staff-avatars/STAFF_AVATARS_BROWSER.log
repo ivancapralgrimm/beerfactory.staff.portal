@@ -1,0 +1,49 @@
+[
+  {
+    "name": "bartender, role staff, owner false, 375px",
+    "status": "PASS",
+    "src": "/assets/staff-avatars/bartender-2.webp"
+  },
+  {
+    "name": "bartender_bb, role admin, owner false, 390px",
+    "status": "PASS",
+    "src": "/assets/staff-avatars/bartender-1.webp"
+  },
+  {
+    "name": "waiter, role senior, owner false, 375px",
+    "status": "PASS",
+    "src": "/assets/staff-avatars/waiter-2.webp"
+  },
+  {
+    "name": "waiter_bb, role staff, owner false, 430px",
+    "status": "PASS",
+    "src": "/assets/staff-avatars/waiter-2.webp"
+  },
+  {
+    "name": "manager, role staff, owner false, 375px",
+    "status": "PASS",
+    "src": "/assets/staff-avatars/manager-2.webp"
+  },
+  {
+    "name": "hostess, role staff, owner false, 390px",
+    "status": "PASS",
+    "src": "/assets/staff-avatars/hostess-1.webp"
+  },
+  {
+    "name": "bartender, role staff, owner true, 375px",
+    "status": "PASS",
+    "src": "/assets/staff-avatars/owner.webp"
+  },
+  {
+    "name": "Position change uses new family",
+    "status": "PASS"
+  },
+  {
+    "name": "Image failure gracefully shows neutral icon",
+    "status": "PASS"
+  },
+  {
+    "name": "All nine portraits precached by production PWA build",
+    "status": "PASS"
+  }
+]

@@ -1,3 +1,4 @@
+import { StaffAvatar } from "@/components/staff/StaffAvatar";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useBlocker, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -127,10 +128,9 @@ export function ProfilePage() {
       {blocker.state === "blocked" ? <WarmDialog title="Покинуть личные данные?" confirm onClose={() => { if (!pending && blocker.state === "blocked") blocker.reset(); }}><p>{pending ? "Сохранение ещё выполняется. Дождитесь результата." : "Есть несохранённые изменения."}</p><div className="bf-account-actions"><Button type="button" disabled={pending} onClick={() => { if (blocker.state === "blocked") blocker.reset(); }}>Остаться</Button><Button type="button" variant="danger" disabled={pending} onClick={() => { if (blocker.state === "blocked") blocker.proceed(); }}>Выйти без сохранения</Button></div></WarmDialog> : null}
     </section>;
   }
-  const initials = [user.first_name, user.last_name].filter(Boolean).map((part) => part!.slice(0, 1)).join("") || "BF";
   return <section className="stack bf-profile-page bf-account-page">
     <WarmTitle title="Мой профиль" />
-    <section className="bf-profile-identity" aria-label="Личная карточка"><span className="bf-profile-avatar" aria-hidden="true">{initials}</span><div><h2>{fullName}</h2><p className="bf-profile-position"><span>{user.position_code ? STAFF_POSITION_LABELS[user.position_code] : "Должность не назначена"}</span><span aria-hidden="true"> • </span><span>{staffVenue(user.position_code)}</span></p><span className="bf-profile-access">{staffAccessLabel(user)}</span></div></section>
+    <section className="bf-profile-identity" aria-label="Личная карточка"><StaffAvatar user={{ id: state.user.id, position_code: user.position_code, is_owner: user.is_owner }} className="bf-profile-avatar" /><div><h2>{fullName}</h2><p className="bf-profile-position"><span>{user.position_code ? STAFF_POSITION_LABELS[user.position_code] : "Должность не назначена"}</span><span aria-hidden="true"> • </span><span>{staffVenue(user.position_code)}</span></p><span className="bf-profile-access">{staffAccessLabel(user)}</span></div></section>
     <div className="bf-profile-group">
       <WarmRow to="/profile?view=details" title="Личные данные" description="Дата рождения и рабочая должность" icon="people" />
       <WarmRow to="/attestation?view=history" title="Мои аттестации" description="Результаты и разбор моих ответов" icon="shift" />

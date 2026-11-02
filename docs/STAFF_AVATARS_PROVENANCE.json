@@ -1,0 +1,105 @@
+{
+  "source": "BeerFactory_Staff_Avatars.zip, user upload 2026-11-02",
+  "processing": "EXIF orientation; full square image resized to 512px, WebP quality90; no redraw, background replacement or visual reconstruction",
+  "files": [
+    {
+      "original": "владелец.jpg",
+      "originalSHA256": "34071eed453fd0a9a7e66cff251f6c115a785a4e32c33aa8631fed69438837a2",
+      "output": "owner.webp",
+      "outputSHA256": "1bd0c1a9e54297dda85f077d4b5de5e453408e0ad54ab3530366d2fcb485da14",
+      "bytes": 70006,
+      "size": [
+        512,
+        512
+      ]
+    },
+    {
+      "original": "бармен1.jpg",
+      "originalSHA256": "0dedb6a2ec98758b3bb0bc23904f20768c2f8c989056a533304a13f291f1db82",
+      "output": "bartender-1.webp",
+      "outputSHA256": "e068810562d6a55cd9c20235b440d0b54fbed3d7387f5b0acf9be55b2fb51397",
+      "bytes": 69108,
+      "size": [
+        512,
+        512
+      ]
+    },
+    {
+      "original": "бармен2.jpg",
+      "originalSHA256": "27eda434649b4ff3bf4fe0520e295c8dac46833a20805e73e0b58d3d0359c741",
+      "output": "bartender-2.webp",
+      "outputSHA256": "a3cfbe4ff9917d3c37a66a8bb7a189ed834cbe435820663bac22e1586b713b5e",
+      "bytes": 69462,
+      "size": [
+        512,
+        512
+      ]
+    },
+    {
+      "original": "официант1.jpg",
+      "originalSHA256": "82a97a2b75931b56f385668c197015788df6c99124d91d403d2be60eed27c4a4",
+      "output": "waiter-1.webp",
+      "outputSHA256": "93f0373470add2dc5a83fa4c1914baa48a3304c237e43c51750f080f53ed54c7",
+      "bytes": 64110,
+      "size": [
+        512,
+        512
+      ]
+    },
+    {
+      "original": "официант2.jpg",
+      "originalSHA256": "9715ea00c9a30e606254b787c50a1dc0bd3726b70684676d0981043c20ecdc5d",
+      "output": "waiter-2.webp",
+      "outputSHA256": "e7b7634b3668183eaf040e534f59b68a6775c1e92d855f584527c7fbe6304d7c",
+      "bytes": 65352,
+      "size": [
+        512,
+        512
+      ]
+    },
+    {
+      "original": "менеджер1.jpg",
+      "originalSHA256": "434134c3894b3ae9e2472ca6b86d562cb805d6ad9a9969494939d248419ac922",
+      "output": "manager-1.webp",
+      "outputSHA256": "fd160c2a1e456ed7be18647b672c1a121de70a9294a344a3e0ed047938f7a2c2",
+      "bytes": 62218,
+      "size": [
+        512,
+        512
+      ]
+    },
+    {
+      "original": "менеджер2.jpg",
+      "originalSHA256": "ca75beb4b8c3580ac7e4cd8734782f4b8d075a6800c0ab5233a52ae48657e353",
+      "output": "manager-2.webp",
+      "outputSHA256": "da66005b10944caffacbc0a09102130849733c2f181f9b8db667e66ba82bb131",
+      "bytes": 64446,
+      "size": [
+        512,
+        512
+      ]
+    },
+    {
+      "original": "хостес1.jpg",
+      "originalSHA256": "103a2343f0855ca61a5d18c25e4f4f82d63a953dfb437189001a281189f1e9f1",
+      "output": "hostess-1.webp",
+      "outputSHA256": "b827f76f1454fecf487473d0237ff98efb2ee1ec251e77bb322d3e2b8c0a1575",
+      "bytes": 64360,
+      "size": [
+        512,
+        512
+      ]
+    },
+    {
+      "original": "хостес2.jpg",
+      "originalSHA256": "fa55f6511a17f108f02c4f95cbf5671686b62e0b7c6ba8fbd4c503112fd1a929",
+      "output": "hostess-2.webp",
+      "outputSHA256": "32bfb3b6c65ab76047f8707b55a3ed6b459e83208f98e0b50fc63a45853564d0",
+      "bytes": 66278,
+      "size": [
+        512,
+        512
+      ]
+    }
+  ]
+}

@@ -31,6 +31,7 @@ export default defineConfig(({ mode }) => {
         injectRegister: null,
         includeAssets: [
           "assets/warm/recipe-photo.jpg",
+          "assets/staff-avatars/*.webp",
           "assets/icons/apple-touch-icon.png",
           "assets/icons/icon-192.png",
           "assets/icons/icon-512.png",
