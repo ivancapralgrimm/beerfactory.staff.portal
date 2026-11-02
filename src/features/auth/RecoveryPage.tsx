@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, LoaderCircle } from "lucide-react";
+import {WarmIcon} from "@/components/warm/WarmIcon";
 import { AuthLayout } from "@/features/auth/AuthLayout";
 import { recoverStaff } from "@/features/auth/auth-api";
 import { Button } from "@/components/ui/button";
@@ -55,7 +55,7 @@ export function RecoveryPage() {
       description="Имя, фамилия и секретный код подтверждают доступ к аккаунту."
     >
       <Button asChild variant="ghost" className="-ml-3 mb-2">
-        <Link to="/login"><ArrowLeft className="size-4" />К входу</Link>
+        <Link to="/login"><WarmIcon name="back"/>К входу</Link>
       </Button>
 
       <form className="grid gap-2.5" onSubmit={onSubmit}>
@@ -69,11 +69,11 @@ export function RecoveryPage() {
         <Input id="newCode" name="newCode" type="password" inputMode="numeric" autoComplete="new-password" placeholder="Новый пароль · 4–12 цифр" required maxLength={12} />
 
         <Button variant="primary" size="lg" className="mt-1 w-full" disabled={pending}>
-          {pending ? <LoaderCircle className="size-4 animate-spin" aria-hidden /> : null}
+
           {pending ? "Сохраняем…" : "Изменить пароль"}
         </Button>
 
-        <div role="alert" aria-live="polite" className="min-h-5 text-sm font-medium text-[#ff9d93]">
+        <div role="alert" aria-live="polite" className="min-h-5 text-sm font-medium text-[var(--bf-red)]">
           {error}
         </div>
       </form>

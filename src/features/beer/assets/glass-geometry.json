@@ -1,0 +1,183 @@
+{
+  "mug": {
+    "width": 600,
+    "height": 960,
+    "levels": [
+      [
+        92.08,
+        106.23,
+        494.15
+      ],
+      [
+        203.32,
+        97.67,
+        502.7
+      ],
+      [
+        274.63,
+        97.67,
+        502.7
+      ],
+      [
+        517.08,
+        99.1,
+        499.85
+      ],
+      [
+        759.53,
+        101.95,
+        498.43
+      ],
+      [
+        819.43,
+        141.88,
+        461.35
+      ]
+    ],
+    "bottom": 829.41,
+    "top": 90.65,
+    "fullSurface": 210.45,
+    "foamTop": 86.38,
+    "asset": "glass-mug.webp",
+    "provenance": "photo-retouched",
+    "source": "photographic-mug-wheat-atlas.png",
+    "method": "matched photographic reconstruction after supplied references; original logo composited separately"
+  },
+  "wheat": {
+    "width": 600,
+    "height": 960,
+    "levels": [
+      [
+        93.79,
+        163.66,
+        437.49
+      ],
+      [
+        194.19,
+        156.82,
+        443.19
+      ],
+      [
+        325.4,
+        175.07,
+        428.36
+      ],
+      [
+        496.54,
+        217.29,
+        390.71
+      ],
+      [
+        650.57,
+        219.57,
+        372.46
+      ],
+      [
+        758.96,
+        211.58,
+        380.44
+      ],
+      [
+        793.19,
+        199.03,
+        394.13
+      ]
+    ],
+    "bottom": 804.6,
+    "top": 91.51,
+    "fullSurface": 201.04,
+    "foamTop": 81.24,
+    "asset": "glass-wheat.webp",
+    "provenance": "photo-retouched",
+    "source": "photographic-mug-wheat-atlas.png",
+    "method": "matched photographic reconstruction after supplied references; original logo composited separately"
+  },
+  "snifter": {
+    "width": 600,
+    "height": 960,
+    "levels": [
+      [
+        237.43,
+        137.93,
+        467.32
+      ],
+      [
+        352.92,
+        99.87,
+        504.07
+      ],
+      [
+        477.59,
+        74.93,
+        526.38
+      ],
+      [
+        576.02,
+        99.87,
+        496.19
+      ],
+      [
+        650.82,
+        174.67,
+        422.7
+      ],
+      [
+        677.07,
+        248.16,
+        353.15
+      ]
+    ],
+    "bottom": 694.13,
+    "top": 234.81,
+    "fullSurface": 341.11,
+    "foamTop": 225.62,
+    "asset": "glass-snifter.webp",
+    "provenance": "reconstructed",
+    "source": "photographic-stemware-atlas.png",
+    "method": "matched photographic reconstruction after supplied references; original logo composited separately"
+  },
+  "chalice": {
+    "width": 600,
+    "height": 960,
+    "levels": [
+      [
+        94.42,
+        171.14,
+        450.78
+      ],
+      [
+        197.9,
+        161.29,
+        459.41
+      ],
+      [
+        358.04,
+        123.1,
+        488.97
+      ],
+      [
+        444.28,
+        119.41,
+        490.2
+      ],
+      [
+        542.83,
+        174.84,
+        439.7
+      ],
+      [
+        604.42,
+        243.83,
+        375.64
+      ]
+    ],
+    "bottom": 621.67,
+    "top": 90.72,
+    "fullSurface": 199.13,
+    "foamTop": 84.57,
+    "asset": "glass-chalice.webp",
+    "provenance": "reconstructed",
+    "source": "photographic-stemware-atlas.png",
+    "method": "matched photographic reconstruction after supplied references; original logo composited separately"
+  }
+}

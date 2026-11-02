@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import { LoaderCircle } from "lucide-react";
+
 import { AuthLayout } from "@/features/auth/AuthLayout";
 import { useAuth } from "@/features/auth/auth-context";
 import { setRecoveryCode } from "@/features/auth/auth-api";
@@ -57,11 +57,11 @@ export function RecoverySetupPage() {
         <Input id="setupRecoveryCode2" name="recoveryCode2" type="password" inputMode="numeric" autoComplete="off" placeholder="Повторите секретный код" required maxLength={12} />
 
         <Button variant="primary" size="lg" className="mt-1 w-full" disabled={pending}>
-          {pending ? <LoaderCircle className="size-4 animate-spin" aria-hidden /> : null}
+
           {pending ? "Сохраняем…" : "Сохранить"}
         </Button>
 
-        <div role="alert" aria-live="polite" className="min-h-5 text-sm font-medium text-[#ff9d93]">
+        <div role="alert" aria-live="polite" className="min-h-5 text-sm font-medium text-[var(--bf-red)]">
           {error}
         </div>
       </form>

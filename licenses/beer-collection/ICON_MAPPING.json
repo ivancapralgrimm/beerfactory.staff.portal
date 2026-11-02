@@ -1,0 +1,470 @@
+{
+  "archive": {
+    "source": "archive-box",
+    "authorPath": "plump/line/interface-essential/archive-box.svg",
+    "authorCommit": "52d750c9ce051e51cb181b7a78932120c48541d0",
+    "gitBlobSha": "f9e68001cb61e6256ba2cfeabc7f0be543f312f2",
+    "sha256": "660062fe287b8e0903635b9a9abf6db3c3aa112f613d6b4e296fdfb859a56b1e",
+    "url": "https://github.com/webalys-hq/streamline-vectors/blob/52d750c9ce051e51cb181b7a78932120c48541d0/plump/line/interface-essential/archive-box.svg",
+    "license": "CC-BY-4.0",
+    "changes": [
+      "black→currentColor",
+      "source IDs removed",
+      "render scaled from48px grid"
+    ]
+  },
+  "trash": {
+    "source": "recycle-bin-2",
+    "authorPath": "plump/line/interface-essential/recycle-bin-2.svg",
+    "authorCommit": "52d750c9ce051e51cb181b7a78932120c48541d0",
+    "gitBlobSha": "52b3ecd338c07b2a8902a2d52a870dd13c43e440",
+    "sha256": "c511b871f1d68f7282be438f94a4df11b835af2e77b940b854d9a8a1d18ebf1e",
+    "url": "https://github.com/webalys-hq/streamline-vectors/blob/52d750c9ce051e51cb181b7a78932120c48541d0/plump/line/interface-essential/recycle-bin-2.svg",
+    "license": "CC-BY-4.0",
+    "changes": [
+      "black→currentColor",
+      "source IDs removed",
+      "render scaled from48px grid"
+    ]
+  },
+  "logout": {
+    "source": "login-1",
+    "adapt": "reverse-arrow-only",
+    "authorPath": "plump/line/interface-essential/login-1.svg",
+    "authorCommit": "52d750c9ce051e51cb181b7a78932120c48541d0",
+    "gitBlobSha": "12c575a81bcb49e0c9fff7e66dc9298d56ace258",
+    "sha256": "717f79c0bb5d65f0ae355eeb4d22c1c3118980a56a52180c7eb18dcf10ecdfd8",
+    "url": "https://github.com/webalys-hq/streamline-vectors/blob/52d750c9ce051e51cb181b7a78932120c48541d0/plump/line/interface-essential/login-1.svg",
+    "license": "CC-BY-4.0",
+    "changes": [
+      "black→currentColor",
+      "source IDs removed",
+      "render scaled from48px grid",
+      "reverse-arrow-only"
+    ],
+    "derivedFile": "app/assets/streamline-plump-line-free/derived/logout.svg",
+    "derivedSha256": "44c839b4aaf8d7aed95ec61e74e812d52d0ad448f9599e5b9650d58ab0a196fc"
+  },
+  "phone": {
+    "source": "phone-vibrate",
+    "authorPath": "plump/line/phone/phone-vibrate.svg",
+    "authorCommit": "52d750c9ce051e51cb181b7a78932120c48541d0",
+    "gitBlobSha": "2bf5a055581028eaa6dafd342a7a798b5547a07f",
+    "sha256": "f60b2e1519edd7c1a97b02686de5de6fe992f2e98f4ee316acfee2d9e9aa8155",
+    "url": "https://github.com/webalys-hq/streamline-vectors/blob/52d750c9ce051e51cb181b7a78932120c48541d0/plump/line/phone/phone-vibrate.svg",
+    "license": "CC-BY-4.0",
+    "changes": [
+      "black→currentColor",
+      "source IDs removed",
+      "render scaled from48px grid"
+    ]
+  },
+  "dots": {
+    "source": "horizontal-menu-circle",
+    "authorPath": "plump/line/interface-essential/horizontal-menu-circle.svg",
+    "authorCommit": "52d750c9ce051e51cb181b7a78932120c48541d0",
+    "gitBlobSha": "f23d30fc3db5bd22a82c61b9d02e0be4af6ac63c",
+    "sha256": "4a3b3d2d7dc36667413ed4a2c6c9756403e01e65b53ace79f472c30c438e01f3",
+    "url": "https://github.com/webalys-hq/streamline-vectors/blob/52d750c9ce051e51cb181b7a78932120c48541d0/plump/line/interface-essential/horizontal-menu-circle.svg",
+    "license": "CC-BY-4.0",
+    "changes": [
+      "black→currentColor",
+      "source IDs removed",
+      "render scaled from48px grid"
+    ]
+  },
+  "close": {
+    "source": "receipt-cross",
+    "adapt": "extract-fit",
+    "pathIndices": [
+      0
+    ],
+    "authorPath": "plump/line/money-shopping/receipt-cross.svg",
+    "authorCommit": "52d750c9ce051e51cb181b7a78932120c48541d0",
+    "gitBlobSha": "fabcbad921febbdc3e27102466fe59220429760d",
+    "sha256": "43809ff4b4b07aebabe12165dbe75082638ed3f7fc8d5fdb2525ca841a88cb75",
+    "url": "https://github.com/webalys-hq/streamline-vectors/blob/52d750c9ce051e51cb181b7a78932120c48541d0/plump/line/money-shopping/receipt-cross.svg",
+    "license": "CC-BY-4.0",
+    "fit": {
+      "sourceBBox": {
+        "x": 15.999555587768555,
+        "y": 17.999557495117188,
+        "w": 16.273996353149414,
+        "h": 16.27399444580078
+      },
+      "scale": 2.457908870813961,
+      "translate": [
+        -35.32544960825741,
+        -40.241269693929894
+      ],
+      "nominalStroke": 3
+    },
+    "changes": [
+      "black→currentColor",
+      "source IDs removed",
+      "render scaled from48px grid",
+      "extract-fit"
+    ],
+    "derivedFile": "app/assets/streamline-plump-line-free/derived/close.svg",
+    "derivedSha256": "2c382df928987303c32ec23c4b4efd8aa45a73bb05dec1afef039600235ccadb"
+  },
+  "back": {
+    "source": "arrow-right-circle-2",
+    "adapt": "extract-fit",
+    "pathIndices": [
+      2
+    ],
+    "rotate": 180,
+    "authorPath": "plump/line/interface-essential/arrow-right-circle-2.svg",
+    "authorCommit": "52d750c9ce051e51cb181b7a78932120c48541d0",
+    "gitBlobSha": "40f65c7ee64fa7b82aaeb45c81faccd18dcdddce",
+    "sha256": "c5c8a0239e175232017b0d7b17cbc885d2201662099debbc7dd3092cbce6ebeb",
+    "url": "https://github.com/webalys-hq/streamline-vectors/blob/52d750c9ce051e51cb181b7a78932120c48541d0/plump/line/interface-essential/arrow-right-circle-2.svg",
+    "license": "CC-BY-4.0",
+    "fit": {
+      "sourceBBox": {
+        "x": 10.000356674194336,
+        "y": 14.64538860321045,
+        "w": 20.034881591796875,
+        "h": 18.711048126220703
+      },
+      "scale": 1.9965179138556868,
+      "translate": [
+        -15.965891244975268,
+        -23.918252087195334
+      ],
+      "nominalStroke": 3
+    },
+    "changes": [
+      "black→currentColor",
+      "source IDs removed",
+      "render scaled from48px grid",
+      "extract-fit",
+      "rotate180"
+    ],
+    "derivedFile": "app/assets/streamline-plump-line-free/derived/back.svg",
+    "derivedSha256": "279539287a433670f2301abcef92f6e6ce9488a89389c9b04111b93a5b40a02c"
+  },
+  "arrow": {
+    "source": "arrow-right-circle-2",
+    "adapt": "extract-fit",
+    "pathIndices": [
+      2
+    ],
+    "authorPath": "plump/line/interface-essential/arrow-right-circle-2.svg",
+    "authorCommit": "52d750c9ce051e51cb181b7a78932120c48541d0",
+    "gitBlobSha": "40f65c7ee64fa7b82aaeb45c81faccd18dcdddce",
+    "sha256": "c5c8a0239e175232017b0d7b17cbc885d2201662099debbc7dd3092cbce6ebeb",
+    "url": "https://github.com/webalys-hq/streamline-vectors/blob/52d750c9ce051e51cb181b7a78932120c48541d0/plump/line/interface-essential/arrow-right-circle-2.svg",
+    "license": "CC-BY-4.0",
+    "fit": {
+      "sourceBBox": {
+        "x": 10.000356674194336,
+        "y": 14.64538860321045,
+        "w": 20.034881591796875,
+        "h": 18.711048126220703
+      },
+      "scale": 1.9965179138556868,
+      "translate": [
+        -15.965891244975268,
+        -23.918252087195334
+      ],
+      "nominalStroke": 3
+    },
+    "changes": [
+      "black→currentColor",
+      "source IDs removed",
+      "render scaled from48px grid",
+      "extract-fit"
+    ],
+    "derivedFile": "app/assets/streamline-plump-line-free/derived/arrow.svg",
+    "derivedSha256": "89cf02acc1bbca1df2c0878181ded5347bda1a0bb6af4ac993dc2a90a0d99ec0"
+  },
+  "chevron": {
+    "source": "arrow-right-circle-1",
+    "adapt": "extract-fit",
+    "pathIndices": [
+      1
+    ],
+    "authorPath": "plump/line/interface-essential/arrow-right-circle-1.svg",
+    "authorCommit": "52d750c9ce051e51cb181b7a78932120c48541d0",
+    "gitBlobSha": "923c338860d63fad4caad90a7a4b1cb556f03155",
+    "sha256": "f177ad724c0fab14c1308be6e6bdd5eab653a4e595e29dc4c0cdabf2af9817ff",
+    "url": "https://github.com/webalys-hq/streamline-vectors/blob/52d750c9ce051e51cb181b7a78932120c48541d0/plump/line/interface-essential/arrow-right-circle-1.svg",
+    "license": "CC-BY-4.0",
+    "fit": {
+      "sourceBBox": {
+        "x": 16.79758644104004,
+        "y": 10.947332382202148,
+        "w": 16.639036178588867,
+        "h": 26.105100631713867
+      },
+      "scale": 1.5322676041097452,
+      "translate": [
+        -14.486125580869626,
+        -12.774242760669914
+      ],
+      "nominalStroke": 3
+    },
+    "changes": [
+      "black→currentColor",
+      "source IDs removed",
+      "render scaled from48px grid",
+      "extract-fit"
+    ],
+    "derivedFile": "app/assets/streamline-plump-line-free/derived/chevron.svg",
+    "derivedSha256": "b80374d7577a4dbd188e89deb73f9eddedf21dafdaba4318c236aa2e9f992674"
+  },
+  "check": {
+    "source": "check-thick",
+    "authorPath": "plump/line/interface-essential/check-thick.svg",
+    "authorCommit": "52d750c9ce051e51cb181b7a78932120c48541d0",
+    "gitBlobSha": "15b51e47975e43a3c784db6defb92a797568e7a7",
+    "sha256": "803080d68e61c34a97b9c261db952140eaa361361fe9860ccf6b611f8894e7f3",
+    "url": "https://github.com/webalys-hq/streamline-vectors/blob/52d750c9ce051e51cb181b7a78932120c48541d0/plump/line/interface-essential/check-thick.svg",
+    "license": "CC-BY-4.0",
+    "changes": [
+      "black→currentColor",
+      "source IDs removed",
+      "render scaled from48px grid"
+    ]
+  },
+  "home": {
+    "source": "home-1",
+    "authorPath": "plump/line/interface-essential/home-1.svg",
+    "authorCommit": "52d750c9ce051e51cb181b7a78932120c48541d0",
+    "gitBlobSha": "c70679a30925bc1966ccfc8b9ff554541b6eb714",
+    "sha256": "6f8b49cf995adcdb74bc2e6a69e72c3708048c532839203a70c8210005b00c9b",
+    "url": "https://github.com/webalys-hq/streamline-vectors/blob/52d750c9ce051e51cb181b7a78932120c48541d0/plump/line/interface-essential/home-1.svg",
+    "license": "CC-BY-4.0",
+    "changes": [
+      "black→currentColor",
+      "source IDs removed",
+      "render scaled from48px grid"
+    ]
+  },
+  "recipes": {
+    "source": "fork-knife",
+    "authorPath": "plump/line/food-drink/fork-knife.svg",
+    "authorCommit": "52d750c9ce051e51cb181b7a78932120c48541d0",
+    "gitBlobSha": "fcb1a673dee2ac6bed999c206a66f703935f49cd",
+    "sha256": "8e4858634edb7d48f8d539a637bfbbb2ea0e3d79e8ed628647abbbd34dde9c15",
+    "url": "https://github.com/webalys-hq/streamline-vectors/blob/52d750c9ce051e51cb181b7a78932120c48541d0/plump/line/food-drink/fork-knife.svg",
+    "license": "CC-BY-4.0",
+    "changes": [
+      "black→currentColor",
+      "source IDs removed",
+      "render scaled from48px grid"
+    ]
+  },
+  "book": {
+    "source": "book-1",
+    "authorPath": "plump/line/interface-essential/book-1.svg",
+    "authorCommit": "52d750c9ce051e51cb181b7a78932120c48541d0",
+    "gitBlobSha": "c9d97592c803ca4fb16568e4103fdd61ad16b0e5",
+    "sha256": "20e34f2dc9f71dc33617448f10e0f9c86e04c698e660f37a15d91392f62fc061",
+    "url": "https://github.com/webalys-hq/streamline-vectors/blob/52d750c9ce051e51cb181b7a78932120c48541d0/plump/line/interface-essential/book-1.svg",
+    "license": "CC-BY-4.0",
+    "changes": [
+      "black→currentColor",
+      "source IDs removed",
+      "render scaled from48px grid"
+    ]
+  },
+  "shift": {
+    "source": "empty-clipboard",
+    "authorPath": "plump/line/interface-essential/empty-clipboard.svg",
+    "authorCommit": "52d750c9ce051e51cb181b7a78932120c48541d0",
+    "gitBlobSha": "1d6be9c4ef86201b55e36a09ac51e96f339ca663",
+    "sha256": "4517c2612d3f8f19808592672efa654723c19bbaa98ad318c35a099e4b76ee88",
+    "url": "https://github.com/webalys-hq/streamline-vectors/blob/52d750c9ce051e51cb181b7a78932120c48541d0/plump/line/interface-essential/empty-clipboard.svg",
+    "license": "CC-BY-4.0",
+    "changes": [
+      "black→currentColor",
+      "source IDs removed",
+      "render scaled from48px grid"
+    ]
+  },
+  "feed": {
+    "source": "chat-bubble-text-square",
+    "authorPath": "plump/line/mail/chat-bubble-text-square.svg",
+    "authorCommit": "52d750c9ce051e51cb181b7a78932120c48541d0",
+    "gitBlobSha": "7c4b987bb5f00d034549b624ab8a5a36f4e9fdd5",
+    "sha256": "39820187f92d442397cd6c02e377697214f02b17587956e1df9cb5f0ad9523a2",
+    "url": "https://github.com/webalys-hq/streamline-vectors/blob/52d750c9ce051e51cb181b7a78932120c48541d0/plump/line/mail/chat-bubble-text-square.svg",
+    "license": "CC-BY-4.0",
+    "changes": [
+      "black→currentColor",
+      "source IDs removed",
+      "render scaled from48px grid"
+    ]
+  },
+  "people": {
+    "source": "user-multiple-accounts",
+    "authorPath": "plump/line/interface-essential/user-multiple-accounts.svg",
+    "authorCommit": "52d750c9ce051e51cb181b7a78932120c48541d0",
+    "gitBlobSha": "1b5b31c4e64e98c37a0fea3f8154a4b86f0da8a8",
+    "sha256": "dc9943f24a58c86bf8343991ba828805131a9ba0fd7949b8e31e40242df53ce9",
+    "url": "https://github.com/webalys-hq/streamline-vectors/blob/52d750c9ce051e51cb181b7a78932120c48541d0/plump/line/interface-essential/user-multiple-accounts.svg",
+    "license": "CC-BY-4.0",
+    "changes": [
+      "black→currentColor",
+      "source IDs removed",
+      "render scaled from48px grid"
+    ]
+  },
+  "admin": {
+    "source": "horizontal-slider-square",
+    "authorPath": "plump/line/interface-essential/horizontal-slider-square.svg",
+    "authorCommit": "52d750c9ce051e51cb181b7a78932120c48541d0",
+    "gitBlobSha": "d3a4bc52207aed3c90d75b2c116113e18b922f18",
+    "sha256": "ebe768326666a4c0b328c2a746012527aad7719bf1509f32e8a15a90c972ab09",
+    "url": "https://github.com/webalys-hq/streamline-vectors/blob/52d750c9ce051e51cb181b7a78932120c48541d0/plump/line/interface-essential/horizontal-slider-square.svg",
+    "license": "CC-BY-4.0",
+    "changes": [
+      "black→currentColor",
+      "source IDs removed",
+      "render scaled from48px grid"
+    ]
+  },
+  "search": {
+    "source": "zoom-in",
+    "adapt": "extract-paths",
+    "pathIndices": [
+      0
+    ],
+    "authorPath": "plump/line/interface-essential/zoom-in.svg",
+    "authorCommit": "52d750c9ce051e51cb181b7a78932120c48541d0",
+    "gitBlobSha": "1c45c8874d5e12330ce9585bfc37934032a845b1",
+    "sha256": "692aa86778dcc2ffce0c32960774b4aa46dd459bfc986f8845bcc70ca39cc4a5",
+    "url": "https://github.com/webalys-hq/streamline-vectors/blob/52d750c9ce051e51cb181b7a78932120c48541d0/plump/line/interface-essential/zoom-in.svg",
+    "license": "CC-BY-4.0",
+    "changes": [
+      "black→currentColor",
+      "source IDs removed",
+      "render scaled from48px grid",
+      "extract-paths"
+    ],
+    "derivedFile": "app/assets/streamline-plump-line-free/derived/search.svg",
+    "derivedSha256": "a199d7c12218e7bc2dceeb0425ce8315b007e510bbc71e8ae9b51f786b89104c"
+  },
+  "expand": {
+    "source": "arrow-expand",
+    "authorPath": "plump/line/interface-essential/arrow-expand.svg",
+    "authorCommit": "52d750c9ce051e51cb181b7a78932120c48541d0",
+    "gitBlobSha": "645445fd26a5a5497344ae20bcfe2b053f27a128",
+    "sha256": "38fb48cc7999cd09b656009923aa46a875cdfcea13ab021c9b1cad4d642c800a",
+    "url": "https://github.com/webalys-hq/streamline-vectors/blob/52d750c9ce051e51cb181b7a78932120c48541d0/plump/line/interface-essential/arrow-expand.svg",
+    "license": "CC-BY-4.0",
+    "changes": [
+      "black→currentColor",
+      "source IDs removed",
+      "render scaled from48px grid"
+    ]
+  },
+  "plus": {
+    "source": "add-layer-2",
+    "adapt": "extract-fit",
+    "pathIndices": [
+      2
+    ],
+    "authorPath": "plump/line/interface-essential/add-layer-2.svg",
+    "authorCommit": "52d750c9ce051e51cb181b7a78932120c48541d0",
+    "gitBlobSha": "d4c57145e61e07ed6f389437b6ed11873632712a",
+    "sha256": "c5d1dfc30b5485550c44526e9d4b638ffa994cc3319924d8a850d87c085b8242",
+    "url": "https://github.com/webalys-hq/streamline-vectors/blob/52d750c9ce051e51cb181b7a78932120c48541d0/plump/line/interface-essential/add-layer-2.svg",
+    "license": "CC-BY-4.0",
+    "fit": {
+      "sourceBBox": {
+        "x": 10.5,
+        "y": 19.499893188476562,
+        "w": 18,
+        "h": 18.000106811523438
+      },
+      "scale": 2.222209035692639,
+      "translate": [
+        -19.33307619600646,
+        -39.33283883847396
+      ],
+      "nominalStroke": 3
+    },
+    "changes": [
+      "black→currentColor",
+      "source IDs removed",
+      "render scaled from48px grid",
+      "extract-fit"
+    ],
+    "derivedFile": "app/assets/streamline-plump-line-free/derived/plus.svg",
+    "derivedSha256": "7875d56b78c248c081a934b9d48f1b483f2aa221f148acbe9b6be24f6bf16bb7"
+  },
+  "edit": {
+    "source": "pen-1",
+    "authorPath": "plump/line/interface-essential/pen-1.svg",
+    "authorCommit": "52d750c9ce051e51cb181b7a78932120c48541d0",
+    "gitBlobSha": "6ec26c57eb228e5b11adc52ac4a1eaf452c0650c",
+    "sha256": "4cb5c2a49d5183f9f10ea1f9fc6c26848099ad26bf371d6c5f4f97baea4b18cb",
+    "url": "https://github.com/webalys-hq/streamline-vectors/blob/52d750c9ce051e51cb181b7a78932120c48541d0/plump/line/interface-essential/pen-1.svg",
+    "license": "CC-BY-4.0",
+    "changes": [
+      "black→currentColor",
+      "source IDs removed",
+      "render scaled from48px grid"
+    ]
+  },
+  "clock": {
+    "source": "circle-clock",
+    "authorPath": "plump/line/interface-essential/circle-clock.svg",
+    "authorCommit": "52d750c9ce051e51cb181b7a78932120c48541d0",
+    "gitBlobSha": "473e2655f1c408716da8352027b68be8e5c0c01d",
+    "sha256": "285bd62d3336daa83e48992ae0f956fae219480e125f8f88091f37fddec73d45",
+    "url": "https://github.com/webalys-hq/streamline-vectors/blob/52d750c9ce051e51cb181b7a78932120c48541d0/plump/line/interface-essential/circle-clock.svg",
+    "license": "CC-BY-4.0",
+    "changes": [
+      "black→currentColor",
+      "source IDs removed",
+      "render scaled from48px grid"
+    ]
+  },
+  "bell": {
+    "source": "ringing-bell-notification",
+    "authorPath": "plump/line/interface-essential/ringing-bell-notification.svg",
+    "authorCommit": "52d750c9ce051e51cb181b7a78932120c48541d0",
+    "gitBlobSha": "d575fb5e99c560d123ac9a9af8e2cc91b7fa5f43",
+    "sha256": "b9b8edf24a062e71c85f17785f36d018195296433d1b2407fe934228d6f82721",
+    "url": "https://github.com/webalys-hq/streamline-vectors/blob/52d750c9ce051e51cb181b7a78932120c48541d0/plump/line/interface-essential/ringing-bell-notification.svg",
+    "license": "CC-BY-4.0",
+    "changes": [
+      "black→currentColor",
+      "source IDs removed",
+      "render scaled from48px grid"
+    ]
+  },
+  "alert": {
+    "source": "warning-diamond",
+    "authorPath": "plump/line/interface-essential/warning-diamond.svg",
+    "authorCommit": "52d750c9ce051e51cb181b7a78932120c48541d0",
+    "gitBlobSha": "2df187a6352d1ba1f04f726b3ad0156ff5c04d08",
+    "sha256": "ea4724651868f4eb9fc86639d0a21f272f4ff4b4e50d3353366a6c7804a51c87",
+    "url": "https://github.com/webalys-hq/streamline-vectors/blob/52d750c9ce051e51cb181b7a78932120c48541d0/plump/line/interface-essential/warning-diamond.svg",
+    "license": "CC-BY-4.0",
+    "changes": [
+      "black→currentColor",
+      "source IDs removed",
+      "render scaled from48px grid"
+    ]
+  },
+  "beer": {
+    "source": "beer-pitch",
+    "authorPath": "plump/line/food-drink/beer-pitch.svg",
+    "authorCommit": "52d750c9ce051e51cb181b7a78932120c48541d0",
+    "gitBlobSha": "98958a7ee3df7c10ab13c8f6368163abcf08104b",
+    "sha256": "5c9db56dc121a4a3c6f1535824e278fa299b581a76544bb41a3b165521c47279",
+    "url": "https://raw.githubusercontent.com/webalys-hq/streamline-vectors/52d750c9ce051e51cb181b7a78932120c48541d0/plump/line/food-drink/beer-pitch.svg",
+    "license": "CC-BY-4.0",
+    "changes": [
+      "black→currentColor",
+      "source IDs removed",
+      "render scaled from48px grid"
+    ]
+  }
+}

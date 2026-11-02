@@ -1,22 +1,15 @@
 import {
-  Archive,
-  CircleAlert,
-  AlertTriangle,
-  Plus,
-  RefreshCw,
-  RotateCcw,
-  Save,
-  Settings2,
-  Trash2
-} from "lucide-react";
-import {
   useEffect,
   useMemo,
   useRef,
   useState
 } from "react";
 import { Button } from "@/components/ui/button";
-import { Surface } from "@/components/ui/surface";
+import { WarmIcon } from "@/components/warm/WarmIcon";
+import { WarmBack } from "@/components/warm/WarmBack";
+import { WarmTitle, WarmNotice, WarmEmpty } from "@/components/warm/WarmPage";
+import { WarmDialog } from "@/components/warm/WarmDialog";
+import "./attestation.css";
 import {
   loadAttestationEditorBank,
   saveAttestationCategory,
@@ -26,7 +19,6 @@ import {
   type AttestationEditorCategory
 } from "@/features/attestation/attestation-editor-api";
 import { deleteAttestationTicket } from "@/features/attestation/delete-attestation-ticket";
-import { cn } from "@/lib/utils";
 import type { AttestationVenue, KnowledgeType } from "@/features/attestation/types";
 
 type PlanDraft = {
@@ -241,6 +233,9 @@ function settingsPersisted(
 }
 
 export function AttestationSettingsAdminPanel() {
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [discardOpen, setDiscardOpen] = useState(false);
   const [bank, setBank] = useState<AttestationEditorBank | null>(null);
   const [passPercent, setPassPercent] = useState("80");
   const [categories, setCategories] = useState<CategoryDraft[]>([]);
@@ -304,6 +299,13 @@ export function AttestationSettingsAdminPanel() {
   );
 
   const settingsDirty = Boolean(bank) && currentSignature !== originalSignature;
+
+  useEffect(() => {
+    if (!settingsDirty && !(creating && newCategory.trim())) return;
+    const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [settingsDirty, creating, newCategory]);
 
   // A newly created draft used to be appended below all existing ticket cards,
   // making a successful save appear to do nothing on a phone. Reorder only the
@@ -523,7 +525,7 @@ export function AttestationSettingsAdminPanel() {
       return;
     }
     if (settingsDirty) {
-      setCreateMessage({ tone: "error", text: "Сначала сохраните текущие изменения кнопкой «Сохранить настройки» внизу страницы." });
+      setCreateMessage({ tone: "error", text: "Сначала сохраните текущие изменения." });
       return;
     }
 
@@ -542,6 +544,8 @@ export function AttestationSettingsAdminPanel() {
       }
       applyBank(fresh);
       setNewTicketId(created.id);
+      setCreating(false);
+      setEditingId(created.id);
       setCreateMessage({ tone: "success", text: `Билет «${label}» создан как черновик. Выберите разделы и число вопросов, затем нажмите «Сохранить и включить билет».` });
     } catch (error) {
       setCreateMessage(created
@@ -626,6 +630,7 @@ export function AttestationSettingsAdminPanel() {
       setCategories((current) => current.filter((item) => item.id !== category.id));
       setNewTicketId((current) => current === category.id ? null : current);
       dismissDeleteConfirmation();
+      setEditingId(null);
       setMessage({ tone: "success", text: `Билет «${category.label}» удалён навсегда. Результаты сотрудников сохранены.` });
       try {
         const fresh = await loadAttestationEditorBank(false);
@@ -654,357 +659,88 @@ export function AttestationSettingsAdminPanel() {
 
     setPendingCategoryId(category.id);
     setMessage(null);
+    let changed = false;
     try {
       await setAttestationCategoryStatus(category.id, !category.active, category.updatedAt);
-      await load();
+      changed = true;
+      applyBank(await loadAttestationEditorBank(false));
       setMessage({
         tone: "success",
         text: category.active ? "Билет отключён." : "Билет включён."
       });
     } catch (error) {
-      setMessage({ tone: "error", text: editorErrorText(error) });
+      setMessage({ tone: "error", text: changed
+        ? `Билет ${category.active ? "отключён" : "включён"} на сервере, но список не обновился. Обновите редактор.`
+        : editorErrorText(error) });
     } finally {
       setPendingCategoryId("");
     }
   }
 
-  if (loading && !bank) {
-    return <div className="mt-4 h-56 animate-pulse rounded-[22px] bg-[var(--bf-surface)]" />;
+  const selected = categories.find(category => category.id === editingId);
+  const busy = savingSettings || Boolean(pendingCategoryId) || Boolean(deletingTicketId);
+  function closeEditor() {
+    if (busy) return;
+    if (settingsDirty || (creating && newCategory.trim())) setDiscardOpen(true);
+    else { setEditingId(null); setCreating(false); }
   }
+  if (loading && !bank) return <p role="status">Загружаем билеты…</p>;
+  if (!bank) return <div className="stack"><WarmEmpty title="Билеты недоступны" body={message?.text || "Не удалось загрузить настройки аттестации."} /><Button onClick={() => void load()}>Повторить</Button></div>;
 
-  if (!bank) {
-    return (
-      <Surface className="mt-4 p-4 text-sm text-[#e99990]">
-        {message?.text || "Не удалось загрузить настройки аттестации."}
-        <Button className="mt-3" onClick={() => void load()}>
-          <RefreshCw className="size-4" aria-hidden />Повторить
-        </Button>
-      </Surface>
-    );
-  }
-
-  return (
-    <section className="mt-4 grid min-w-0 max-w-full gap-4">
-      <Surface className="p-4">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="eyebrow">НАСТРОЙКИ</p>
-            <h3 className="mt-1 flex items-center gap-2 text-2xl font-black">
-              <Settings2 className="size-5" aria-hidden />Правила аттестации
-            </h3>
+  const types: Record<KnowledgeType, string> = { bar: "Бар", kitchen: "Кухня", wine: "Вино", service: "Сервис" };
+  const venues: Record<AttestationVenue, string> = { bf: "BeerFactory", bb: "BeerBistro", common: "Оба заведения" };
+  const selectedTotal = selected?.plan.reduce((sum, row) => sum + Number(row.count || 0), 0) || 0;
+  return <section className="stack bf-exam-editor bf-attestation-domain">
+    {selected || creating ? <WarmBack label="К билетам" onClick={closeEditor} /> : null}
+    <WarmTitle title={creating ? "Новый билет" : selected ? "Настройки билета" : "Билеты и настройки"} action={selected || creating
+      ? <Button variant="ghost" disabled={busy} onClick={closeEditor}>Отмена</Button>
+      : <Button variant="primary" disabled={busy} onClick={() => { setCreating(true); setCreateMessage(null); }}>Добавить билет</Button>} />
+    {creating ? <form className="form-stack bf-compact-form" onSubmit={event => { event.preventDefault(); void createCategory(); }}>
+      <label className="bf-field"><span className="bf-field-label">Название билета</span><input required maxLength={80} value={newCategory} onChange={event => setNewCategory(event.target.value)} /></label>
+      <div className="bf-editor-pair"><label className="bf-field"><span className="bf-field-label">Тип билета</span><select value={newKnowledgeType} onChange={event => setNewKnowledgeType(event.target.value as KnowledgeType)}>{Object.entries(types).map(([value,label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+        <label className="bf-field"><span className="bf-field-label">Заведение</span><select value={newVenue} onChange={event => setNewVenue(event.target.value as AttestationVenue)}>{Object.entries(venues).map(([value,label]) => <option key={value} value={value}>{label}</option>)}</select></label></div>
+      <p className="small muted">Сначала создай черновик. Затем выбери разделы, количество вопросов и включи билет.</p>
+      {createMessage ? <WarmNotice error={createMessage.tone === "error"}>{createMessage.text}</WarmNotice> : null}
+      <Button variant="primary" type="submit" disabled={busy}>{busy ? "Создаём…" : "Создать черновик"}</Button>
+    </form> : selected ? <div ref={selected.id === newTicketId ? newTicketRef : undefined} className="stack">
+      <form className="form-stack bf-compact-form" onSubmit={event => { event.preventDefault(); void saveSettings(selected.id); }}>
+        <fieldset disabled={busy} className="bf-attestation-fields">
+          <label className="bf-field"><span className="bf-field-label">Название билета</span><input required maxLength={80} aria-label="Название категории" value={selected.label} onChange={event => updateCategory(selected.id, { label: event.target.value })} /></label>
+          <div className="bf-editor-pair">
+            <label className="bf-field"><span className="bf-field-label">Тип билета</span><select required aria-label={`Тип билета «${selected.label}»`} value={selected.knowledgeType ?? ""} onChange={event => updateCategory(selected.id, { knowledgeType: event.target.value as KnowledgeType })}><option value="" disabled>Выбери тип билета</option>{Object.entries(types).map(([value,label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+            <label className="bf-field"><span className="bf-field-label">Заведение</span><select aria-label={`Заведение билета «${selected.label}»`} value={selected.venue} onChange={event => updateCategory(selected.id, { venue: event.target.value as AttestationVenue, specificQuestionCount: "" })}>{Object.entries(venues).map(([value,label]) => <option key={value} value={value}>{label}</option>)}</select></label>
           </div>
-          <Button type="button" variant="secondary" size="icon" aria-label="Сбросить несохранённые изменения" disabled={!settingsDirty || savingSettings} onClick={() => void load()}>
-            <RefreshCw className="size-4" aria-hidden />
-          </Button>
-        </div>
-
-        <label className="mt-4 grid gap-1 text-xs font-bold text-[var(--bf-muted)]">
-          Порог прохождения, %
-          <input
-            inputMode="numeric"
-            pattern="[0-9]*"
-            value={passPercent}
-            onChange={(event) => setPassPercent(numericDraft(event.target.value))}
-            className="min-h-12 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3 text-[16px] font-black text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
-          />
-        </label>
-        <p className="mt-2 text-xs leading-5 text-[var(--bf-dim)]">
-          Количество вопросов задаётся отдельно внутри каждой категории.
-        </p>
-      </Surface>
-
-      <Surface className="min-w-0 max-w-full p-3 sm:p-4">
-        <p className="eyebrow">КАТЕГОРИИ</p>
-        <h3 className="mt-1 text-xl font-black">Экзаменационные билеты и разделы</h3>
-
-        <div className="mt-4 flex gap-2">
-          <input
-            value={newCategory}
-            onChange={(event) => { setNewCategory(event.target.value); setCreateMessage(null); }}
-            placeholder="Новый билет"
-            className="min-h-12 min-w-0 flex-1 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3 text-[16px] text-[var(--bf-cream)] outline-none placeholder:text-[var(--bf-dim)] focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
-          />
-          <Button type="button" variant="primary" disabled={pendingCategoryId === "new"} onClick={() => void createCategory()}>
-            {pendingCategoryId === "new" ? <RefreshCw className="size-4 animate-spin" aria-hidden /> : <Plus className="size-4" aria-hidden />}
-            Добавить
-          </Button>
-        </div>
-        <div className="mt-2 grid min-w-0 grid-cols-2 gap-2">
-          <label className="grid min-w-0 gap-1 text-xs font-bold text-[var(--bf-dim)]">Тип знаний
-            <select value={newKnowledgeType} onChange={(event) => setNewKnowledgeType(event.target.value as KnowledgeType)}
-              className="min-h-11 min-w-0 w-full rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-2 text-[16px] text-[var(--bf-cream)]">
-              <option value="bar">Бар</option><option value="kitchen">Кухня</option><option value="wine">Вино</option><option value="service">Сервис</option>
-            </select>
-          </label>
-          <label className="grid min-w-0 gap-1 text-xs font-bold text-[var(--bf-dim)]">Заведение
-            <select value={newVenue} onChange={(event) => setNewVenue(event.target.value as AttestationVenue)}
-              className="min-h-11 min-w-0 w-full rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-2 text-[16px] text-[var(--bf-cream)]">
-              <option value="bf">BeerFactory</option><option value="bb">BeerBistro</option><option value="common">BF/BB — Общий</option>
-            </select>
-          </label>
-        </div>
-        <p className="mt-2 text-[11px] leading-5 text-[var(--bf-dim)]">«Добавить» создаёт черновик. Для публикации настройте билет, сохраните настройки и включите его.</p>
-        {createMessage ? (
-          <p className={cn("mt-2 rounded-xl border border-[var(--bf-line)] p-3 text-xs font-bold leading-5",
-            createMessage.tone === "success" ? "text-[#9dd0a0]" : "text-[#e99990]")}
-            role="status" aria-live="polite">{createMessage.text}</p>
-        ) : null}
-
-        <div className="mt-4 grid gap-3">
-          {visibleCategories.map((category) => {
-            const questionCount = Number(category.questionsPerTest || 0);
-            const total = category.plan.reduce((sum, item) => sum + Number(item.count || 0), 0);
-            const remaining = questionCount - total;
-            const invalidTotal = category.active && remaining !== 0;
-            const distributionText =
-              !category.questionsPerTest
-                ? `Распределено ${total}`
-                : remaining > 0
-                  ? `Распределено ${total} из ${questionCount} · осталось распределить ${remaining}`
-                  : remaining < 0
-                    ? `Распределено ${total} из ${questionCount} · уберите ${Math.abs(remaining)}`
-                    : `Распределено ${total} из ${questionCount} · готово`;
-
-            return (
-              <div key={category.id} ref={category.id === newTicketId ? newTicketRef : undefined}
-                className={cn("min-w-0 max-w-full scroll-mt-24 rounded-2xl border bg-[var(--bf-surface-2)] p-2.5 sm:p-3",
-                  category.id === newTicketId ? "border-[var(--bf-copper-hi)]" : "border-[var(--bf-line)]")}>
-                {category.id === newTicketId ? <p className="mb-2 text-[11px] font-black uppercase tracking-[.08em] text-[var(--bf-copper-hi)]">Новый билет · сохранён как черновик</p> : null}
-                <div className="flex items-start gap-2">
-                  <div className="min-w-0 flex-1">
-                    <input
-                      value={category.label}
-                      maxLength={80}
-                      onChange={(event) => updateCategory(category.id, { label: event.target.value })}
-                      className="min-h-11 w-full rounded-xl border border-transparent bg-transparent px-2 text-[16px] font-black text-[var(--bf-cream)] outline-none focus:border-[var(--bf-line)] focus:bg-[var(--bf-surface)]"
-                      aria-label="Название категории"
-                    />
-                    <div className="mt-2 grid min-w-0 grid-cols-2 gap-2">
-                      <label className="grid min-w-0 gap-1 text-[11px] font-bold text-[var(--bf-muted)]">
-                        Тип билета
-                        <select aria-label={`Тип билета «${category.label}»`} value={category.knowledgeType ?? ""}
-                          onChange={(event) => updateCategory(category.id, { knowledgeType: event.target.value ? event.target.value as KnowledgeType : null })}
-                          className="min-h-11 min-w-0 w-full rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-2 text-[16px] text-[var(--bf-cream)]">
-                          <option value="">Не настроено</option>
-                          <option value="bar">Бар</option><option value="kitchen">Кухня</option>
-                          <option value="wine">Вино</option><option value="service">Сервис</option>
-                        </select>
-                      </label>
-                      <label className="grid min-w-0 gap-1 text-[11px] font-bold text-[var(--bf-muted)]">
-                        Заведение
-                        <select aria-label={`Заведение билета «${category.label}»`} value={category.venue}
-                          onChange={(event) => updateCategory(category.id, { venue: event.target.value as AttestationVenue, specificQuestionCount: "" })}
-                          className="min-h-11 min-w-0 w-full rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-2 text-[16px] text-[var(--bf-cream)]">
-                          <option value="bf">BeerFactory</option>
-                          <option value="bb">BeerBistro</option>
-                          <option value="common">BF/BB — Общий</option>
-                        </select>
-                      </label>
-                    </div>
-                    <span className={cn("ml-2 text-[10px] font-black uppercase tracking-[.08em]", category.active ? "text-[#9dd0a0]" : "text-[var(--bf-dim)]")}>
-                      {category.active ? "Включена" : "Черновик"}
-                    </span>
-                  </div>
-                </div>
-
-                <label className="mt-3 grid gap-1 text-xs font-bold text-[var(--bf-muted)]">
-                  Вопросов в этой аттестации
-                  <input
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    value={category.questionsPerTest}
-                    onChange={(event) => updateCategory(category.id, { questionsPerTest: numericDraft(event.target.value) })}
-                    className="min-h-12 min-w-0 w-full rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-3 text-[16px] font-black text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
-                  />
-                </label>
-                {!category.active && !manualQuestionCountIds.includes(category.id) ? (
-                  <p className="mt-1 text-[11px] leading-4 text-[var(--bf-dim)]">При выборе разделов размер черновика автоматически равен сумме «Взять». При необходимости укажи число вручную.</p>
-                ) : null}
-
-                <label className="mt-3 grid gap-1 text-xs font-bold text-[var(--bf-muted)]">
-                  Специфичных вопросов из общего числа (необязательно)
-                  <input inputMode="numeric" pattern="[0-9]*"
-                    value={category.specificQuestionCount}
-                    onChange={(event) => updateCategory(category.id, { specificQuestionCount: numericDraft(event.target.value) })}
-                    className="min-h-11 min-w-0 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-3 text-[16px] text-[var(--bf-cream)]"
-                    placeholder="Без ограничений" />
-                </label>
-                <div className="mt-4 flex min-w-0 items-center justify-between gap-2">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-black text-[var(--bf-cream)]">Разделы вопросов</p>
-                    <p className="mt-0.5 text-[11px] text-[var(--bf-dim)]">Разделы только из активного банка выбранного типа и заведения. Число «Доступно» учитывает независимые группы вопросов.</p>
-                  </div>
-                  <Button type="button" variant="secondary" size="icon" className="shrink-0" aria-label="Добавить раздел" disabled={!category.knowledgeType || (categoryTopics.get(category.id) || []).every((choice) => category.plan.some((row) => row.topic === choice.topic))} onClick={() => addPlanRow(category.id)}>
-                    <Plus className="size-4" aria-hidden />
-                  </Button>
-                </div>
-
-                {!category.knowledgeType ? <p className="mt-1 text-xs text-[var(--bf-dim)]">Сначала выберите тип билета.</p> : null}
-                {category.knowledgeType && !(categoryTopics.get(category.id) || []).length ? (
-                  <p className="mt-1 text-xs font-bold text-[#e99990]">Для этого типа знаний и заведения нет активных вопросов. Измените выбор или сначала добавьте вопросы в банк.</p>
-                ) : null}
-                <div className="mt-2 grid min-w-0 gap-2">
-                  {category.plan.map((item) => {
-                    const available = capacity.get(`${category.id}\u0000${item.topic.trim()}`) || 0;
-                    return (
-                      <div
-                        key={item.key}
-                        className="grid min-w-0 max-w-full grid-cols-[minmax(0,1fr)_64px_44px] items-start gap-1.5 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] p-2 sm:grid-cols-[minmax(0,1fr)_76px_44px] sm:gap-2"
-                      >
-                        <label className="flex min-w-0 flex-col gap-1 text-[10px] font-bold text-[var(--bf-dim)]">
-                          <span className="flex h-[14px] items-center">Раздел</span>
-                          <select
-                            value={item.topic}
-                            aria-label={`Выберите раздел вопросов для билета «${category.label}»`}
-                            onChange={(event) => updatePlanRow(category.id, item.key, { topic: event.target.value })}
-                            className="h-11 min-h-11 w-full min-w-0 max-w-full rounded-lg border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-1 text-[16px] text-[var(--bf-cream)] outline-none"
-                          >
-                            <option value="" disabled>Выберите раздел…</option>
-                            {item.topic && !(categoryTopics.get(category.id) || []).some((choice) => choice.topic === item.topic) ? (
-                              <option value={item.topic} disabled>{item.topic} · нет доступных вопросов</option>
-                            ) : null}
-                            {(categoryTopics.get(category.id) || []).map((choice) => (
-                              <option key={choice.topic} value={choice.topic}
-                                disabled={category.plan.some((row) => row.key !== item.key && row.topic === choice.topic)}>
-                                {choice.topic} · {choice.available} групп
-                              </option>
-                            ))}
-                          </select>
-
-                          {item.topic.trim() ? <span className="min-w-0 break-words leading-4">Доступно: {available} независимых вопросов</span> : null}
-                        </label>
-                        <label className="flex min-w-0 flex-col gap-1 text-[10px] font-bold text-[var(--bf-dim)]">
-                          <span className="flex h-[14px] items-center">Взять</span>
-                          <input
-                            inputMode="numeric"
-                            pattern="[0-9]*"
-                            value={item.count}
-                            onChange={(event) => updatePlanRow(category.id, item.key, { count: numericDraft(event.target.value) })}
-                            className="h-11 min-h-11 w-full min-w-0 rounded-lg border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-1 text-center text-[16px] font-black text-[var(--bf-cream)] outline-none"
-                          />
-                        </label>
-                        <div className="flex min-w-0 flex-col gap-1">
-                          <span className="h-[14px]" aria-hidden="true" />
-                          <Button
-                            type="button"
-                            variant="secondary"
-                            size="icon"
-                            className="h-11 min-h-11 w-11 shrink-0 p-0"
-                            aria-label={`Удалить раздел «${item.topic || "без названия"}»`}
-                            onClick={() => removePlanRow(category.id, item.key)}
-                          >
-                            <Trash2 className="size-4" aria-hidden />
-                          </Button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                  {!category.plan.length ? <p className="rounded-xl border border-dashed border-[var(--bf-line)] p-3 text-xs text-[var(--bf-dim)]">Добавьте хотя бы один раздел вопросов.</p> : null}
-                </div>
-
-                <div
-                  className={cn(
-                    "mt-2 rounded-xl px-3 py-2 text-xs font-bold",
-                    invalidTotal
-                      ? "border border-[color:color-mix(in_srgb,var(--bf-red),transparent_55%)] bg-[color:color-mix(in_srgb,var(--bf-red),transparent_90%)] text-[#e99990]"
-                      : "text-[var(--bf-dim)]"
-                  )}
-                  role={invalidTotal ? "alert" : undefined}
-                >
-                  {distributionText}
-                </div>
-
-                {!category.active ? (
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {settingsDirty ? (
-                      <Button type="button" variant="secondary" disabled={savingSettings || pendingCategoryId === category.id} onClick={() => void saveSettings(category.id)}>
-                        <Save className="size-4" aria-hidden />Сохранить черновик
-                      </Button>
-                    ) : null}
-                    <Button type="button" variant="primary" disabled={savingSettings || pendingCategoryId === category.id}
-                      onClick={() => void saveAndEnableTicket(category.id)}>
-                      {pendingCategoryId === category.id ? <RefreshCw className="size-4 animate-spin" aria-hidden /> : <RotateCcw className="size-4" aria-hidden />}
-                      {settingsDirty ? "Сохранить и включить билет" : "Включить билет"}
-                    </Button>
-                  </div>
-                ) : null}
-                {inlineSaveMessage?.categoryId === category.id ? (
-                  <p className={cn("mt-2 rounded-lg border border-[var(--bf-line)] p-3 text-xs font-bold leading-5", inlineSaveMessage.tone === "success" ? "text-[#9dd0a0]" : "text-[#e99990]")} role="status" aria-live="polite">{inlineSaveMessage.text}</p>
-                ) : null}
-
-                <details className="mt-3 border-t border-[var(--bf-line)] pt-2" onToggle={(event) => {
-                  if (!event.currentTarget.open && deleteTicketId === category.id) dismissDeleteConfirmation();
-                }}>
-                  <summary className="min-h-11 cursor-pointer py-2 text-sm font-bold text-[var(--bf-dim)]">Дополнительно</summary>
-                  <div className="grid gap-3 pb-2">
-                    {category.active ? (
-                      <Button type="button" variant="secondary"
-                        disabled={pendingCategoryId === category.id || Boolean(deletingTicketId)}
-                        onClick={() => void toggleCategory(category)}>
-                        <Archive className="size-4" aria-hidden />Отключить билет
-                      </Button>
-                    ) : null}
-                    <div className="grid gap-1">
-                      <Button type="button" variant="secondary"
-                        disabled={Boolean(deletingTicketId) || pendingCategoryId === category.id}
-                        onClick={() => {
-                          setInlineSaveMessage(null);
-                          if (deleteTicketId === category.id) dismissDeleteConfirmation();
-                          else { setDeleteTicketId(category.id); setDeleteConfirmation(""); }
-                        }}>
-                        <Trash2 className="size-4" aria-hidden />Удалить билет навсегда
-                      </Button>
-                      {bank?.questions.some((question) => question.categoryId === category.id) ? (
-                        <p className="text-xs leading-5 text-[var(--bf-dim)]">
-                          К билету привязаны вопросы банка. Удаление будет заблокировано, пока вопросы не перенесены в другие билеты.
-                        </p>
-                      ) : null}
-                    </div>
-                    {deleteTicketId === category.id ? (
-                      <div className="grid gap-3 rounded-xl border border-[var(--bf-red)] bg-[var(--bf-surface)] p-3" role="group" aria-label={`Удаление билета «${category.label}»`}>
-                        <div className="flex items-start gap-2">
-                          <AlertTriangle className="mt-0.5 size-5 shrink-0 text-[var(--bf-red)]" aria-hidden />
-                          <p className="text-xs leading-5 text-[var(--bf-cream)]">
-                            <strong>Необратимое удаление.</strong> Билет и его распределение разделов будут удалены. Банк вопросов и история пройденных экзаменов сохранятся. Для подтверждения введи точное название билета.
-                          </p>
-                        </div>
-                        <label className="grid gap-1 text-xs font-bold text-[var(--bf-muted)]">
-                          Название билета: «{category.label}»
-                          <input type="text" autoComplete="off" spellCheck={false} value={deleteConfirmation}
-                            onChange={(event) => setDeleteConfirmation(event.target.value)}
-                            className="min-h-12 w-full min-w-0 rounded-lg border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3 text-[16px] text-[var(--bf-cream)]"
-                            placeholder="Введи название полностью" />
-                        </label>
-                        <div className="flex flex-wrap gap-2">
-                          <Button type="button" variant="secondary" onClick={dismissDeleteConfirmation}>Отмена</Button>
-                          <Button type="button" variant="primary"
-                            disabled={deleteConfirmation !== category.label || Boolean(deletingTicketId) || pendingCategoryId === category.id || settingsDirty}
-                            onClick={() => void permanentlyDeleteTicket(category)}>
-                            {deletingTicketId === category.id ? <RefreshCw className="size-4 animate-spin" aria-hidden /> : <Trash2 className="size-4" aria-hidden />}
-                            {deletingTicketId === category.id ? "Удаляем…" : "Подтвердить удаление"}
-                          </Button>
-                        </div>
-                        {settingsDirty ? <p className="text-xs font-bold text-[var(--bf-red)]">Сначала сохрани или отмени несохранённые изменения в настройках.</p> : null}
-                      </div>
-                    ) : null}
-                  </div>
-                </details>
-              </div>
-            );
-          })}
-        </div>
-      </Surface>
-
-      {message ? (
-        <Surface className={cn("flex items-start gap-2 p-3 text-xs font-bold", message.tone === "success" ? "text-[#9dd0a0]" : "text-[#e99990]")} role="status" aria-live="polite">
-          <CircleAlert className="mt-0.5 size-4 shrink-0" aria-hidden />{message.text}
-        </Surface>
-      ) : null}
-
-      <Button type="button" variant="primary" size="lg" disabled={!settingsDirty || savingSettings} onClick={() => void saveSettings()}>
-        {savingSettings ? <RefreshCw className="size-4 animate-spin" aria-hidden /> : <Save className="size-4" aria-hidden />}
-        {savingSettings ? "Сохраняем…" : "Сохранить настройки"}
-      </Button>
-    </section>
-  );
+          <div className="bf-editor-pair bf-ticket-numbers">
+            <label className="bf-field"><span className="bf-field-label">Вопросов в билете</span><input type="number" inputMode="numeric" min={1} max={50} required value={selected.questionsPerTest} onChange={event => updateCategory(selected.id, { questionsPerTest: numericDraft(event.target.value) })} /></label>
+            <label className="bf-field"><span className="bf-field-label">Порог зачёта, %</span><input type="number" inputMode="numeric" min={50} max={100} required value={passPercent} onChange={event => setPassPercent(numericDraft(event.target.value))} /></label>
+          </div>
+          <p className="small muted">Порог зачёта общий для всех билетов.</p>
+          <label className="bf-field"><span className="bf-field-label">Вопросов только этого заведения</span><input aria-label="Вопросов только этого заведения" type="number" inputMode="numeric" min={0} max={Number(selected.questionsPerTest) || 50} value={selected.specificQuestionCount} placeholder="Без отдельной квоты" onChange={event => updateCategory(selected.id, { specificQuestionCount: numericDraft(event.target.value) })} /><span className="small muted">Пусто — без отдельной квоты; остальные вопросы общие.</span></label>
+          <section className="bf-editor-group"><h2>Разделы и количество вопросов</h2><p className="small muted">Билет выбирает независимые группы вопросов из активного банка.</p>
+            {selected.plan.map((item,index) => <div className="bf-quota-row" key={item.key}>
+              <label className="bf-field"><span className="bf-field-label">Раздел</span><select required title={item.topic} aria-label={`Раздел ${index + 1}`} value={item.topic} onChange={event => updatePlanRow(selected.id, item.key, { topic: event.target.value })}><option value="" disabled>Выбери раздел</option>{item.topic && !(categoryTopics.get(selected.id) || []).some(topic => topic.topic === item.topic) ? <option value={item.topic} disabled>{item.topic} · нет вопросов</option> : null}{(categoryTopics.get(selected.id) || []).map(topic => <option key={topic.topic} value={topic.topic} disabled={selected.plan.some(row => row.key !== item.key && row.topic === topic.topic)}>{topic.topic}</option>)}</select></label>
+              <label className="bf-field"><span className="bf-field-label">Взять</span><input type="number" inputMode="numeric" min={1} max={50} required aria-label={`Вопросов из раздела ${index + 1}`} value={item.count} onChange={event => updatePlanRow(selected.id, item.key, { count: numericDraft(event.target.value) })} /></label>
+              <Button type="button" variant="ghost" size="icon" aria-label={`Убрать раздел ${index + 1}`} onClick={() => removePlanRow(selected.id, item.key)}><WarmIcon name="close" size={18} /></Button>
+              <p className="small muted bf-quota-availability">Доступно: {capacity.get(`${selected.id}\u0000${item.topic.trim()}`) || 0} независимых вопросов</p>
+            </div>)}
+            <Button type="button" onClick={() => addPlanRow(selected.id)} disabled={!selected.knowledgeType || (categoryTopics.get(selected.id) || []).every(choice => selected.plan.some(row => row.topic === choice.topic))}>Добавить раздел</Button>
+            <p className="small muted">По разделам: {selectedTotal} · всего: {selected.questionsPerTest || 0}{Number(selected.questionsPerTest) > selectedTotal ? ` · осталось распределить ${Number(selected.questionsPerTest) - selectedTotal}` : selectedTotal > Number(selected.questionsPerTest) ? ` · уберите ${selectedTotal - Number(selected.questionsPerTest)}` : " · готово"}</p>
+          </section>
+        </fieldset>
+        {message ? <WarmNotice error={message.tone === "error"}>{message.text}</WarmNotice> : null}
+        {inlineSaveMessage?.categoryId === selected.id && inlineSaveMessage.text !== message?.text ? <WarmNotice error={inlineSaveMessage.tone === "error"}>{inlineSaveMessage.text}</WarmNotice> : null}
+        <Button variant="primary" type="submit" disabled={!settingsDirty || busy}>{savingSettings ? "Сохраняем…" : "Сохранить настройки"}</Button>
+      </form>
+      <section className="bf-editor-section stack"><p className="small muted">{selected.active ? "Билет включён в аттестацию" : "Билет отключён"}</p>
+        <Button disabled={busy} onClick={() => selected.active ? void toggleCategory(selected) : void saveAndEnableTicket(selected.id)}>{selected.active ? "Отключить билет" : settingsDirty ? "Сохранить и включить билет" : "Включить билет"}</Button>
+        <Button variant="ghost" disabled={busy} onClick={() => { setDeleteTicketId(selected.id); setDeleteConfirmation(""); }}>Удалить билет</Button>
+      </section>
+    </div> : <>
+      {message ? <WarmNotice error={message.tone === "error"}>{message.text}</WarmNotice> : null}
+      <div className="bf-attestation-ticket-list">{visibleCategories.map(category => <button key={category.id} type="button" className="item-row w-full text-left" onClick={() => { setEditingId(category.id); setMessage(null); setInlineSaveMessage(null); }}><span><strong className="block">{category.label}</strong><span className="small muted">{venues[category.venue]} · {category.active ? "" : "Отключён · "}Вопросов: {category.questionsPerTest}</span></span><span className="small">От {passPercent}%</span></button>)}</div>
+      {!categories.length ? <WarmEmpty title="Билетов пока нет" body="Создай черновик, затем выбери разделы и количество вопросов." /> : null}
+    </>}
+    {deleteTicketId && selected ? <WarmDialog title="Удалить билет?" confirm onClose={() => { if (!deletingTicketId) dismissDeleteConfirmation(); }}><p>Удаляется определение билета и распределение разделов. Вопросы и сохранённые результаты остаются. Для подтверждения введи название билета.</p><label className="bf-field"><span className="bf-field-label">{selected.label}</span><input value={deleteConfirmation} autoComplete="off" onChange={event => setDeleteConfirmation(event.target.value)} /></label><div className="bf-dialog-actions"><Button disabled={Boolean(deletingTicketId)} onClick={dismissDeleteConfirmation}>Отмена</Button><Button variant="primary" disabled={deleteConfirmation !== selected.label || busy || settingsDirty} onClick={() => void permanentlyDeleteTicket(selected)}>{deletingTicketId ? "Удаляем…" : "Удалить билет"}</Button></div>{settingsDirty ? <p className="small critical">Сначала сохрани или отмени изменения.</p> : null}{inlineSaveMessage?.tone === "error" ? <WarmNotice error>{inlineSaveMessage.text}</WarmNotice> : null}</WarmDialog> : null}
+    {discardOpen ? <WarmDialog title="Закрыть без сохранения?" confirm onClose={() => setDiscardOpen(false)}><p>Изменения настроек не сохранятся.</p><div className="bf-dialog-actions"><Button onClick={() => setDiscardOpen(false)}>Продолжить</Button><Button variant="primary" onClick={() => { applyBank(bank); setNewCategory(""); setDiscardOpen(false); setEditingId(null); setCreating(false); }}>Закрыть</Button></div></WarmDialog> : null}
+  </section>;
 }

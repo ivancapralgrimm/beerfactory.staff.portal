@@ -4,13 +4,6 @@ import { richTextSegments } from "./rich-text";
 import { signKnowledgeMedia, legacyKnowledgeImage } from "./knowledge-media";
 import { KnowledgeImageDialog } from "../KnowledgeImageDialog";
 
-function normalizeTopic(value: string) {
-  return value
-    .toLocaleLowerCase("ru-RU")
-    .replace(/[^\p{L}\p{N}]+/gu, " ")
-    .trim();
-}
-
 export function KnowledgeRichText({ value }: { value: RichText }) {
   return richTextSegments(value).map((segment, index) => {
     let content = (
@@ -22,6 +15,8 @@ export function KnowledgeRichText({ value }: { value: RichText }) {
       content = <strong key={index}>{content}</strong>;
     if (segment.marks.includes("italic"))
       content = <em key={index}>{content}</em>;
+    if (segment.marks.includes("underline"))
+      content = <u key={index}>{content}</u>;
     if (segment.marks.includes("highlight"))
       content = <mark key={index}>{content}</mark>;
     return content;
@@ -81,21 +76,18 @@ export function KnowledgeDocumentView({
       document.removeEventListener("visibilitychange", visible);
     };
   }, [pathKey, attempt]);
-  const topics = new Set(article.title.split(/\s*,\s*/).map(normalizeTopic));
-  const headings = article.blocks.filter(
-    (b) => b.type === "heading" && topics.has(normalizeTopic(b.content.text)),
-  );
+  const headings = article.blocks.filter(b => b.type === "heading" && b.content.text.trim());
   return (
     <>
       {headings.length >= 2 && (
-        <nav aria-label="Разделы статьи" className="mt-4 flex flex-wrap gap-2">
+        <nav aria-label="Разделы статьи" className="bf-article-chapters">
           {headings.map(
             (b) =>
               b.type === "heading" && (
                 <button
                   key={b.id}
                   type="button"
-                  className="min-h-11 rounded-full border border-[var(--bf-line)] bg-[var(--bf-surface)] px-3 text-xs"
+                  className={`bf-chapter-link${b.level === 3 ? " bf-chapter-subtitle" : ""}`}
                   onClick={() =>
                     window.document
                       .getElementById(`knowledge-${b.id}`)
@@ -114,7 +106,7 @@ export function KnowledgeDocumentView({
           )}
         </nav>
       )}
-      <div className="knowledge-prose py-4 sm:py-6">
+      <div className="knowledge-prose bf-article-document">
         {article.blocks.map((b) => {
           if (b.type === "paragraph")
             return (
@@ -128,11 +120,7 @@ export function KnowledgeDocumentView({
               <Heading
                 key={b.id}
                 id={`knowledge-${b.id}`}
-                className={
-                  topics.has(normalizeTopic(b.content.text))
-                    ? "knowledge-chapter"
-                    : ""
-                }
+                className="knowledge-chapter"
               >
                 <KnowledgeRichText value={b.content} />
               </Heading>

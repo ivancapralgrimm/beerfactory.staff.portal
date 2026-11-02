@@ -30,6 +30,7 @@ export default defineConfig(({ mode }) => {
         registerType: "prompt",
         injectRegister: null,
         includeAssets: [
+          "assets/warm/recipe-photo.jpg",
           "assets/icons/apple-touch-icon.png",
           "assets/icons/icon-192.png",
           "assets/icons/icon-512.png",
@@ -74,6 +75,9 @@ export default defineConfig(({ mode }) => {
           importScripts: ["push-sw.js"],
           globPatterns: [
             "**/*.{js,css,html,woff,woff2}",
+            // Only self-hosted Beer Collection assets, including unopened glass variants.
+            "assets/glass-*.webp", "assets/logo-*.webp", "assets/foam-photo-*.webp", "assets/micrograin-*.webp",
+            "assets/beer-*.webp", "assets/beer-geist-*.ttf",
           ],
           globIgnores: [
             "push-sw.js",

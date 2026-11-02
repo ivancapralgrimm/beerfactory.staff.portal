@@ -67,6 +67,10 @@ export type QuizResult = {
   weakTopics: Array<{ topic: string; total: number; correct: number }>;
 };
 export type QuizHistoryItem = {
+  id?: string;
+  userId?: string;
+  displayName?: string;
+  snapshot?: QuizResult;
   category: string;
   categoryId?: string | null;
   time: string | number;

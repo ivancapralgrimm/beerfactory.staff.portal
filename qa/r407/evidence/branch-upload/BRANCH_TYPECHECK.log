@@ -1,0 +1,4 @@
+
+> beerfactory-staff-portal@40.6.0-alpha.1 typecheck
+> tsc -b --pretty false
+

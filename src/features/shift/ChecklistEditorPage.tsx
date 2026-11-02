@@ -1,341 +1,31 @@
-import {
-  Archive,
-  ArrowDown,
-  ArrowLeft,
-  ArrowUp,
-  Check,
-  ChevronDown,
-  Loader2,
-  Pencil,
-  Plus,
-  RefreshCw,
-  RotateCcw,
-  Save,
-  Settings2,
-  Sparkles,
-  Trash2,
-  X
-} from "lucide-react";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  type Dispatch,
-  type SetStateAction
-} from "react";
-import { Link } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState, type Dispatch, type SetStateAction } from "react";
 import { Button } from "@/components/ui/button";
-import { Surface } from "@/components/ui/surface";
+import { WarmBack } from "@/components/warm/WarmBack";
+import { WarmIcon } from "@/components/warm/WarmIcon";
+import { WarmDialog } from "@/components/warm/WarmDialog";
+import { WarmEmpty, WarmNotice, WarmTitle } from "@/components/warm/WarmPage";
 import { useAuth } from "@/features/auth/auth-context";
-import {
-  checklistEditorError,
-  deleteChecklistDefinition,
-  loadChecklistEditorSnapshot,
-  reorderChecklistDefinitions,
-  saveChecklistDefinition,
-  type ChecklistEditorCheckType,
-  type ChecklistEditorRow,
-  type ChecklistEditorSnapshot
-} from "@/features/shift/checklist-editor-api";
-import {
-  canManageChecklistsClient,
-  type StaffPosition
-} from "@/types/auth";
-import { cn } from "@/lib/utils";
+import { checklistEditorError, deleteChecklistDefinition, loadChecklistEditorSnapshot, reorderChecklistDefinitions, saveChecklistDefinition, type ChecklistEditorCheckType, type ChecklistEditorRow, type ChecklistEditorSnapshot } from "./checklist-editor-api";
+import { canManageChecklistsClient, type StaffPosition } from "@/types/auth";
+import "./shift.css";
 
-const TYPE_OPTIONS: Array<{
-  value: ChecklistEditorCheckType;
-  label: string;
-}> = [
-  { value: "general_cleaning", label: "Генуборка" },
-  { value: "opening", label: "Открытие" },
-  { value: "closing", label: "Закрытие" }
-];
-
-const WEEKDAYS = [
-  { value: 1, label: "Пн" },
-  { value: 2, label: "Вт" },
-  { value: 3, label: "Ср" },
-  { value: 4, label: "Чт" },
-  { value: 5, label: "Пт" },
-  { value: 6, label: "Сб" },
-  { value: 7, label: "Вс" }
-];
-
-type EditorDraft = {
-  itemKey: string | null;
-  label: string;
-  checkType: ChecklistEditorCheckType;
-  critical: boolean;
-  isActive: boolean;
-  activeIsoWeekdays: number[];
-  groupKey: string;
-  revision: number | null;
-};
-
-function blankDraft(type: ChecklistEditorCheckType): EditorDraft {
-  return {
-    itemKey: null,
-    label: "",
-    checkType: type,
-    critical: false,
-    isActive: true,
-    activeIsoWeekdays:
-      type === "general_cleaning"
-        ? [7]
-        : [1, 2, 3, 4, 5, 6, 7],
-    groupKey: "",
-    revision: null
-  };
-}
-
-function rowDraft(row: ChecklistEditorRow): EditorDraft {
-  return {
-    itemKey: row.item_key,
-    label: row.label,
-    checkType: row.check_type,
-    critical: row.critical,
-    isActive: row.is_active,
-    activeIsoWeekdays: [...row.active_iso_weekdays],
-    groupKey: row.group_key || "",
-    revision: row.revision
-  };
-}
-
-function formatUpdated(row: ChecklistEditorRow) {
-  try {
-    return new Intl.DateTimeFormat("ru-RU", {
-      day: "2-digit",
-      month: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      timeZone: "Asia/Novosibirsk"
-    }).format(new Date(row.updated_at));
-  } catch {
-    return "";
-  }
-}
-
-
-type ChecklistDraftEditorProps = {
-  draft: EditorDraft;
-  setDraft: Dispatch<SetStateAction<EditorDraft | null>>;
-  selectedPosition: StaffPosition | null;
-  saving: boolean;
-  inline?: boolean;
-  message?: {
-    tone: "success" | "error";
-    text: string;
-  } | null;
-  onCancel: () => void;
-  onSave: () => void;
-};
-
-function ChecklistDraftEditor({
-  draft,
-  setDraft,
-  selectedPosition,
-  saving,
-  inline = false,
-  message = null,
-  onCancel,
-  onSave
-}: ChecklistDraftEditorProps) {
-  const content = (
-    <>
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="eyebrow">
-            {draft.itemKey ? "РЕДАКТИРОВАНИЕ" : "НОВЫЙ ПУНКТ"}
-          </p>
-          <h2 className="mt-1 text-xl font-black">
-            {draft.itemKey ? "Изменить пункт" : "Добавить пункт"}
-          </h2>
-        </div>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          aria-label="Закрыть редактор пункта"
-          onClick={onCancel}
-        >
-          <X className="size-4" aria-hidden />
-        </Button>
-      </div>
-
-      <label className="mt-4 grid gap-1.5">
-        <span className="text-[11px] font-black uppercase tracking-[0.1em] text-[var(--bf-dim)]">
-          Текст пункта
-        </span>
-        <textarea
-          rows={4}
-          maxLength={500}
-          value={draft.label}
-          onChange={(event) =>
-            setDraft((current) =>
-              current ? { ...current, label: event.target.value } : current
-            )
-          }
-          className="min-h-28 resize-y rounded-2xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3.5 py-3 text-[15px] leading-6 text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
-        />
-      </label>
-
-      <div className={cn("mt-3 grid gap-3", selectedPosition === "manager" && "sm:grid-cols-2")}>
-        <label className="grid gap-1.5">
-          <span className="text-[11px] font-black uppercase tracking-[0.1em] text-[var(--bf-dim)]">
-            Раздел
-          </span>
-          <select
-            value={draft.checkType}
-            onChange={(event) => {
-              const checkType = event.target.value as ChecklistEditorCheckType;
-              setDraft((current) =>
-                current
-                  ? {
-                      ...current,
-                      checkType,
-                      activeIsoWeekdays:
-                        checkType === "general_cleaning" && current.itemKey === null
-                          ? [7]
-                          : current.activeIsoWeekdays
-                    }
-                  : current
-              );
-            }}
-            className="min-h-11 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3 text-sm font-bold text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
-          >
-            {TYPE_OPTIONS.map((item) => (
-              <option key={item.value} value={item.value}>
-                {item.label}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        {selectedPosition === "manager" ? (
-          <label className="grid gap-1.5">
-            <span className="text-[11px] font-black uppercase tracking-[0.1em] text-[var(--bf-dim)]">
-              Заведение
-            </span>
-            <select
-              value={draft.groupKey}
-              onChange={(event) =>
-                setDraft((current) =>
-                  current ? { ...current, groupKey: event.target.value } : current
-                )
-              }
-              className="min-h-11 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3 text-sm font-bold text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
-            >
-              <option value="">Без группы</option>
-              <option value="bf">BF</option>
-              <option value="bb">BB</option>
-            </select>
-          </label>
-        ) : null}
-      </div>
-
-      <div className="mt-3">
-        <span className="text-[11px] font-black uppercase tracking-[0.1em] text-[var(--bf-dim)]">
-          Дни недели
-        </span>
-        <div className="mt-2 grid grid-cols-7 gap-1.5">
-          {WEEKDAYS.map((day) => {
-            const active = draft.activeIsoWeekdays.includes(day.value);
-            return (
-              <button
-                key={day.value}
-                type="button"
-                aria-pressed={active}
-                onClick={() =>
-                  setDraft((current) => {
-                    if (!current) return current;
-                    const next = active
-                      ? current.activeIsoWeekdays.filter((value) => value !== day.value)
-                      : [...current.activeIsoWeekdays, day.value].sort((a, b) => a - b);
-                    return { ...current, activeIsoWeekdays: next };
-                  })
-                }
-                className={cn(
-                  "min-h-10 rounded-xl border text-[11px] font-black",
-                  active
-                    ? "border-[var(--bf-copper-hi)] bg-[color:color-mix(in_srgb,var(--bf-copper),transparent_82%)] text-[var(--bf-cream)]"
-                    : "border-[var(--bf-line)] text-[var(--bf-dim)]"
-                )}
-              >
-                {day.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      <label className="mt-3 flex min-h-11 items-center gap-3 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3">
-        <input
-          type="checkbox"
-          checked={draft.critical}
-          onChange={(event) =>
-            setDraft((current) =>
-              current ? { ...current, critical: event.target.checked } : current
-            )
-          }
-          className="size-4 accent-[var(--bf-copper)]"
-        />
-        <span className="text-sm font-bold">Критичный пункт</span>
-      </label>
-
-      {inline && message ? (
-        <p
-          className={cn(
-            "mt-3 rounded-xl border px-3 py-2 text-xs leading-5",
-            message.tone === "error"
-              ? "border-[color:color-mix(in_srgb,var(--bf-red),transparent_55%)] text-[#9f302a]"
-              : "border-[color:color-mix(in_srgb,var(--bf-green),transparent_55%)] text-[#376b3c]"
-          )}
-          role={message.tone === "error" ? "alert" : "status"}
-          aria-live="polite"
-        >
-          {message.text}
-        </p>
-      ) : null}
-
-      <div className="mt-4 flex gap-2">
-        <Button
-          type="button"
-          variant="secondary"
-          className="flex-1"
-          disabled={saving}
-          onClick={onCancel}
-        >
-          Отмена
-        </Button>
-        <Button
-          type="button"
-          variant="primary"
-          className="flex-1"
-          disabled={saving || !draft.label.trim()}
-          onClick={onSave}
-        >
-          {saving ? (
-            <Loader2 className="size-4 animate-spin" aria-hidden />
-          ) : (
-            <Save className="size-4" aria-hidden />
-          )}
-          {saving ? "Сохраняем…" : "Сохранить"}
-        </Button>
-      </div>
-    </>
-  );
-
-  if (inline) {
-    return (
-      <div className="bf-checklist-inline-editor" role="region" aria-label="Редактирование пункта">
-        {content}
-      </div>
-    );
-  }
-
-  return <Surface className="mt-3 p-4">{content}</Surface>;
+const TYPE_OPTIONS: {value: ChecklistEditorCheckType; label: string}[] = [{value:"opening",label:"Открытие"},{value:"closing",label:"Закрытие"},{value:"general_cleaning",label:"Генуборка"}];
+const WEEKDAYS = [{value:1,label:"Пн",name:"Понедельник"},{value:2,label:"Вт",name:"Вторник"},{value:3,label:"Ср",name:"Среда"},{value:4,label:"Чт",name:"Четверг"},{value:5,label:"Пт",name:"Пятница"},{value:6,label:"Сб",name:"Суббота"},{value:7,label:"Вс",name:"Воскресенье"}];
+type EditorDraft = {itemKey:string|null;label:string;checkType:ChecklistEditorCheckType;critical:boolean;isActive:boolean;activeIsoWeekdays:number[];groupKey:string;revision:number|null};
+function blankDraft(type:ChecklistEditorCheckType):EditorDraft {return {itemKey:null,label:"",checkType:type,critical:false,isActive:true,activeIsoWeekdays:type === "general_cleaning" ? [7] : [1,2,3,4,5,6,7],groupKey:"",revision:null};}
+function rowDraft(row:ChecklistEditorRow):EditorDraft {return {itemKey:row.item_key,label:row.label,checkType:row.check_type,critical:row.critical,isActive:row.is_active,activeIsoWeekdays:[...row.active_iso_weekdays],groupKey:row.group_key||"",revision:row.revision};}
+function weekdayLabel(row:ChecklistEditorRow) {return row.active_iso_weekdays.length === 7 ? "Ежедневно" : WEEKDAYS.filter(day => row.active_iso_weekdays.includes(day.value)).map(day => day.label).join(", ");}
+function ChecklistDraftEditor({ draft, setDraft, selectedPosition, saving, onCancel, onSave }: {draft:EditorDraft;setDraft:Dispatch<SetStateAction<EditorDraft|null>>;selectedPosition:StaffPosition|null;saving:boolean;onCancel:()=>void;onSave:()=>void}) {
+  function change(patch:Partial<EditorDraft>) {setDraft(current => current ? {...current,...patch} : current);}
+  return <form className="bf-checklist-item-form bf-compact-form" onSubmit={event => {event.preventDefault();onSave();}}>
+    <h2 className="bf-checklist-item-title">{draft.itemKey ? "Редактирование пункта" : "Новый пункт"}</h2>
+    <label className="bf-field"><span className="bf-field-label">Текст пункта</span><textarea autoFocus required rows={3} maxLength={500} value={draft.label} disabled={saving} onChange={event => change({label:event.target.value})}/></label>
+    <label className="bf-field"><span className="bf-field-label">Раздел</span><select value={draft.checkType} disabled={saving} onChange={event => {const checkType=event.target.value as ChecklistEditorCheckType;change({checkType,...(checkType === "general_cleaning" && !draft.itemKey ? {activeIsoWeekdays:[7]} : {})});}}>{TYPE_OPTIONS.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
+    {selectedPosition === "manager" ? <label className="bf-field"><span className="bf-field-label">Группа задач</span><select value={draft.groupKey} disabled={saving} onChange={event => change({groupKey:event.target.value})}><option value="">Без группы</option><option value="bf">BF</option><option value="bb">BB</option></select></label> : null}
+    <div className="bf-field"><span className="bf-field-label">Дни недели</span><div className="bf-weekdays" role="group" aria-label="Дни недели пункта">{WEEKDAYS.map(day => <Button type="button" key={day.value} aria-label={day.name} aria-pressed={draft.activeIsoWeekdays.includes(day.value)} variant={draft.activeIsoWeekdays.includes(day.value)?"primary":"ghost"} disabled={saving} onClick={() => change({activeIsoWeekdays:draft.activeIsoWeekdays.includes(day.value)?draft.activeIsoWeekdays.filter(value=>value!==day.value):[...draft.activeIsoWeekdays,day.value].sort((a,b)=>a-b)})}>{day.label}</Button>)}</div></div>
+    <label className="bf-shift-critical"><input type="checkbox" checked={draft.critical} disabled={saving} onChange={event => change({critical:event.target.checked})}/><span>Критичный пункт</span></label>
+    <div className="bf-material-action-buttons"><Button type="button" disabled={saving} onClick={onCancel}>Отмена</Button><Button type="submit" variant="primary" disabled={saving||!draft.label.trim()||!draft.activeIsoWeekdays.length}>{saving?"Сохраняем…":"Сохранить пункт"}</Button></div>
+  </form>;
 }
 
 export function ChecklistEditorPage() {
@@ -348,6 +38,7 @@ export function ChecklistEditorPage() {
       ? state.user.position_code || null
       : null;
 
+  const [deleteTarget, setDeleteTarget] = useState<ChecklistEditorRow | null>(null);
   const [snapshot, setSnapshot] =
     useState<ChecklistEditorSnapshot | null>(null);
   const [loading, setLoading] = useState(true);
@@ -549,11 +240,6 @@ export function ChecklistEditorPage() {
   async function deleteRow(row: ChecklistEditorRow) {
     if (pendingKey) return;
 
-    const confirmed = window.confirm(
-      `Удалить пункт «${row.label}»? Это действие нельзя отменить.`
-    );
-    if (!confirmed) return;
-
     setPendingKey(row.item_key);
     setMessage(null);
 
@@ -567,6 +253,7 @@ export function ChecklistEditorPage() {
         setDraft(null);
       }
       setMessage({ tone: "success", text: "Пункт удалён." });
+      setDeleteTarget(null);
       await load(true);
     } catch (error) {
       setMessage({
@@ -611,350 +298,29 @@ export function ChecklistEditorPage() {
     }
   }
 
-  if (!canManageChecklists) {
-    return (
-      <section className="mx-auto max-w-2xl pb-6">
-        <p className="eyebrow">РЕДАКТОР ЧЕК-ЛИСТОВ</p>
-        <h1 className="mt-2 text-[34px] font-black leading-none tracking-[-0.04em]">
-          Недостаточно прав
-        </h1>
-        <Surface className="mt-5 p-5">
-          <p className="text-sm leading-6 text-[var(--bf-muted)]">
-            Редактор недоступен.
-          </p>
-          <Button asChild variant="secondary" className="mt-4">
-            <Link to="/shift">Вернуться к смене</Link>
-          </Button>
-        </Surface>
-      </section>
-    );
-  }
-
-  if (loading && !snapshot) {
-    return (
-      <section className="mx-auto max-w-3xl pb-6">
-        <div className="h-10 w-52 animate-pulse rounded-xl bg-[var(--bf-surface)]" />
-        <div className="mt-5 h-28 animate-pulse rounded-[22px] bg-[var(--bf-surface)]" />
-        <div className="mt-3 h-72 animate-pulse rounded-[22px] bg-[var(--bf-surface)]" />
-      </section>
-    );
-  }
-
-  return (
-    <section className="mx-auto max-w-3xl pb-6">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="eyebrow">СМЕНА · РЕДАКТОР</p>
-          <h1 className="mt-2 text-[34px] font-black leading-none tracking-[-0.04em]">
-            Редактор чек-листов
-          </h1>
-        </div>
-
-        <div className="flex shrink-0 gap-2">
-          <Button asChild variant="secondary" size="icon" aria-label="Назад к смене">
-            <Link to="/shift">
-              <ArrowLeft className="size-4" aria-hidden />
-            </Link>
-          </Button>
-          <Button
-            type="button"
-            variant="secondary"
-            size="icon"
-            aria-label="Обновить редактор"
-            disabled={refreshing || saving || Boolean(pendingKey)}
-            onClick={() => void load(true)}
-          >
-            <RefreshCw
-              className={cn("size-4", refreshing && "animate-spin")}
-              aria-hidden
-            />
-          </Button>
-        </div>
-      </div>
-
-      <Surface className="mt-5 p-3 sm:p-4">
-        <div className="flex items-center gap-2">
-          <Settings2 className="size-5 text-[var(--bf-copper-hi)]" aria-hidden />
-          <strong className="text-sm">Выбор чек-листа</strong>
-        </div>
-
-        <label className="mt-3 grid gap-1.5">
-          <span className="text-[11px] font-black uppercase tracking-[0.1em] text-[var(--bf-dim)]">
-            Должность
-          </span>
-          <div className="relative">
-            <select
-              value={selectedPosition || ""}
-              aria-label="Должность"
-              onChange={(event) => {
-                setSelectedPosition(event.target.value as StaffPosition);
-                setDraft(null);
-                setShowArchived(false);
-                setMessage(null);
-              }}
-              className="h-11 min-h-11 w-full appearance-none rounded-xl border border-[var(--bf-line-strong)] bg-[var(--bf-surface-2)] px-4 pr-12 text-base font-bold text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
-            >
-              {snapshot?.positions.map((position) => (
-                <option key={position.code} value={position.code}>
-                  {position.label}
-                </option>
-              ))}
-            </select>
-            <ChevronDown
-              className="pointer-events-none absolute right-4 top-1/2 size-5 -translate-y-1/2 text-[var(--bf-muted)]"
-              aria-hidden
-            />
-          </div>
-        </label>
-
-        <label className="mt-3 grid gap-1.5">
-          <span className="text-[11px] font-black uppercase tracking-[0.1em] text-[var(--bf-dim)]">
-            Чек-лист
-          </span>
-          <div className="relative">
-            <select
-              value={selectedType}
-              aria-label="Тип чек-листа"
-              onChange={(event) => {
-                setSelectedType(event.target.value as ChecklistEditorCheckType);
-                setDraft(null);
-                setShowArchived(false);
-                setMessage(null);
-              }}
-              className="h-11 min-h-11 w-full appearance-none rounded-xl border border-[var(--bf-line-strong)] bg-[var(--bf-surface-2)] px-4 pr-12 text-base font-bold text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
-            >
-              {TYPE_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-            <ChevronDown
-              className="pointer-events-none absolute right-4 top-1/2 size-5 -translate-y-1/2 text-[var(--bf-muted)]"
-              aria-hidden
-            />
-          </div>
-        </label>
-      </Surface>
-
-      <div className="mt-3 flex items-center justify-between gap-3">
-        <div>
-          <p className="text-sm font-black text-[var(--bf-cream)]">
-            {positionLabel} · {TYPE_OPTIONS.find((item) => item.value === selectedType)?.label}
-          </p>
-          <p className="mt-1 text-xs text-[var(--bf-dim)]">
-            Активных: {activeRows.length}
-            {archivedCount ? ` · в архиве: ${archivedCount}` : ""}
-          </p>
-        </div>
-
-        <Button type="button" variant="primary" onClick={openNew}>
-          <Plus className="size-4" aria-hidden />
-          Добавить
-        </Button>
-      </div>
-
-      {draft?.itemKey === null ? (
-        <ChecklistDraftEditor
-          draft={draft}
-          setDraft={setDraft}
-          selectedPosition={selectedPosition}
-          saving={saving}
-          onCancel={() => setDraft(null)}
-          onSave={() => void saveDraft()}
-        />
-      ) : null}
-
-      <p
-        className={cn(
-          "mt-3 min-h-5 text-xs leading-5",
-          message?.tone === "error" ? "text-[#e99990]" : "text-[#9dd0a0]"
-        )}
-        role="status"
-        aria-live="polite"
-      >
-        {message?.text || ""}
-      </p>
-
-      {!rows.length ? (
-        <Surface className="mt-2 p-5 text-center">
-          <Sparkles className="mx-auto size-6 text-[var(--bf-dim)]" aria-hidden />
-          <p className="mt-2 text-sm font-bold">Пунктов пока нет</p>
-          <p className="mt-1 text-xs leading-5 text-[var(--bf-dim)]">
-            Добавьте первый пункт.
-          </p>
-        </Surface>
-      ) : (
-        <div className="mt-2 grid gap-2">
-          {rows.map((row, rowIndex) => {
-            const activeIndex = activeRows.findIndex(
-              (item) => item.item_key === row.item_key
-            );
-            const busy = pendingKey === row.item_key;
-            const editing = draft?.itemKey === row.item_key;
-            const editorId = `checklist-item-editor-${rowIndex}-${row.item_key.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
-
-            return (
-              <div
-                key={`${row.position_code}:${row.item_key}`}
-                className="bf-checklist-item-stack"
-              >
-                <Surface
-                  className={cn("p-3.5", !row.is_active && "opacity-65")}
-                >
-                <div className="flex items-start gap-3">
-                  <div
-                    className={cn(
-                      "mt-0.5 grid size-7 shrink-0 place-items-center rounded-lg border",
-                      row.is_active
-                        ? "border-[color:color-mix(in_srgb,var(--bf-green),transparent_55%)] bg-[color:color-mix(in_srgb,var(--bf-green),transparent_88%)] text-[#b7e3ba]"
-                        : "border-[var(--bf-line)] bg-[var(--bf-surface-2)] text-[var(--bf-dim)]"
-                    )}
-                  >
-                    {row.is_active ? (
-                      <Check className="size-4" aria-hidden />
-                    ) : (
-                      <Archive className="size-4" aria-hidden />
-                    )}
-                  </div>
-
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      {row.group_label ? (
-                        <span className="rounded-full border border-[var(--bf-line)] px-2 py-1 text-[10px] font-black text-[var(--bf-muted)]">
-                          {row.group_label}
-                        </span>
-                      ) : null}
-                      {row.critical ? (
-                        <span className="rounded-full border border-[color:color-mix(in_srgb,var(--bf-red),transparent_55%)] px-2 py-1 text-[10px] font-black text-[#e99990]">
-                          КРИТИЧНЫЙ
-                        </span>
-                      ) : null}
-                      {!row.is_active ? (
-                        <span className="rounded-full border border-[var(--bf-line)] px-2 py-1 text-[10px] font-black text-[var(--bf-dim)]">
-                          АРХИВ
-                        </span>
-                      ) : null}
-                    </div>
-
-                    <p className="mt-2 text-sm font-black leading-5 text-[var(--bf-cream)]">
-                      {row.label}
-                    </p>
-                    <p className="mt-1 text-[11px] leading-4 text-[var(--bf-dim)]">
-                      Ревизия {row.revision}
-                      {row.updated_by_name ? ` · ${row.updated_by_name}` : ""}
-                      {formatUpdated(row) ? ` · ${formatUpdated(row)}` : ""}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-3 grid grid-cols-5 gap-1.5">
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="icon"
-                    aria-label="Поднять пункт"
-                    disabled={!row.is_active || activeIndex <= 0 || Boolean(pendingKey)}
-                    onClick={() => void moveRow(row, -1)}
-                  >
-                    <ArrowUp className="size-4" aria-hidden />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="icon"
-                    aria-label="Опустить пункт"
-                    disabled={
-                      !row.is_active ||
-                      activeIndex < 0 ||
-                      activeIndex >= activeRows.length - 1 ||
-                      Boolean(pendingKey)
-                    }
-                    onClick={() => void moveRow(row, 1)}
-                  >
-                    <ArrowDown className="size-4" aria-hidden />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={editing ? "primary" : "secondary"}
-                    size="icon"
-                    aria-label={editing ? "Закрыть редактор пункта" : "Редактировать пункт"}
-                    aria-expanded={editing}
-                    aria-controls={editorId}
-                    disabled={Boolean(pendingKey)}
-                    onClick={() => openEdit(row)}
-                  >
-                    <Pencil className="size-4" aria-hidden />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="danger"
-                    size="icon"
-                    aria-label="Удалить пункт"
-                    disabled={Boolean(pendingKey)}
-                    onClick={() => void deleteRow(row)}
-                  >
-                    {busy ? (
-                      <Loader2 className="size-4 animate-spin" aria-hidden />
-                    ) : (
-                      <Trash2 className="size-4" aria-hidden />
-                    )}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={row.is_active ? "danger" : "secondary"}
-                    size="icon"
-                    aria-label={row.is_active ? "Архивировать пункт" : "Восстановить пункт"}
-                    disabled={Boolean(pendingKey)}
-                    onClick={() => void toggleActive(row)}
-                  >
-                    {busy ? (
-                      <Loader2 className="size-4 animate-spin" aria-hidden />
-                    ) : row.is_active ? (
-                      <Archive className="size-4" aria-hidden />
-                    ) : (
-                      <RotateCcw className="size-4" aria-hidden />
-                    )}
-                  </Button>
-                </div>
-
-                </Surface>
-
-                {editing && draft ? (
-                  <Surface
-                    id={editorId}
-                    className="bf-checklist-editor-panel"
-                    role="region"
-                    aria-label={`Редактирование пункта: ${row.label}`}
-                  >
-                    <ChecklistDraftEditor
-                      draft={draft}
-                      setDraft={setDraft}
-                      selectedPosition={selectedPosition}
-                      saving={saving}
-                      inline
-                      message={message}
-                      onCancel={() => setDraft(null)}
-                      onSave={() => void saveDraft()}
-                    />
-                  </Surface>
-                ) : null}
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {archivedCount ? (
-        <button
-          type="button"
-          onClick={() => setShowArchived((current) => !current)}
-          className="mt-3 min-h-11 w-full rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-3 text-xs font-black text-[var(--bf-muted)]"
-        >
-          {showArchived ? "Скрыть архив" : `Показать архив (${archivedCount})`}
-        </button>
-      ) : null}
-
-    </section>
-  );
+  const busy = refreshing || saving || Boolean(pendingKey);
+  const hasAccess = canManageChecklists && (snapshot?.can_edit ?? true);
+  const editor = draft ? <ChecklistDraftEditor draft={draft} setDraft={setDraft} selectedPosition={selectedPosition} saving={saving} onCancel={() => setDraft(null)} onSave={() => void saveDraft()}/> : null;
+  return <section className="bf-checklist-flat bf-checklist-editor bf-editor-page">
+    <WarmBack to="/settings" label="В настройки"/>
+    <WarmTitle title="Редактор чек-листов" description={positionLabel} action={hasAccess ? <Button variant="ghost" disabled={busy || Boolean(draft)} onClick={() => void load(true)}>{refreshing?"Обновляем…":"Обновить"}</Button> : undefined}/>
+    {!hasAccess ? <WarmEmpty title="Недостаточно прав" body="Редактор чек-листов недоступен."/> : loading && !snapshot ? <p role="status" aria-busy="true">Загружаем чек-листы…</p> : <>
+      <label className="bf-field"><span className="bf-field-label">Рабочая должность</span><select aria-label="Рабочая должность" value={selectedPosition || ""} disabled={busy || Boolean(draft)} onChange={event => {setSelectedPosition(event.target.value as StaffPosition);setDraft(null);setShowArchived(false);setMessage(null);}}>{snapshot?.positions.map(position => <option key={position.code} value={position.code}>{position.label}</option>)}</select></label>
+      <div className="bf-checklist-selection"><label className="bf-field"><span className="bf-field-label">Чек-лист</span><select aria-label="Тип чек-листа" value={selectedType} disabled={busy || Boolean(draft)} onChange={event => {setSelectedType(event.target.value as ChecklistEditorCheckType);setDraft(null);setShowArchived(false);setMessage(null);}}>{TYPE_OPTIONS.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label></div>
+      <div className="bf-checklist-count"><p className="small muted">Пунктов: {activeRows.length}{archivedCount ? ` · в архиве: ${archivedCount}` : ""}</p><Button disabled={busy || Boolean(draft)||!selectedPosition} onClick={openNew}><WarmIcon name="plus" size={18}/>Добавить</Button></div>
+      {draft?.itemKey === null ? <section className="bf-checklist-item">{editor}</section> : null}
+      {message ? <WarmNotice error={message.tone === "error"}>{message.text}</WarmNotice> : null}
+      {!snapshot && !loading ? <Button onClick={() => void load(false)}>Повторить загрузку</Button> : null}
+      {!rows.length && !draft && snapshot ? <WarmEmpty title="Пунктов пока нет"/> : rows.map(row => {
+        const activeIndex = activeRows.findIndex(item=>item.item_key===row.item_key);
+        const editing = draft?.itemKey === row.item_key;
+        return <section className={`bf-checklist-item${!row.is_active?" bf-checklist-archived":""}`} key={`${row.position_code}:${row.item_key}`}>{editing ? editor : <>
+          <p className="bf-checklist-item-title">{row.label}</p><p className="small muted">{weekdayLabel(row)}{row.group_label?` · ${row.group_label}`:""}{row.critical?" · Критичный":""}{!row.is_active?" · В архиве":""}</p>
+          <div className="bf-editor-tools"><Button className="bf-move-up" size="icon" variant="ghost" aria-label={`Пункт выше: ${row.label}`} disabled={busy || Boolean(draft)||!row.is_active||activeIndex<=0} onClick={() => void moveRow(row,-1)}><WarmIcon name="chevron" size={17}/></Button><Button className="bf-move-down" size="icon" variant="ghost" aria-label={`Пункт ниже: ${row.label}`} disabled={busy || Boolean(draft)||!row.is_active||activeIndex>=activeRows.length-1} onClick={() => void moveRow(row,1)}><WarmIcon name="chevron" size={17}/></Button><Button size="icon" aria-label={`Изменить пункт: ${row.label}`} disabled={busy || Boolean(draft)} onClick={() => openEdit(row)}><WarmIcon name="edit" size={17}/></Button><Button size="icon" variant="ghost" aria-label={`${row.is_active?"Архивировать":"Восстановить"} пункт: ${row.label}`} disabled={busy || Boolean(draft)} onClick={() => void toggleActive(row)}><WarmIcon name={row.is_active?"archive":"plus"} size={17}/></Button><Button size="icon" variant="ghost" aria-label={`Удалить пункт: ${row.label}`} disabled={busy || Boolean(draft)} onClick={() => setDeleteTarget(row)}><WarmIcon name="trash" size={17}/></Button></div>
+        </>}</section>;
+      })}
+      {archivedCount ? <Button variant="ghost" aria-expanded={showArchived} disabled={busy || Boolean(draft)} onClick={() => setShowArchived(current=>!current)}>{showArchived?"Скрыть архив":`Показать архив (${archivedCount})`}</Button> : null}
+    </>}
+    {deleteTarget ? <WarmDialog title="Удалить пункт?" confirm onClose={() => {if(!pendingKey)setDeleteTarget(null);}}><p>«{deleteTarget.label}» исчезнет из текущего шаблона и открытых смен этой должности. Завершённая история сохранится.</p><div className="bf-material-action-buttons"><Button disabled={Boolean(pendingKey)} onClick={() => setDeleteTarget(null)}>Отмена</Button><Button variant="danger" disabled={Boolean(pendingKey)} onClick={() => void deleteRow(deleteTarget)}>{pendingKey?"Удаляем…":"Удалить"}</Button></div></WarmDialog> : null}
+  </section>;
 }

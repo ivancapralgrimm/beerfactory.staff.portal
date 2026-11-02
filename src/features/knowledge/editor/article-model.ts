@@ -13,7 +13,7 @@ export const KNOWLEDGE_LIMITS = Object.freeze({
 });
 
 export type KnowledgeArticleStatus = "draft" | "published" | "archived";
-export type InlineMarkType = "bold" | "italic" | "highlight";
+export type InlineMarkType = "bold" | "italic" | "underline" | "highlight";
 
 export type InlineMark = {
   type: InlineMarkType;
@@ -126,7 +126,7 @@ function validateMarks(
     if (!isRecord(item))
       fail("SCHEMA", "Некорректное форматирование текста.", field);
     if (
-      !(["bold", "italic", "highlight"] as const).includes(
+      !(["bold", "italic", "underline", "highlight"] as const).includes(
         item.type as InlineMarkType,
       )
     ) {

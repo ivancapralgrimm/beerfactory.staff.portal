@@ -72,7 +72,7 @@ const NOCODB_SCHEMA = Object.freeze({
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "Authorization, Content-Type",
+  "Access-Control-Allow-Headers": "Authorization, Content-Type, Idempotency-Key",
   "Access-Control-Allow-Methods": "GET, POST, PATCH, DELETE, OPTIONS",
   "Access-Control-Max-Age": "86400"
 };
@@ -149,7 +149,12 @@ function envConfig(env) {
     kitchenTableId:
       clean(env.NOCODB_KITCHEN_TABLE_ID) || DEFAULT_KITCHEN_TABLE_ID,
     supabaseUrl: clean(env.SUPABASE_URL).replace(/\/+$/, ""),
-    supabaseAnonKey: clean(env.SUPABASE_ANON_KEY)
+    supabaseAnonKey: clean(env.SUPABASE_ANON_KEY),
+    supabaseServiceKey: clean(env.SUPABASE_SERVICE_ROLE_KEY),
+    materialWriter: env.RECIPE_MATERIAL_WRITER,
+    photoCleanup: env.RECIPE_PHOTO_CLEANUP,
+    lifecycleConfigured: env.MATERIAL_LIFECYCLE_ENABLED === "true",
+    lifecycleReady: false
   };
 }
 
@@ -418,8 +423,165 @@ function capabilities(config) {
     recipe_venue: true,
     recipe_write_diagnostics: true,
     recipe_schema_complete: true,
-    recipe_schema_diagnostics: true
+    recipe_schema_diagnostics: true,
+    materialLifecycle: config.lifecycleReady === true,
+    photoCleanup: config.lifecycleReady === true
   };
+}
+
+
+function materialError(code, status = 503) {
+  return Object.assign(new Error(code), { status });
+}
+
+async function materialRpc(config, command, args = {}) {
+  if (!config.supabaseServiceKey) throw materialError("recipe_material_lifecycle_unavailable");
+  const response = await fetch(`${config.supabaseUrl}/rest/v1/rpc/recipe_material_lifecycle_v1`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", apikey: config.supabaseServiceKey,
+      Authorization: `Bearer ${config.supabaseServiceKey}` },
+    body: JSON.stringify({ p_command: command, p_operation_id: null, p_actor_id: null, ...args })
+  });
+  const data = await response.json().catch(() => null);
+  if (!response.ok) {
+    const message = clean(data?.message);
+    const conflict = /idempotency_conflict|operation_pending|duplicate key/.test(message);
+    throw materialError(conflict ? "recipe_material_lifecycle_conflict" : "recipe_material_lifecycle_unavailable", conflict ? 409 : 503);
+  }
+  return data;
+}
+
+// A private service binding, never a browser-provided URL. Its reviewed adapter
+// must durably reserve old attachments before mutation and reconcile interrupted
+// writes. It must remove real NocoDB bytes through the backing storage API.
+async function photoCleanupCommand(config, command, operationId, sourceRef, details = {}) {
+  if (!config.photoCleanup?.fetch) throw materialError("recipe_photo_cleanup_unavailable");
+  const response = await config.photoCleanup.fetch(new Request("https://recipe-photo-cleanup.internal/operations", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ command, operationId, sourceRef, ...details })
+  }));
+  const data = await response.json().catch(() => null);
+  if (!response.ok || data?.ok !== true || data.operationId !== operationId || data.phase !== (command === "prepare" ? "prepared" : "completed")) {
+    throw materialError("recipe_photo_cleanup_incomplete");
+  }
+  return data;
+}
+
+async function uploadReplacementPhoto(config, photo, operationId, sourceRef) {
+  const form = new FormData();
+  form.set("command", "upload"); form.set("operationId", operationId); form.set("sourceRef", sourceRef);
+  form.set("photo", photo, photo.name || "recipe-photo");
+  const response = await config.photoCleanup.fetch(new Request("https://recipe-photo-cleanup.internal/operations", { method: "POST", body: form }));
+  const data = await response.json().catch(() => null);
+  if (!response.ok || data?.ok !== true || data.operationId !== operationId || data.phase !== "uploaded" || !Array.isArray(data.files) || !data.files.length) {
+    throw materialError("recipe_photo_cleanup_incomplete");
+  }
+  return { files: data.files, directUrl: clean(data.directUrl) };
+}
+
+async function refreshMaterialCapabilities(config) {
+  config.lifecycleReady = false;
+  if (!config.lifecycleConfigured || !config.writeToken || !config.supabaseServiceKey ||
+      !config.supabaseUrl || !config.materialWriter?.idFromName || !config.photoCleanup?.fetch) return;
+  try {
+    const [database, response] = await Promise.all([
+      materialRpc(config, "capabilities"),
+      config.photoCleanup.fetch(new Request("https://recipe-photo-cleanup.internal/capabilities"))
+    ]);
+    const cleanup = await response.json();
+    config.lifecycleReady = database?.schemaVersion === 1 && database.recipeLifecycle === true &&
+      response.ok && cleanup?.schemaVersion === 1 && cleanup.physicalCleanup === true &&
+      cleanup.durableReconciliation === true;
+  } catch { /* Capabilities close when any required backend is unavailable. */ }
+}
+
+function lifecycleRequest(request, payload) {
+  const operationId = clean(request.headers.get("Idempotency-Key"));
+  if (payload.confirm_material_lifecycle !== true) throw materialError("recipe_material_lifecycle_confirmation_required", 400);
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(operationId)) {
+    throw materialError("recipe_material_lifecycle_idempotency_required", 400);
+  }
+  if (!Object.prototype.hasOwnProperty.call(payload, "expected_version") || typeof payload.expected_version !== "string") {
+    throw materialError("recipe_expected_version_required", 400);
+  }
+  return { operationId, expectedVersion: payload.expected_version };
+}
+
+function stableJson(value) {
+  if (Array.isArray(value)) return "[" + value.map(stableJson).join(",") + "]";
+  if (value && typeof value === "object") return "{" + Object.keys(value).sort().map(key => JSON.stringify(key) + ":" + stableJson(value[key])).join(",") + "}";
+  return JSON.stringify(value);
+}
+
+async function assertNoPendingMaterial(config, actor, sourceRef) {
+  if (!config.lifecycleConfigured && !config.supabaseServiceKey) return;
+  const pending = await materialRpc(config, "pending", { p_actor_id: actor.userId, p_source_ref: sourceRef });
+  if (pending) throw materialError("recipe_material_operation_pending", 409);
+}
+
+async function materialRecipeMutation(request, config, source, id, actor, payload, action, patchBuilder) {
+  if (!config.lifecycleReady) throw materialError("recipe_material_lifecycle_unavailable");
+  const { operationId, expectedVersion } = lifecycleRequest(request, payload);
+  const sourceRef = `${source}:${id}`;
+  const args = { p_actor_id: actor.userId, p_operation_id: operationId };
+  let op = await materialRpc(config, "get", args);
+  if (op) {
+    if (op.source_ref !== sourceRef || op.action !== action || op.expected_version !== expectedVersion ||
+        stableJson(op.mutation.request) !== stableJson(payload)) throw materialError("recipe_material_lifecycle_conflict", 409);
+  } else {
+    await assertNoPendingMaterial(config, actor, sourceRef);
+    const before = await readRecord(config, source, id);
+    if (canonicalRecipe(before, source).version !== expectedVersion) throw materialError("recipe_version_conflict", 409);
+    const patch = action === "archive" ? patchBuilder(before) : null;
+    const mutation = { request: payload, before, patch };
+    op = await materialRpc(config, "prepare", { ...args, p_source_ref: sourceRef, p_action: action,
+      p_expected_version: expectedVersion, p_mutation: mutation });
+  }
+  const mutation = op.mutation;
+  const canonicalBefore = canonicalRecipe(mutation.before, source);
+  const result = () => ({ ok: true, id: sourceRef, recordId: clean(id), source,
+    ...(action === "delete" ? { deleted: true } : { recipe: canonicalRecipe({ ...mutation.before, ...mutation.patch, Id: id }, source) }),
+    materialLifecycle: { ...op.result, operationId, phase: "completed" } });
+  if (op.phase === "completed") return result();
+  if (action === "delete") {
+    // Reservation precedes the destructive write; the adapter retains attachment
+    // identities even when the NocoDB row disappears before this request returns.
+    await photoCleanupCommand(config, "prepare", operationId, sourceRef, {
+      before: mutation.before, expectedAfter: null, action: "delete"
+    });
+  }
+  const tableId = tableIdForSource(config, source);
+  const numeric = Number(id), nocoId = Number.isFinite(numeric) ? numeric : id;
+  let current;
+  try { current = await readRecord(config, source, id); }
+  catch (error) { if (action !== "delete" || error.status !== 404) throw error; }
+  if (current) {
+    const desired = action === "archive" && Object.entries(mutation.patch).every(([key, value]) => stableJson(current[key] ?? null) === stableJson(value ?? null));
+    if (!desired && canonicalRecipe(current, source).version !== op.expected_version) throw materialError("recipe_version_conflict", 409);
+    if (!desired) await nocoRequest(config, `/api/v2/tables/${encodeURIComponent(tableId)}/records`, {
+      method: action === "delete" ? "DELETE" : "PATCH", write: true,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(action === "delete" ? [{ Id: nocoId }] : { Id: nocoId, ...mutation.patch }),
+      operation: `recipe_material_${action}`, context: { source, recordId: id }
+    });
+    // Confirm the persisted row instead of synthesizing a successful save.
+    if (action === "archive") {
+      const saved = await readRecord(config, source, id);
+      if (!Object.entries(mutation.patch).every(([key, value]) => stableJson(saved[key] ?? null) === stableJson(value ?? null))) {
+        throw materialError("recipe_material_lifecycle_incomplete");
+      }
+    } else {
+      try { await readRecord(config, source, id); throw materialError("recipe_material_lifecycle_incomplete"); }
+      catch (error) { if (error.status !== 404) throw error; }
+    }
+  }
+  if (action === "delete") await photoCleanupCommand(config, "complete", operationId, sourceRef);
+  op = await materialRpc(config, "complete", args);
+  if (op?.phase !== "completed") throw materialError("recipe_material_lifecycle_incomplete");
+  await writeAudit(config, actor, { action: `recipe_${action}`, entityId: sourceRef, entityName: canonicalBefore.name,
+    beforeData: canonicalBefore, afterData: action === "delete" ? {} : result().recipe,
+    metadata: { source, record_id: id, operation_id: operationId, ...op.result } });
+  return result();
 }
 
 async function menuResponse(config) {
@@ -882,10 +1044,33 @@ async function updateRecipe(request, config, source, id, actor) {
     });
   }
 
+  const { payload, photo, editorMode } = await parseEditorRequest(request);
+  const archiveRequested = clean(payload.status) === "Архив";
+  const lifecycleArchive = archiveRequested && (payload.confirm_material_lifecycle === true ||
+    canonicalRecipe(await readRecord(config, source, id), source).status !== "Архив");
+  if (lifecycleArchive) {
+    if (photo || payload.remove_photo === true) throw materialError("recipe_archive_photo_separate_required", 400);
+    return materialRecipeMutation(request, config, source, id, actor, payload, "archive", before => {
+      const oldVersion = Number(before.Версия || 0);
+      const version = Number.isFinite(oldVersion) ? oldVersion + 1 : 1;
+      return editorMode
+        ? baseRecordForEditor(source, normalizeEditorPayload(source, payload, false), actor.displayName, version, clean(payload.change_note))
+        : { ...legacyGovernancePatch(source, payload, actor.displayName), "Версия": String(version) };
+    });
+  }
+  if (payload.confirm_material_lifecycle === true) throw materialError("recipe_material_lifecycle_invalid", 400);
+  await assertNoPendingMaterial(config, actor, `${source}:${id}`);
   const beforeRaw = await readRecord(config, source, id);
   const beforeCanonical = canonicalRecipe(beforeRaw, source);
-  const { payload, photo, editorMode } = await parseEditorRequest(request);
   const tableId = tableIdForSource(config, source);
+  const photoChanging = photo || payload.remove_photo === true;
+  const cleanupId = photoChanging ? crypto.randomUUID() : null;
+  if (cleanupId) {
+    if (!config.lifecycleReady) throw materialError("recipe_photo_cleanup_unavailable");
+    await photoCleanupCommand(config, "prepare", cleanupId, `${source}:${id}`, {
+      action: "replace", before: beforeRaw, expectedAfter: null
+    });
+  }
 
   let patch;
 
@@ -897,7 +1082,8 @@ async function updateRecipe(request, config, source, id, actor) {
       beforeRaw?.Версия || beforeCanonical.version || 0
     );
     const version = Number.isFinite(oldVersion) ? oldVersion + 1 : 1;
-    const uploaded = photo ? await uploadPhoto(config, photo) : null;
+    if ((photo || input.removePhoto) && !config.lifecycleReady) throw materialError("recipe_photo_cleanup_unavailable");
+    const uploaded = photo ? await uploadReplacementPhoto(config, photo, cleanupId, `${source}:${id}`) : null;
 
     patch = {
       ...baseRecordForEditor(
@@ -930,6 +1116,9 @@ async function updateRecipe(request, config, source, id, actor) {
   const updateId = Number.isFinite(numericId) ? numericId : id;
   const updatePayload = { Id: updateId, ...patch };
 
+  if (cleanupId) await photoCleanupCommand(config, "prepare", cleanupId, `${source}:${id}`, {
+    action: "replace", before: beforeRaw, expectedAfter: { ...beforeRaw, ...patch, Id: id }
+  });
   const updated = await nocoRequest(
     config,
     `/api/v2/tables/${encodeURIComponent(tableId)}/records`,
@@ -943,6 +1132,10 @@ async function updateRecipe(request, config, source, id, actor) {
     }
   );
 
+  if (cleanupId) await photoCleanupCommand(config, "complete", cleanupId, `${source}:${id}`);
+  if (config.lifecycleReady && beforeCanonical.status === "Архив" && patch["Статус"] === "Актуальный") {
+    await materialRpc(config, "restore", { p_actor_id: actor.userId, p_source_ref: `${source}:${id}` });
+  }
   const merged = {
     ...beforeRaw,
     ...patch,
@@ -969,48 +1162,9 @@ async function updateRecipe(request, config, source, id, actor) {
   };
 }
 
-async function deleteRecipe(config, source, id, actor) {
-  if (!config.writeToken) {
-    throw Object.assign(new Error("recipe_admin_write_unavailable"), {
-      status: 503
-    });
-  }
-
-  const beforeRaw = await readRecord(config, source, id);
-  const beforeCanonical = canonicalRecipe(beforeRaw, source);
-  const tableId = tableIdForSource(config, source);
-  const numericId = Number(id);
-  const deleteId = Number.isFinite(numericId) ? numericId : id;
-
-  await nocoRequest(
-    config,
-    `/api/v2/tables/${encodeURIComponent(tableId)}/records`,
-    {
-      method: "DELETE",
-      write: true,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify([{ Id: deleteId }]),
-      operation: "recipe_delete",
-      context: { source, recordId: id }
-    }
-  );
-
-  await writeAudit(config, actor, {
-    action: "recipe_delete",
-    entityId: `${source}:${id}`,
-    entityName: beforeCanonical.name,
-    beforeData: beforeCanonical,
-    afterData: {},
-    metadata: { source, record_id: clean(id) }
-  });
-
-  return {
-    ok: true,
-    id: `${source}:${id}`,
-    recordId: clean(id),
-    source,
-    deleted: true
-  };
+async function deleteRecipe(request, config, source, id, actor) {
+  const { payload } = await parseEditorRequest(request);
+  return materialRecipeMutation(request, config, source, id, actor, payload, "delete");
 }
 
 async function adminRecipes(config) {
@@ -1201,14 +1355,14 @@ function errorResponse(error) {
   }, status);
 }
 
-export default {
-  async fetch(request, env) {
+async function handleRequest(request, env, serialized = false) {
     if (request.method === "OPTIONS") return noContent();
 
     const url = new URL(request.url);
     const config = envConfig(env);
 
     try {
+      await refreshMaterialCapabilities(config);
       if (request.method === "GET" && url.pathname === "/") {
         return json({
           ok: true,
@@ -1242,6 +1396,10 @@ export default {
           return json({ ok: false, error: "not_found" }, 404);
         }
 
+        if (!serialized && adminRoute.kind === "record" && ["PATCH", "DELETE"].includes(request.method) && config.materialWriter?.idFromName) {
+          const objectId = config.materialWriter.idFromName(`${adminRoute.source}:${adminRoute.recordId}`);
+          return config.materialWriter.get(objectId).fetch(request);
+        }
         const actor = await requireAdmin(request, config);
 
         if (
@@ -1301,6 +1459,7 @@ export default {
         ) {
           return json(
             await deleteRecipe(
+              request,
               config,
               adminRoute.source,
               adminRoute.recordId,
@@ -1316,5 +1475,18 @@ export default {
     } catch (error) {
       return errorResponse(error);
     }
+ }
+
+export default { fetch(request, env) { return handleRequest(request, env, false); } };
+
+// Every record write is routed here, including ordinary edits, so a prepared
+// lifecycle operation cannot be overwritten by a concurrent Worker request.
+// Direct/out-of-band NocoDB writers must be disabled before enabling lifecycle.
+export class RecipeMaterialWriter {
+  constructor(state, env) { this.env = env; this.tail = Promise.resolve(); }
+  fetch(request) {
+    const work = this.tail.then(() => handleRequest(request, this.env, true));
+    this.tail = work.catch(() => {});
+    return work;
   }
-};
+}

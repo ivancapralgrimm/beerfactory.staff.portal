@@ -6,10 +6,12 @@ import { AuthProvider } from "@/features/auth/auth-context";
 import { installRuntimeRecovery } from "@/pwa/runtime-recovery";
 import "@/styles.css";
 import "@/mobile-input-guard.css";
-import "@/components/craft/craft.css";
-import "@/workspace.css";
-import "@/components/craft/article-editor-actions.css";
+
+
+
 import "@/styles/photo-frame-safety.css";
+import "@/components/warm/prototype.css";
+import "@/components/warm/warm.css";
 
 // A data router provides navigation blocking while retaining existing hash URLs.
 const router = createHashRouter([{ path: "*", element: <AuthProvider><App /></AuthProvider> }]);

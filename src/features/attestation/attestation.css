@@ -1,0 +1,19 @@
+.bfstaff-app .bf-attestation-domain{min-width:0}
+.bfstaff-app .bf-attestation-fields{display:grid;gap:12px;min-width:0;margin:0;padding:0;border:0}
+.bfstaff-app .bf-attestation-domain .bf-field{display:grid;gap:4px;min-width:0}
+.bfstaff-app .bf-attestation-domain .bf-field-label{font-size:var(--bf-type-support,13px);font-weight:600;line-height:1.4}
+.bfstaff-app .bf-attestation-domain :is(input:not([type=radio]),select,textarea){width:100%;min-width:0;max-width:100%;font-size:16px}
+.bfstaff-app .bf-attestation-domain .bf-attestation-answer-edit{grid-template-columns:44px minmax(0,1fr)}
+.bfstaff-app .bf-attestation-ticket-list{display:grid;gap:8px;min-width:0}
+.bfstaff-app .bf-attestation-ticket-list .item-row{display:flex;justify-content:space-between;align-items:center;gap:12px;min-width:0;min-height:68px}
+.bfstaff-app .bf-attestation-ticket-list .item-row>span:first-child{min-width:0;overflow-wrap:anywhere}
+.bfstaff-app .bf-attestation-ticket-list .item-row>span:last-child{flex-shrink:0}
+.bfstaff-app .bf-attestation-history-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;width:100%;min-width:0;text-align:start}
+.bfstaff-app .bf-attestation-history-row strong{display:block;overflow-wrap:anywhere}
+.bfstaff-app .bf-attestation-history-row .bf-attempt-score{display:grid;align-content:center;text-align:end;gap:4px}
+.bfstaff-app .bf-attestation-domain .bf-bank-question summary{display:flex;justify-content:space-between;list-style:none;cursor:pointer}
+.bfstaff-app .bf-attestation-domain .bf-bank-question summary::-webkit-details-marker{display:none}
+.bfstaff-app .bf-attestation-domain .bf-result-stage{position:relative;isolation:isolate;overflow:hidden}
+.bfstaff-app .bf-attestation-domain .bf-review-pill{border:1px solid var(--bf-input-stroke);box-shadow:none;min-height:32px}
+.bfstaff-app .bf-attestation-domain .bf-dialog-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+@media(max-width:360px){.bfstaff-app .bf-attestation-domain .bf-exam-actions{grid-template-columns:minmax(0,1fr)}.bfstaff-app .bf-attestation-domain .bf-quota-row{grid-template-columns:minmax(0,1fr) 60px 44px;gap:4px;padding:6px}}

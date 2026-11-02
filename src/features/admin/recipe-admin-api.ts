@@ -25,6 +25,17 @@ export type AdminRecipeMutationResponse = {
   recordId: string;
   source: AdminRecipeSource;
   recipe?: Recipe;
+  materialLifecycle?: {
+    operationId: string;
+    phase: "completed";
+    affectedQuestions: number;
+    affectedTickets: number;
+  };
+};
+
+export type RecipeMaterialLifecycleRequest = {
+  expectedVersion: string;
+  operationId: string;
 };
 
 export class AdminRecipeApiError extends Error {
@@ -46,6 +57,32 @@ async function jsonOrEmpty(response: Response) {
   }
 }
 
+const RECIPE_WRITE_TIMEOUT_MS = 15_000;
+
+/** Bound headers and response-body reading together. Writes are never automatically retried. */
+async function sendRecipeMutation(url: string, init: RequestInit) {
+  const controller = new AbortController();
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const deadline = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => {
+      reject(new AdminRecipeApiError("recipe_write_timeout"));
+      controller.abort();
+    }, RECIPE_WRITE_TIMEOUT_MS);
+  });
+  const request = (async () => {
+    const response = await fetch(url, { ...init, signal: controller.signal });
+    return { response, data: await jsonOrEmpty(response) };
+  })();
+  try {
+    return await Promise.race([request, deadline]);
+  } catch (cause) {
+    if (cause instanceof AdminRecipeApiError) throw cause;
+    throw new AdminRecipeApiError("recipe_write_unconfirmed");
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 function authHeaders(accessToken: string) {
   return { Authorization: `Bearer ${accessToken}` };
 }
@@ -56,7 +93,35 @@ function errorCode(response: Response, data: Record<string, unknown>) {
     : String(data.error || "admin_recipe_write_failed");
 }
 
-function mutationForm(input: AdminRecipeInput, photo?: File | null) {
+function lifecyclePayload(lifecycle?: RecipeMaterialLifecycleRequest) {
+  return lifecycle ? {
+    confirm_material_lifecycle: true,
+    expected_version: lifecycle.expectedVersion
+  } : {};
+}
+
+function lifecycleHeaders(lifecycle?: RecipeMaterialLifecycleRequest): Record<string, string> {
+  return lifecycle ? { "Idempotency-Key": lifecycle.operationId } : {};
+}
+
+function assertLifecycleCompleted(data: Record<string, unknown>, lifecycle?: RecipeMaterialLifecycleRequest) {
+  if (!lifecycle) return;
+  const result = data.materialLifecycle as Record<string, unknown> | undefined;
+  if (result?.phase !== "completed" || result.operationId !== lifecycle.operationId ||
+    !Number.isInteger(result.affectedQuestions) || Number(result.affectedQuestions) < 0 ||
+    !Number.isInteger(result.affectedTickets) || Number(result.affectedTickets) < 0) {
+    throw new AdminRecipeApiError("recipe_material_lifecycle_incomplete", data);
+  }
+}
+
+function assertMutationIdentity(data: Record<string, unknown>, source: AdminRecipeSource, recordId?: string) {
+  if (data.source !== source || typeof data.recordId !== "string" || !data.recordId ||
+    data.id !== `${source}:${data.recordId}` || recordId !== undefined && data.recordId !== recordId) {
+    throw new AdminRecipeApiError("recipe_write_response_invalid", data);
+  }
+}
+
+function mutationForm(input: AdminRecipeInput, photo?: File | null, lifecycle?: RecipeMaterialLifecycleRequest) {
   const form = new FormData();
 
   form.set(
@@ -72,7 +137,8 @@ function mutationForm(input: AdminRecipeInput, photo?: File | null) {
       serving: input.serving.trim(),
       tags: input.tags.trim(),
       change_note: input.changeNote.trim(),
-      remove_photo: input.removePhoto === true
+      remove_photo: input.removePhoto === true,
+      ...lifecyclePayload(lifecycle)
     })
   );
 
@@ -86,22 +152,24 @@ async function mutateRecipe(
   source: AdminRecipeSource,
   input: AdminRecipeInput,
   photo?: File | null,
-  recordId?: string
+  recordId?: string,
+  lifecycle?: RecipeMaterialLifecycleRequest
 ) {
   const suffix = recordId ? `/${encodeURIComponent(recordId)}` : "";
-  const response = await fetch(
+  const { response, data } = await sendRecipeMutation(
     `${config.recipeApiBase}/admin/recipes/${source}${suffix}`,
     {
       method,
-      headers: authHeaders(accessToken),
-      body: mutationForm(input, photo)
+      headers: { ...authHeaders(accessToken), ...lifecycleHeaders(lifecycle) },
+      body: mutationForm(input, photo, lifecycle)
     }
   );
 
-  const data = await jsonOrEmpty(response);
   if (!response.ok || data.ok !== true) {
     throw new AdminRecipeApiError(errorCode(response, data), data);
   }
+  assertMutationIdentity(data, source, recordId);
+  assertLifecycleCompleted(data, lifecycle);
 
   // Deliberately do NOT kick off another uncoupled loadRecipes(force:true).
   // Both RecipeEditor/RecipeDetailPage and RecipesPage already await reload().
@@ -122,7 +190,8 @@ export function updateAdminRecipe(
   accessToken: string,
   recordId: string,
   input: AdminRecipeInput,
-  photo?: File | null
+  photo?: File | null,
+  lifecycle?: RecipeMaterialLifecycleRequest
 ) {
   return mutateRecipe(
     accessToken,
@@ -130,7 +199,8 @@ export function updateAdminRecipe(
     input.source,
     input,
     photo,
-    recordId
+    recordId,
+    lifecycle
   );
 }
 
@@ -138,14 +208,16 @@ export async function setAdminRecipeStatus(
   accessToken: string,
   source: AdminRecipeSource,
   recordId: string,
-  status: AdminRecipeStatus
+  status: AdminRecipeStatus,
+  lifecycle?: RecipeMaterialLifecycleRequest
 ) {
-  const response = await fetch(
+  const { response, data } = await sendRecipeMutation(
     `${config.recipeApiBase}/admin/recipes/${source}/${encodeURIComponent(recordId)}`,
     {
       method: "PATCH",
       headers: {
         ...authHeaders(accessToken),
+        ...lifecycleHeaders(lifecycle),
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
@@ -153,15 +225,17 @@ export async function setAdminRecipeStatus(
         change_note:
           status === "Архив"
             ? "Перемещён в архив"
-            : "Возвращён из архива"
+            : "Возвращён из архива",
+        ...lifecyclePayload(lifecycle)
       })
     }
   );
 
-  const data = await jsonOrEmpty(response);
   if (!response.ok || data.ok !== true) {
     throw new AdminRecipeApiError(errorCode(response, data), data);
   }
+  assertMutationIdentity(data, source, recordId);
+  assertLifecycleCompleted(data, lifecycle);
 
   // Caller performs exactly one awaited reload after a successful PATCH.
   return data as unknown as AdminRecipeMutationResponse;
@@ -170,20 +244,23 @@ export async function setAdminRecipeStatus(
 export async function deleteAdminRecipe(
   accessToken: string,
   source: AdminRecipeSource,
-  recordId: string
+  recordId: string,
+  lifecycle?: RecipeMaterialLifecycleRequest
 ) {
-  const response = await fetch(
+  const { response, data } = await sendRecipeMutation(
     `${config.recipeApiBase}/admin/recipes/${source}/${encodeURIComponent(recordId)}`,
     {
       method: "DELETE",
-      headers: authHeaders(accessToken)
+      headers: { ...authHeaders(accessToken), ...lifecycleHeaders(lifecycle), ...(lifecycle ? { "Content-Type": "application/json" } : {}) },
+      ...(lifecycle ? { body: JSON.stringify(lifecyclePayload(lifecycle)) } : {})
     }
   );
 
-  const data = await jsonOrEmpty(response);
   if (!response.ok || data.ok !== true) {
     throw new AdminRecipeApiError(errorCode(response, data), data);
   }
+  assertMutationIdentity(data, source, recordId);
+  assertLifecycleCompleted(data, lifecycle);
 
   // Delete navigation performs its own refresh.
   return data;

@@ -26,6 +26,8 @@ export type RecipeCapabilities = {
   governance: boolean;
   recipeAdminWrite: boolean;
   sourceAwareIds: boolean;
+  materialLifecycle?: boolean;
+  photoCleanup?: boolean;
 };
 
 export type RecipeDataSource =

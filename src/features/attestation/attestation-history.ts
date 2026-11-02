@@ -22,6 +22,7 @@ type LocalLearningRecord = {
     category?: string;
     categoryId?: string;
     passPercent?: number;
+    snapshot?: QuizResult;
   }>;
 };
 
@@ -174,7 +175,9 @@ function uploadAttempt(
           p_category_results: {
             pass_percent: snapshot.passPercent,
             topics: snapshot.topicResults,
-            weak_topics: snapshot.weakTopics
+            weak_topics: snapshot.weakTopics,
+            // Immutable answer order is essential: live questions may be edited or deleted later.
+            attempt_snapshot: { schemaVersion: 1, questions: snapshot.questions, answers: snapshot.answers }
           },
           p_started_at: snapshot.startedAt,
           p_finished_at: snapshot.finishedAt,
@@ -210,7 +213,7 @@ function uploadAttempt(
   return flight;
 }
 
-async function deviceHistory(userId: string, limit: number) {
+async function deviceHistory(userId: string, limit: number, maximum = 10) {
   const items = new Map<string, QuizHistoryItem>();
   const record = readLocalRecord(userId);
   for (const [index, item] of (record.history || []).entries()) {
@@ -218,6 +221,9 @@ async function deviceHistory(userId: string, limit: number) {
       || typeof item.score !== "number" || typeof item.passed !== "boolean"
       || item.time == null) continue;
     items.set(item.clientAttemptId || `legacy:${index}`, {
+      id: item.clientAttemptId,
+      userId,
+      snapshot: item.snapshot,
       category: item.category || "Общий тест",
       categoryId: item.categoryId,
       time: item.time,
@@ -230,6 +236,9 @@ async function deviceHistory(userId: string, limit: number) {
   for (const entry of await listPendingAttestationAttempts(userId)) {
     const result = entry.result;
     items.set(entry.clientAttemptId, {
+      id: entry.clientAttemptId,
+      userId,
+      snapshot: result,
       category: result.categoryLabel,
       categoryId: result.categoryId,
       time: result.finishedAt,
@@ -242,7 +251,7 @@ async function deviceHistory(userId: string, limit: number) {
   return {
     items: [...items.values()]
       .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
-      .slice(0, Math.max(1, Math.min(limit, 10))),
+      .slice(0, Math.max(1, Math.min(limit, maximum))),
     source: "device" as const
   };
 }
@@ -269,7 +278,10 @@ export async function getQuizHistory(
 
     return {
       items: attempts.map((item) => ({
-        category: `${item.display_name} · ${item.category || "Общий тест"}`,
+        id: item.id,
+        userId: item.user_id,
+        displayName: item.display_name,
+        category: item.category || "Общий тест",
         categoryId: item.category_id,
         time: item.attempted_at,
         correct: item.correct_answers,
@@ -303,7 +315,8 @@ export async function persistQuizResultLocally(
       passed: result.passed,
       category: result.categoryLabel,
       categoryId: result.categoryId,
-      passPercent: result.passPercent
+      passPercent: result.passPercent,
+      snapshot: result
     }
   ].slice(-100);
 
@@ -366,4 +379,89 @@ async function syncUserAttempts(userId: string) {
   const remaining = await listPendingAttestationAttempts(userId);
 
   return { sent, pending: remaining.length };
+}
+
+
+/** Decode only a complete immutable snapshot. Never rebuild an old attempt from the current bank. */
+export function decodeQuizAttemptSnapshot(row: {
+  category?: string | null; category_id?: string | null; total_questions: number;
+  correct_answers: number; score: number; passed: boolean; started_at?: string | null;
+  finished_at?: string | null; created_at?: string; category_results: unknown;
+}): QuizResult | null {
+  const payload = row.category_results as { pass_percent?: unknown; attempt_snapshot?: { schemaVersion?: unknown; questions?: unknown; answers?: unknown } } | null;
+  const snapshot = payload?.attempt_snapshot;
+  if (snapshot?.schemaVersion !== 1 || !Array.isArray(snapshot.questions) || !Array.isArray(snapshot.answers)
+    || snapshot.questions.length !== row.total_questions || snapshot.answers.length !== row.total_questions
+    || !Number.isInteger(row.total_questions) || row.total_questions < 1 || row.total_questions > 50
+    || !Number.isInteger(row.correct_answers) || row.correct_answers < 0 || row.correct_answers > row.total_questions
+    || !Number.isInteger(row.score) || typeof row.passed !== "boolean" || !Number.isInteger(payload?.pass_percent)
+    || Number(payload?.pass_percent) < 50 || Number(payload?.pass_percent) > 100) return null;
+  const questions = snapshot.questions;
+  const answers = snapshot.answers;
+  const topicResults: QuizResult["topicResults"] = Object.create(null);
+  const questionIds = new Set<string>();
+  let correct = 0;
+  for (const [index, question] of questions.entries()) {
+    if (!question || typeof question !== "object" || typeof question.id !== "string" || typeof question.q !== "string"
+      || !question.id.trim() || questionIds.has(question.id) || !question.q.trim() || typeof question.topic !== "string"
+      || typeof question.group !== "string" || !question.group.trim()
+      || !["bar", "kitchen", "wine", "service"].includes(question.knowledgeType)
+      || !["bf", "bb", "common"].includes(question.venue)
+      || ["source", "sourceRef", "reviewUrl", "reviewLabel", "reviewNote", "subcategory"].some(key => question[key] != null && typeof question[key] !== "string")
+      || (question.revision != null && (!Number.isInteger(question.revision) || question.revision < 1))
+      || !Array.isArray(question.answers)
+      || question.answers.length !== 4 || question.answers.some((answer: unknown) => !answer || typeof answer !== "object"
+        || typeof (answer as { text?: unknown }).text !== "string" || !(answer as { text: string }).text.trim()
+        || typeof (answer as { correct?: unknown }).correct !== "boolean")
+      || new Set(question.answers.map((answer: { text: string }) => answer.text.trim().toLocaleLowerCase("ru"))).size !== 4
+      || question.answers.filter((answer: { correct: boolean }) => answer.correct).length !== 1
+      || !Number.isInteger(answers[index]) || answers[index] < 0 || answers[index] >= question.answers.length) return null;
+    questionIds.add(question.id);
+    const topic = question.topic || "Общее";
+    if (!topicResults[topic]) topicResults[topic] = { total: 0, correct: 0 };
+    topicResults[topic].total += 1;
+    if (question.answers[answers[index]].correct) { correct += 1; topicResults[topic].correct += 1; }
+  }
+  if (correct !== row.correct_answers || Math.round(correct / row.total_questions * 100) !== row.score
+    || (correct * 100 >= row.total_questions * Number(payload?.pass_percent)) !== row.passed) return null;
+  const finishedAt = row.finished_at || row.created_at;
+  if (!finishedAt || !Number.isFinite(Date.parse(finishedAt))) return null;
+  // A missing start time is shown as unknown by the result view, never invented.
+  const startedAt = row.started_at && Number.isFinite(Date.parse(row.started_at)) && Date.parse(row.started_at) <= Date.parse(finishedAt) ? row.started_at : "";
+  return { categoryId: row.category_id || "", categoryLabel: row.category || "Общий тест",
+    questions, answers, total: row.total_questions, correct, score: row.score, passed: row.passed,
+    passPercent: Number(payload?.pass_percent), startedAt, finishedAt,
+    topicResults, weakTopics: Object.entries(topicResults).filter(([, result]) => result.correct < result.total)
+      .map(([topic, result]) => ({ topic, ...result })) };
+}
+
+export async function getQuizAttemptDetail(attemptId: string, userId: string): Promise<{ summary: QuizHistoryItem; result: QuizResult | null } | null> {
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(attemptId)) return null;
+  await requireCurrentUser(userId);
+  // This direct read deliberately keeps the existing owner/admin RLS policy.
+  // The broad team-summary RPC does not grant access to another person's answers.
+  const { data, error } = await supabase.from("quiz_attempts")
+    .select("id,user_id,category,category_id,score,passed,total_questions,correct_answers,category_results,started_at,finished_at,created_at")
+    .eq("id", attemptId).maybeSingle();
+  if (error) throw error;
+  await requireCurrentUser(userId);
+  if (!data) return null;
+  return { summary: { id: data.id, userId: data.user_id, category: data.category || "Общий тест", categoryId: data.category_id,
+    score: data.score, passed: data.passed, total: data.total_questions, correct: data.correct_answers,
+    time: data.finished_at || data.created_at }, result: decodeQuizAttemptSnapshot(data) };
+}
+
+export async function getPersonalQuizHistory(userId: string, limit = 100): Promise<{ items: QuizHistoryItem[]; source: QuizHistorySource }> {
+  if (!userId) return { items: [], source: "profile" };
+  try {
+    await requireCurrentUser(userId);
+    const { data, error } = await supabase.from("quiz_attempts")
+      .select("id,user_id,category,category_id,score,passed,total_questions,correct_answers,finished_at,created_at")
+      .eq("user_id", userId).order("created_at", { ascending: false }).limit(Math.min(100, Math.max(1, limit)));
+    if (error) throw error;
+    await requireCurrentUser(userId);
+    return { source: "profile", items: (data || []).map(item => ({ id: item.id, userId: item.user_id, category: item.category || "Общий тест",
+      categoryId: item.category_id, time: item.finished_at || item.created_at, correct: item.correct_answers,
+      total: item.total_questions, score: item.score, passed: item.passed })) };
+  } catch { return deviceHistory(userId, limit, 100); }
 }

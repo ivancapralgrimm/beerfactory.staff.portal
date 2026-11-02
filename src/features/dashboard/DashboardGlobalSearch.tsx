@@ -1,13 +1,8 @@
-import {
-  BookOpen,
-  ChevronRight,
-  Search,
-  UtensilsCrossed
-} from "lucide-react";
+import {matchesBeerMap,beerMapSearchResult} from "@/features/beer/beer-search";
+import {WarmIcon} from "@/components/warm/WarmIcon";
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
-import { Surface } from "@/components/ui/surface";
 import { useKnowledgeArticles } from "@/features/knowledge/use-knowledge";
 import {
   categoryLabel,
@@ -101,9 +96,13 @@ export function DashboardGlobalSearch() {
       href: string;
       title: string;
       kicker: string;
-      kind: "recipe" | "knowledge";
+      kind: "recipe" | "knowledge" | "beer";
       score: number;
     }> = [];
+
+    if (matchesBeerMap(deferredQuery)) {
+      items.push({key: "beer-map", href: beerMapSearchResult.path, title: beerMapSearchResult.title, kicker: beerMapSearchResult.kind, kind: "beer", score: beerMapSearchResult.rank});
+    }
 
     if (recipeState.status === "ready") {
       for (const recipe of recipeState.recipes) {
@@ -167,68 +166,9 @@ export function DashboardGlobalSearch() {
     recipeState.status === "error" &&
     knowledge.state.status === "error";
 
-  return (
-    <Surface className="bf-dashboard-search p-3.5" aria-label="Быстрый поиск по порталу">
-      <label htmlFor="dashboard-global-search" className="block">
-        <span className="eyebrow">БЫСТРЫЙ ПОИСК</span>
-        <div className="relative mt-2">
-          <Search
-            className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-[var(--bf-dim)]"
-            aria-hidden
-          />
-          <Input
-            id="dashboard-global-search"
-            type="search"
-            autoComplete="off"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Рецепт, ингредиент, инструкция…"
-            className="pl-10"
-          />
-        </div>
-      </label>
-
-      {active ? (
-        <div className="mt-2 grid gap-1.5" aria-live="polite">
-          {results.length ? (
-            results.map((item) => {
-              const Icon = item.kind === "recipe" ? UtensilsCrossed : BookOpen;
-
-              return (
-                <Link
-                  key={item.key}
-                  to={item.href}
-                  state={{ from: "/" }}
-                  className="flex min-h-14 items-center gap-3 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-3 py-2 outline-none transition-[border-color,transform] focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)] active:translate-y-px"
-                >
-                  <div className="grid size-9 shrink-0 place-items-center rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] text-[var(--bf-copper-hi)]">
-                    <Icon className="size-4" aria-hidden />
-                  </div>
-                  <span className="min-w-0 flex-1">
-                    <small className="block truncate text-[9px] font-black uppercase tracking-[0.1em] text-[var(--bf-dim)]">
-                      {item.kicker}
-                    </small>
-                    <strong className="mt-0.5 block truncate text-sm text-[var(--bf-cream)]">
-                      {item.title}
-                    </strong>
-                  </span>
-                  <ChevronRight className="size-4 shrink-0 text-[var(--bf-copper-hi)]" aria-hidden />
-                </Link>
-              );
-            })
-          ) : loading ? (
-            <p className="px-1 py-2 text-xs text-[var(--bf-dim)]">Ищем…</p>
-          ) : unavailable ? (
-            <p className="px-1 py-2 text-xs text-[var(--bf-muted)]">
-              Поиск сейчас недоступен.
-            </p>
-          ) : (
-            <p className="px-1 py-2 text-xs text-[var(--bf-dim)]">
-              Ничего не найдено.
-            </p>
-          )}
-        </div>
-      ) : null}
-    </Surface>
-  );
+  return <section className="warm-home-search" role="search" aria-label="Поиск по материалам">
+    <label htmlFor="dashboard-global-search" className="bf-field-label">Быстрый поиск</label>
+    <Input id="dashboard-global-search" type="search" autoComplete="off" value={query} onChange={event=>setQuery(event.target.value)} placeholder="Рецепт, ингредиент, инструкция"/>
+    {active&&<div className="grid gap-2 mt-3" aria-live="polite">{results.length?results.map(item=><Link key={item.key} to={item.href} state={{from:'/'}} className="bf-nav-row"><span className="bf-nav-copy"><strong className="bf-nav-title">{item.title}</strong><span className="bf-nav-meta">{item.kicker}</span></span><WarmIcon name="chevron" size={18}/></Link>):<p className="small muted">{loading?'Ищем…':unavailable?'Поиск сейчас недоступен.':'Ничего не найдено.'}</p>}</div>}
+  </section>;
 }

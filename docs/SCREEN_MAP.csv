@@ -1,0 +1,31 @@
+﻿Экран,main URL/вход,Прототип URL/вход,Компонент прототипа,Интеграционное правило
+Главная,/#/,/#/today,Home,Сохранить main источники; новый порядок блоков
+Вход,/#/login,/#/login,AuthForm,"Новая форма, реальные mainAuth/session"
+Регистрация,/#/register,/#/register,AuthForm,"Раздельные имя/фамилия, main register"
+Восстановление,/#/recovery,/#/recovery,AuthForm,Реальный main recover
+Настройка восстановления,/#/setup-recovery,Отсутствует,Нужно адаптировать,Main mandatory recovery gate сохранить
+Рецепты,/#/menu,/#/recipes,Recipes,"Сохранить старый URL alias, фильтры и IDs"
+Рецепт,/#/menu/:recipeId,/#/recipes/:id,Recipes detail,"source-aware mainID, калькулятор/метаданные/share"
+Редактор рецепта,Модальное окно в menu/detail,/#/recipes/:id/edit; /recipes/new,RecipeEditor,Сохранить main field/API schema
+Знания,/#/knowledge,/#/knowledge,Knowledge,"Новый UI, main documents/progress"
+Статья,/#/knowledge/:articleId,/#/knowledge/:id,Knowledge reader,"schema2 без потерь, старый article/:id alias"
+Редактор статьи,/#/knowledge/new;/:id/edit,Такие же пути,KnowledgeEditor,"Упрощённый toolbar, совместимые документы main"
+Управление статьями,/#/knowledge/manage,/#/knowledge/manage,KnowledgeManage,Main capabilities/versions/status
+Аттестация,/#/attestation,/#/attestation,ExamHome,"Согласовать историю, draft, пороги"
+Прохождение,Состояние внутри attestation,/#/attestation/run/:ticketId,ExamRun,Новый header/radio; main подбор и snapshot
+Результат,Состояние внутри attestation,/#/attestation/result/:attemptId,ExamResult,Новый UI; точный main pass и сохранение
+Управление аттестацией,"/#/admin?section=attempts, панели",/#/admin/attestation; /tickets; /questions,ExamManagement,"Main bank/settings/RPC, новые страницы"
+Редактор вопроса,Панель банка внутри admin,/#/admin/attestation/questions/:id,QuestionEditor,"Четыре ответа, main group/revision/source; обязательный материал"
+Редактор билета,Панель настроек внутри admin,/#/admin/attestation/tickets/:id,TicketEditor,Main independent tickets + согласованные изменения
+Смена,/#/shift,/#/shift,ShiftPage,Main POSITION shift/context/RPC
+Редактор чек-листов,/#/shift/editor,/#/shift/editor,ChecklistEditor,Main position/type/groups/weekdays/revision
+История смен,Итоги в admin audit,/#/admin/audit/shifts; legacy /shift/history,ShiftHistory,Новая страница; доступ и snapshot требуют решения
+Лента,/#/feed; alias /handover,/#/feed,FeedPage,"Main realtime/ack/push, новая аудитория требует выбора"
+Заметка/редактор,Новая заметка в форме FeedPage,/#/feed/:id; /feed/new; /feed/:id/edit,FeedDetail/FeedEditor,Edit/reopen и видимость не равны main create-only API
+Профиль,/#/profile; ?view=details,/#/profile; /profile/edit,ProfileHome/ProfileEdit,"Main профиль/ограничения, новые настройки"
+Настройки,Распределены по profile/admin,/#/settings,SettingsHome,"Согласованная общая страница, main guards"
+Уведомление,NotificationSettingsCard в profile,/#/settings/notifications,NotificationsPage,"Main devicePush/install, не boolean профиля"
+Сотрудники,/#/admin?section=team,/#/admin/team; /admin/team/:id,Employees/EmployeeEditor,"Main credentials/owner/active guards, новыйQR"
+Журнал,/#/admin?section=audit,/#/admin/audit,Audit,"30на группу, main actor/before/after и права"
+Совместимость,"/training,/article/:id,/handover,?recipe=",Частично отсутствует,Router aliases,"Вернуть все main aliases, canonicalIDs и query state"
+Демо-сценарии,Нет в production,"/#/prototype, /profile/offline",Scenarios/OfflinePage,Не публиковать вместо реальных механизмов

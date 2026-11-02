@@ -14,7 +14,7 @@ import {
 } from "react-router-dom";
 import { AppShell } from "@/components/layout/AppShell";
 import { useAuth } from "@/features/auth/auth-context";
-import { canManageChecklistsClient } from "@/types/auth";
+import { canManageStaffClient, canManageChecklistsClient } from "@/types/auth";
 import { LoginPage } from "@/features/auth/LoginPage";
 import { RecoveryPage } from "@/features/auth/RecoveryPage";
 import { RecoverySetupPage } from "@/features/auth/RecoverySetupPage";
@@ -43,6 +43,8 @@ const RecipeDetailPage = lazy(() =>
     default: module.RecipeDetailPage
   }))
 );
+
+const BeerPage = lazy(() => import("@/features/beer/BeerPage").then(module => ({default:module.BeerPage})));
 
 const KnowledgePage = lazy(() =>
   import(
@@ -111,36 +113,12 @@ const ProfilePage = lazy(() =>
   )
 );
 
-function BootScreen() {
-  return (
-    <main
-      className="craft-context grid min-h-dvh place-items-center px-6 text-[#332820]"
-      style={{
-        backgroundColor: "#f4e5c9",
-        backgroundImage:
-          'url("/assets/craft/materials/paper-fibre.svg"), radial-gradient(circle at 50% 8%, rgba(255,255,255,.52), transparent 38%), linear-gradient(180deg, #f8ecd5 0%, #efe0c2 100%)',
-        backgroundRepeat: "repeat, no-repeat, no-repeat"
-      }}
-    >
-      <div
-        className="w-full max-w-[286px] rounded-[18px] border border-[#c9ad83] bg-[#fff4df]/90 px-7 py-7 text-center shadow-[0_12px_28px_rgba(80,54,31,0.12)]"
-        role="status"
-        aria-live="polite"
-      >
-        <img
-          src="/assets/icons/profile-avatar.png"
-          alt=""
-          width="72"
-          height="72"
-          className="mx-auto size-[72px]"
-        />
-        <p className="mt-4 text-sm font-semibold text-[#5a4736]">
-          Проверяем сессию…
-        </p>
-      </div>
-    </main>
-  );
-}
+const SettingsPage=lazy(()=>import('@/features/settings/SettingsPage').then(m=>({default:m.SettingsPage})));
+const NotificationSettingsPage=lazy(()=>import('@/features/settings/NotificationSettingsPage').then(m=>({default:m.NotificationSettingsPage})));
+const AttestationSettingsPage=lazy(()=>import('@/features/attestation/AttestationSettingsPage').then(m=>({default:m.AttestationSettingsPage})));
+const AttestationBankPage=lazy(()=>import('@/features/attestation/AttestationBankAdminPanel').then(m=>({default:m.AttestationBankPage})));
+
+function BootScreen(){return <main className="bfstaff-app grid min-h-dvh place-items-center px-6"><div className="bf-panel text-center" role="status" aria-live="polite"><strong className="bf-boot-brand">BFSTAFF</strong><p className="muted mt-3">Проверяем сессию…</p></div></main>;}
 
 function RouteLoader() {
   return (
@@ -276,6 +254,10 @@ function ChecklistEditorOnly({
   return children;
 }
 
+function StaffEditorOnly({children}:{children:ReactNode}){const {state}=useAuth();return state.status==='authenticated'&&canManageStaffClient(state.user)?children:<Navigate to="/settings" replace/>;}
+function RecipeAlias(){const{recipeId=''}=useParams();return <Navigate to={'/menu/'+encodeURIComponent(recipeId)} replace/>;}
+function AttemptAlias(){const{attemptId=''}=useParams();return <Navigate to={'/attestation?attempt='+encodeURIComponent(attemptId)} replace/>;}
+
 function LazyRoute({
   children
 }: {
@@ -348,6 +330,24 @@ export function App() {
           }
         />
 
+        <Route path="today" element={<Navigate to="/" replace/>}/>
+        <Route path="recipes" element={<Navigate to="/menu" replace/>}/>
+        <Route path="recipes/:recipeId" element={<RecipeAlias/>}/>
+        <Route path="settings" element={<LazyRoute><SettingsPage/></LazyRoute>}/>
+        <Route path="settings/notifications" element={<LazyRoute><NotificationSettingsPage/></LazyRoute>}/>
+        <Route path="settings/recipes" element={<LazyRoute><RecipesPage/></LazyRoute>}/>
+        <Route path="settings/knowledge" element={<LazyRoute><KnowledgeManagePage/></LazyRoute>}/>
+        <Route path="settings/checklists" element={<Navigate to="/shift/editor" replace/>}/>
+        <Route path="settings/attestation" element={<StaffEditorOnly><LazyRoute><AttestationSettingsPage/></LazyRoute></StaffEditorOnly>}/>
+        <Route path="settings/attestation/questions" element={<StaffEditorOnly><LazyRoute><AttestationBankPage/></LazyRoute></StaffEditorOnly>}/>
+        <Route path="profile/details" element={<Navigate to="/profile?view=details" replace/>}/>
+        <Route path="profile/notifications" element={<Navigate to="/settings/notifications" replace/>}/>
+        <Route path="admin/team" element={<Navigate to="/admin?section=team" replace/>}/>
+        <Route path="admin/audit" element={<Navigate to="/admin?section=audit" replace/>}/>
+        <Route path="admin/attestation" element={<Navigate to="/settings/attestation" replace/>}/>
+        <Route path="attestation/result/:attemptId" element={<AttemptAlias/>}/>
+        <Route path="attestation/run/:ticketId" element={<Navigate to="/attestation" replace/>}/>
+        <Route path="feed/:noteId" element={<LazyRoute><FeedPage/></LazyRoute>}/>
         <Route
           path="menu"
           element={
@@ -373,6 +373,8 @@ export function App() {
             </LazyRoute>
           }
         />
+        <Route path="beer" element={<LazyRoute><BeerPage /></LazyRoute>} />
+        <Route path="knowledge/beer" element={<Navigate to="/beer" replace />} />
         <Route
           path="knowledge/new"
           element={<LazyRoute><KnowledgeEditorPage /></LazyRoute>}

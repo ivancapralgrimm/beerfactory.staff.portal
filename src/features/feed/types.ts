@@ -10,6 +10,12 @@ export type FeedProfile = {
   position: string | null;
 };
 
+export type FeedReader = {
+  user_id: string;
+  created_at: string;
+  profile: FeedProfile | null;
+};
+
 export type FeedPost = {
   id: string;
   shift_id: string | null;
@@ -27,4 +33,5 @@ export type FeedPost = {
   resolvedBy: FeedProfile | null;
   acknowledgedByMe: boolean;
   acknowledgementCount: number;
+  readers: FeedReader[];
 };

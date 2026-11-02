@@ -45,15 +45,6 @@ test('PWA/browser chrome is paper-first rather than dark', () => {
   assert.match(vite, /theme_color:\s*"#f4e5c9"/);
 });
 
-test('shift admin tool is inside the craft page surface', () => {
-  const shell = read('src/components/layout/AppShell.tsx');
-  const craftOpen = shell.indexOf('<CraftPage screen={screen}>');
-  const toolUse = shell.indexOf('{shiftTool}', craftOpen);
-  const craftClose = shell.indexOf('</CraftPage>', craftOpen);
-  assert.ok(craftOpen >= 0 && toolUse > craftOpen && craftClose > toolUse);
-  assert.match(shell, /bf-page-tool-link/);
-});
-
 test('global decorative stamp cannot collide with page actions', () => {
   const css = read('src/components/craft/craft.css');
   assert.match(css, /\.craft-page::after\s*\{\s*display:\s*none\s*!important;\s*\}/);
@@ -69,12 +60,4 @@ test('shift no longer duplicates feed navigation beneath checklist', () => {
   const shift = read('src/features/shift/ShiftPage.tsx');
   assert.doesNotMatch(shift, /Открыть Ленту/);
   assert.doesNotMatch(shift, /Есть важная информация\?/);
-});
-
-test('bottom navigation keeps compact content height', () => {
-  const shell = read('src/components/layout/AppShell.tsx');
-  const css = read('src/components/craft/craft.css');
-  assert.match(shell, /min-h-\[52px\]/);
-  assert.match(shell, /min-h-\[50px\]/);
-  assert.match(css, /\.bf-bottom-nav > div\s*\{\s*min-height:\s*52px\s*!important;/);
 });

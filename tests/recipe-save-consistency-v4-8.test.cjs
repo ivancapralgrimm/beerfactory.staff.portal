@@ -35,7 +35,7 @@ function responseCapture() {
 function loadAdminApi(mockFetch) {
   const raw = read('src/features/admin/recipe-admin-api.ts');
   const output = TS.transpileModule(raw, {compilerOptions:{module:TS.ModuleKind.CommonJS,target:TS.ScriptTarget.ES2022}}).outputText;
-  const ctx = {exports:{},module:{exports:{}},fetch:mockFetch,FormData,File:global.File};
+  const ctx = {exports:{},module:{exports:{}},fetch:mockFetch,FormData,File:global.File,AbortController,setTimeout,clearTimeout};
   ctx.module.exports=ctx.exports;
   ctx.require = spec => {
     if(spec==='@/lib/config')return {config:{recipeApiBase:'/api/recipes'}};

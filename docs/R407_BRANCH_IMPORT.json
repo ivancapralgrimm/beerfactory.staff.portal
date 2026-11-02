@@ -1,0 +1,16 @@
+{
+  "sourceZIP": "BFStaff-r40.7-Unified-RC1-UI-2026-11-01-v3.zip",
+  "sha256": "75f47799712000a532baf3016a701502e927207b250c499f1f100971cdd683d5",
+  "mainBase": "febed30e31de43ff747d7e714cd54c41254fa34e",
+  "branch": "redesign/r40.7-warm-hall-v3",
+  "sourceFiles": 449,
+  "removedAbsentFromApp": [
+    "src/components/Brand.tsx",
+    "src/components/craft/CraftPage.tsx",
+    "src/features/attestation/CategoryMotionIcon.tsx",
+    "src/features/feed/FeedPulseCard.tsx",
+    "src/features/feed/feed-pulse.ts",
+    "src/features/knowledge/editor/EditorMenu.tsx"
+  ],
+  "serverPatchesApplied": false
+}

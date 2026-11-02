@@ -1,14 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useBlocker, useParams } from "react-router-dom";
-import {
-  ArrowLeft,
-  Save,
-  Eye,
-  Pencil,
-  MoreHorizontal,
-  ExternalLink,
-  LoaderCircle,
-} from "lucide-react";
+import { WarmBack } from "@/components/warm/WarmBack";
+import { WarmIcon } from "@/components/warm/WarmIcon";
+import { WarmTitle } from "@/components/warm/WarmPage";
+import { WarmDialog } from "@/components/warm/WarmDialog";
+import { KnowledgeMaterialActions } from "./KnowledgeMaterialActions";
+import "../knowledge-warm.css";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -37,12 +34,13 @@ import { signKnowledgeMedia, legacyKnowledgeImage } from "./knowledge-media";
 import { knowledgeErrorMessage } from "./knowledge-errors";
 import { KnowledgeDocumentView } from "./KnowledgeDocumentView";
 import { EditorBlock } from "./EditorBlock";
-import { EditorMenu } from "./EditorMenu";
 import { AddContentMenu } from "./AddContentMenu";
+import { loadKnowledgeLifecycleCapabilities, useKnowledgeLifecycleCapabilities } from "./use-knowledge-lifecycle";
 
 export function KnowledgeEditorPage() {
   const { articleId } = useParams();
   const access = useKnowledgeEditorAccess();
+  const capability = useKnowledgeLifecycleCapabilities();
   const originalStatus = useRef<KnowledgeArticleDocument["status"]>("draft");
   const key = `${access.userId}:${articleId || "new"}`;
   const [document, setDocument] = useState<KnowledgeArticleDocument | null>(
@@ -68,7 +66,7 @@ export function KnowledgeEditorPage() {
     null,
   );
   const blocker = useBlocker(dirty || busy);
-  const dialog = useRef<HTMLDialogElement>(null);
+  const [confirmation, setConfirmation] = useState<{title: string; body: string; run: () => void} | null>(null);
   useEffect(() => {
     alive.current = true;
     return () => {
@@ -88,10 +86,6 @@ export function KnowledgeEditorPage() {
       setError("");
     }
   }, [access.userId]);
-  useEffect(() => {
-    if (blocker.state === "blocked") dialog.current?.showModal();
-    else dialog.current?.close();
-  }, [blocker.state]);
   useEffect(() => {
     const warn = (e: BeforeUnloadEvent) => {
       if (dirty || busy) {
@@ -210,15 +204,19 @@ export function KnowledgeEditorPage() {
         blocks: document.blocks.map((b) => (b.id === block.id ? block : b)),
       });
   }
-  function add(type: KnowledgeBlock["type"], after: string | null) {
+  function add(type: KnowledgeBlock["type"], after: string | null, level?: 2 | 3) {
     if (!document) return;
     try {
-      change(insertKnowledgeBlock(document, createKnowledgeBlock(type), after));
+      const block = createKnowledgeBlock(type);
+      if (block.type === "heading") block.level = level ?? 2;
+      change(insertKnowledgeBlock(document, block, after));
+      requestAnimationFrame(() => window.document.querySelector<HTMLElement>(`[data-block-id="${block.id}"] [data-block-focus]`)?.focus());
     } catch (e) {
       setError(knowledgeErrorMessage(e));
     }
   }
   function chooseImage(after: string | null, replace?: string) {
+    if (busy || !capability.knowledgeMediaCleanup) return;
     target.current = { after, replace };
     if (fileInput.current) {
       fileInput.current.value = "";
@@ -239,6 +237,9 @@ export function KnowledgeEditorPage() {
       const context = await loadKnowledgeEditorContext();
       if (!context.can_create && !context.can_edit)
         throw new KnowledgeEditorApiError("forbidden");
+      const currentCapability = await loadKnowledgeLifecycleCapabilities();
+      if (!currentCapability.knowledgeMediaCleanup)
+        throw new KnowledgeEditorApiError("knowledge_media_cleanup_unavailable");
       const prepared = await prepareKnowledgeImage(file);
       objectUrl = prepared.previewUrl;
       if (!currentOperation()) return;
@@ -287,6 +288,8 @@ export function KnowledgeEditorPage() {
     setError("");
     setMessage("");
     try {
+      if (document.status === "archived" && originalStatus.current !== "archived")
+        throw new KnowledgeEditorApiError("knowledge_lifecycle_action_required");
       const normalized = validateKnowledgeArticle(document);
       const context = await loadKnowledgeEditorContext();
       if (
@@ -311,349 +314,55 @@ export function KnowledgeEditorPage() {
       if (currentOperation()) setBusy(false);
     }
   }
-  const insertion = (after: string | null) => (
-    <AddContentMenu
-      disabled={busy || document!.blocks.length >= 200}
-      onAdd={(type) => {
-        add(type, after);
-        const index = after ? document!.blocks.findIndex(item => item.id === after) + 1 : 0;
-        requestAnimationFrame(() => {
-          window.document.querySelectorAll<HTMLElement>(".bf-editor-content [data-block-id]")[index]?.querySelector<HTMLTextAreaElement>("textarea")?.focus();
-        });
-      }}
-      onPhoto={() => chooseImage(after)}
-    />
-  );
   const [uploadIndicatorVisible, setUploadIndicatorVisible] = useState(false);
   useEffect(() => {
     if (!busy) setUploadIndicatorVisible(false);
   }, [busy]);
-  return (
-    <section
-      className="bf-article-editor mx-auto max-w-[760px] pb-6"
-      aria-busy={busy || (canUseEditor && loading)}
-    >
-      <Button asChild variant="ghost" className="-ml-3">
-        <Link to="/knowledge">
-          <ArrowLeft className="size-4" />
-          Знания
-        </Link>
-      </Button>
-      <h1 className="mt-3 text-[24px] font-bold">
-        {document && document.revision > 0
-          ? "Редактирование статьи"
-          : "Новая статья"}
-      </h1>
-      {access.status === "loading" && (
-        <p role="status" className="mt-4">
-          Проверяем доступ…
-        </p>
-      )}
-      {(access.status === "denied" ||
-        (access.status === "allowed" && !canUseEditor)) && (
-        <p role="alert" className="mt-4">
-          Нет разрешения на эту операцию. Сейчас доступ по умолчанию имеют
-          владелец и администратор.
-        </p>
-      )}
-      {access.status === "error" && (
-        <p role="alert" className="mt-4">
-          Не удалось проверить доступ к редактору. Проверьте соединение и
-          вернитесь в раздел «Знания».
-        </p>
-      )}
-      {error && (
-        <p
-          role="alert"
-          className="my-4 rounded-xl border border-[var(--bf-red)] p-3 text-sm"
-        >
-          {error}
-        </p>
-      )}
-      {!canUseEditor && message && (
-        <p role="status" className="mt-3">
-          {message}
-        </p>
-      )}
-      {canUseEditor && loading && (
-        <p role="status" className="mt-4">
-          Загружаем статью…
-        </p>
-      )}
-      {canUseEditor && !loading && !document && (
-        <Button className="mt-4" onClick={() => void load()}>
-          Повторить загрузку
-        </Button>
-      )}
-      {canUseEditor && !loading && document && (
-        <>
-          {knowledgeSource === "legacy" && (
-            <p className="mt-3 text-xs text-[var(--bf-muted)]">
-              Сохранённые изменения появятся в общем разделе после завершения
-              переноса материалов. Предпросмотр доступен здесь.
-            </p>
-          )}
-          <div className="bf-editor-main-actions">
-            <Button
-              type="button"
-              variant="ghost"
-              aria-pressed={preview}
-              onClick={() => setPreview((v) => !v)}
-            >
-              {preview ? (
-                <Pencil aria-hidden className="size-4" />
-              ) : (
-                <Eye aria-hidden className="size-4" />
-              )}
-              {preview ? "Редактор" : "Предпросмотр"}
-            </Button>
-            <Button
-              type="button"
-              variant="primary"
-              disabled={busy}
-              onClick={() => void save()}
-            >
-              <Save aria-hidden className="size-4" />
-              {busy ? "Подождите…" : "Сохранить"}
-            </Button>
-            {document.revision > 0 &&
-              document.status === "published" &&
-              knowledgeSource === "supabase" && (
-                <EditorMenu
-                  label="Дополнительные действия"
-                  iconOnly
-                  trigger={<MoreHorizontal aria-hidden className="size-5" />}
-                  disabled={busy}
-                >
-                  {(close) => (
-                    <Button asChild variant="ghost" role="menuitem">
-                      <Link
-                        onClick={close}
-                        to={`/knowledge/${encodeURIComponent(document.id)}`}
-                      >
-                        <ExternalLink aria-hidden className="size-4" />
-                        Открыть статью
-                      </Link>
-                    </Button>
-                  )}
-                </EditorMenu>
-              )}
+  return <section className="bf-article-editor bf-editor-page" aria-busy={busy || (canUseEditor && loading)}>
+    <WarmBack to={articleId ? `/knowledge/${encodeURIComponent(articleId)}` : "/knowledge/manage"} label={articleId ? "К статье" : "К редактору знаний"} />
+    <WarmTitle title={document && document.revision > 0 ? "Редактор статьи" : "Новая статья"} />
+    {access.status === "loading" && <p role="status">Проверяем доступ…</p>}
+    {(access.status === "denied" || access.status === "allowed" && !canUseEditor) && <p role="alert">Нет разрешения на эту операцию.</p>}
+    {access.status === "error" && <p role="alert">Не удалось проверить доступ к редактору. Проверьте соединение и вернитесь в раздел «Знания».</p>}
+    {error && <p className="bf-error" role="alert">{error}</p>}
+    {canUseEditor && loading && <p role="status">Загружаем статью…</p>}
+    {canUseEditor && !loading && !document && <Button onClick={() => void load()}>Повторить загрузку</Button>}
+    {canUseEditor && !loading && document && <>
+      {knowledgeSource === "legacy" && <p className="bf-knowledge-editor-notice">Сохранённые изменения появятся в общем разделе после завершения переноса материалов. Предпросмотр доступен здесь.</p>}
+      <form className="bf-material-editor bf-compact-form" onSubmit={e => {e.preventDefault(); void save();}}>
+        <fieldset disabled={busy} className="bf-knowledge-editor-fields">
+          <label className="bf-field" htmlFor="article-title">Название<Input id="article-title" value={document.title} maxLength={240} onChange={e => change({...document, title: e.target.value})} /></label>
+          <div className="bf-editor-pair">
+            <label className="bf-field">Тема<Input value={document.category} maxLength={80} onChange={e => change({...document, category: e.target.value})} /></label>
+            <label className="bf-field">Публикация<select disabled={!access.canPublish || busy} value={document.status} onChange={e => change({...document, status: e.target.value as KnowledgeArticleDocument["status"]})}>
+              <option value="published">Опубликована</option><option value="draft">Черновик</option>{originalStatus.current === "archived" && <option value="archived">Архив</option>}
+            </select></label>
           </div>
-          <p role="status" className="my-3 text-xs text-[var(--bf-muted)]">
-            {message ||
-              (dirty
-                ? "Есть несохранённые изменения"
-                : document.revision
-                  ? "Нет несохранённых изменений"
-                  : "Новый черновик")}
-          </p>
-          {error && document.revision > 0 && (
-            <div className="mb-4 flex flex-wrap gap-2">
-              <Button
-                type="button"
-                disabled={busy}
-                onClick={() => {
-                  if (
-                    !dirty ||
-                    confirm(
-                      "Загрузить серверную версию и заменить изменения в редакторе? Несохранённые изменения будут потеряны.",
-                    )
-                  )
-                    void load();
-                }}
-              >
-                Загрузить серверную версию
-              </Button>
+          <details className="bf-editor-details"><summary>Краткое описание</summary><label className="bf-field" htmlFor="article-description"><span className="sr-only">Краткое описание</span><textarea id="article-description" value={document.description} maxLength={1000} rows={2} onChange={e => change({...document, description: e.target.value})} /></label></details>
+          <div className="bf-bank-actions"><Button type="button" aria-pressed={preview} onClick={() => setPreview(v => !v)}>{preview ? "К блокам" : "Предпросмотр"}</Button>{document.revision > 0 && document.status === "published" && knowledgeSource === "supabase" && <Button asChild><Link to={`/knowledge/${encodeURIComponent(document.id)}`}>Открыть статью</Link></Button>}</div>
+          {preview ? <><h2>{document.title || "Без заголовка"}</h2><KnowledgeDocumentView document={document} previews={urls} /></> : <section className="bf-editor-section" aria-label="Содержание статьи">
+            <div className="bf-article-blocks bf-editor-content">
+              {document.blocks.map((block, index) => <EditorBlock key={`${block.id}:${document.revision}`} block={block} index={index} count={document.blocks.length} preview={urls[block.id]} disabled={busy} mediaAvailable={capability.knowledgeMediaCleanup} underlineAvailable={capability.knowledgeUnderline} onChange={updateBlock}
+                onMove={delta => {change(moveKnowledgeBlock(document, block.id, delta)); requestAnimationFrame(() => window.document.querySelector<HTMLElement>(`[data-block-id="${block.id}"] [data-block-focus]`)?.focus());}}
+                onRemove={() => {if (block.type === "image" && !capability.knowledgeMediaCleanup) return; if (document.blocks.length > 1) setConfirmation({title: "Убрать блок?", body: "Фрагмент будет удалён из статьи после сохранения.", run: () => change({...document, blocks: document.blocks.filter(b => b.id !== block.id)})});}}
+                onReplace={() => chooseImage(null, block.id)} />)}
             </div>
-          )}
-          {preview ? (
-            <>
-              <h2 className="text-2xl font-black">
-                {document.title || "Без заголовка"}
-              </h2>
-              <KnowledgeDocumentView document={document} previews={urls} />
-            </>
-          ) : (
-            <fieldset disabled={busy} className="min-w-0 space-y-4">
-              <label className="block text-sm">
-                Заголовок
-                <Input
-                  id="article-title"
-                  value={document.title}
-                  maxLength={240}
-                  className="mt-2"
-                  onChange={(e) =>
-                    change({ ...document, title: e.target.value })
-                  }
-                />
-              </label>
-              <div className="bf-editor-metadata">
-                <label className="block text-sm">
-                  Категория
-                  <Input
-                    value={document.category}
-                    maxLength={80}
-                    className="mt-2"
-                    onChange={(event) =>
-                      change({ ...document, category: event.target.value })
-                    }
-                  />
-                </label>
-                <label className="block text-sm">
-                  Статус
-                  <select
-                    aria-label="Статус"
-                    disabled={!access.canPublish}
-                    className="bf-editor-input mt-2"
-                    value={document.status}
-                    onChange={(event) =>
-                      change({
-                        ...document,
-                        status: event.target
-                          .value as KnowledgeArticleDocument["status"],
-                      })
-                    }
-                  >
-                    <option value="draft">Черновик</option>
-                    <option value="published">Опубликована</option>
-                    <option value="archived">Архив</option>
-                  </select>
-                </label>
-              </div>
-              <details className="bf-editor-details">
-                <summary>Параметры статьи</summary>
-                <label className="mt-2 block text-sm">
-                  Краткое описание
-                  <textarea
-                    id="article-description"
-                    aria-label="Краткое описание"
-                    className="bf-editor-input mt-2"
-                    value={document.description}
-                    maxLength={1000}
-                    rows={2}
-                    onChange={(event) =>
-                      change({ ...document, description: event.target.value })
-                    }
-                  />
-                </label>
-              </details>
-              <div className="bf-editor-content-help">
-                <p>
-                  Добавляйте текст и фотографии в нужном порядке. Дополнительные
-                  элементы находятся в меню +.
-                </p>
-                <p className="mt-1 text-xs">
-                  Выделите часть текста, затем выберите формат.
-                </p>
-                {document.blocks.length >= 180 && (
-                  <p role="status" className="mt-2">
-                    Статья почти достигла максимального объёма: осталось{" "}
-                    {200 - document.blocks.length} элементов.
-                  </p>
-                )}
-              </div>
-              <div className="bf-editor-content">
-                {insertion(null)}
-                {document.blocks.map((block, index) => (
-                  <div key={block.id}>
-                    <EditorBlock
-                      block={block}
-                      index={index}
-                      count={document.blocks.length}
-                      preview={urls[block.id]}
-                      disabled={busy}
-                      onChange={updateBlock}
-                      onMove={(delta) =>
-                        change(moveKnowledgeBlock(document, block.id, delta))
-                      }
-                      onRemove={() => {
-                        if (
-                          document.blocks.length > 1 &&
-                          confirm("Удалить этот фрагмент статьи?")
-                        )
-                          change({
-                            ...document,
-                            blocks: document.blocks.filter(
-                              (b) => b.id !== block.id,
-                            ),
-                          });
-                      }}
-                      onReplace={() => chooseImage(null, block.id)}
-                    />
-                    {insertion(block.id)}
-                  </div>
-                ))}
-              </div>
-            </fieldset>
-          )}
-        </>
-      )}
-      <input
-        ref={fileInput}
-        type="file"
-        accept="image/png,image/jpeg,image/webp,image/gif"
-        hidden
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) {
-            setUploadIndicatorVisible(true);
-            void upload(file);
-          }
-        }}
-      />
-      {uploadIndicatorVisible && (
-        <div
-          className="bf-editor-upload-status"
-          role="status"
-          aria-live="polite"
-          aria-atomic="true"
-        >
-          <div className="bf-editor-upload-status-card">
-            <LoaderCircle
-              aria-hidden
-              className="size-7 shrink-0 animate-spin text-[var(--bf-copper-hi)]"
-            />
-            <span>
-              <strong>Загружаем изображение…</strong>
-              <small>Не закрывайте страницу</small>
-            </span>
-          </div>
-        </div>
-      )}
-      <dialog
-        ref={dialog}
-        aria-labelledby="unsaved-title"
-        className="m-auto w-[min(92vw,440px)] rounded-2xl border border-[var(--bf-line)] bg-[var(--bf-bg)] p-5 text-[var(--bf-cream)]"
-        onCancel={(e) => {
-          e.preventDefault();
-          if (blocker.state === "blocked") blocker.reset();
-        }}
-      >
-        <h2 id="unsaved-title" className="text-xl font-bold">
-          Покинуть редактор?
-        </h2>
-        <p className="my-4 text-sm">
-          {busy ? "Операция ещё выполняется." : "Есть несохранённые изменения."}{" "}
-          Можно остаться и сохранить изменения или выйти без сохранения.
-        </p>
-        <div className="flex flex-wrap gap-2">
-          <Button
-            onClick={() => {
-              if (blocker.state === "blocked") blocker.reset();
-            }}
-          >
-            Остаться
-          </Button>
-          <Button
-            variant="danger"
-            onClick={() => {
-              if (blocker.state === "blocked") blocker.proceed();
-            }}
-          >
-            Выйти без сохранения
-          </Button>
-        </div>
-      </dialog>
-    </section>
-  );
+            <AddContentMenu disabled={busy || document.blocks.length >= 200} mediaAvailable={capability.knowledgeMediaCleanup} onAdd={(type, level) => add(type, document.blocks.at(-1)?.id ?? null, level)} onPhoto={() => chooseImage(document.blocks.at(-1)?.id ?? null)} />
+            {(!capability.knowledgeUnderline || !capability.knowledgeMediaCleanup) && <p className="bf-knowledge-editor-notice">{!capability.knowledgeUnderline ? "Подчёркивание станет доступно после обновления сервера. " : ""}{!capability.knowledgeMediaCleanup ? "Изменение картинок станет доступно после подключения очистки файлов." : ""}</p>}
+            {document.blocks.length >= 180 && <p role="status">Осталось {200 - document.blocks.length} элементов.</p>}
+          </section>}
+        </fieldset>
+        <p role="status" className="bf-knowledge-editor-status">{message || (dirty ? "Есть несохранённые изменения" : document.revision ? "Нет несохранённых изменений" : "Новый черновик")}</p>
+        {error && document.revision > 0 && <Button type="button" disabled={busy} onClick={() => {
+          if (!dirty) void load(); else setConfirmation({title: "Загрузить серверную версию?", body: "Несохранённые изменения будут потеряны.", run: () => void load()});
+        }}>Загрузить серверную версию</Button>}
+        <Button type="submit" variant="primary" disabled={busy}>{busy ? "Подождите…" : "Сохранить статью"}</Button>
+      </form>
+      <KnowledgeMaterialActions document={document} disabled={busy || dirty} onSaved={next => {originalStatus.current = next.status; setDocument(next); setDirty(false); setMessage("Статья и связанные вопросы помещены в архив.");}} />
+    </>}
+    <input ref={fileInput} type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden onChange={e => {const file = e.target.files?.[0]; if (file) {setUploadIndicatorVisible(true); void upload(file);}}} />
+    {uploadIndicatorVisible && <div className="bf-knowledge-upload-status" role="status" aria-live="polite"><WarmIcon name="clock" /><span>Загружаем изображение…</span></div>}
+    {confirmation && <WarmDialog title={confirmation.title} confirm onClose={() => setConfirmation(null)}><p>{confirmation.body}</p><div className="bf-bank-actions"><Button type="button" onClick={() => setConfirmation(null)}>Отмена</Button><Button type="button" variant="danger" onClick={() => {confirmation.run(); setConfirmation(null);}}>Продолжить</Button></div></WarmDialog>}
+    {blocker.state === "blocked" && <WarmDialog title="Покинуть редактор?" confirm onClose={() => {if (blocker.state === "blocked") blocker.reset();}}><p>{busy ? "Операция ещё выполняется." : "Есть несохранённые изменения."} Можно остаться и сохранить изменения или выйти без сохранения.</p><div className="bf-bank-actions"><Button type="button" onClick={() => {if (blocker.state === "blocked") blocker.reset();}}>Остаться</Button><Button type="button" variant="danger" onClick={() => {if (blocker.state === "blocked") blocker.proceed();}}>Выйти без сохранения</Button></div></WarmDialog>}
+  </section>;
 }

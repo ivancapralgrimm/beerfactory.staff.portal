@@ -1,88 +1,14 @@
-import {
-  Plus,
-  Type,
-  ImagePlus,
-  List,
-  Heading2,
-  Quote,
-  Minus,
-} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { WarmIcon } from "@/components/warm/WarmIcon";
 import type { KnowledgeBlock } from "./article-model";
-import { EditorMenu } from "./EditorMenu";
 
-export function AddContentMenu({
-  onAdd,
-  onPhoto,
-  disabled,
-}: {
-  onAdd: (type: KnowledgeBlock["type"]) => void;
-  onPhoto: () => void;
-  disabled: boolean;
+export function AddContentMenu({onAdd, onPhoto, disabled, mediaAvailable = false}: {
+  onAdd: (type: KnowledgeBlock["type"], level?: 2 | 3) => void; onPhoto: () => void; disabled: boolean; mediaAvailable?: boolean;
 }) {
-  return (
-    <div className="bf-editor-insertion">
-      <EditorMenu
-        label="Добавить"
-        trigger={
-          <>
-            <Plus className="size-4" aria-hidden />
-            Добавить
-          </>
-        }
-        disabled={disabled}
-      >
-        {(close) => (
-          <>
-            <div className="bf-editor-menu-primary">
-              <Button
-                role="menuitem"
-                variant="ghost"
-                onClick={() => {
-                  close();
-                  onAdd("paragraph");
-                }}
-              >
-                <Type aria-hidden className="size-5" />
-                Текст
-              </Button>
-              <Button
-                role="menuitem"
-                variant="ghost"
-                onClick={() => {
-                  close();
-                  onPhoto();
-                }}
-              >
-                <ImagePlus aria-hidden className="size-5" />
-                Фото
-              </Button>
-            </div>
-            <p className="bf-editor-menu-caption">Дополнительно</p>
-            {(
-              [
-                ["list", "Список", List],
-                ["heading", "Подзаголовок", Heading2],
-                ["quote", "Заметка", Quote],
-                ["separator", "Разделитель", Minus],
-              ] as const
-            ).map(([type, label, Icon]) => (
-              <Button
-                key={type}
-                role="menuitem"
-                variant="ghost"
-                onClick={() => {
-                  close();
-                  onAdd(type);
-                }}
-              >
-                <Icon aria-hidden className="size-4" />
-                {label}
-              </Button>
-            ))}
-          </>
-        )}
-      </EditorMenu>
-    </div>
-  );
+  return <div className="bf-bank-actions bf-block-add" aria-label="Добавить блок">
+    <Button type="button" disabled={disabled} onClick={() => onAdd("paragraph")}><WarmIcon name="plus" size={17} />Текст</Button>
+    <Button type="button" disabled={disabled || !mediaAvailable} onClick={onPhoto}><WarmIcon name="plus" size={17} />Картинка</Button>
+    <Button type="button" disabled={disabled} onClick={() => onAdd("heading", 2)}><WarmIcon name="plus" size={17} />Заголовок</Button>
+    <Button type="button" disabled={disabled} onClick={() => onAdd("heading", 3)}><WarmIcon name="plus" size={17} />Подзаголовок</Button>
+  </div>;
 }

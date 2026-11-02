@@ -1,0 +1,48 @@
+.bfstaff-app .warm-recipes-page { min-width:0; padding-bottom:24px; }
+.bfstaff-app .warm-recipe-filters { display:grid; gap:12px; margin-bottom:16px; }
+.bfstaff-app .warm-recipe-field { gap:4px; min-width:0; }
+.bfstaff-app .warm-recipe-field .bf-field-label { font-size:var(--bf-type-control); }
+.bfstaff-app .warm-recipe-results { display:flex; align-items:center; justify-content:space-between; gap:8px; margin:8px 0 12px; }
+.bfstaff-app .warm-recipe-card { text-decoration:none; color:inherit; min-height:96px; padding:10px 12px; gap:12px; border-radius:20px; }
+.bfstaff-app .warm-recipe-card img,.bfstaff-app .warm-recipe-card .warm-recipe-placeholder { width:68px; height:76px; border-radius:12px; }
+.bfstaff-app .warm-recipe-card-copy { display:grid; flex:1; min-width:0; gap:3px; overflow-wrap:anywhere; }
+.bfstaff-app .warm-recipe-card-copy .small { line-height:1.3; }
+.bfstaff-app .warm-recipe-card-title { font-size:var(--bf-type-heading); font-weight:700; line-height:1.25; }
+.bfstaff-app .warm-recipe-placeholder { display:grid; place-items:center; color:var(--bf-paper); }
+.bfstaff-app .warm-recipe-tags { margin:-8px 0 16px; }
+.bfstaff-app .warm-recipe-yield { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:20px; font-size:var(--bf-type-heading); font-weight:500; }
+.bfstaff-app .warm-recipe-yield .muted { font-weight:400; }
+.bfstaff-app .warm-recipe-inline { display:flex; align-items:center; gap:8px; }
+.bfstaff-app .warm-recipe-photo { margin:0; }
+.bfstaff-app .warm-recipe-section { margin-top:24px; }
+.bfstaff-app .warm-recipe-section-heading { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+.bfstaff-app .warm-recipe-composition { margin-top:12px; line-height:1.6; }
+.bfstaff-app .warm-recipe-composition li { white-space:pre-wrap; overflow-wrap:anywhere; }
+.bfstaff-app .warm-recipe-disclosure { margin-top:20px; }
+.bfstaff-app .warm-recipe-disclosure summary { display:flex; justify-content:space-between; align-items:center; gap:12px; min-height:44px; cursor:pointer; font-size:var(--bf-type-body); font-weight:600; list-style:none; }
+.bfstaff-app .warm-recipe-disclosure summary::-webkit-details-marker { display:none; }
+.bfstaff-app .warm-recipe-disclosure summary > svg { transform:rotate(90deg); }
+.bfstaff-app .warm-recipe-disclosure[open] summary > svg { transform:rotate(-90deg); }
+.bfstaff-app .warm-recipe-disclosure-body { margin-top:12px; }
+.bfstaff-app .warm-recipe-method { white-space:pre-wrap; overflow-wrap:anywhere; line-height:1.65; }
+.bfstaff-app .warm-recipe-metadata { display:grid; gap:10px; }
+.bfstaff-app .warm-recipe-metadata > div { display:grid; grid-template-columns:minmax(80px,1fr) 2fr; gap:12px; }
+.bfstaff-app .warm-recipe-metadata dd { margin:0; overflow-wrap:anywhere; }
+.bfstaff-app .warm-recipe-share { margin-top:20px; }
+.bfstaff-app .warm-recipe-editor { display:grid; gap:12px; }
+.bfstaff-app .warm-recipe-editor form,.bfstaff-app .warm-recipe-editor fieldset { display:grid; gap:12px; min-width:0; }
+.bfstaff-app .warm-recipe-editor fieldset { border:0; padding:0; margin:0; }
+.bfstaff-app .warm-recipe-editor label { display:grid; gap:4px; min-width:0; }
+.bfstaff-app .warm-recipe-editor .warm-recipe-label { font-size:var(--bf-type-control); font-weight:500; }
+.bfstaff-app .warm-recipe-editor :is(input,select,textarea) { font-size:16px; }
+.bfstaff-app .warm-recipe-editor-pair { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,8rem),1fr)); align-items:start; gap:8px; }
+.bfstaff-app .warm-recipe-photo-preview { width:100%; max-height:160px; object-fit:contain; border-radius:14px; background:#332820; }
+.bfstaff-app .warm-recipe-editor-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+.bfstaff-app .warm-recipe-editor-note { font-size:var(--bf-type-support); color:var(--bf-muted); }
+.bfstaff-app .warm-recipe-calculator { padding:0; }
+.bfstaff-app .warm-recipe-calc-controls { display:grid; grid-template-columns:44px 1fr 44px; align-items:center; gap:8px; margin:12px 0; }
+.bfstaff-app .warm-recipe-calc-controls input { text-align:center; font-variant-numeric:tabular-nums; }
+.bfstaff-app .warm-recipe-calc-lines { display:grid; gap:8px; line-height:1.6; }
+@media(max-width:360px) { .bfstaff-app .warm-recipe-card { gap:10px; } .bfstaff-app .warm-recipe-card img,.bfstaff-app .warm-recipe-card .warm-recipe-placeholder { width:60px; height:76px; } }
+
+.bfstaff-app .warm-recipe-heading-actions { display:flex;gap:8px;flex-shrink:0;align-items:center; }

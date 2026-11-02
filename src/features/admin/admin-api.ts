@@ -101,15 +101,21 @@ export async function loadAdminAttempts() {
 }
 
 export async function loadAdminAudit() {
-  const { data, error } = await supabase
-    .from("audit_log")
-    .select(
-      "id,actor_id,action,entity_type,entity_id,entity_name,before_data,after_data,metadata,created_at"
-    )
-    .order("created_at", { ascending: false })
-    .limit(150);
-
-  if (error) throw error;
-
-  return (data || []) as AdminAuditRow[];
+  const columns = "id,actor_id,action,entity_type,entity_id,entity_name,before_data,after_data,metadata,created_at";
+  // Each group receives its latest 30 independently; high portal volume cannot
+  // hide the most recent staff events. Shift history has its own scoped RPC.
+  const [staff, portal] = await Promise.all([
+    supabase.from("audit_log").select(columns)
+      .or("entity_type.eq.profile,action.like.profile_%,action.eq.credential_reset")
+      .order("created_at", { ascending: false }).limit(30),
+    supabase.from("audit_log").select(columns)
+      .neq("entity_type", "profile")
+      .neq("entity_type", "position_shift_window_summary")
+      .not("action", "like", "profile_%")
+      .neq("action", "credential_reset")
+      .order("created_at", { ascending: false }).limit(30)
+  ]);
+  if (staff.error) throw staff.error;
+  if (portal.error) throw portal.error;
+  return [...(staff.data || []), ...(portal.data || [])] as AdminAuditRow[];
 }

@@ -1,4 +1,8 @@
-import { ArrowLeft, BookCheck, Pencil, Share2 } from "lucide-react";
+import { WarmBack } from "@/components/warm/WarmBack";
+import { WarmIcon } from "@/components/warm/WarmIcon";
+import { WarmTitle, WarmEmpty } from "@/components/warm/WarmPage";
+import { KnowledgeMaterialActions } from "./editor/KnowledgeMaterialActions";
+import "./knowledge-warm.css";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -14,21 +18,6 @@ import { useKnowledgeEditorAccess } from "./editor/use-editor-access";
 import { loadKnowledgeArticleForEditor } from "./editor/knowledge-editor-api";
 import type { KnowledgeArticleDocument } from "./editor/article-model";
 import { KnowledgeDocumentView } from "./editor/KnowledgeDocumentView";
-
-function LeatherStitches({ round = false }: { round?: boolean }) {
-  if (!round) return <span className="knowledge-button-thread" aria-hidden />;
-  const stitches = Array.from({ length: 12 }, (_, index) => {
-    const angle = index * Math.PI / 6;
-    const point = (offset: number, radius = 16) => `${22 + Math.cos(angle + offset) * radius} ${22 + Math.sin(angle + offset) * radius}`;
-    const path = `M${point(-.17)} Q${point(0, 15.2)} ${point(.17)}`;
-    return <g key={index}>
-      <path d={path} stroke="#241209" strokeWidth="2.2" opacity=".5" />
-      <path d={path} stroke="#d2a371" strokeWidth="1.05" />
-      <path d={path} stroke="#f7d7a4" strokeWidth=".3" opacity=".65" />
-    </g>;
-  });
-  return <svg className="knowledge-button-stitches" viewBox="0 0 44 44" aria-hidden focusable="false" fill="none" strokeLinecap="round">{stitches}</svg>;
-}
 
 function safeDecode(value: string) {
   try {
@@ -46,13 +35,6 @@ function sectionTitle(
   return block.lines[0].match(/^\*\*([^*]+)\*\*$/u)?.[1] ?? null;
 }
 
-function normalizeTopic(value: string) {
-  return value
-    .toLocaleLowerCase("ru-RU")
-    .replace(/[^\p{L}\p{N}]+/gu, " ")
-    .trim();
-}
-
 export function KnowledgeArticlePage() {
   const { articleId = "" } = useParams();
   const requestedId = safeDecode(articleId);
@@ -62,7 +44,7 @@ export function KnowledgeArticlePage() {
   const editorAccess = useKnowledgeEditorAccess();
   const progress = useKnowledgeProgress(userId);
   const location = useLocation();
-  const [shareStatus, setShareStatus] = useState("");
+  const [detailAttempt, setDetailAttempt] = useState(0);
   const [saveStatus, setSaveStatus] = useState("");
   const [saving, setSaving] = useState(false);
   const [activeImage, setActiveImage] = useState<{
@@ -99,7 +81,7 @@ export function KnowledgeArticlePage() {
     return () => {
       active = false;
     };
-  }, [article?.id, article?.revision, article?.source]);
+  }, [article?.id, article?.revision, article?.source, detailAttempt]);
   const detail =
     serverDetail?.id === article?.id &&
     serverDetail?.revision === article?.revision
@@ -113,25 +95,15 @@ export function KnowledgeArticlePage() {
         : [],
     [article],
   );
-  const titleTopics = useMemo(
-    () =>
-      new Set(
-        (article?.title ?? "")
-          .split(/\s*,\s*/u)
-          .map(normalizeTopic)
-          .filter(Boolean),
-      ),
-    [article],
-  );
   const sections = useMemo(
     () =>
       blocks.flatMap((block, index) => {
         const title = sectionTitle(block);
-        return title && titleTopics.has(normalizeTopic(title))
+        return title
           ? [{ index, title }]
           : [];
       }),
-    [blocks, titleTopics],
+    [blocks],
   );
 
   const read = article ? progress.state.readIds.has(article.id) : false;
@@ -147,34 +119,6 @@ export function KnowledgeArticlePage() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [requestedId]);
-
-  async function shareArticle() {
-    if (!article) return;
-
-    const url = window.location.href;
-    const title = `${article.title} · BeerFactory`;
-    const text = `${article.title} · база знаний BeerFactory`;
-
-    if (navigator.share) {
-      try {
-        await navigator.share({ title, text, url });
-        return;
-      } catch (error) {
-        if (error instanceof DOMException && error.name === "AbortError") {
-          return;
-        }
-      }
-    }
-
-    try {
-      await navigator.clipboard.writeText(url);
-      setShareStatus("Ссылка скопирована");
-    } catch {
-      setShareStatus("Не удалось скопировать ссылку");
-    }
-
-    window.setTimeout(() => setShareStatus(""), 2200);
-  }
 
   async function markRead() {
     if (!article || saving) return;
@@ -198,132 +142,30 @@ export function KnowledgeArticlePage() {
     }
   }
 
-  if (state.status === "loading") {
-    return (
-      <section className="py-3">
-        <div className="h-11 w-28 animate-pulse rounded-xl bg-[var(--bf-surface)]" />
-        <div className="mt-7 h-16 w-4/5 animate-pulse rounded-xl bg-[var(--bf-surface)]" />
-        <div className="mt-5 h-72 animate-pulse rounded-2xl bg-[var(--bf-surface)]" />
-      </section>
-    );
-  }
-
-  if (state.status === "error") {
-    return (
-      <section className="py-3">
-        <Button asChild>
-          <Link to="/knowledge">
-            <ArrowLeft className="size-4" aria-hidden />
-            Знания
-          </Link>
-        </Button>
-
-        <div className="mt-6 border-y border-[var(--bf-line)] py-6">
-          <h1 className="text-2xl font-black">Не удалось открыть статью</h1>
-          <p className="mt-2 text-sm leading-6 text-[var(--bf-muted)]">
-            Материалы базы знаний сейчас недоступны.
-          </p>
-          <Button className="mt-4" onClick={reload}>
-            Повторить
-          </Button>
-        </div>
-      </section>
-    );
-  }
-
-  if (!article) {
-    return (
-      <section className="py-3">
-        <Button asChild>
-          <Link to="/knowledge">
-            <ArrowLeft className="size-4" aria-hidden />
-            Знания
-          </Link>
-        </Button>
-
-        <div className="mt-6 border-y border-[var(--bf-line)] py-6">
-          <h1 className="text-2xl font-black">Статья не найдена</h1>
-          <p className="mt-2 text-sm leading-6 text-[var(--bf-muted)]">
-            Возможно, материал был перемещён или удалён.
-          </p>
-        </div>
-      </section>
-    );
-  }
+  const back = <WarmBack to={backTarget} label="В знания" />;
+  if (state.status === "loading") return <section className="bf-knowledge-article">{back}<p role="status">Загружаем статью…</p></section>;
+  if (state.status === "error") return <section className="bf-knowledge-article">{back}<WarmEmpty title="Не удалось открыть статью" body="Материалы базы знаний сейчас недоступны." /><Button onClick={() => void reload()}>Повторить</Button></section>;
+  if (!article) return <section className="bf-knowledge-article">{back}<WarmEmpty title="Статья не найдена" body="Возможно, материал был перемещён или удалён." /></section>;
 
   return (
-    <article className="knowledge-notebook mx-auto max-w-[860px]">
-      <div className="knowledge-notebook-toolbar">
-        <Button asChild variant="ghost" className="knowledge-notebook-back knowledge-leather-action">
-          <Link to={backTarget} aria-label="Назад в Знания">
-            <LeatherStitches />
-            <ArrowLeft className="size-4" aria-hidden />
-            Знания
-          </Link>
-        </Button>
-
-        <span
-          className="knowledge-wordmark"
-          aria-label="BeerFactory Staff Portal"
-        >
-          <b>BF</b>Staff
-        </span>
-        <div className="knowledge-notebook-actions flex items-center gap-2">
-          {editorAccess.canEdit && (
-            <Button asChild size="icon" className="knowledge-leather-action knowledge-notebook-icon">
-              <Link to={`/knowledge/${encodeURIComponent(article.id)}/edit`} state={{ from: backTarget }} aria-label="Редактировать статью" title="Редактировать статью">
-                <Pencil className="size-4" aria-hidden />
-              </Link>
-            </Button>
-          )}
-          <Button
-            type="button"
-            size="icon"
-            aria-label="Поделиться статьёй"
-            className="knowledge-leather-action knowledge-notebook-icon"
-            onClick={shareArticle}
-          >
-            <Share2 className="size-4" aria-hidden />
-          </Button>
-        </div>
+    <article className="bf-knowledge-article">
+      {back}
+      <div className="bf-article-meta">
+        <span className="pill">{article.category}</span>
+        <span>{article.readingMinutes} мин чтения</span>
+        {read && <span className="pill"><WarmIcon name="check" size={15} />Прочитано</span>}
       </div>
-
-      <div className="knowledge-notebook-sheet">
-        <div
-          role="status"
-          aria-live="polite"
-          className="text-right text-xs text-[var(--bf-muted)] empty:hidden"
-        >
-          {shareStatus}
-        </div>
-
-        <header className="knowledge-notebook-heading">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="eyebrow">{article.category.toUpperCase()}</span>
-            <span className="knowledge-reading-time">
-              {article.readingMinutes} мин чтения
-            </span>
-            {read ? (
-              <span className="inline-flex min-h-6 items-center gap-1 rounded-full border border-[color:color-mix(in_srgb,var(--bf-green),transparent_65%)] px-2 text-[10px] font-bold text-[#9dd0a0]">
-                <BookCheck className="size-3" aria-hidden />
-                Прочитано
-              </span>
-            ) : null}
-          </div>
-
-          <h1>{article.title}</h1>
-        </header>
-
+      <WarmTitle title={article.title} />
         {sections.length >= 2 ? (
           <nav
             aria-label="Разделы статьи"
-            className="mt-4 flex flex-wrap gap-2"
+            className="bf-article-chapters"
           >
             {sections.map(({ index, title }) => (
               <button
                 key={index}
                 type="button"
-                className="min-h-11 max-w-full rounded-full border border-[var(--bf-line)] bg-[var(--bf-surface)] px-3 text-[11px] font-bold text-[var(--bf-cream)] focus-visible:outline-2 focus-visible:outline-[var(--bf-copper-hi)]"
+                className="bf-chapter-link"
                 onClick={() =>
                   document
                     .getElementById(`knowledge-section-${index}`)
@@ -349,7 +191,7 @@ export function KnowledgeArticlePage() {
           ) : detail?.error ? (
             <div role="alert" className="my-6">
               <p>Не удалось загрузить статью. Проверьте соединение.</p>
-              <Button className="mt-3" onClick={() => void reload()}>
+              <Button className="mt-3" onClick={() => setDetailAttempt(n => n + 1)}>
                 Повторить
               </Button>
             </div>
@@ -359,13 +201,12 @@ export function KnowledgeArticlePage() {
             </p>
           ))}
         {article.source !== "supabase" && (
-          <div className="knowledge-prose py-4 sm:py-6">
+          <div className="knowledge-prose bf-article-document">
             {blocks.map((block, index) => {
               if (block.type === "paragraph") {
                 const standaloneTitle = sectionTitle(block);
                 if (
-                  standaloneTitle &&
-                  titleTopics.has(normalizeTopic(standaloneTitle))
+                  standaloneTitle
                 ) {
                   return (
                     <h2
@@ -390,12 +231,11 @@ export function KnowledgeArticlePage() {
               }
 
               if (block.type === "heading") {
-                const chapter = titleTopics.has(normalizeTopic(block.text));
                 return (
                   <h2
                     key={index}
-                    id={chapter ? `knowledge-section-${index}` : undefined}
-                    className={chapter ? "knowledge-chapter" : undefined}
+                    id={`knowledge-section-${index}`}
+                    className="knowledge-chapter"
                   >
                     {renderKnowledgeInline(block.text)}
                   </h2>
@@ -459,41 +299,14 @@ export function KnowledgeArticlePage() {
           </div>
         )}
 
-        <footer className="knowledge-notebook-footer">
-          <div className="flex flex-wrap gap-2">
-            <Button
-              type="button"
-              variant="primary"
-              disabled={
-                saving ||
-                read ||
-                (article.source === "supabase" && !detail?.document)
-              }
-              onClick={markRead}
-            >
-              <BookCheck className="size-4" aria-hidden />
-              {saving
-                ? "Сохраняем…"
-                : read
-                  ? "Прочитано ✓"
-                  : "Отметить прочитанным"}
-            </Button>
-
-            <Button asChild>
-              <Link to="/attestation">Проверить знания</Link>
-            </Button>
-          </div>
-
-          <p
-            className="mt-3 min-h-5 text-xs leading-5 text-[var(--bf-muted)]"
-            role="status"
-            aria-live="polite"
-          >
-            {saveStatus}
-          </p>
-        </footer>
-      </div>
-      <div className="knowledge-notebook-trim" aria-hidden />
+      <footer className="bf-knowledge-article-footer">
+        <Button type="button" variant={read ? "secondary" : "primary"} disabled={saving || read || (article.source === "supabase" && !detail?.document)} onClick={() => void markRead()}>
+          <WarmIcon name="check" />{saving ? "Сохраняем…" : read ? "Прочитано" : "Отметить прочитанным"}
+        </Button>
+        {editorAccess.canEdit && <Button asChild><Link to={`/knowledge/${encodeURIComponent(article.id)}/edit`} state={{ from: backTarget }}><WarmIcon name="edit" />Редактировать статью</Link></Button>}
+        <p role="status" aria-live="polite">{saveStatus}</p>
+      </footer>
+      <KnowledgeMaterialActions document={detail?.document} />
       {activeImage ? (
         <KnowledgeImageDialog
           open

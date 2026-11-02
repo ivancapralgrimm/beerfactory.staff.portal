@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, LoaderCircle } from "lucide-react";
+import {WarmIcon} from "@/components/warm/WarmIcon";
 import { AuthLayout } from "@/features/auth/AuthLayout";
 import { registerStaff } from "@/features/auth/auth-api";
 import { Button } from "@/components/ui/button";
@@ -55,7 +55,7 @@ export function RegisterPage() {
       description="Имя, фамилия, личный пароль и секретный код для восстановления."
     >
       <Button asChild variant="ghost" className="-ml-3 mb-2">
-        <Link to="/login"><ArrowLeft className="size-4" />К входу</Link>
+        <Link to="/login"><WarmIcon name="back"/>К входу</Link>
       </Button>
 
       <form className="grid gap-2.5" onSubmit={onSubmit}>
@@ -73,11 +73,11 @@ export function RegisterPage() {
         <Input id="regSecret2" name="secretCode2" type="password" inputMode="numeric" autoComplete="off" placeholder="Повторите секретный код" required maxLength={12} />
 
         <Button variant="primary" size="lg" className="mt-1 w-full" disabled={pending}>
-          {pending ? <LoaderCircle className="size-4 animate-spin" aria-hidden /> : null}
+
           {pending ? "Создаём…" : "Создать аккаунт"}
         </Button>
 
-        <div role="alert" aria-live="polite" className="min-h-5 text-sm font-medium text-[#ff9d93]">
+        <div role="alert" aria-live="polite" className="min-h-5 text-sm font-medium text-[var(--bf-red)]">
           {error}
         </div>
       </form>

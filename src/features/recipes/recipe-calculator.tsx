@@ -1,7 +1,7 @@
-import { Minus, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { WarmIcon } from "@/components/warm/WarmIcon";
 import type { Recipe } from "@/features/recipes/types";
 
 const UNIT_RX =
@@ -76,27 +76,26 @@ export function RecipeCalculator({ recipe }: { recipe: Recipe }) {
   return (
     <section
       aria-labelledby="recipe-calculator-title"
-      className="rounded-2xl border border-[color:color-mix(in_srgb,var(--bf-copper-hi),transparent_72%)] bg-[color:color-mix(in_srgb,var(--bf-copper),transparent_92%)] p-4"
+      className="warm-recipe-calculator"
     >
-      <p className="eyebrow">МАСШТАБИРОВАНИЕ</p>
-      <h2
+      <h3
         id="recipe-calculator-title"
-        className="mt-1 text-xl font-extrabold"
+        className="text-lg font-semibold"
       >
         Количество порций
-      </h2>
+      </h3>
       <p className="mt-1 text-sm leading-5 text-[var(--bf-muted)]">
         Меняется только число. Названия и единицы остаются как в техкарте.
       </p>
 
-      <div className="mt-4 grid grid-cols-[44px_1fr_44px] gap-2">
+      <div className="warm-recipe-calc-controls">
         <Button
           type="button"
           size="icon"
           aria-label="Уменьшить количество порций"
           onClick={() => step(-0.5)}
         >
-          <Minus className="size-4" aria-hidden />
+          <span aria-hidden="true">−</span>
         </Button>
 
         <label className="sr-only" htmlFor="recipe-portions">
@@ -123,15 +122,15 @@ export function RecipeCalculator({ recipe }: { recipe: Recipe }) {
           aria-label="Увеличить количество порций"
           onClick={() => step(0.5)}
         >
-          <Plus className="size-4" aria-hidden />
+          <WarmIcon name="plus" size={18} />
         </Button>
       </div>
 
-      <div className="mt-4 divide-y divide-[var(--bf-line)] border-y border-[var(--bf-line)]">
+      <div className="warm-recipe-calc-lines">
         {scaled.map((line, index) => (
           <div
             key={`${line}-${index}`}
-            className="py-2.5 text-[15px] leading-6 text-[var(--bf-cream)]"
+            className="text-base"
           >
             {line}
           </div>

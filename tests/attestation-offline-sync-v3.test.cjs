@@ -323,7 +323,7 @@ test('successful history retains the team RPC semantics and profile source', asy
   await h.history.persistQuizResultLocally('A', result());
   const loaded = await h.history.getQuizHistory('A');
   assert.equal(loaded.source, 'profile');
-  assert.deepEqual(plain(loaded.items.map(item => item.category)), ['Colleague · Kitchen BB']);
+  assert.deepEqual(plain(loaded.items.map(item => ({ displayName: item.displayName, category: item.category }))), [{ displayName: 'Colleague', category: 'Kitchen BB' }]);
   assert.deepEqual(h.calls[0].params, { p_limit: 5 });
 });
 

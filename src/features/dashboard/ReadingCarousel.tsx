@@ -1,6 +1,5 @@
-import { PhotoMount } from "@/components/craft/CraftPage";
 import { useEffect, useRef, useState } from "react";
-import { BookCheck, BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
+import {WarmIcon} from "@/components/warm/WarmIcon";
 import { Link } from "react-router-dom";
 import { knowledgeArticleImage } from "./dashboard-reading";
 import type { KnowledgeArticle } from "@/features/knowledge/types";
@@ -46,14 +45,14 @@ export function ReadingCarousel({ articles, readIds }: { articles: KnowledgeArti
       {articles.map(article => {
         const image = knowledgeArticleImage(article);
         return <Link key={article.id} to={`/knowledge/${encodeURIComponent(article.id)}`} state={{ from: "/" }} className="bf-reading-card" aria-label={`Открыть статью ${article.title}`}>
-          <PhotoMount src={image || ""} fallback={<BookOpen aria-hidden />} />
-          <div className="bf-reading-body"><span className="bf-reading-category">{article.category}</span><strong>{shortReadingTitle(article.title)}</strong><div className="bf-reading-meta"><span>{article.readingMinutes} мин</span>{readIds.has(article.id) && <span><BookCheck aria-hidden /> Прочитано</span>}</div></div>
+          {image?<img src={image} alt="" loading="lazy" onError={e=>{e.currentTarget.hidden=true;}}/>:<span className="warm-reading-placeholder"><WarmIcon name="book" size={28}/></span>}
+          <div className="bf-reading-body"><span className="bf-reading-category">{article.category}</span><strong>{shortReadingTitle(article.title)}</strong><div className="bf-reading-meta"><span>{article.readingMinutes} мин</span>{readIds.has(article.id) && <span><WarmIcon name="check" size={16}/> Прочитано</span>}</div></div>
         </Link>;
       })}
     </div>
     <div className="bf-reading-controls" aria-label="Листать подборку">
-      <button type="button" aria-label="Предыдущие статьи" aria-controls="bf-reading-track" disabled={!edges.left} onClick={() => scroll(-1)}><ChevronLeft aria-hidden /></button>
-      <button type="button" aria-label="Следующие статьи" aria-controls="bf-reading-track" disabled={!edges.right} onClick={() => scroll(1)}><ChevronRight aria-hidden /></button>
+      <button type="button" aria-label="Предыдущие статьи" aria-controls="bf-reading-track" disabled={!edges.left} onClick={() => scroll(-1)}><WarmIcon name="back"/></button>
+      <button type="button" aria-label="Следующие статьи" aria-controls="bf-reading-track" disabled={!edges.right} onClick={() => scroll(1)}><WarmIcon name="arrow"/></button>
     </div>
   </div>;
 }

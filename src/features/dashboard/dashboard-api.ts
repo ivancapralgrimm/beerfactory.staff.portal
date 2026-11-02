@@ -14,7 +14,7 @@ export async function loadUpcomingBirthdays() {
 
   return (
     Array.isArray(data) ? data : []
-  ).map((item) => ({
+  ).filter((item) => [-1, 0, 1, 2, 3].includes(Number(item.days_until))).map((item) => ({
     profile_id: String(item.profile_id),
     first_name:
       item.first_name == null

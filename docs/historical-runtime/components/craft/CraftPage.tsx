@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 /** Material wrappers only. Data, actions, permissions and route state stay in pages. */
 export function craftScreen(path: string) {
   if (path === "/") return "dashboard";
+  if (path === "/beer") return "beer-map";
   if (path === "/shift/editor") return "checklist-editor";
   if (path.startsWith("/shift")) return "shift";
   if (path === "/knowledge/new" || path.endsWith("/edit"))

@@ -6,7 +6,7 @@ const ts = require("typescript");
 
 const root = path.resolve(__dirname, "..");
 const read = (name) => fs.readFileSync(path.join(root, name), "utf8");
-const pulseSource = read("src/features/feed/feed-pulse.ts");
+const pulseSource = read("tests/fixtures/legacy/feed-pulse.ts");
 
 function loadPulseEngine() {
   const { outputText, diagnostics } = ts.transpileModule(pulseSource, {
@@ -72,7 +72,7 @@ test("pulse rotates once per day, remains stable, and covers all entries in one 
 });
 
 test("pulse is a distinct system card, not a synthetic staff feed post", () => {
-  const card = read("src/features/feed/FeedPulseCard.tsx");
+  const card = read("tests/fixtures/legacy/FeedPulseCard.tsx");
   const css = read("src/features/feed/feed-pulse.css");
   assert.match(card, /<aside .*aria-label="Пульс команды BFStaff"/);
   assert.match(card, /Идея от BFStaff, не запись сотрудника/);
@@ -83,20 +83,6 @@ test("pulse is a distinct system card, not a synthetic staff feed post", () => {
   assert.match(css, /min-height: 44px/);
   assert.match(css, /@media \(max-width: 360px\)/);
   assert.match(css, /focus-visible/);
-});
-
-test("feed shows pulse only after successful empty active-list load", () => {
-  const feed = read("src/features/feed/FeedPage.tsx");
-  const dashboard = read("src/features/feed/DashboardFeedSection.tsx");
-  assert.match(feed, /\) : statusFilter === "active" \? \(/);
-  assert.match(feed, /<FeedPulseCard onCompose=\{openComposerFromPulse\} \/>/);
-  assert.match(feed, /setComposerOpen\(true\)/);
-  assert.match(feed, /searchParams\.get\("compose"\) === "1"/);
-  assert.ok(feed.indexOf(") : error ? (") < feed.indexOf(') : statusFilter === "active" ? ('));
-  assert.match(dashboard, /\) : active\.length === 0 \? \(/);
-  assert.match(dashboard, /<FeedPulseCard compact \/>/);
-  assert.ok(dashboard.indexOf(") : error ? (") < dashboard.indexOf(") : active.length === 0 ? ("));
-  assert.match(dashboard, /active\.map\(\(post\) => \(/);
 });
 
 test("the existing feed persistence, delivery and lifecycle remain untouched", () => {

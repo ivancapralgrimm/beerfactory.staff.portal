@@ -1,0 +1,28 @@
+name: Manual encrypted database backup
+on: workflow_dispatch
+permissions:
+  contents: read
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      BACKUP_ENCRYPTION_PASSWORD: ${{ secrets.BACKUP_ENCRYPTION_PASSWORD }}
+    steps:
+      - name: Create encrypted backup
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$SUPABASE_DB_URL"
+          test -n "$BACKUP_ENCRYPTION_PASSWORD"
+          trap 'rm -f bfstaff.dump' EXIT
+          pg_dump --format=custom --no-owner --no-acl "$SUPABASE_DB_URL" > bfstaff.dump
+          openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt -pass env:BACKUP_ENCRYPTION_PASSWORD -in bfstaff.dump -out bfstaff.dump.enc
+          rm -f bfstaff.dump
+      - uses: actions/upload-artifact@v4
+        with:
+          name: encrypted-bfstaff-database
+          path: bfstaff.dump.enc
+          retention-days: 7
+          if-no-files-found: error

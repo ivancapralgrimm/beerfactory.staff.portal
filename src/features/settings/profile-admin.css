@@ -1,0 +1,46 @@
+.bfstaff-app .bf-account-page{max-width:720px;margin-inline:auto;min-width:0;display:grid;gap:18px;padding-bottom:24px}
+.bfstaff-app .bf-account-page.bf-editor-page{gap:12px}
+.bfstaff-app .bf-account-page :is(input,select){min-width:0;width:100%;min-height:44px;font-size:16px}
+.bfstaff-app .bf-account-page input[readonly]{color:var(--bf-muted)}
+.bfstaff-app .bf-account-hint{font-size:var(--bf-type-support,13px);line-height:1.5;color:var(--bf-muted);overflow-wrap:anywhere}
+.bfstaff-app .bf-account-actions{display:flex;gap:8px;flex-wrap:wrap}
+.bfstaff-app .bf-account-actions>*{flex:1 1 140px}
+.bfstaff-app .bf-account-logout{display:inline-flex;justify-self:start;align-items:center;gap:8px;min-height:44px;padding:4px 8px;border:0;background:transparent;color:var(--bf-muted);font-size:14px;cursor:pointer}
+.bfstaff-app .bf-account-logout:focus-visible{outline:2px solid var(--bf-cocoa);outline-offset:3px;border-radius:10px}
+.bfstaff-app :is(.bf-install-panel,.bf-notification-panel){display:grid;gap:12px;padding:18px;min-width:0}
+.bfstaff-app :is(.bf-install-panel,.bf-notification-panel) h2{font-size:18px;font-weight:600;line-height:1.35}
+.bfstaff-app :is(.bf-install-panel,.bf-notification-panel) p{font-size:14px;line-height:1.6;color:var(--bf-muted)}
+.bfstaff-app .bf-notification-heading{display:flex;align-items:flex-start;gap:12px}
+.bfstaff-app .bf-notification-heading>svg{flex-shrink:0;margin-top:2px;color:var(--bf-cocoa)}
+.bfstaff-app .bf-notification-heading>div{display:grid;gap:4px}
+.bfstaff-app .bf-registration-link{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;font-size:14px;color:var(--bf-cocoa);text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}
+.bfstaff-app .bf-invitation{display:grid;justify-items:center;gap:16px;text-align:center;min-width:0;overflow-wrap:anywhere}
+.bfstaff-app .bf-invitation>img{width:min(100%,260px);height:auto;background:#fff;image-rendering:pixelated}
+.bfstaff-app :is(.bf-audit-body,.bf-history-body){padding:12px 16px 16px;min-width:0}
+.bfstaff-app .bf-history-list{display:grid;gap:8px;min-width:0}
+.bfstaff-app .bf-history-body{display:grid;gap:18px}
+.bfstaff-app .bf-history-body h2{font-size:15px;line-height:1.4;font-weight:600}
+.bfstaff-app .bf-history-body ul{display:grid;gap:8px;padding:0;margin-top:10px;list-style:none}
+.bfstaff-app .bf-history-body li{display:flex;align-items:flex-start;gap:8px;font-size:14px;line-height:1.5;overflow-wrap:anywhere}
+.bfstaff-app .bf-history-body li>svg{flex-shrink:0;margin-top:3px}
+.bfstaff-app .bf-directory-row{text-decoration:none}
+.bfstaff-app .bf-account-page .bf-bank-list{display:grid;gap:8px}
+.bfstaff-app .bf-account-page .bf-bank-counts{font-size:13px;line-height:1.5;color:var(--bf-muted)}
+.bfstaff-app .bf-account-page .bf-bank-tools{display:grid;gap:8px}
+.bfstaff-app .bf-account-page .bf-audit-list{display:grid;gap:16px;list-style:none;padding:0;margin:0}
+.bfstaff-app .bf-account-page .bf-audit-list h2{font-size:15px;line-height:1.4;font-weight:600;overflow-wrap:anywhere}
+.bfstaff-app .bf-account-page .bf-audit-list p{margin-top:4px}
+.bfstaff-app .bf-attempts-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;min-width:0}
+.bfstaff-app .bf-attempts-heading :is(h2,h3){font-size:17px;font-weight:600;line-height:1.4;overflow-wrap:anywhere}
+.bfstaff-app .bf-attempts-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0}
+.bfstaff-app .bf-attempts-summary>div{display:grid;gap:4px;padding:12px;text-align:center;border-radius:16px;background:var(--bf-surface)}
+.bfstaff-app .bf-attempts-summary dt{font-size:13px;color:var(--bf-muted)}
+.bfstaff-app .bf-attempts-summary dd{margin:0;font-size:20px;font-weight:600}
+.bfstaff-app .bf-attempts-list{display:grid;gap:8px;list-style:none;padding:0;margin:0;min-width:0}
+.bfstaff-app .bf-attempts-list .bf-personal-result{display:grid;grid-template-columns:minmax(0,1fr);align-items:start;gap:8px}
+.bfstaff-app .bf-attempts-result{display:flex;align-items:center;gap:6px;font-size:13px;line-height:1.5}
+
+.bfstaff-app .bf-license-disclosure { color:var(--bf-muted); font-size:13px; line-height:1.6; }
+.bfstaff-app .bf-license-disclosure summary { cursor:pointer; min-height:44px; display:flex; align-items:center; }
+.bfstaff-app .bf-license-disclosure p { margin-top:8px; }
+.bfstaff-app .bf-license-disclosure a { text-decoration:underline; text-underline-offset:3px; }

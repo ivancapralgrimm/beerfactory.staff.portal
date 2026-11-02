@@ -292,7 +292,9 @@ function payloadCapabilities(payload: unknown): RecipeCapabilities {
   return {
     governance: Boolean(capabilities.governance || governance.enabled),
     recipeAdminWrite: Boolean(capabilities.recipe_admin_write),
-    sourceAwareIds: Boolean(capabilities.source_aware_ids)
+    sourceAwareIds: Boolean(capabilities.source_aware_ids),
+    materialLifecycle: capabilities.recipe_material_lifecycle_v1 === true,
+    photoCleanup: capabilities.recipe_photo_cleanup_v1 === true
   };
 }
 

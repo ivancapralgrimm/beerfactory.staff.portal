@@ -14,6 +14,7 @@ import { fetchStaffProfile, staffLogin } from "@/features/auth/auth-api";
 import type { AuthState, AuthUser } from "@/types/auth";
 
 type LoginInput = {
+  fullName?: string;
   firstName: string;
   lastName: string;
   code: string;

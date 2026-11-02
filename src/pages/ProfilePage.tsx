@@ -1,309 +1,142 @@
-import {
-  ArrowLeft,
-  Bell,
-  BriefcaseBusiness,
-  CalendarDays,
-  ChevronDown,
-  ChevronRight,
-  Loader2,
-  LogOut,
-  Settings2,
-  UserRound
-} from "lucide-react";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useBlocker, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Surface } from "@/components/ui/surface";
-import { updateStaffProfile } from "@/features/auth/auth-api";
+import { WarmBack } from "@/components/warm/WarmBack";
+import { WarmIcon } from "@/components/warm/WarmIcon";
+import { WarmDialog } from "@/components/warm/WarmDialog";
+import { WarmTitle, WarmRow, WarmNotice } from "@/components/warm/WarmPage";
+import { fetchStaffProfile, updateStaffProfile } from "@/features/auth/auth-api";
 import { useAuth } from "@/features/auth/auth-context";
-import { NotificationSettingsCard } from "@/features/notifications/NotificationSettingsCard";
-import {
-  STAFF_POSITION_LABELS,
-  staffAccessLabel,
-  canManageStaffClient,
-  type StaffPosition
-} from "@/types/auth";
-import { cn } from "@/lib/utils";
+import { staffFullName, staffVenue } from "@/features/admin/staff-presentation";
+import { NotificationSettingsPage } from "@/features/settings/NotificationSettingsPage";
+import { STAFF_POSITION_LABELS, staffAccessLabel, type StaffPosition, type StaffProfile } from "@/types/auth";
+import "@/features/settings/profile-admin.css";
 
 const POSITIONS = Object.keys(STAFF_POSITION_LABELS) as StaffPosition[];
-
-type ProfileView = "home" | "details" | "notifications";
-
-function formatPositionChangeTime(value: string | null | undefined) {
-  if (!value) return null;
-  const timestamp = Date.parse(value);
-  if (!Number.isFinite(timestamp)) return null;
-  return new Intl.DateTimeFormat("ru-RU", {
-    day: "numeric",
-    month: "long",
-    hour: "2-digit",
-    minute: "2-digit"
-  }).format(new Date(timestamp));
+function validBirthDate(value: string) {
+  if (!value) return true;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value) || value < "1900-01-01" || value > new Date().toISOString().slice(0, 10)) return false;
+  const date = new Date(`${value}T00:00:00Z`);
+  return Number.isFinite(date.valueOf()) && date.toISOString().slice(0, 10) === value;
 }
-
-function ProfileMenuRow({
-  to,
-  icon: Icon,
-  title,
-  description
-}: {
-  to: string;
-  icon: typeof UserRound;
-  title: string;
-  description: string;
-}) {
-  return (
-    <Link
-      to={to}
-      className="group flex min-h-[66px] items-center gap-3 rounded-xl px-2 py-3 outline-none transition-colors hover:bg-[var(--bf-surface-2)] focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
-    >
-      <span className="grid size-10 shrink-0 place-items-center rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)]">
-        <Icon className="size-5 text-[var(--bf-copper-hi)]" aria-hidden />
-      </span>
-      <span className="min-w-0 flex-1">
-        <span className="block text-sm font-black text-[var(--bf-cream)]">{title}</span>
-        <span className="mt-0.5 block text-xs leading-5 text-[var(--bf-muted)]">{description}</span>
-      </span>
-      <ChevronRight className="size-4 shrink-0 text-[var(--bf-dim)] transition-transform group-hover:translate-x-0.5" aria-hidden />
-    </Link>
-  );
-}
-
-function ProfileSubheader({ children }: { children: ReactNode }) {
-  return (
-    <div className="mb-4">
-      <Link
-        to="/profile"
-        className="inline-flex min-h-11 items-center gap-2 rounded-lg px-2 text-sm font-bold text-[var(--bf-muted)] outline-none hover:text-[var(--bf-cream)] focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
-      >
-        <ArrowLeft className="size-4" aria-hidden /> Личный кабинет
-      </Link>
-      <h1 className="mt-2 text-[28px] font-black leading-tight tracking-[-0.035em] text-[var(--bf-cream)]">{children}</h1>
-    </div>
-  );
+function changeTime(value: string | null | undefined) {
+  if (!value || !Number.isFinite(Date.parse(value))) return null;
+  return new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Novosibirsk" }).format(new Date(value));
 }
 
 export function ProfilePage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [params] = useSearchParams();
-  const requestedView = params.get("view");
-  const view: ProfileView =
-    requestedView === "details" || requestedView === "notifications"
-      ? requestedView
-      : "home";
-
+  const view = location.pathname.endsWith("/details") ? "details" : params.get("view");
   const { state, logout, refreshProfile } = useAuth();
-  const user = state.status === "authenticated" ? state.user : null;
-  const [selectedPosition, setSelectedPosition] = useState<StaffPosition | null>(null);
-  const [birthDate, setBirthDate] = useState("");
-  const [savingPosition, setSavingPosition] = useState(false);
-  const [savingBirthday, setSavingBirthday] = useState(false);
-  const [message, setMessage] = useState<{
-    tone: "success" | "error";
-    text: string;
-  } | null>(null);
-
+  const authUser = state.status === "authenticated" ? state.user : null;
+  const [confirmedProfile, setConfirmedProfile] = useState<StaffProfile | null>(null);
+  const user = confirmedProfile?.id === authUser?.id ? { ...authUser, ...confirmedProfile } : authUser;
+  const [position, setPosition] = useState<StaffPosition | "">(user?.position_code || "");
+  const [birthDate, setBirthDate] = useState(user?.birth_date || "");
+  const [pending, setPending] = useState(false);
+  const [message, setMessage] = useState<{ error: boolean; text: string } | null>(null);
+  const baseline = useRef({ id: authUser?.id || "", position: authUser?.position_code || "", birthDate: authUser?.birth_date || "" });
   useEffect(() => {
-    setSelectedPosition(user?.position_code || null);
-    setBirthDate(user?.birth_date || "");
-  }, [user?.position_code, user?.birth_date]);
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-    setMessage(null);
-  }, [view]);
-
-  const positionLocked = user?.position_change_allowed === false;
-  const positionDirty = useMemo(
-    () => Boolean(selectedPosition && selectedPosition !== (user?.position_code || null)),
-    [selectedPosition, user?.position_code]
-  );
+    const previous = baseline.current;
+    const next = { id: authUser?.id || "", position: authUser?.position_code || "", birthDate: authUser?.birth_date || "" };
+    // A profile refresh must not discard an unsaved birthday or position draft.
+    setPosition((current) => previous.id !== next.id || current === previous.position ? next.position as StaffPosition | "" : current);
+    setBirthDate((current) => previous.id !== next.id || current === previous.birthDate ? next.birthDate : current);
+    baseline.current = next;
+    setConfirmedProfile(null);
+  }, [authUser?.id, authUser?.position_code, authUser?.birth_date, authUser?.position_change_allowed, authUser?.position_change_reason]);
+  useEffect(() => { setMessage(null); }, [view]);
+  const positionDirty = position !== (user?.position_code || "");
   const birthdayDirty = birthDate !== (user?.birth_date || "");
-
+  const dirty = positionDirty || birthdayDirty;
+  const guarding = Boolean(user && view === "details" && (dirty || pending));
+  const blocker = useBlocker(guarding);
+  useEffect(() => {
+    if (!guarding) return;
+    const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ""; };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [guarding]);
   if (state.status !== "authenticated" || !user) return null;
+  const token = state.session.access_token;
+  const positionLocked = user.position_change_allowed !== true;
+  const fullName = staffFullName(user);
 
-  const accessToken = state.session.access_token;
-  const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ") || "Сотрудник";
-  const positionName = user.position_code
-    ? STAFF_POSITION_LABELS[user.position_code]
-    : "Должность не выбрана";
-  const nextPositionChangeLabel = formatPositionChangeTime(user.position_change_available_at);
-  const positionLockText = user.position_change_reason === "window_locked"
-    ? "Должность можно изменить с 11:00 до 02:59."
-    : "Должность уже менялась в эту смену.";
-
-  async function savePosition() {
-    if (!selectedPosition || !positionDirty || positionLocked || savingPosition) return;
-    setSavingPosition(true);
-    setMessage(null);
+  async function save(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (pending || !dirty) return;
+    if (!validBirthDate(birthDate)) {
+      setMessage({ error: true, text: "Укажите существующую дату рождения с 1900 года по сегодняшний день." }); return;
+    }
+    if (positionDirty && (positionLocked || !position)) {
+      setMessage({ error: true, text: "Сейчас должность изменить нельзя. Верните текущую должность и сохраните остальные данные." }); return;
+    }
+    setPending(true); setMessage(null);
     try {
-      await updateStaffProfile(accessToken, { positionCode: selectedPosition });
+      const updated = await updateStaffProfile(token, {
+        ...(birthdayDirty ? { birthDate: birthDate || null } : {}),
+        ...(positionDirty && position ? { positionCode: position } : {})
+      });
+      const verified = updated || await fetchStaffProfile(token);
+      if (!verified || verified.id !== user!.id || (birthdayDirty && (verified.birth_date || "") !== birthDate) || (positionDirty && verified.position_code !== position)) throw new Error("profile_confirmation_failed");
+      setConfirmedProfile(verified);
+      baseline.current = { id: verified.id, position: verified.position_code || "", birthDate: verified.birth_date || "" };
       await refreshProfile();
-      setMessage({ tone: "success", text: "Должность сохранена." });
+      setMessage({ error: false, text: "Личные данные сохранены." });
     } catch (error) {
       const code = error instanceof Error ? error.message : "";
+      // Main's PATCH may commit a position before a later birthday/read fails.
+      // Reconcile the real server state while retaining each uncommitted draft.
+      try {
+        const verified = await fetchStaffProfile(token);
+        if (verified && verified.id === user!.id) {
+          setConfirmedProfile(verified);
+          baseline.current = { id: verified.id, position: verified.position_code || "", birthDate: verified.birth_date || "" };
+        }
+      } catch { /* Retain drafts and the last verified profile when offline. */ }
       if (code === "position_change_next_window" || code === "position_change_window_locked") {
-        await refreshProfile();
-        setMessage({
-          tone: "error",
-          text: code === "position_change_window_locked"
-            ? "Сейчас должность изменить нельзя."
-            : "Должность уже менялась в эту смену."
-        });
-      } else {
-        setMessage({ tone: "error", text: "Не удалось сохранить должность. Изменение не применено." });
-      }
-    } finally {
-      setSavingPosition(false);
-    }
+        setMessage({ error: true, text: code === "position_change_window_locked" ? "Изменить должность можно с 11:00 до 02:59 по Новосибирску." : "Должность уже менялась в эту смену." });
+      } else setMessage({ error: true, text: "Не удалось подтвердить сохранение всех данных. Проверьте поля и повторите попытку." });
+    } finally { setPending(false); }
   }
-
-  async function saveBirthday() {
-    if (!birthdayDirty || savingBirthday) return;
-    setSavingBirthday(true);
-    setMessage(null);
-    try {
-      await updateStaffProfile(accessToken, { birthDate: birthDate || null });
-      await refreshProfile();
-      setMessage({
-        tone: "success",
-        text: birthDate ? "Дата рождения сохранена." : "Дата рождения удалена из профиля."
-      });
-    } catch {
-      setMessage({ tone: "error", text: "Не удалось сохранить дату рождения." });
-    } finally {
-      setSavingBirthday(false);
-    }
+  async function signOut() {
+    if (pending) return;
+    setPending(true); setMessage(null);
+    try { await logout(); navigate("/login", { replace: true }); }
+    catch { setMessage({ error: true, text: "Не удалось выйти. Повторите попытку." }); setPending(false); }
   }
-
-  async function handleLogout() {
-    await logout();
-    navigate("/login", { replace: true });
-  }
-
-  if (view === "notifications") {
-    return (
-      <section className="bf-profile-page mx-auto max-w-2xl pb-6">
-        <ProfileSubheader>Уведомления</ProfileSubheader>
-        <NotificationSettingsCard accessToken={accessToken} />
-      </section>
-    );
-  }
-
+  if (view === "notifications") return <NotificationSettingsPage fromProfile />;
   if (view === "details") {
-    return (
-      <section className="bf-profile-page mx-auto max-w-2xl pb-6">
-        <ProfileSubheader>Личные данные</ProfileSubheader>
-        <Surface className="p-4">
-          <div className="flex items-center gap-2">
-            <CalendarDays className="size-5 text-[var(--bf-gold)]" aria-hidden />
-            <h2 className="text-base font-black text-[var(--bf-cream)]">Дата рождения</h2>
-          </div>
-          <div className="mt-3 h-11 w-full min-w-0 overflow-hidden rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)] focus-within:ring-2 focus-within:ring-[var(--bf-copper-hi)]">
-            <input
-              type="date"
-              aria-label="Дата рождения"
-              value={birthDate}
-              max={new Date().toISOString().slice(0, 10)}
-              onChange={(event) => { setBirthDate(event.target.value); setMessage(null); }}
-              className="bf-birthday-input block h-full w-full min-w-0 max-w-full border-0 bg-transparent px-3 py-0 text-base font-bold text-[var(--bf-cream)] outline-none"
-              style={{ width: "100%", minWidth: 0, maxWidth: "100%", boxSizing: "border-box", boxShadow: "none" }}
-            />
-          </div>
-          {birthdayDirty ? (
-            <Button type="button" variant="secondary" className="mt-3 w-full" disabled={savingBirthday} onClick={() => void saveBirthday()}>
-              {savingBirthday ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <CalendarDays className="size-4" aria-hidden />}
-              {savingBirthday ? "Сохраняем…" : "Сохранить дату рождения"}
-            </Button>
-          ) : null}
-        </Surface>
-
-        <Surface className="mt-3 p-4">
-          <div className="flex items-center gap-2">
-            <BriefcaseBusiness className="size-5 text-[var(--bf-copper-hi)]" aria-hidden />
-            <h2 className="text-base font-black text-[var(--bf-cream)]">Рабочая должность</h2>
-          </div>
-          <div className="relative mt-3">
-            <select
-              value={selectedPosition || ""}
-              disabled={positionLocked || savingPosition}
-              aria-label="Рабочая должность"
-              onChange={(event) => {
-                setSelectedPosition(event.target.value ? event.target.value as StaffPosition : null);
-                setMessage(null);
-              }}
-              className="h-11 min-h-11 w-full appearance-none rounded-xl border border-[var(--bf-line-strong)] bg-[var(--bf-surface-2)] px-3 pr-11 text-base font-bold text-[var(--bf-cream)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)] disabled:cursor-not-allowed disabled:opacity-55"
-            >
-              <option value="" disabled>Не задана</option>
-              {POSITIONS.map((position) => (
-                <option key={position} value={position}>{STAFF_POSITION_LABELS[position]}</option>
-              ))}
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 size-5 -translate-y-1/2 text-[var(--bf-muted)]" aria-hidden />
-          </div>
-          {positionLocked ? (
-            <p className="mt-3 rounded-xl border border-[color:color-mix(in_srgb,var(--bf-gold),transparent_60%)] bg-[color:color-mix(in_srgb,var(--bf-gold),transparent_92%)] px-3 py-2 text-xs leading-5 text-[var(--bf-muted)]">
-              {positionLockText}{nextPositionChangeLabel ? ` Следующая возможность: ${nextPositionChangeLabel}.` : ""}
-            </p>
-          ) : !user.position_code ? (
-            <p className="mt-3 text-xs leading-5 text-[var(--bf-muted)]">Пока должность не выбрана, позиционная смена недоступна.</p>
-          ) : (
-            <p className="mt-3 text-xs leading-5 text-[var(--bf-dim)]">Сменить должность можно один раз за рабочую смену.</p>
-          )}
-          {positionDirty && !positionLocked ? (
-            <Button type="button" variant="primary" className="mt-3 w-full" disabled={savingPosition} onClick={() => void savePosition()}>
-              {savingPosition ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <BriefcaseBusiness className="size-4" aria-hidden />}
-              {savingPosition ? "Сохраняем…" : "Сохранить должность"}
-            </Button>
-          ) : null}
-        </Surface>
-
-        {message ? (
-          <p className={cn("mt-3 rounded-xl border border-[var(--bf-line)] px-3 py-2 text-sm", message.tone === "error" ? "text-[#e99990]" : "text-[#9dd0a0]")} role="status" aria-live="polite">
-            {message.text}
-          </p>
-        ) : null}
-      </section>
-    );
+    const nextChange = changeTime(user.position_change_available_at);
+    return <section className="stack bf-profile-page bf-account-page">
+      <WarmBack to="/profile" label="В профиль" />
+      <WarmTitle title="Личные данные" />
+      <form className="form-stack bf-personal-form bf-compact-form" onSubmit={(event) => void save(event)}>
+        <div className="bf-personal-pair">
+          <label className="bf-field"><span className="bf-field-label">Имя</span><input autoComplete="given-name" value={user.first_name || ""} readOnly /></label>
+          <label className="bf-field"><span className="bf-field-label">Фамилия</span><input autoComplete="family-name" value={user.last_name || ""} readOnly /></label>
+        </div>
+        <label className="bf-field"><span className="bf-field-label">Дата рождения</span><input type="date" autoComplete="bday" min="1900-01-01" max={new Date().toISOString().slice(0, 10)} value={birthDate} disabled={pending} onChange={(event) => { setBirthDate(event.target.value); setMessage(null); }} /></label>
+        <label className="bf-field"><span className="bf-field-label">Рабочая должность</span><select value={position} disabled={positionLocked || pending} onChange={(event) => { setPosition(event.target.value as StaffPosition); setMessage(null); }}><option value="" disabled>Не назначена</option>{POSITIONS.map((item) => <option key={item} value={item}>{STAFF_POSITION_LABELS[item]}</option>)}</select><span className="bf-account-hint">{positionLocked ? user.position_change_reason === "window_locked" ? "Изменить можно с 11:00 до 02:59 по Новосибирску." : "Должность уже менялась в эту рабочую смену." : "Можно изменить один раз за рабочую смену. Роль доступа здесь не меняется."}{positionLocked && nextChange ? ` Следующая возможность: ${nextChange}.` : ""}</span></label>
+        <dl className="bf-profile-facts"><div><dt>Заведение</dt><dd>{staffVenue(user.position_code)}</dd></div><div><dt>Доступ</dt><dd>{staffAccessLabel(user)}</dd></div></dl>
+        <Button type="submit" variant="primary" disabled={pending || !dirty}>{pending ? "Сохраняем…" : "Сохранить изменения"}</Button>
+      </form>
+      {message ? <WarmNotice error={message.error}>{message.text}</WarmNotice> : null}
+      {blocker.state === "blocked" ? <WarmDialog title="Покинуть личные данные?" confirm onClose={() => { if (!pending && blocker.state === "blocked") blocker.reset(); }}><p>{pending ? "Сохранение ещё выполняется. Дождитесь результата." : "Есть несохранённые изменения."}</p><div className="bf-account-actions"><Button type="button" disabled={pending} onClick={() => { if (blocker.state === "blocked") blocker.reset(); }}>Остаться</Button><Button type="button" variant="danger" disabled={pending} onClick={() => { if (blocker.state === "blocked") blocker.proceed(); }}>Выйти без сохранения</Button></div></WarmDialog> : null}
+    </section>;
   }
-
-  return (
-    <section className="bf-profile-page mx-auto max-w-2xl pb-6">
-      <p className="eyebrow">ЛИЧНЫЙ КАБИНЕТ</p>
-      <div className="craft-profile-id">
-        <div className="craft-profile-photo" aria-hidden="true">
-          <img src="/assets/icons/profile-avatar.png" alt="" width="96" height="96" />
-        </div>
-        <div className="min-w-0">
-          <p className="craft-profile-heading">BFSTAFF</p>
-          <h1 className="mt-2 break-words text-[clamp(24px,6.5vw,34px)] font-black leading-tight tracking-[-0.035em]">{fullName}</h1>
-          <p className="mt-1 text-sm text-[var(--bf-muted)]">{positionName}</p>
-          <p className="mt-1 text-xs font-bold text-[var(--bf-copper-hi)]">{staffAccessLabel(user)}</p>
-        </div>
-      </div>
-
-      <Surface className="mt-5 p-3">
-        <p className="eyebrow px-2 pt-1">МОЁ</p>
-        <div className="mt-2 divide-y divide-[var(--bf-line)]">
-          <ProfileMenuRow to="/profile?view=details" icon={UserRound} title="Личные данные" description="Дата рождения и рабочая должность" />
-          <ProfileMenuRow to="/profile?view=notifications" icon={Bell} title="Уведомления" description="Оповещения Ленты на этом устройстве" />
-        </div>
-      </Surface>
-
-      {canManageStaffClient(user) ? (
-        <Surface className="mt-3 p-3">
-          <p className="eyebrow px-2 pt-1">АДМИНИСТРИРОВАНИЕ</p>
-          <div className="mt-2">
-            <ProfileMenuRow to="/admin" icon={Settings2} title="Управление персоналом" description="Сотрудники, аттестации и журнал" />
-          </div>
-        </Surface>
-      ) : null}
-
-      <Surface className="mt-3 p-3">
-        <button type="button" className="flex min-h-11 w-full items-center gap-3 rounded-xl px-2 text-left text-sm font-bold text-[#e99990] outline-none hover:bg-[var(--bf-surface-2)] focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]" onClick={() => void handleLogout()}>
-          <LogOut className="size-5 shrink-0" aria-hidden /> Выйти из аккаунта
-        </button>
-      </Surface>
-    </section>
-  );
+  const initials = [user.first_name, user.last_name].filter(Boolean).map((part) => part!.slice(0, 1)).join("") || "BF";
+  return <section className="stack bf-profile-page bf-account-page">
+    <WarmTitle title="Мой профиль" />
+    <section className="bf-profile-identity" aria-label="Личная карточка"><span className="bf-profile-avatar" aria-hidden="true">{initials}</span><div><h2>{fullName}</h2><p className="bf-profile-position"><span>{user.position_code ? STAFF_POSITION_LABELS[user.position_code] : "Должность не назначена"}</span><span aria-hidden="true"> • </span><span>{staffVenue(user.position_code)}</span></p><span className="bf-profile-access">{staffAccessLabel(user)}</span></div></section>
+    <div className="bf-profile-group">
+      <WarmRow to="/profile?view=details" title="Личные данные" description="Дата рождения и рабочая должность" icon="people" />
+      <WarmRow to="/attestation?view=history" title="Мои аттестации" description="Результаты и разбор моих ответов" icon="shift" />
+      <WarmRow to="/profile?view=notifications" title="Уведомления" description="Важные сообщения команды" icon="bell" />
+    </div>
+    <button type="button" className="bf-account-logout" disabled={pending} onClick={() => void signOut()}><WarmIcon name="logout" size={18} />{pending ? "Выходим…" : "Выйти из аккаунта"}</button>
+    {message ? <WarmNotice error={message.error}>{message.text}</WarmNotice> : null}
+  </section>;
 }

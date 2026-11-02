@@ -1,0 +1,81 @@
+/* Domain layout uses the approved Warm Hall tokens and shared controls. */
+.bfstaff-app :is(.bf-knowledge-page,.bf-knowledge-article,.bf-knowledge-manage,.bf-article-editor){display:grid;gap:16px;min-width:0;grid-template-columns:minmax(0,1fr);overflow-wrap:anywhere}
+.bfstaff-app .bf-article-editor{gap:12px}
+.bfstaff-app .bf-knowledge-tools{display:grid;gap:12px;min-width:0}
+.bfstaff-app :is(.bf-knowledge-filters,.bf-editor-pair){display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,8rem),1fr));gap:8px;min-width:0}
+.bfstaff-app :is(.bf-knowledge-tools,.bf-article-editor) .bf-field{display:grid;gap:4px;min-width:0;font-size:var(--bf-type-support,14px)}
+.bfstaff-app :is(.bf-knowledge-tools,.bf-article-editor) :is(input,select,textarea){width:100%;min-width:0;font-size:16px}
+.bfstaff-app .bf-knowledge-attestation{width:100%;justify-content:center}
+.bfstaff-app .bf-knowledge-attestation svg:last-child{margin-inline-start:auto}
+.bfstaff-app .bf-knowledge-count{font-size:var(--bf-type-support,14px);color:var(--bf-muted);font-variant-numeric:tabular-nums;line-height:1.4;margin:0}
+.bfstaff-app .bf-knowledge-list{display:grid;gap:8px;list-style:none;padding:0;margin:0;min-width:0}
+.bfstaff-app .bf-knowledge-list>li{min-width:0}
+.bfstaff-app .bf-knowledge-item{display:flex;align-items:center;gap:12px;width:100%;min-height:44px;padding:12px;text-align:start;border:0;border-radius:16px;background:var(--bf-paper);color:var(--bf-ink);box-shadow:var(--bf-control-depth);overflow-wrap:anywhere;text-decoration:none}
+.bfstaff-app .bf-knowledge-item-copy{display:grid;gap:6px;min-width:0;flex:1}
+.bfstaff-app .bf-knowledge-item-title{font-size:calc(var(--bf-type-body,16px) + .0625rem);font-weight:600;line-height:1.4;text-decoration:underline;text-decoration-thickness:from-font;text-underline-offset:.15em}
+.bfstaff-app .bf-knowledge-item-meta{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:var(--bf-type-support,14px);font-weight:400;line-height:1.4;color:var(--bf-muted)}
+.bfstaff-app .bf-knowledge-reading{display:inline-flex;align-items:center;justify-self:start;gap:4px;min-height:22px;padding:2px 7px;border-radius:999px;background:#f2e8dc;font-size:var(--bf-type-meta,12px);font-weight:500;line-height:1.4;box-shadow:inset 0 0 0 1px var(--bf-control-edge)}
+.bfstaff-app .bf-knowledge-reading.is-read{background:#e5eadc;color:#3e543d}
+.bfstaff-app .bf-knowledge-item>svg{flex:0 0 auto;color:var(--bf-muted)}
+.bfstaff-app :is(.bf-knowledge-article-footer,.bf-knowledge-editor-fields,.bf-material-editor){display:grid;gap:12px;min-width:0}
+.bfstaff-app .bf-knowledge-editor-fields{border:0;padding:0;margin:0}
+.bfstaff-app :is(.bf-knowledge-editor-status,.bf-knowledge-editor-notice,.bf-knowledge-material-actions-body p,.bf-knowledge-article-footer>p){font-size:var(--bf-type-support,14px);color:var(--bf-muted);margin:0}
+.bfstaff-app .bf-article-meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-block:12px 0;font-size:var(--bf-type-support,14px);color:var(--bf-muted)}
+.bfstaff-app .bf-article-meta .pill{display:inline-flex;align-items:center;gap:4px}
+.bfstaff-app .bf-article-chapters{display:flex;flex-wrap:wrap;gap:8px;margin-block:0}
+.bfstaff-app .bf-chapter-link{min-height:44px;padding:8px 12px;border-radius:999px;border:0;background:var(--bf-paper);color:var(--bf-ink);box-shadow:var(--bf-control-depth);max-width:100%;font-size:var(--bf-type-control,14px);font-weight:600;text-align:start;overflow-wrap:anywhere}
+.bfstaff-app .bf-chapter-subtitle{font-weight:500}
+.bfstaff-app .bf-article-document{display:grid;gap:16px;min-width:0;overflow-wrap:anywhere;color:var(--bf-ink);line-height:1.6}
+.bfstaff-app .bf-article-document :is(p,h2,h3,ul,ol,figure,aside){margin:0}
+.bfstaff-app .bf-article-document h2{font-size:var(--bf-type-section,22px);line-height:1.35;font-weight:700;scroll-margin-block-start:100px}
+.bfstaff-app .bf-article-document h3{font-size:var(--bf-type-body,16px);line-height:1.4;font-weight:700;scroll-margin-block-start:100px}
+.bfstaff-app .bf-article-document :is(ul,ol){padding-inline-start:24px}
+.bfstaff-app .bf-article-document mark{background:#ecd98c;color:#352b25;border-radius:3px;padding-inline:1px}
+.bfstaff-app .bf-article-document :is(.knowledge-image-button,img){display:block;width:100%;max-height:none;border:0;padding:0;border-radius:12px;background:transparent;object-fit:contain;height:auto;box-shadow:none}
+.bfstaff-app .bf-article-document figcaption{margin-top:6px;font-size:var(--bf-type-support,14px);color:var(--bf-muted)}
+.bfstaff-app .bf-article-document .knowledge-callout{padding-inline-start:12px;border-inline-start:2px solid var(--bf-control-edge);background:transparent}
+.bfstaff-app .bf-article-document hr{border:0;border-top:1px solid var(--bf-control-edge);width:100%;margin:0}
+.bfstaff-app .bf-knowledge-material-actions{margin-top:4px;padding:0;border-radius:16px;background:var(--bf-paper);box-shadow:var(--bf-control-depth)}
+.bfstaff-app :is(.bf-knowledge-material-actions,.bf-knowledge-manage-row)>summary{min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;cursor:pointer;list-style:none}
+.bfstaff-app :is(.bf-knowledge-material-actions,.bf-knowledge-manage-row)>summary::-webkit-details-marker{display:none}
+.bfstaff-app :is(.bf-knowledge-material-actions,.bf-knowledge-manage-row)[open]>summary>svg{transform:rotate(90deg)}
+.bfstaff-app .bf-knowledge-material-actions-body{display:grid;gap:12px;padding:0 12px 12px}
+.bfstaff-app .bf-material-action-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.bfstaff-app .bf-material-action-buttons>button{width:100%;min-width:0;min-height:44px;font-size:var(--bf-type-control,14px);padding:8px;gap:6px;white-space:normal;overflow-wrap:anywhere}
+.bfstaff-app .bf-knowledge-manage-row{min-width:0;background:var(--bf-paper);border-radius:16px;box-shadow:var(--bf-control-depth)}
+.bfstaff-app .bf-knowledge-manage-copy{display:grid;gap:4px;min-width:0;flex:1;font-weight:600}
+.bfstaff-app .bf-knowledge-manage-copy>span:last-child{font-size:var(--bf-type-support,14px);font-weight:400;color:var(--bf-muted)}
+.bfstaff-app .bf-knowledge-manage-row>.bf-bank-actions{padding:0 12px 12px}
+.bfstaff-app .bf-article-blocks{display:grid;gap:8px;min-width:0}
+.bfstaff-app .bf-article-block{display:grid;gap:8px;min-width:0;padding:12px;border-radius:16px;background:var(--bf-paper);box-shadow:var(--bf-control-depth)}
+.bfstaff-app .bf-article-block-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
+.bfstaff-app .bf-article-block-label{font-size:var(--bf-type-support,14px);font-weight:600;line-height:1.35;color:var(--bf-ink)}
+.bfstaff-app .bf-block-preview{display:block;width:100%;max-height:160px;object-fit:contain;border-radius:10px}
+.bfstaff-app .bf-rich-editor{display:grid;gap:8px;min-width:0}
+.bfstaff-app .bf-rich-topline{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px}
+.bfstaff-app :is(.bf-rich-tools,.bf-editor-tools){display:flex;align-items:center;gap:0;flex-wrap:nowrap}
+/* Compact 32px visual faces retain 44px pointer and keyboard targets. */
+.bfstaff-app .bf-article-block .bf-rich-tools .bf-format-control,.bfstaff-app .bf-article-block .bf-editor-tools .bf-block-control{position:relative;isolation:isolate;width:44px;min-width:44px;min-height:44px;height:44px;padding:10px;border:0;background:transparent;box-shadow:none;font-size:14px;line-height:1}
+.bfstaff-app .bf-article-block :is(.bf-format-control,.bf-block-control)::before{position:absolute;z-index:-1;inset:6px;content:"";border-radius:10px;background:var(--bf-paper);box-shadow:var(--bf-control-depth)}
+.bfstaff-app .bf-format-control[aria-pressed="true"]::before{background:var(--bf-cocoa)}
+.bfstaff-app .bf-article-block .bf-rich-tools .bf-format-control[aria-pressed="true"]{background:transparent;box-shadow:none;color:var(--bf-paper)}
+.bfstaff-app .bf-article-block :is(.bf-format-control,.bf-block-control):disabled{background:transparent;box-shadow:none}
+.bfstaff-app .bf-article-block :is(.bf-format-control,.bf-block-control):disabled::before{background:var(--bf-disabled-surface);box-shadow:inset 0 0 0 1px var(--bf-control-edge)}
+.bfstaff-app .bf-move-up>svg{transform:rotate(-90deg)}
+.bfstaff-app .bf-move-down>svg{transform:rotate(90deg)}
+.bfstaff-app .bf-live-text{display:block;min-width:0;width:100%;min-height:8rem;padding:11px 12px;border:1px solid var(--bf-input-stroke);border-radius:13px;background:#fffaf2;color:var(--bf-ink);font-size:var(--bf-type-body,16px);line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;box-shadow:inset 0 1px 2px #54371f0a;cursor:text}
+.bfstaff-app .bf-live-heading{min-height:3rem;font-weight:600}
+.bfstaff-app .bf-live-text:empty::before{content:attr(data-placeholder);color:var(--bf-muted);pointer-events:none}
+.bfstaff-app .bf-live-text:focus-visible{outline:3px solid var(--bf-focus-ring);outline-offset:3px}
+.bfstaff-app .bf-live-text strong{font-weight:700}
+.bfstaff-app .bf-live-text em{font-style:italic}
+.bfstaff-app .bf-live-text u{text-decoration:underline;text-underline-offset:2px}
+.bfstaff-app .bf-live-text mark{background:#ecd98c;color:#352b25;border-radius:3px}
+.bfstaff-app .bf-live-text[aria-disabled="true"]{cursor:default;opacity:.7}
+.bfstaff-app .bf-bank-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.bfstaff-app .bf-block-add{justify-content:center;margin-block-start:8px;gap:8px}
+.bfstaff-app .bf-block-add>button{padding-inline:10px;min-height:44px;font-size:var(--bf-type-control,14px)}
+.bfstaff-app .bf-knowledge-upload-status{position:fixed;z-index:100;inset:auto 16px 24px;display:flex;justify-content:center;align-items:center;gap:8px;border-radius:16px;background:var(--bf-paper);color:var(--bf-ink);box-shadow:var(--bf-control-depth);padding:16px;max-width:440px;margin-inline:auto}
+@media(hover:hover) and (pointer:fine){.bfstaff-app .bf-knowledge-item:hover{background:#f8f0e4}}
+@media(forced-colors:active){.bfstaff-app :is(.bf-knowledge-item,.bf-knowledge-reading,.bf-article-block,.bf-live-text,.bf-knowledge-material-actions,.bf-knowledge-manage-row){border:1px solid CanvasText;background:Canvas;color:CanvasText;box-shadow:none}}
+.bfstaff-app .bf-knowledge-expanded-image{display:block;width:100%;height:auto;max-height:78dvh;object-fit:contain;border-radius:12px}

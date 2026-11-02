@@ -1,471 +1,116 @@
-import {
-  Archive,
-  ChevronRight,
-  Plus,
-  RefreshCw,
-  Search,
-  WifiOff,
-  UtensilsCrossed
-} from "lucide-react";
-import {
-  useDeferredValue,
-  useEffect,
-  useMemo,
-  useState
-} from "react";
-import {
-  Link,
-  useLocation,
-  useNavigate,
-  useSearchParams
-} from "react-router-dom";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { WarmBack } from "@/components/warm/WarmBack";
+import { WarmIcon } from "@/components/warm/WarmIcon";
+import { WarmEmpty, WarmNotice, WarmTitle } from "@/components/warm/WarmPage";
 import { useAuth } from "@/features/auth/auth-context";
-import { RecipeEditor } from "@/features/recipes/RecipeEditor";
-import {
-  categoryLabel,
-  isArchive,
-  recipeMatchesVenueCategory,
-  recipeVenueCategory,
-  recipeVenueMatches
-} from "@/features/recipes/recipe-data";
-import { useRecipes } from "@/features/recipes/use-recipes";
-import type { Recipe } from "@/features/recipes/types";
+import { RecipeEditor } from "./RecipeEditor";
+import { RecipeMaterialActions } from "./RecipeMaterialActions";
+import { categoryLabel, isArchive, resolveRecipe } from "./recipe-data";
+import { filterRecipes, recipeCategories } from "./recipe-presentation";
+import { useRecipes } from "./use-recipes";
+import type { Recipe } from "./types";
 import { canManageRecipesClient } from "@/types/auth";
-import { cn } from "@/lib/utils";
-import { PhotoMount } from "@/components/craft/CraftPage";
+import "./recipes.css";
 
 const SCROLL_KEY = "bf-r404-recipes-scroll";
 
-function searchableText(recipe: Recipe) {
-  return [
-    recipe.name,
-    recipe.category,
-    categoryLabel(recipe.category),
-    recipe.subcategory,
-    recipe.desc,
-    recipe.venue,
-    recipeVenueMatches(recipe, "BF")
-      ? categoryLabel(recipeVenueCategory(recipe, "BF"))
-      : "",
-    recipeVenueMatches(recipe, "BB")
-      ? categoryLabel(recipeVenueCategory(recipe, "BB"))
-      : "",
-    recipe.venue === "BF/BB" ? "общая позиция bf bb" : "",
-    ...recipe.ingredients,
-    ...recipe.tags
-  ]
-    .join(" ")
-    .toLowerCase();
-}
-
-function syncLabel(source: string, syncedAt: number | null) {
-  if (source !== "cache-offline" && source !== "legacy-cache") return "";
-
-  if (!syncedAt) return "Нет связи · показана сохранённая версия";
-
-  return `Нет связи · версия от ${new Intl.DateTimeFormat(
-    "ru-RU",
-    {
-      day: "2-digit",
-      month: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit"
-    }
-  ).format(new Date(syncedAt))}`;
-}
-
-function RecipeRow({
-  recipe,
-  from,
-  onOpen
-}: {
-  recipe: Recipe;
-  from: string;
-  onOpen: () => void;
-}) {
-  const archived = isArchive(recipe);
-
-  return (
-    <Link
-      to={`/menu/${encodeURIComponent(recipe.id)}`}
-      state={{ from }}
-      onClick={onOpen}
-      className={cn(
-        "group grid min-h-[68px] grid-cols-[minmax(0,1fr)_32px] items-center gap-3 rounded-2xl border border-[var(--bf-line)] bg-[linear-gradient(135deg,var(--bf-surface)_0%,var(--bf-surface-2)_100%)] px-3.5 py-2.5 outline-none shadow-[0_8px_22px_rgba(0,0,0,.14)] transition-[border-color,background-color,transform] duration-150 focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)] active:translate-y-px",
-        "recipe-list-row",
-        archived
-          ? "text-[var(--bf-muted)]"
-          : "text-[var(--bf-cream)]"
-      )}
-      aria-label={`Открыть рецепт ${recipe.name}${archived ? ", архив" : ""}`}
-    >
-      <PhotoMount src={recipe.photo} fallback={<UtensilsCrossed aria-hidden="true" size={40} />} />
-      <div className="min-w-0">
-        <div className="flex min-h-4 flex-wrap items-center gap-1.5">
-          <span
-            className={cn(
-              "text-[9px] font-black uppercase leading-none tracking-[0.16em]",
-              archived
-                ? "text-[var(--bf-dim)]"
-                : "text-[var(--bf-copper-hi)]"
-            )}
-          >
-            {categoryLabel(recipe.category) || "Меню"}
-          </span>
-          {archived ? (
-            <span className="inline-flex h-5 items-center gap-1 rounded-full border border-[var(--bf-line)] px-1.5 text-[9px] font-bold uppercase tracking-[0.06em] text-[var(--bf-dim)]">
-              <Archive className="size-2.5" aria-hidden />
-              Архив
-            </span>
-          ) : null}
-        </div>
-
-        <h2 className="mt-1.5 line-clamp-2 text-[16px] font-extrabold leading-[1.18] tracking-[-0.015em]">
-          {recipe.name}
-        </h2>
-      </div>
-
-      <div className="grid size-8 place-items-center rounded-full border border-[var(--bf-line-strong)] bg-[color:color-mix(in_srgb,var(--bf-surface-2),transparent_6%)] text-[var(--bf-copper-hi)] transition-[border-color,background-color] duration-150 group-hover:border-[var(--bf-copper)] group-hover:bg-[var(--bf-surface)]">
-        <ChevronRight className="size-4.5" aria-hidden />
-      </div>
-    </Link>
-  );
+function RecipeRow({ recipe, from, onOpen }: { recipe: Recipe; from: string; onOpen: () => void }) {
+  const [photoFailed, setPhotoFailed] = useState(false);
+  return <Link to={`/menu/${encodeURIComponent(recipe.id)}`} state={{ from }} onClick={onOpen}
+    className="bf-recipe-item warm-recipe-card" aria-label={`Открыть рецепт ${recipe.name}${isArchive(recipe) ? ", архив" : ""}`}>
+    {recipe.photo && !photoFailed ? <img src={recipe.photo} alt="" loading="lazy" onError={() => setPhotoFailed(true)} />
+      : <span className="bf-recipe-placeholder warm-recipe-placeholder"><WarmIcon name="recipes" size={26} /></span>}
+    <span className="warm-recipe-card-copy">
+      <span className="small muted">{categoryLabel(recipe.category)}{isArchive(recipe) ? " · Архив" : ""}</span>
+      <span className="warm-recipe-card-title">{recipe.name}</span>
+      {recipe.serving ? <span className="small muted">{recipe.serving}</span> : null}
+    </span>
+    <WarmIcon name="chevron" size={20} />
+  </Link>;
 }
 
 export function RecipesPage() {
   const { state, reload } = useRecipes();
   const { state: authState } = useAuth();
-  const [createOpen, setCreateOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const [params, setParams] = useSearchParams();
-
-  const canManageRecipes =
-    authState.status === "authenticated" &&
-    canManageRecipesClient(authState.user);
-  const accessToken =
-    authState.status === "authenticated" ? authState.session.access_token : null;
-
+  const [refreshing, setRefreshing] = useState(false);
+  const management = location.pathname.startsWith("/settings/");
+  const canManage = authState.status === "authenticated" && canManageRecipesClient(authState.user);
+  const accessToken = authState.status === "authenticated" ? authState.session.access_token : null;
   const query = params.get("q") || "";
-  const deferredQuery = useDeferredValue(query.trim().toLowerCase());
-  const requestedCategory = params.get("cat") || "Все";
-
-  useEffect(() => {
-    const legacy = new URLSearchParams(window.location.search).get("recipe");
-    if (!legacy) return;
-
-    const url = new URL(window.location.href);
-    url.searchParams.delete("recipe");
-    window.history.replaceState(
-      window.history.state,
-      "",
-      `${url.pathname}${url.search}${url.hash}`
-    );
-
-    navigate(`/menu/${encodeURIComponent(legacy)}`, { replace: true });
-  }, [navigate]);
-
+  const deferredQuery = useDeferredValue(query);
   const data = state.status === "ready" ? state.data : null;
   const recipes = data?.recipes || [];
-
-  const categories = useMemo(() => {
-    const current = recipes.filter((recipe) => !isArchive(recipe));
-    const venueCategories = new Set<string>();
-
-    current.forEach((recipe) => {
-      if (recipeVenueMatches(recipe, "BF")) {
-        venueCategories.add(recipeVenueCategory(recipe, "BF"));
-      }
-
-      if (recipeVenueMatches(recipe, "BB")) {
-        venueCategories.add(recipeVenueCategory(recipe, "BB"));
-      }
-    });
-
-    const values = [
-      "Все",
-      ...Array.from(venueCategories).sort((a, b) => {
-        const aLabel = categoryLabel(a);
-        const bLabel = categoryLabel(b);
-        const aBase = aLabel.replace(/\s+(?:BF|BB)$/i, "");
-        const bBase = bLabel.replace(/\s+(?:BF|BB)$/i, "");
-        const baseOrder = aBase.localeCompare(bBase, "ru");
-
-        if (baseOrder !== 0) return baseOrder;
-        return a.endsWith(" BF") ? -1 : b.endsWith(" BF") ? 1 : 0;
-      })
-    ];
-
-    if (recipes.some(isArchive)) values.push("Архив");
-    return values;
-  }, [recipes]);
-
-  const category = categories.includes(requestedCategory)
-    ? requestedCategory
-    : "Все";
-
-  const filtered = useMemo(() => {
-    const result = recipes.filter((recipe) => {
-      const archived = isArchive(recipe);
-
-      const categoryMatch =
-        category === "Архив"
-          ? archived
-          : category === "Все"
-            ? deferredQuery
-              ? true
-              : !archived
-            : !archived && recipeMatchesVenueCategory(recipe, category);
-
-      if (!categoryMatch) return false;
-      if (!deferredQuery) return true;
-
-      return searchableText(recipe).includes(deferredQuery);
-    });
-
-    return result.sort((a, b) => {
-      if (deferredQuery && category === "Все") {
-        const archiveOrder = Number(isArchive(a)) - Number(isArchive(b));
-        if (archiveOrder !== 0) return archiveOrder;
-      }
-
-      return a.name.localeCompare(b.name, "ru");
-    });
-  }, [category, deferredQuery, recipes]);
+  const categories = useMemo(() => recipeCategories(recipes), [recipes]);
+  const requestedCategory = params.get("cat") || "Все";
+  const category = categories.includes(requestedCategory) ? requestedCategory : "Все";
+  const filtered = useMemo(() => filterRecipes(recipes, category, deferredQuery), [recipes, category, deferredQuery]);
+  const editorId = params.get("editor");
+  const editorRecipe = editorId && editorId !== "new" ? resolveRecipe(recipes, editorId) : undefined;
+  const editorOpen = Boolean(editorId && canManage && accessToken);
+  const from = `${location.pathname}${location.search}`;
 
   useEffect(() => {
-    if (state.status !== "ready") return;
+    const legacy = params.get("recipe");
+    if (legacy) navigate(`/menu/${encodeURIComponent(legacy)}`, { replace: true });
+  }, [navigate, params]);
 
+  useEffect(() => {
+    if (state.status !== "ready" || editorOpen) return;
     try {
-      const stored = JSON.parse(sessionStorage.getItem(SCROLL_KEY) || "null") as
-        | { path?: string; y?: number }
-        | null;
-      const path = `${location.pathname}${location.search}`;
-
-      if (
-        stored?.path === path &&
-        typeof stored.y === "number" &&
-        stored.y > 0
-      ) {
+      const stored = JSON.parse(sessionStorage.getItem(SCROLL_KEY) || "null") as { path?: string; y?: number } | null;
+      if (stored?.path === from && typeof stored.y === "number" && stored.y > 0) {
         requestAnimationFrame(() => window.scrollTo(0, stored.y || 0));
       }
-    } catch {
-      // Scroll restoration is optional. Broken sessionStorage must not block Recipes.
-    }
-  }, [location.pathname, location.search, state.status]);
+    } catch { /* Scroll restoration must not block the catalogue. */ }
+  }, [from, state.status, editorOpen]);
 
-  function updateParam(key: "q" | "cat", value: string) {
+  function updateParam(key: string, value: string) {
     const next = new URLSearchParams(params);
-
     if (!value || (key === "cat" && value === "Все")) next.delete(key);
     else next.set(key, value);
-
     setParams(next, { replace: true });
   }
 
-  const archiveCount = filtered.filter(isArchive).length;
-  const from = `${location.pathname}${location.search}`;
-  const offlineMessage = data
-    ? syncLabel(data.source, data.syncedAt)
-    : "";
+  async function refresh() {
+    setRefreshing(true);
+    try { await reload(); } finally { setRefreshing(false); }
+  }
 
-  return (
-    <section className="bf-list-page bf-recipes-page pb-4">
-      <div className="bf-recipes-header max-w-2xl">
-        <div className="flex items-end justify-between gap-3">
-          <h1 className="min-w-0 text-[36px] font-black leading-none tracking-[-0.04em]">
-            Рецепты
-          </h1>
+  if (editorOpen && accessToken && state.status === "ready") {
+    return <section className="warm-recipes-page">
+      <WarmBack to={editorRecipe ? `/menu/${encodeURIComponent(editorRecipe.id)}` : management ? "/settings/recipes" : "/menu"} label={editorRecipe ? "К рецепту" : "В рецепты"} />
+      {editorId === "new" || editorRecipe ? <RecipeEditor accessToken={accessToken} mode={editorId === "new" ? "create" : "edit"} recipe={editorRecipe} recipes={recipes} lifecycleAvailable={data?.capabilities.materialLifecycle === true} photoCleanupAvailable={data?.capabilities.photoCleanup === true}
+        onCancel={() => updateParam("editor", "")}
+        onSaved={async (id) => { await reload(); navigate(`/menu/${encodeURIComponent(id)}`, { state: { from: management ? "/settings/recipes" : "/menu" } }); }} />
+        : <WarmEmpty title="Рецепт не найден" body="Возможно, позиция была удалена." />}
+      {editorRecipe ? <RecipeMaterialActions accessToken={accessToken} recipe={editorRecipe} lifecycleAvailable={data?.capabilities.materialLifecycle === true} onChanged={reload} onDeleted={() => { updateParam("editor", ""); }} /> : null}
+    </section>;
+  }
 
-          <div className="bf-recipes-header-actions flex shrink-0 items-center gap-2">
-            <Button
-              type="button"
-              variant="secondary"
-              size="icon"
-              className="size-9 min-h-9 rounded-full p-0"
-              aria-label="Обновить рецепты"
-              disabled={state.status === "loading"}
-              onClick={() => void reload()}
-            >
-              <RefreshCw
-                className={cn(
-                  "size-3.5",
-                  state.status === "loading" && "animate-spin"
-                )}
-                aria-hidden
-              />
-            </Button>
+  return <section className="warm-recipes-page">
+    <WarmBack to={management ? "/settings" : "/"} label={management ? "В настройки" : "На главную"} />
+    <WarmTitle title={management ? "Редактор рецептов" : "Рецепты"} description="Состав и технология под рукой."
+      action={canManage && accessToken ? <Button type="button" size="icon" aria-label="Добавить рецепт" onClick={() => updateParam("editor", "new")}><WarmIcon name="plus" /></Button> : undefined} />
+    {editorId && !canManage ? <WarmNotice error>У вас нет прав на редактирование рецептов.</WarmNotice> : null}
+    <div className="warm-recipe-filters">
+      <label className="bf-field warm-recipe-field"><span className="bf-field-label">Найти рецепт</span><Input type="search" value={query} placeholder="Название или ингредиент" onChange={(event) => updateParam("q", event.target.value)} /></label>
+      <label className="bf-field warm-recipe-field"><span className="bf-field-label">Категория</span><select value={category} onChange={(event) => updateParam("cat", event.target.value)}>{categories.map((item) => <option key={item} value={item}>{categoryLabel(item)}</option>)}</select></label>
 
-            {canManageRecipes && accessToken ? (
-              <Button
-                type="button"
-                variant="secondary"
-                size="icon"
-                className="mb-0 shrink-0"
-                aria-label="Создать рецепт"
-                aria-pressed={createOpen}
-                onClick={() => setCreateOpen((current) => !current)}
-              >
-                <Plus className="size-5" aria-hidden />
-              </Button>
-            ) : null}
-          </div>
-        </div>
-
-        <p className="mt-3 text-pretty text-[15px] leading-6 text-[var(--bf-muted)]">
-          Найди рецепт по названию, ингредиенту, категории
-        </p>
-      </div>
-
-      {createOpen && canManageRecipes && accessToken ? (
-        <div className="mt-5">
-          <RecipeEditor
-            accessToken={accessToken}
-            mode="create"
-            recipes={recipes}
-            onCancel={() => setCreateOpen(false)}
-            onSaved={async (recipeId) => {
-              setCreateOpen(false);
-              await reload();
-              navigate(`/menu/${encodeURIComponent(recipeId)}`, { replace: false });
-            }}
-          />
-        </div>
-      ) : null}
-
-      <div className="bf-recipes-search relative mt-5">
-        <Search
-          className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-[var(--bf-dim)]"
-          aria-hidden
-        />
-        <label className="sr-only" htmlFor="recipe-search">
-          Поиск по рецептам
-        </label>
-        <Input
-          id="recipe-search"
-          type="search"
-          value={query}
-          placeholder="Название, ингредиент, категория…"
-          className="pl-10"
-          onChange={(event) => updateParam("q", event.target.value)}
-        />
-      </div>
-
-      {offlineMessage ? (
-        <div
-          role="status"
-          className="mt-3 flex items-start gap-2 border-y border-[color:color-mix(in_srgb,var(--bf-gold),transparent_72%)] py-2.5 text-xs leading-5 text-[var(--bf-muted)]"
-        >
-          <WifiOff
-            className="mt-0.5 size-4 shrink-0 text-[var(--bf-gold)]"
-            aria-hidden
-          />
-          <span>{offlineMessage}</span>
-        </div>
-      ) : null}
-
-      {state.status === "loading" ? (
-        <div className="mt-6 grid gap-2" aria-label="Загрузка рецептов">
-          {Array.from({ length: 6 }, (_, index) => (
-            <div
-              key={index}
-              className="h-[68px] animate-pulse rounded-2xl border border-[var(--bf-line)] bg-[linear-gradient(90deg,var(--bf-surface),var(--bf-surface-2),var(--bf-surface))]"
-            />
-          ))}
-        </div>
-      ) : null}
-
-      {state.status === "error" ? (
-        <div className="mt-6 border-y border-[var(--bf-line)] py-6">
-          <p className="text-lg font-extrabold">
-            Рецепты сейчас недоступны
-          </p>
-          <p className="mt-1 max-w-lg text-sm leading-6 text-[var(--bf-muted)]">
-            Проверьте подключение и попробуйте ещё раз.
-          </p>
-          <Button className="mt-4" onClick={reload}>
-            <RefreshCw className="size-4" aria-hidden />
-            Повторить
-          </Button>
-        </div>
-      ) : null}
-
-      {state.status === "ready" ? (
-        <>
-          <div
-            className="bf-recipe-categories bf-scrollbar-none -mx-4 mt-5 flex gap-2 overflow-x-auto px-4 pb-1"
-            role="group"
-            aria-label="Категории рецептов"
-          >
-            {categories.map((item) => {
-              const active = item === category;
-
-              return (
-                <button
-                  key={item}
-                  type="button"
-                  aria-pressed={active}
-                  onClick={() => updateParam("cat", item)}
-                  className={cn(
-                    "min-h-11 shrink-0 rounded-full border px-4 text-sm font-bold outline-none transition-[background-color,border-color,color] duration-150 focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]",
-                    active
-                      ? "border-[var(--bf-copper)] bg-[var(--bf-copper)] text-[#fff8ed]"
-                      : "border-[var(--bf-line)] bg-transparent text-[var(--bf-muted)]"
-                  )}
-                >
-                  {categoryLabel(item)}
-                </button>
-              );
-            })}
-          </div>
-
-          <div
-            className="mt-3 flex items-center justify-between gap-3 text-xs text-[var(--bf-dim)]"
-            aria-live="polite"
-          >
-            <span>
-              Найдено: {filtered.length}
-              {deferredQuery && archiveCount
-                ? ` · архив: ${archiveCount}`
-                : ""}
-            </span>
-            {state.data.source === "api" ? (
-              <span className="text-[var(--bf-green)]">актуально</span>
-            ) : null}
-          </div>
-
-          <div className="craft-recipe-grid mt-2 grid gap-2">
-            {filtered.length ? (
-              filtered.map((recipe) => (
-                <RecipeRow
-                  key={recipe.id}
-                  recipe={recipe}
-                  from={from}
-                  onOpen={() => {
-                    try {
-                      sessionStorage.setItem(
-                        SCROLL_KEY,
-                        JSON.stringify({ path: from, y: window.scrollY })
-                      );
-                    } catch {
-                      // Non-critical browser storage failure.
-                    }
-                  }}
-                />
-              ))
-            ) : (
-              <div className="rounded-2xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-4 py-7">
-                <p className="font-extrabold">Ничего не найдено</p>
-                <p className="mt-1 text-sm text-[var(--bf-muted)]">
-                  Попробуй убрать часть запроса или выбрать другую категорию.
-                </p>
-              </div>
-            )}
-          </div>
-        </>
-      ) : null}
-    </section>
-  );
+    </div>
+    {data?.source === "cache-offline" || data?.source === "legacy-cache" ? <WarmNotice>Нет связи · показана сохранённая версия{data.syncedAt ? ` от ${new Intl.DateTimeFormat("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }).format(new Date(data.syncedAt))}` : ""}.</WarmNotice> : null}
+    {state.status === "loading" ? <p className="small muted" role="status">Загружаем рецепты…</p> : null}
+    {state.status === "error" ? <><WarmEmpty title="Рецепты сейчас недоступны" body="Проверьте подключение и попробуйте ещё раз." /><Button onClick={() => void refresh()} disabled={refreshing}>{refreshing ? "Обновляем…" : "Повторить"}</Button></> : null}
+    {state.status === "ready" ? <>
+      <div className="warm-recipe-results"><p className="small muted" aria-live="polite">Найдено: {filtered.length}{deferredQuery.trim() && filtered.some(isArchive) ? ` · архив: ${filtered.filter(isArchive).length}` : ""}</p><Button variant="ghost" onClick={() => void refresh()} disabled={refreshing}>{refreshing ? "Обновляем…" : "Обновить"}</Button></div>
+      {filtered.length ? <div className="recipe-grid">{filtered.map((recipe) => <RecipeRow key={`${recipe.id}:${recipe.photo}`} recipe={recipe} from={from} onOpen={() => {
+        try { sessionStorage.setItem(SCROLL_KEY, JSON.stringify({ path: from, y: window.scrollY })); } catch { /* Optional browser storage. */ }
+      }} />)}</div> : <><WarmEmpty title="По этому запросу рецептов нет" body="Попробуй другой ингредиент или убери фильтры." /><Button onClick={() => setParams({}, { replace: true })}>Сбросить фильтры</Button></>}
+    </> : null}
+  </section>;
 }

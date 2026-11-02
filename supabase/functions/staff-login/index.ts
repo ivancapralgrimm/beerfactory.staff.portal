@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import {identityCandidates,identityFilter,identityFingerprint,normalizeIdentityName} from "./name-identity.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.116.0";
 
 const cors = {
@@ -13,9 +14,6 @@ const json = (body: unknown, status = 200) =>
 
 const validName = (value: string) => value.length >= 1 && value.length <= 80;
 const validCode = (value: string) => /^\d{4,12}$/.test(value);
-
-const normalizeName = (value: string) =>
-  value.trim().replace(/\s+/g, " ").toLowerCase();
 
 const clientIp = (req: Request) => {
   const cf = req.headers.get("cf-connecting-ip")?.trim();
@@ -55,19 +53,22 @@ Deno.serve(async (req) => {
     const firstName = String(body?.first_name ?? "").trim();
     const lastName = String(body?.last_name ?? "").trim();
     const code = String(body?.code ?? "").trim();
+    const fullName = String(body?.full_name ?? "").trim();
+    const candidates = fullName ? identityCandidates(fullName) : [];
 
-    if (!validName(firstName) || !validName(lastName) || !validCode(code)) {
+    if ((!fullName && (!validName(firstName) || !validName(lastName))) || (fullName && !candidates.length) || !validCode(code)) {
       return json({ error: "login_failed" }, 400);
     }
 
-    const normalizedFirst = normalizeName(firstName);
-    const normalizedLast = normalizeName(lastName);
+    const normalizedFirst = normalizeIdentityName(firstName);
+    const normalizedLast = normalizeIdentityName(lastName);
+    const identityKey = identityFingerprint(fullName || `${firstName} ${lastName}`);
     const ip = clientIp(req);
 
     const scopedFingerprint =
-      "login:" + ip + ":" + normalizedFirst + ":" + normalizedLast;
+      "login:" + ip + ":" + identityKey;
     const employeeFingerprint =
-      "login-employee:" + normalizedFirst + ":" + normalizedLast;
+      "login-employee:" + identityKey;
 
     const [
       { data: scopedAllowed, error: scopedAllowedError },
@@ -92,14 +93,12 @@ Deno.serve(async (req) => {
       return json({ error: "rate_limited" }, 429);
     }
 
-    const { data: profiles, error: profileError } = await admin
-      .from("profiles")
-      .select(
-        "id,first_name,last_name,role,is_owner,is_active,personal_code_hash,recovery_code_hash,recovery_set_at"
-      )
-      .ilike("first_name", firstName)
-      .ilike("last_name", lastName)
-      .limit(2);
+    let lookup = admin.from("profiles").select(
+      "id,first_name,last_name,role,is_owner,is_active,personal_code_hash,recovery_code_hash,recovery_set_at"
+    );
+    if (fullName) lookup = lookup.or(identityFilter(candidates));
+    else lookup = lookup.or(identityFilter([{first:normalizedFirst,last:normalizedLast}]));
+    const {data: profiles, error: profileError} = await lookup.limit(2);
 
     const profile = !profileError && profiles?.length === 1
       ? profiles[0]

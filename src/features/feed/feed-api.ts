@@ -8,7 +8,7 @@ import type {
 
 type RawFeedPost = Omit<
   FeedPost,
-  "author" | "resolvedBy" | "acknowledgedByMe" | "acknowledgementCount"
+  "author" | "resolvedBy" | "acknowledgedByMe" | "acknowledgementCount" | "readers"
 >;
 
 type AckRow = {
@@ -69,6 +69,18 @@ export async function loadFeed() {
   const acknowledgements =
     (acknowledgementResult.data || []) as AckRow[];
 
+  // Reader names come from the same authorized profiles API as authors.
+  // A deleted or inaccessible profile retains the real acknowledgement.
+  const readerIds = [...new Set(acknowledgements.map(row => row.user_id))]
+    .filter(id => !profiles.has(id));
+  if (readerIds.length) {
+    const result = await supabase.from("profiles")
+      .select("id,first_name,last_name,position")
+      .in("id", readerIds);
+    if (result.error) throw result.error;
+    for (const profile of (result.data || []) as FeedProfile[]) profiles.set(profile.id, profile);
+  }
+
   const ackCount = new Map<string, number>();
   const mine = new Set<string>();
 
@@ -85,7 +97,10 @@ export async function loadFeed() {
         ? profiles.get(row.resolved_by) || null
         : null,
       acknowledgedByMe: mine.has(row.id),
-      acknowledgementCount: ackCount.get(row.id) || 0
+      acknowledgementCount: ackCount.get(row.id) || 0,
+      readers: acknowledgements.filter(ack => ack.note_id === row.id)
+        .sort((a, b) => a.created_at.localeCompare(b.created_at))
+        .map(ack => ({ user_id: ack.user_id, created_at: ack.created_at, profile: profiles.get(ack.user_id) || null }))
     }))
     .sort((a, b) => {
       if (a.status !== b.status) {

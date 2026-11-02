@@ -66,6 +66,7 @@ function apiError(error: unknown, fallback: string) {
     "attestation_category_settings_duplicate", "attestation_category_settings_incomplete",
     "attestation_answers_invalid", "attestation_category_invalid",
     "attestation_question_invalid", "attestation_group_invalid", "attestation_status_invalid",
+    "attestation_material_required",
     "attestation_document_invalid", "attestation_category_status_invalid",
     "attestation_category_label_invalid", "attestation_category_label_duplicate",
     "attestation_category_sort_invalid", "attestation_category_not_found",

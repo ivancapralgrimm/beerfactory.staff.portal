@@ -1,89 +1,21 @@
-import {
-  Archive,
-  ArrowLeft,
-  ExternalLink,
-  Pencil,
-  RotateCcw,
-  Share2,
-  Trash2
-} from "lucide-react";
-import {
-  useEffect,
-  useMemo,
-  useState
-} from "react";
-import {
-  Link,
-  useLocation,
-  useNavigate,
-  useParams
-} from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { AdminConfirmDialog } from "@/features/admin/AdminConfirmDialog";
-import {
-  AdminRecipeApiError,
-  deleteAdminRecipe,
-  setAdminRecipeStatus,
-  type AdminRecipeSource
-} from "@/features/admin/recipe-admin-api";
+import { WarmBack } from "@/components/warm/WarmBack";
+import { WarmIcon } from "@/components/warm/WarmIcon";
+import { WarmEmpty, WarmNotice, WarmTitle } from "@/components/warm/WarmPage";
 import { useAuth } from "@/features/auth/auth-context";
-import {
-  categoryLabel,
-  isArchive,
-  resolveRecipe
-} from "@/features/recipes/recipe-data";
-import {
-  isCalculable,
-  RecipeCalculator
-} from "@/features/recipes/recipe-calculator";
-import { RecipeEditor } from "@/features/recipes/RecipeEditor";
-import { RecipePhotoDialog } from "@/features/recipes/recipe-photo-dialog";
-import { useRecipes } from "@/features/recipes/use-recipes";
+import { categoryLabel, isArchive, resolveRecipe } from "./recipe-data";
+import { isCalculable, RecipeCalculator } from "./recipe-calculator";
+import { RecipePhotoDialog } from "./recipe-photo-dialog";
+import { RecipeMaterialActions } from "./RecipeMaterialActions";
+import { recipeBackTarget, recipeComposition } from "./recipe-presentation";
+import { useRecipes } from "./use-recipes";
 import { canManageRecipesClient } from "@/types/auth";
+import "./recipes.css";
 
 function safeDecode(value: string) {
-  try {
-    return decodeURIComponent(value);
-  } catch {
-    return value;
-  }
-}
-
-function MetaLine({
-  label,
-  value
-}: {
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="recipe-meta-line">
-      <span className="recipe-meta-label">{label}</span>
-      <strong className="recipe-meta-value">
-        {value}
-      </strong>
-    </div>
-  );
-}
-
-function adminActionError(error: unknown) {
-  if (!(error instanceof AdminRecipeApiError)) {
-    return "Не удалось изменить рецепт.";
-  }
-
-  switch (error.code) {
-    case "unauthorized":
-    case "admin_required":
-      return "Недостаточно прав для изменения рецепта.";
-    case "worker_recipe_editor_unavailable":
-      return "Не удалось сохранить изменения.";
-    case "recipe_admin_write_unavailable":
-      return "Не удалось сохранить изменения.";
-    case "nocodb_write_failed":
-      return "Не удалось сохранить изменения.";
-    default:
-      return "Изменение не применено.";
-  }
+  try { return decodeURIComponent(value); } catch { return value; }
 }
 
 export function RecipeDetailPage() {
@@ -96,475 +28,68 @@ export function RecipeDetailPage() {
   const [photoOpen, setPhotoOpen] = useState(false);
   const [photoFailed, setPhotoFailed] = useState(false);
   const [shareStatus, setShareStatus] = useState("");
-  const [editOpen, setEditOpen] = useState(false);
-  const [adminMessage, setAdminMessage] = useState("");
-  const [actionPending, setActionPending] = useState<"status" | "delete" | null>(null);
-  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-
   const data = state.status === "ready" ? state.data : null;
-  const recipe = useMemo(
-    () => (data ? resolveRecipe(data.recipes, requestedId) : undefined),
-    [data, requestedId]
-  );
-
-  const canManageRecipes =
-    authState.status === "authenticated" &&
-    canManageRecipesClient(authState.user);
-  const accessToken =
-    authState.status === "authenticated" ? authState.session.access_token : null;
+  const recipe = useMemo(() => data ? resolveRecipe(data.recipes, requestedId) : undefined, [data, requestedId]);
+  const canManage = authState.status === "authenticated" && canManageRecipesClient(authState.user);
+  const canViewMetadata = authState.status === "authenticated" && (authState.user.is_owner || authState.user.role === "admin");
+  const accessToken = authState.status === "authenticated" ? authState.session.access_token : null;
+  const backTarget = recipeBackTarget(location.state);
 
   useEffect(() => {
-    if (!recipe || recipe.id === requestedId) return;
-
-    navigate(`/menu/${encodeURIComponent(recipe.id)}`, {
-      replace: true,
-      state: location.state
-    });
+    if (recipe && recipe.id !== requestedId) navigate(`/menu/${encodeURIComponent(recipe.id)}`, { replace: true, state: location.state });
   }, [location.state, navigate, recipe, requestedId]);
-
   useEffect(() => {
     window.scrollTo(0, 0);
-    setEditOpen(false);
-    setAdminMessage("");
     setPhotoFailed(false);
     setPhotoOpen(false);
+    setShareStatus("");
   }, [requestedId, recipe?.photo]);
-
-  const backTarget =
-    location.state &&
-    typeof location.state === "object" &&
-    "from" in location.state &&
-    typeof location.state.from === "string"
-      ? location.state.from
-      : "/menu";
 
   async function shareRecipe() {
     if (!recipe) return;
-
     const url = window.location.href;
-    const title = `${recipe.name} · BeerFactory`;
-    const text = `${recipe.name} · техкарта BeerFactory`;
-
     if (navigator.share) {
-      try {
-        await navigator.share({ title, text, url });
-        return;
-      } catch (error) {
-        if (error instanceof DOMException && error.name === "AbortError") return;
-      }
+      try { await navigator.share({ title: `${recipe.name} · BeerFactory`, text: `${recipe.name} · техкарта BeerFactory`, url }); return; }
+      catch (error) { if (error instanceof DOMException && error.name === "AbortError") return; }
     }
-
-    try {
-      await navigator.clipboard.writeText(url);
-      setShareStatus("Ссылка скопирована");
-    } catch {
-      setShareStatus("Не удалось скопировать ссылку");
-    }
-
-    window.setTimeout(() => setShareStatus(""), 2200);
+    try { await navigator.clipboard.writeText(url); setShareStatus("Ссылка скопирована"); }
+    catch { setShareStatus("Не удалось скопировать ссылку"); }
   }
 
-  async function toggleArchive() {
-    if (!recipe || !accessToken || actionPending) return;
-
-    const source: AdminRecipeSource =
-      recipe.source === "kitchen" ? "kitchen" : "bar";
-    const nextStatus = isArchive(recipe) ? "Актуальный" : "Архив";
-
-    setActionPending("status");
-    setAdminMessage("");
-
-    try {
-      await setAdminRecipeStatus(
-        accessToken,
-        source,
-        recipe.recordId,
-        nextStatus
-      );
-      await reload();
-      setAdminMessage(
-        nextStatus === "Архив"
-          ? "Рецепт перемещён в архив."
-          : "Рецепт возвращён в актуальное меню."
-      );
-    } catch (error) {
-      setAdminMessage(adminActionError(error));
-    } finally {
-      setActionPending(null);
-    }
-  }
-
-  async function confirmDelete() {
-    if (!recipe || !accessToken || actionPending) return;
-
-    const source: AdminRecipeSource =
-      recipe.source === "kitchen" ? "kitchen" : "bar";
-
-    setActionPending("delete");
-    setAdminMessage("");
-
-    try {
-      await deleteAdminRecipe(accessToken, source, recipe.recordId);
-      setDeleteConfirmOpen(false);
-      await reload();
-      navigate(backTarget, { replace: true });
-    } catch (error) {
-      setDeleteConfirmOpen(false);
-      setAdminMessage(adminActionError(error));
-      setActionPending(null);
-    }
-  }
-
-  if (state.status === "loading") {
-    return (
-      <section className="py-3">
-        <div className="h-11 w-28 animate-pulse rounded-xl bg-[var(--bf-surface)]" />
-        <div className="mt-6 h-14 w-3/4 animate-pulse rounded-xl bg-[var(--bf-surface)]" />
-        <div className="mt-4 h-48 animate-pulse rounded-2xl bg-[var(--bf-surface)]" />
-      </section>
-    );
-  }
-
-  if (state.status === "error") {
-    return (
-      <section className="py-3">
-        <Button asChild>
-          <Link to="/menu">
-            <ArrowLeft className="size-4" aria-hidden />
-            Рецепты
-          </Link>
-        </Button>
-        <div className="mt-6 border-y border-[var(--bf-line)] py-6">
-          <h1 className="text-2xl font-black">Не удалось загрузить рецепт</h1>
-          <p className="mt-2 text-sm leading-6 text-[var(--bf-muted)]">
-            Сервер недоступен, а локальной копии на этом устройстве нет.
-          </p>
-          <Button className="mt-4" onClick={reload}>Повторить</Button>
-        </div>
-      </section>
-    );
-  }
-
-  if (!recipe) {
-    return (
-      <section className="py-3">
-        <Button asChild>
-          <Link to="/menu">
-            <ArrowLeft className="size-4" aria-hidden />
-            Рецепты
-          </Link>
-        </Button>
-        <div className="mt-6 border-y border-[var(--bf-line)] py-6">
-          <h1 className="text-2xl font-black">Рецепт не найден</h1>
-          <p className="mt-2 text-sm leading-6 text-[var(--bf-muted)]">
-            Возможно, позиция была переименована или удалена.
-          </p>
-        </div>
-      </section>
-    );
-  }
+  const back = <WarmBack to={backTarget} label="В рецепты" />;
+  if (state.status === "loading") return <section className="warm-recipes-page">{back}<p className="small muted" role="status">Загружаем рецепт…</p></section>;
+  if (state.status === "error") return <section className="warm-recipes-page">{back}<WarmEmpty title="Не удалось загрузить рецепт" body="Сервер недоступен, а локальной копии на этом устройстве нет." /><Button onClick={() => void reload()}>Повторить</Button></section>;
+  if (!recipe) return <section className="warm-recipes-page">{back}<WarmEmpty title="Рецепт не найден" body="Возможно, позиция была переименована или удалена." /></section>;
 
   const archived = isArchive(recipe);
-  const methodLines = recipe.method.split(/\r?\n/);
-  const inlineComposition =
-    recipe.ingredients.length === 0
-      ? methodLines[0]?.match(/^\s*Состав\s*:\s*(.+)\s*$/iu)
-      : null;
-  const displayIngredients = inlineComposition
-    ? inlineComposition[1]
-        .split(/[,;]+/u)
-        .map((part) => part.trim())
-        .filter(Boolean)
-    : recipe.ingredients;
-  const displayMethod = inlineComposition
-    ? methodLines.slice(1).join("\n").trim()
-    : recipe.method;
+  const { ingredients, method } = recipeComposition(recipe);
   const metadata = [
-    ["Категория", categoryLabel(recipe.category) || "Меню"],
-    [
-      "Заведение",
-      recipe.venue === "BF/BB" ? "BF / BB · общая позиция" : recipe.venue
-    ],
+    ["Заведение", recipe.venue === "BF/BB" ? "BF / BB · общая позиция" : recipe.venue],
     recipe.subcategory ? ["Подкатегория", recipe.subcategory] : null,
     recipe.version ? ["Версия", recipe.version] : null,
     recipe.updatedAt ? ["Обновлено", recipe.updatedAt] : null,
     recipe.updatedBy ? ["Изменил", recipe.updatedBy] : null
   ].filter(Boolean) as string[][];
 
-  return (
-    <article className="pb-6">
-      <div className="flex min-h-11 items-center justify-between gap-2">
-        <Button asChild variant="ghost" className="-ml-3">
-          <Link to={backTarget}>
-            <ArrowLeft className="size-4" aria-hidden />
-            Рецепты
-          </Link>
-        </Button>
-
-        <div className="flex items-center gap-2">
-          {canManageRecipes && accessToken ? (
-            <Button
-              type="button"
-              size="icon"
-              aria-label="Редактировать рецепт"
-              aria-pressed={editOpen}
-              onClick={() => setEditOpen((current) => !current)}
-            >
-              <Pencil className="size-4" aria-hidden />
-            </Button>
-          ) : null}
-          <Button
-            type="button"
-            size="icon"
-            aria-label="Поделиться рецептом"
-            onClick={shareRecipe}
-          >
-            <Share2 className="size-4" aria-hidden />
-          </Button>
-        </div>
-      </div>
-
-      <div role="status" aria-live="polite" className="text-right text-xs text-[var(--bf-muted)] empty:hidden">
-        {shareStatus}
-      </div>
-
-      {editOpen && canManageRecipes && accessToken ? (
-        <div className="mt-4">
-          <RecipeEditor
-            accessToken={accessToken}
-            mode="edit"
-            recipe={recipe}
-            recipes={data?.recipes || []}
-            onCancel={() => setEditOpen(false)}
-            onSaved={async () => {
-              setEditOpen(false);
-              await reload();
-              setAdminMessage("Изменения сохранены.");
-            }}
-          />
-        </div>
-      ) : null}
-
-      {adminMessage ? (
-        <p
-          className="mt-3 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-3 py-2 text-xs font-bold leading-5 text-[var(--bf-muted)]"
-          role="status"
-          aria-live="polite"
-        >
-          {adminMessage}
-        </p>
-      ) : null}
-
-      {archived ? (
-        <div
-          role="note"
-          className="mt-2 flex items-start gap-3 border-y border-[color:color-mix(in_srgb,var(--bf-red),transparent_70%)] py-3"
-        >
-          <Archive className="mt-0.5 size-4 shrink-0 text-[#e99990]" aria-hidden />
-          <div>
-            <strong className="text-xs font-black uppercase tracking-[0.12em] text-[#e99990]">
-              Архив
-            </strong>
-            <p className="mt-1 text-sm leading-5 text-[var(--bf-muted)]">
-              Позиция находится в архиве.
-            </p>
-          </div>
-        </div>
-      ) : null}
-
-      <header className="recipe-moodboard-header mt-6">
-        <div className="recipe-title-note">
-          <p className="eyebrow">
-            {categoryLabel(recipe.category).toUpperCase() || "МЕНЮ"}
-            {recipe.subcategory ? ` / ${recipe.subcategory.toUpperCase()}` : ""}
-          </p>
-          <h1 className="mt-3 text-balance text-[clamp(27px,7.2vw,38px)] font-black leading-[1.12] tracking-[-0.035em]">
-            {recipe.name}
-          </h1>
-
-          {recipe.tags.length ? (
-            <div className="mt-3 flex flex-wrap gap-2">
-              {recipe.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="rounded-full border border-[var(--bf-line)] px-2.5 py-1.5 text-[11px] font-bold text-[var(--bf-muted)]"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          ) : null}
-        </div>
-
-        {recipe.photo && !photoFailed ? (
-          <button
-            type="button"
-            className="recipe-polaroid group"
-            aria-label={`Открыть фото ${recipe.name} на весь экран`}
-            onClick={() => setPhotoOpen(true)}
-          >
-            <span className="recipe-polaroid-tape" aria-hidden />
-            <span className="recipe-polaroid-photo-well">
-              <img
-                src={recipe.photo}
-                alt={recipe.name}
-                className="recipe-polaroid-image"
-                loading="eager"
-                fetchPriority="high"
-                onError={() => {
-                  setPhotoFailed(true);
-                  setPhotoOpen(false);
-                }}
-              />
-            </span>
-            <span className="recipe-polaroid-caption">
-              <span>Фото «{recipe.name}»</span>
-              <ExternalLink className="size-3.5" aria-hidden />
-            </span>
-          </button>
-        ) : null}
-      </header>
-
-      <div className="recipe-moodboard mt-7">
-        {displayIngredients.length > 0 ? (
-          <section
-            aria-labelledby="ingredients-title"
-            className="recipe-moodboard-card recipe-ingredients-sticker recipe-note-left"
-            data-fastener="pin"
-          >
-            <span className="recipe-fastener recipe-fastener-pin" aria-hidden />
-            <h2 id="ingredients-title" className="recipe-note-title">
-              Состав
-            </h2>
-            <ul className="recipe-ingredients-list">
-              {displayIngredients.map((ingredient, index) => (
-                <li key={`${ingredient}-${index}`}>{ingredient}</li>
-              ))}
-            </ul>
-          </section>
-        ) : null}
-
-        {isCalculable(recipe) ? (
-          <section className="recipe-moodboard-card recipe-calculator-note recipe-note-right" data-fastener="tape">
-            <span className="recipe-fastener recipe-fastener-tape recipe-fastener-tape-short" aria-hidden />
-            <RecipeCalculator recipe={recipe} />
-          </section>
-        ) : null}
-
-        {displayMethod ? (
-          <section
-            aria-labelledby="method-title"
-            className="recipe-moodboard-card recipe-method-note recipe-note-right"
-            data-fastener="tape"
-          >
-            <span className="recipe-fastener recipe-fastener-tape" aria-hidden />
-            <h2 id="method-title" className="recipe-note-title">Приготовление</h2>
-            <p className="recipe-note-body whitespace-pre-wrap">
-              {displayMethod}
-            </p>
-          </section>
-        ) : null}
-
-        {recipe.serving ? (
-          <section
-            aria-labelledby="serving-title"
-            className="recipe-moodboard-card recipe-serving-note recipe-note-left"
-            data-fastener="pin"
-          >
-            <span className="recipe-fastener recipe-fastener-pin recipe-fastener-pin-alt" aria-hidden />
-            <h2 id="serving-title" className="recipe-note-title">Подача / выход</h2>
-            <p className="recipe-note-body whitespace-pre-wrap">
-              {recipe.serving}
-            </p>
-          </section>
-        ) : null}
-
-        <details className="recipe-moodboard-card recipe-meta-note recipe-note-right" open>
-          <summary className="recipe-meta-summary">
-            <span>Данные рецепта</span>
-            <span className="recipe-fastener recipe-fastener-tape recipe-fastener-tape-corner" aria-hidden />
-          </summary>
-          <div className="recipe-meta-content">
-            <p className="recipe-meta-status">
-              {archived
-                ? "Позиция находится в архиве"
-                : "Актуальная позиция из нынешнего меню"}
-            </p>
-
-            {metadata.map(([label, value]) => (
-              <MetaLine key={label} label={label} value={value} />
-            ))}
-
-            {canManageRecipes && accessToken ? (
-              <div className="recipe-admin-actions">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  disabled={Boolean(actionPending)}
-                  onClick={() => void toggleArchive()}
-                >
-                  {archived ? (
-                    <RotateCcw className="size-4" aria-hidden />
-                  ) : (
-                    <Archive className="size-4" aria-hidden />
-                  )}
-                  {actionPending === "status"
-                    ? "Сохраняем…"
-                    : archived
-                      ? "Вернуть из архива"
-                      : "Переместить в архив"}
-                </Button>
-
-                <Button
-                  type="button"
-                  variant="danger"
-                  disabled={Boolean(actionPending)}
-                  onClick={() => setDeleteConfirmOpen(true)}
-                >
-                  <Trash2 className="size-4" aria-hidden />
-                  Удалить рецепт
-                </Button>
-              </div>
-            ) : null}
-          </div>
-        </details>
-
-        {recipe.changeNote ? (
-          <section className="recipe-moodboard-card recipe-change-note recipe-note-left" data-fastener="tape">
-            <span className="recipe-fastener recipe-fastener-tape recipe-fastener-tape-side" aria-hidden />
-            <h2 className="recipe-note-title">Что изменилось</h2>
-            <p className="recipe-note-body">{recipe.changeNote}</p>
-          </section>
-        ) : null}
-
-        {data?.source === "cache-offline" || data?.source === "legacy-cache" ? (
-          <p className="recipe-cache-note">
-            Показана последняя сохранённая версия рецепта.
-          </p>
-        ) : null}
-      </div>
-
-      {recipe.photo && !photoFailed ? (
-        <RecipePhotoDialog
-          open={photoOpen}
-          src={recipe.photo}
-          alt={recipe.name}
-          onClose={() => setPhotoOpen(false)}
-        />
-      ) : null}
-
-      <AdminConfirmDialog
-        open={deleteConfirmOpen}
-        title={`Удалить «${recipe.name}»?`}
-        description="Рецепт будет удалён. Для временного скрытия используйте архив."
-        confirmLabel="Удалить рецепт"
-        requirePhrase="УДАЛИТЬ"
-        pending={actionPending === "delete"}
-        onCancel={() => {
-          if (actionPending !== "delete") setDeleteConfirmOpen(false);
-        }}
-        onConfirm={() => void confirmDelete()}
-      />
-    </article>
-  );
+  return <article className="warm-recipes-page warm-recipe-detail">
+    {back}
+    <WarmTitle title={recipe.name} action={<div className="warm-recipe-heading-actions">{canManage && accessToken ? <Button type="button" size="icon" aria-label="Редактировать рецепт" onClick={() => navigate(`/settings/recipes?editor=${encodeURIComponent(recipe.id)}`)}><WarmIcon name="edit" /></Button> : null}<Button type="button" size="icon" aria-label="Поделиться рецептом" title="Поделиться рецептом" onClick={() => void shareRecipe()}><WarmIcon name="share" /></Button></div>} />
+    {recipe.tags.length ? <div className="actions bf-recipe-tags warm-recipe-tags">{recipe.tags.map((tag, index) => <span className="pill" key={`${tag}-${index}`}>{tag}</span>)}</div> : null}
+    <div className="warm-recipe-yield"><span>{recipe.serving || "Выход не указан"}</span><span className="small muted">{categoryLabel(recipe.category)}</span></div>
+    {archived ? <WarmNotice><span className="warm-recipe-inline"><WarmIcon name="archive" size={18} />Позиция находится в архиве.</span></WarmNotice> : null}
+    {recipe.photo && !photoFailed ? <figure className="bf-recipe-photo warm-recipe-photo"><img src={recipe.photo} alt={recipe.name} loading="eager" fetchPriority="high" onError={() => { setPhotoFailed(true); setPhotoOpen(false); }} /><button className="bf-photo-button" type="button" onClick={() => setPhotoOpen(true)}>Открыть фото<WarmIcon name="expand" size={18} /></button></figure>
+      : <p className="small muted">{photoFailed ? "Фото не удалось загрузить." : "Фото пока не добавлено."}</p>}
+    <section className="warm-recipe-section" aria-labelledby="recipe-ingredients-title">
+      <div className="warm-recipe-section-heading"><h2 id="recipe-ingredients-title">Состав</h2><span className="small muted">{archived ? "Архив" : "Актуальный"} · {recipe.source === "kitchen" ? "Кухня" : "Бар"}</span></div>
+      {ingredients.length ? <ul className="bf-composition warm-recipe-composition">{ingredients.map((ingredient, index) => <li key={`${index}-${ingredient}`}>{ingredient}</li>)}</ul> : <p className="small muted mt-3">Состав не указан.</p>}
+    </section>
+    {isCalculable(recipe) ? <details className="warm-recipe-disclosure"><summary>Расчёт количества<WarmIcon name="chevron" size={18} /></summary><div className="warm-recipe-disclosure-body"><RecipeCalculator key={recipe.id} recipe={recipe} /></div></details> : null}
+    {method ? <details className="warm-recipe-disclosure"><summary>{recipe.source === "kitchen" ? "Описание / технология" : "Приготовление"}<WarmIcon name="chevron" size={18} /></summary><p className="bf-article warm-recipe-disclosure-body warm-recipe-method">{method}</p></details> : null}
+    {recipe.changeNote ? <section className="warm-recipe-section"><h2>Что изменилось</h2><p className="warm-recipe-method mt-3">{recipe.changeNote}</p></section> : null}
+    {canManage && accessToken ? <RecipeMaterialActions accessToken={accessToken} recipe={recipe} lifecycleAvailable={data?.capabilities.materialLifecycle === true} onChanged={reload} onDeleted={() => navigate(backTarget, { replace: true })} /> : null}
+    <p className="small muted" role="status">{shareStatus}</p>
+    {data?.source === "cache-offline" || data?.source === "legacy-cache" ? <WarmNotice>Показана последняя сохранённая версия рецепта.</WarmNotice> : null}
+    {recipe.photo && !photoFailed ? <RecipePhotoDialog open={photoOpen} src={recipe.photo} alt={recipe.name} onClose={() => setPhotoOpen(false)} /> : null}
+    {canViewMetadata ? <details className="warm-recipe-disclosure"><summary>Данные рецепта<WarmIcon name="chevron" size={18} /></summary><dl className="warm-recipe-disclosure-body warm-recipe-metadata">{metadata.map(([label, value]) => <div key={label}><dt className="small muted">{label}</dt><dd>{value}</dd></div>)}</dl></details> : null}
+  </article>;
 }

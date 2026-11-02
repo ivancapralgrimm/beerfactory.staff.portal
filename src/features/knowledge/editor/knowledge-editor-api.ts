@@ -49,6 +49,8 @@ function rpcCode(
     "article_block_id_invalid",
     "article_block_type_invalid",
     "article_block_content_invalid",
+    "article_mark_invalid",
+    "article_marks_invalid",
     "article_text_limit",
     "article_total_text_limit",
     "article_list_invalid",
@@ -208,4 +210,15 @@ export async function loadKnowledgeEditorArticles(): Promise<
     }
     return row as KnowledgeEditorSummary;
   });
+}
+
+/** Requires get_material_lifecycle_capabilities().knowledgeLifecycle; server checks permissions and revision again. */
+export async function deleteKnowledgeArticle(articleId: string, expectedRevision: number) {
+  const {data, error} = await supabase.rpc("delete_knowledge_article", {
+    p_article_id: articleId, p_expected_revision: expectedRevision,
+  });
+  if (error || !data) throw new KnowledgeEditorApiError(rpcCode(error, "knowledge_article_delete_failed"));
+  if (data.id !== articleId || data.deleted !== true || !Number.isInteger(data.affectedQuestions) || data.affectedQuestions < 0 || !Number.isInteger(data.affectedTickets) || data.affectedTickets < 0)
+    throw new KnowledgeEditorApiError("knowledge_article_delete_response_invalid");
+  return data as {id: string; deleted: true; affectedQuestions: number; affectedTickets: number};
 }

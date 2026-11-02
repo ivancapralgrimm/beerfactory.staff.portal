@@ -1,0 +1,212 @@
+{
+  "scope": "Compiled local app, fixture HTTP/WS; no production operations",
+  "results": [
+    {
+      "width": 375,
+      "route": "/",
+      "size": "36.75px",
+      "subtitle": "11px",
+      "clear": true,
+      "overflow": false
+    },
+    {
+      "width": 375,
+      "route": "/menu",
+      "size": "36.75px",
+      "subtitle": "11px",
+      "clear": true,
+      "overflow": false
+    },
+    {
+      "width": 375,
+      "route": "/knowledge",
+      "size": "36.75px",
+      "subtitle": "11px",
+      "clear": true,
+      "overflow": false
+    },
+    {
+      "width": 375,
+      "route": "/feed",
+      "size": "36.75px",
+      "subtitle": "11px",
+      "clear": true,
+      "overflow": false
+    },
+    {
+      "width": 375,
+      "route": "/profile",
+      "size": "36.75px",
+      "subtitle": "11px",
+      "clear": true,
+      "overflow": false
+    },
+    {
+      "width": 375,
+      "route": "/settings",
+      "size": "36.75px",
+      "subtitle": "11px",
+      "clear": true,
+      "overflow": false
+    },
+    {
+      "width": 375,
+      "route": "/login",
+      "size": "36px",
+      "clear": true,
+      "overflow": false
+    },
+    {
+      "width": 375,
+      "route": "/register",
+      "size": "36px",
+      "clear": true,
+      "overflow": false
+    },
+    {
+      "width": 375,
+      "route": "/recovery",
+      "size": "36px",
+      "clear": true,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "route": "/",
+      "size": "36.75px",
+      "subtitle": "11px",
+      "clear": true,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "route": "/menu",
+      "size": "36.75px",
+      "subtitle": "11px",
+      "clear": true,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "route": "/knowledge",
+      "size": "36.75px",
+      "subtitle": "11px",
+      "clear": true,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "route": "/feed",
+      "size": "36.75px",
+      "subtitle": "11px",
+      "clear": true,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "route": "/profile",
+      "size": "36.75px",
+      "subtitle": "11px",
+      "clear": true,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "route": "/settings",
+      "size": "36.75px",
+      "subtitle": "11px",
+      "clear": true,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "route": "/login",
+      "size": "36px",
+      "clear": true,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "route": "/register",
+      "size": "36px",
+      "clear": true,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "route": "/recovery",
+      "size": "36px",
+      "clear": true,
+      "overflow": false
+    },
+    {
+      "width": 430,
+      "route": "/",
+      "size": "36.75px",
+      "subtitle": "11px",
+      "clear": true,
+      "overflow": false
+    },
+    {
+      "width": 430,
+      "route": "/menu",
+      "size": "36.75px",
+      "subtitle": "11px",
+      "clear": true,
+      "overflow": false
+    },
+    {
+      "width": 430,
+      "route": "/knowledge",
+      "size": "36.75px",
+      "subtitle": "11px",
+      "clear": true,
+      "overflow": false
+    },
+    {
+      "width": 430,
+      "route": "/feed",
+      "size": "36.75px",
+      "subtitle": "11px",
+      "clear": true,
+      "overflow": false
+    },
+    {
+      "width": 430,
+      "route": "/profile",
+      "size": "36.75px",
+      "subtitle": "11px",
+      "clear": true,
+      "overflow": false
+    },
+    {
+      "width": 430,
+      "route": "/settings",
+      "size": "36.75px",
+      "subtitle": "11px",
+      "clear": true,
+      "overflow": false
+    },
+    {
+      "width": 430,
+      "route": "/login",
+      "size": "36px",
+      "clear": true,
+      "overflow": false
+    },
+    {
+      "width": 430,
+      "route": "/register",
+      "size": "36px",
+      "clear": true,
+      "overflow": false
+    },
+    {
+      "width": 430,
+      "route": "/recovery",
+      "size": "36px",
+      "clear": true,
+      "overflow": false
+    }
+  ]
+}

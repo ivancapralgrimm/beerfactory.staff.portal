@@ -50,6 +50,7 @@ async function fetchAuthAction(
 }
 
 export async function staffLogin(input: {
+  fullName?: string;
   firstName: string;
   lastName: string;
   code: string;
@@ -63,6 +64,7 @@ export async function staffLogin(input: {
     body: JSON.stringify({
       first_name: input.firstName.trim(),
       last_name: input.lastName.trim(),
+      full_name: input.fullName?.trim(),
       code: input.code.trim()
     })
   });

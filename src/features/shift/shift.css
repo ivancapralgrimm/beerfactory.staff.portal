@@ -1,0 +1,44 @@
+.bfstaff-app .bf-shift-page{display:grid;gap:20px;max-width:768px;margin:0 auto;min-width:0;padding-bottom:24px}
+.bfstaff-app .bf-shift-summary{padding:20px;border-radius:20px;background:#513a2e;color:#fff5e7;box-shadow:0 9px 16px #4328172e}
+.bfstaff-app .bf-shift-summary>div{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.bfstaff-app .bf-shift-summary h2{font-size:1.25rem;font-weight:600;line-height:1.3}
+.bfstaff-app .bf-shift-summary>div>span{font-size:.8125rem}
+.bfstaff-app .bf-shift-summary>p{margin-top:16px}
+.bfstaff-app .bf-shift-task-board{padding:16px;background:var(--bf-paper,#fff7eb);border-radius:18px;box-shadow:var(--bf-control-depth);min-width:0}
+.bfstaff-app .bf-shift-task-board>h2{display:flex;justify-content:space-between;gap:12px;margin-bottom:12px;font-size:1.125rem;font-weight:600}
+.bfstaff-app .bf-shift-task-board>h2>span{font-size:.8125rem;color:var(--bf-muted);font-weight:400}
+.bfstaff-app .bf-shift-tasks{display:grid;gap:4px;min-width:0}
+.bfstaff-app .bf-task-check{display:flex;align-items:flex-start;justify-content:flex-start;gap:12px;width:100%;padding:11px 8px;min-height:46px;text-align:left;font-size:var(--bf-type-body,1rem);font-weight:400;line-height:1.5;background:transparent;border:0;box-shadow:none;color:var(--bf-ink);border-radius:10px;overflow-wrap:anywhere}
+.bfstaff-app .bf-task-check[aria-checked=true]{color:#6c5a4c}
+.bfstaff-app .bf-task-check:disabled{cursor:default;opacity:.65}
+.bfstaff-app .bf-check-box{display:grid;place-items:center;flex:0 0 22px;width:22px;height:22px;margin-top:1px;border:1px solid #977c67;border-radius:7px;background:#fff9ef;color:#fff9ef}
+.bfstaff-app .bf-check-box.is-checked{background:#6d5140;border-color:#6d5140}
+.bfstaff-app .bf-shift-group{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;width:100%;padding:8px;margin-top:10px;border:0;border-radius:10px;background:transparent;color:var(--bf-ink);text-align:left}
+.bfstaff-app .bf-shift-group>span{font-size:.8125rem;color:var(--bf-muted)}
+.bfstaff-app .bf-shift-segments{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.bfstaff-app .bf-checklist-flat{display:grid;gap:12px;min-width:0;max-width:768px;margin:0 auto;padding-bottom:24px}
+.bfstaff-app .bf-checklist-item{display:grid;gap:8px;padding:12px;background:var(--bf-paper,#fff7eb);border-radius:16px;box-shadow:var(--bf-control-depth);min-width:0}
+.bfstaff-app .bf-checklist-item-title{font-size:var(--bf-type-body,1rem);font-weight:600;line-height:1.4;overflow-wrap:anywhere}
+.bfstaff-app .bf-checklist-archived{opacity:.65}
+.bfstaff-app .bf-checklist-item-form{display:grid;gap:12px;min-width:0}
+.bfstaff-app .bf-checklist-selection{padding:12px;border-radius:16px;background:var(--bf-paper,#fff7eb);box-shadow:var(--bf-control-depth)}
+.bfstaff-app .bf-checklist-count{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.bfstaff-app .bf-checklist-item .bf-weekdays{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;max-width:none}
+.bfstaff-app .bf-checklist-item .bf-weekdays button{min-width:0;width:100%;padding-inline:0;font-size:clamp(.75rem,3.3vw,.8125rem);min-height:44px}
+.bfstaff-app .bf-checklist-item textarea{width:100%;min-width:0}
+.bfstaff-app .bf-checklist-item .bf-editor-tools{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:4px}
+.bfstaff-app .bf-checklist-item .bf-move-up svg{transform:rotate(-90deg)}
+.bfstaff-app .bf-checklist-item .bf-move-down svg{transform:rotate(90deg)}
+.bfstaff-app .bf-shift-critical{display:flex;align-items:center;gap:10px;min-height:44px;font-size:.875rem}
+.bfstaff-app .bf-shift-critical input{width:18px;height:18px;accent-color:#6d5140}
+.bfstaff-app .bf-checklist-item-form .bf-field{display:grid;gap:4px;min-width:0}
+.bfstaff-app .bf-checklist-item-form .bf-field-label{font-size:.8125rem;line-height:1.25;font-weight:500}
+.bfstaff-app .bf-checklist-item-form :is(input:not([type=checkbox]),select,textarea){font-size:16px;min-width:0;padding:9px 10px}
+.bfstaff-app .bf-checklist-item-form :is(input:not([type=checkbox]),select){min-height:44px}
+.bfstaff-app .bf-checklist-item-form textarea{min-height:88px}
+.bfstaff-app .bf-material-action-buttons{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,7rem),1fr));gap:8px;margin-top:12px}
+.bfstaff-app .bf-task-check:focus-visible,.bfstaff-app .bf-shift-group:focus-visible{outline:2px solid #6d5140;outline-offset:2px}
+.bfstaff-app .bf-shift-wait{width:12px;height:12px;border-radius:50%;border:2px solid #6d5140;border-right-color:transparent;animation:bf-shift-spin .8s linear infinite}
+@keyframes bf-shift-spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.bfstaff-app .bf-shift-wait{animation:none}}
+@media(forced-colors:active){.bfstaff-app .bf-check-box,.bfstaff-app .bf-shift-summary,.bfstaff-app .bf-shift-task-board,.bfstaff-app .bf-checklist-item{border:1px solid CanvasText;box-shadow:none}.bfstaff-app .bf-check-box.is-checked{background:Highlight;color:HighlightText}}

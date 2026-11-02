@@ -1,157 +1,35 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode
-} from "react";
-import {
-  ArrowLeft,
-  ChevronDown,
-  ChevronRight,
-  ClipboardCheck,
-  RefreshCw,
-  Search,
-  ScrollText,
-  UsersRound
-} from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, Navigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Surface } from "@/components/ui/surface";
-import { AdminApiError, loadAdminUsers, mutateAdminUser } from "@/features/admin/admin-api";
-import { AdminAuditPanel } from "@/features/admin/AdminAuditPanel";
-import { AdminAttemptsPanel } from "@/features/admin/AdminAttemptsPanel";
-import { AdminConfirmDialog } from "@/features/admin/AdminConfirmDialog";
-import { AdminUserCard } from "@/features/admin/AdminUserCard";
-import type { AdminMutation, AdminSelf, AdminUser } from "@/features/admin/types";
+import { WarmBack } from "@/components/warm/WarmBack";
+import { WarmIcon } from "@/components/warm/WarmIcon";
+import { WarmDialog } from "@/components/warm/WarmDialog";
+import { WarmTitle, WarmRow, WarmEmpty, WarmNotice } from "@/components/warm/WarmPage";
+import { AdminApiError, loadAdminUsers, mutateAdminUser } from "./admin-api";
+import { AdminAuditPanel } from "./AdminAuditPanel";
+import { AdminAttemptsPanel } from "./AdminAttemptsPanel";
+import { AdminConfirmDialog } from "./AdminConfirmDialog";
+import { AdminUserCard } from "./AdminUserCard";
+import { ShiftHistoryPanel } from "./ShiftHistoryPanel";
+import { staffFullName, staffVenue } from "./staff-presentation";
+import { registrationQr, registrationUrl } from "./invitation";
+import type { AdminMutation, AdminSelf, AdminUser } from "./types";
 import { useAuth } from "@/features/auth/auth-context";
-import { cn } from "@/lib/utils";
 import { canManageStaffClient, staffAccessLabel, STAFF_POSITION_LABELS } from "@/types/auth";
+import "@/features/settings/profile-admin.css";
 
-type AdminSection = "team" | "attempts" | "audit";
-type ConfirmState =
-  | { kind: "toggle"; user: AdminUser }
-  | { kind: "delete"; user: AdminUser }
-  | null;
-
-function userName(user: AdminUser) {
-  return [user.first_name, user.last_name].filter(Boolean).join(" ") || "Сотрудник";
-}
-
+type ConfirmState = { kind: "toggle" | "delete"; user: AdminUser } | null;
 function errorText(error: unknown) {
   if (!(error instanceof AdminApiError)) return "Не удалось сохранить изменение.";
-  switch (error.code) {
-    case "owner_required": return "Это действие доступно только владельцу.";
-    case "owner_protected": return "Аккаунт владельца защищён.";
-    case "cannot_demote_self": return "Нельзя изменить собственные права.";
-    case "cannot_disable_self": return "Нельзя отключить собственный доступ.";
-    case "cannot_delete_self": return "Нельзя удалить собственный аккаунт.";
-    case "invalid_role": return "Выберите другой уровень доступа.";
-    case "invalid_position": return "Выберите другую должность.";
-    default: return "Изменение не применено.";
-  }
+  const errors: Record<string, string> = { owner_required: "Это действие доступно только владельцу.", owner_protected: "Аккаунт владельца защищён.", cannot_demote_self: "Нельзя изменить собственные права.", cannot_disable_self: "Нельзя отключить собственный доступ.", cannot_delete_self: "Нельзя удалить собственный аккаунт.", invalid_role: "Выберите другой уровень доступа.", invalid_position: "Выберите другую должность.", user_not_found: "Сотрудник больше не найден. Обновите список." };
+  return errors[error.code] || "Изменение не применено.";
 }
-
-function AdminMenuRow({
-  section,
-  icon: Icon,
-  title,
-  description
-}: {
-  section: AdminSection;
-  icon: typeof UsersRound;
-  title: string;
-  description: string;
-}) {
-  return (
-    <Link
-      to={`/admin?section=${section}`}
-      className="group flex min-h-[70px] items-center gap-3 rounded-xl px-2 py-3 outline-none transition-colors hover:bg-[var(--bf-surface-2)] focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
-    >
-      <span className="grid size-10 shrink-0 place-items-center rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface-2)]">
-        <Icon className="size-5 text-[var(--bf-copper-hi)]" aria-hidden />
-      </span>
-      <span className="min-w-0 flex-1">
-        <span className="block text-sm font-black text-[var(--bf-cream)]">{title}</span>
-        <span className="mt-0.5 block text-xs leading-5 text-[var(--bf-muted)]">{description}</span>
-      </span>
-      <ChevronRight className="size-4 shrink-0 text-[var(--bf-dim)] transition-transform group-hover:translate-x-0.5" aria-hidden />
-    </Link>
-  );
-}
-
-function AdminSectionHeader({ children }: { children: ReactNode }) {
-  return (
-    <div className="mb-4">
-      <Link
-        to="/admin"
-        className="inline-flex min-h-11 items-center gap-2 rounded-lg px-2 text-sm font-bold text-[var(--bf-muted)] outline-none hover:text-[var(--bf-cream)] focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
-      >
-        <ArrowLeft className="size-4" aria-hidden /> Управление персоналом
-      </Link>
-      <h1 className="mt-2 text-[28px] font-black leading-tight tracking-[-0.035em] text-[var(--bf-cream)]">{children}</h1>
-    </div>
-  );
-}
-
-function AdminMemberRow({
-  user,
-  me,
-  pending,
-  onMutate,
-  onRequestToggle,
-  onRequestDelete
-}: {
-  user: AdminUser;
-  me: AdminSelf;
-  pending: boolean;
-  onMutate: (mutation: AdminMutation) => Promise<void>;
-  onRequestToggle: (user: AdminUser) => void;
-  onRequestDelete: (user: AdminUser) => void;
-}) {
-  const [expanded, setExpanded] = useState(false);
-
-  return (
-    <details
-      className="group rounded-2xl border border-[var(--bf-line)] bg-[var(--bf-surface)]"
-      onToggle={(event) => setExpanded(event.currentTarget.open)}
-    >
-      <summary className="flex min-h-[64px] cursor-pointer list-none items-center gap-3 rounded-2xl px-3 py-3 outline-none marker:hidden focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)] [&::-webkit-details-marker]:hidden">
-        <span className={cn("size-2 shrink-0 rounded-full", user.is_active ? "bg-[var(--bf-green)]" : "bg-[var(--bf-red)]")} aria-hidden />
-        <span className="min-w-0 flex-1">
-          <span className="block truncate text-sm font-black text-[var(--bf-cream)]">{userName(user)}</span>
-          <span className="mt-0.5 block truncate text-xs text-[var(--bf-muted)]">
-            {user.position_code ? STAFF_POSITION_LABELS[user.position_code] : "Без должности"} · {staffAccessLabel(user)}
-          </span>
-        </span>
-        <span className={cn("shrink-0 rounded-full border px-1.5 py-1 text-[10px] font-bold", user.is_active ? "border-[color:color-mix(in_srgb,var(--bf-green),transparent_60%)] text-[#9dd0a0]" : "border-[color:color-mix(in_srgb,var(--bf-red),transparent_60%)] text-[#e99990]")}>{user.is_active ? "Активен" : "Отключён"}</span>
-        <ChevronDown className="size-4 shrink-0 text-[var(--bf-dim)] transition-transform group-open:rotate-180" aria-hidden />
-      </summary>
-      {expanded ? (
-        <div className="border-t border-[var(--bf-line)] p-2">
-          <AdminUserCard
-            user={user}
-            me={me}
-            pending={pending}
-            onMutate={onMutate}
-            onRequestToggle={onRequestToggle}
-            onRequestDelete={onRequestDelete}
-          />
-        </div>
-      ) : null}
-    </details>
-  );
-}
-
 export function AdminPage() {
-  const { state } = useAuth();
+  const { state, refreshProfile } = useAuth();
   const [params] = useSearchParams();
-  const requestedSection = params.get("section");
-  const section: AdminSection | null =
-    requestedSection === "team" || requestedSection === "attempts" || requestedSection === "audit"
-      ? requestedSection
-      : null;
-
+  const section = params.get("section");
+  const userId = params.get("user");
+  const shiftHistory = section === "audit" && params.get("view") === "shifts";
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [me, setMe] = useState<AdminSelf | null>(null);
   const [loading, setLoading] = useState(true);
@@ -159,184 +37,66 @@ export function AdminPage() {
   const [search, setSearch] = useState("");
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [confirm, setConfirm] = useState<ConfirmState>(null);
-  const [actionMessage, setActionMessage] = useState<{ tone: "success" | "error"; text: string } | null>(null);
-
+  const [inviting, setInviting] = useState(false);
+  const [actionMessage, setActionMessage] = useState<{ error: boolean; text: string } | null>(null);
   const authenticated = state.status === "authenticated";
-  const canManageStaff = authenticated && canManageStaffClient(state.user);
-  const accessToken = authenticated ? state.session.access_token : null;
-
+  const canManage = authenticated && canManageStaffClient(state.user);
+  const token = authenticated ? state.session.access_token : null;
   const load = useCallback(async (quiet = false) => {
-    if (!accessToken || !canManageStaff) return;
+    if (!token || !canManage) return;
     if (!quiet) setLoading(true);
     setError(null);
-    try {
-      const data = await loadAdminUsers(accessToken);
-      setUsers(data.users);
-      setMe(data.me);
-    } catch {
-      setError("Не удалось загрузить команду.");
-    } finally {
-      if (!quiet) setLoading(false);
-    }
-  }, [accessToken, canManageStaff]);
-
-  useEffect(() => {
-    if (section) void load(false);
-    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-  }, [load, section]);
-
+    try { const data = await loadAdminUsers(token); setUsers(data.users); setMe(data.me); return true; }
+    catch { setError("Не удалось загрузить команду."); return false; }
+    finally { if (!quiet) setLoading(false); }
+  }, [token, canManage]);
+  useEffect(() => { if (section && canManage) void load(); }, [load, section, canManage]);
+  useEffect(() => { setActionMessage(null); }, [userId]);
   const filtered = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    if (!query) return users;
-    return users.filter((user) =>
-      [user.first_name, user.last_name, user.position, user.role]
-        .filter(Boolean).join(" ").toLowerCase().includes(query)
-    );
+    const needle = search.trim().toLocaleLowerCase("ru");
+    return users.filter((user) => `${staffFullName(user)} ${user.position_code ? STAFF_POSITION_LABELS[user.position_code] : ""} ${staffAccessLabel(user)} ${staffVenue(user.position_code)}`.toLocaleLowerCase("ru").includes(needle));
   }, [users, search]);
-
-  const stats = useMemo(() => ({
-    total: users.length,
-    active: users.filter((user) => user.is_active).length,
-    admins: users.filter((user) => user.role === "admin").length,
-    noPosition: users.filter((user) => !user.position_code).length
-  }), [users]);
-
   async function mutate(mutation: AdminMutation) {
-    if (!accessToken) throw new Error("unauthorized");
-    setPendingId(mutation.user_id);
-    setActionMessage(null);
+    if (!token || pendingId) throw new Error("unauthorized_or_busy");
+    setPendingId(mutation.user_id); setActionMessage(null);
     try {
-      await mutateAdminUser(accessToken, mutation);
-      await load(true);
-      setActionMessage({ tone: "success", text: "Изменение сохранено." });
-    } catch (actionError) {
-      setActionMessage({ tone: "error", text: errorText(actionError) });
-      throw actionError;
-    } finally {
-      setPendingId(null);
+      const result = await mutateAdminUser(token, mutation);
+      const reloaded = await load(true);
+      if (authenticated && mutation.user_id === state.user.id) await refreshProfile();
+      setActionMessage({ error: !reloaded, text: !reloaded ? "Изменение сохранено, но обновить список не удалось. Обновите страницу перед следующим изменением." : result.audit_recorded === false ? "Изменение сохранено. Запись в журнале пока недоступна." : "Изменение сохранено." });
+    } catch (reason) {
+      if (reason instanceof AdminApiError && reason.payload.prepared === true) {
+        await load(true);
+        setActionMessage({ error: true, text: "Удаление не завершено. Доступ сотрудника уже отключён; обновите список перед повторной попыткой." });
+      } else setActionMessage({ error: true, text: errorText(reason) });
+      throw reason;
     }
+    finally { setPendingId(null); }
   }
-
   async function confirmAction() {
     if (!confirm) return;
-    const current = confirm;
-    try {
-      if (current.kind === "toggle") {
-        await mutate({ action: "set_active", user_id: current.user.id, is_active: !current.user.is_active });
-      } else {
-        await mutate({ action: "delete_user", user_id: current.user.id });
-      }
-      setConfirm(null);
-    } catch {
-      // Mutation error is displayed above the list.
-    }
+    try { await mutate(confirm.kind === "toggle" ? { action: "set_active", user_id: confirm.user.id, is_active: !confirm.user.is_active } : { action: "delete_user", user_id: confirm.user.id }); setConfirm(null); }
+    catch { /* The original action remains open and its error is shown. */ }
   }
-
   if (!authenticated) return null;
-  if (!canManageStaff) return <Navigate to="/profile" replace />;
-
-  if (!section) {
-    return (
-      <section className="bf-admin-page mx-auto max-w-4xl pb-8">
-        <Link
-          to="/profile"
-          className="inline-flex min-h-11 items-center gap-2 rounded-lg px-2 text-sm font-bold text-[var(--bf-muted)] outline-none hover:text-[var(--bf-cream)] focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
-        >
-          <ArrowLeft className="size-4" aria-hidden /> Личный кабинет
-        </Link>
-        <p className="eyebrow mt-2">АДМИНИСТРИРОВАНИЕ</p>
-        <h1 className="mt-2 text-[clamp(27px,7vw,34px)] font-black leading-tight tracking-[-0.035em] text-[var(--bf-cream)]">Управление персоналом</h1>
-        <p className="mt-2 max-w-lg text-sm leading-6 text-[var(--bf-muted)]">Сотрудники, аттестации и журнал в отдельных разделах.</p>
-        <Surface className="mt-5 p-3">
-          <div className="divide-y divide-[var(--bf-line)]">
-            <AdminMenuRow section="team" icon={UsersRound} title="Сотрудники" description="Список команды, должности и доступ" />
-            <AdminMenuRow section="attempts" icon={ClipboardCheck} title="Аттестации" description="Результаты, вопросы и настройки" />
-            <AdminMenuRow section="audit" icon={ScrollText} title="Журнал" description="Изменения персонала и рабочих процессов" />
-          </div>
-        </Surface>
-      </section>
-    );
-  }
-
-  return (
-    <section className="bf-admin-page mx-auto max-w-4xl pb-8">
-      <AdminSectionHeader>
-        {section === "team" ? "Сотрудники" : section === "attempts" ? "Аттестации" : "Журнал"}
-      </AdminSectionHeader>
-
-      {section === "team" ? (
-        <div>
-          <div className="flex items-center justify-between gap-3">
-            <p className="eyebrow">КОМАНДА</p>
-            <Button type="button" variant="secondary" size="icon" aria-label="Обновить список сотрудников" disabled={loading} onClick={() => void load(false)}>
-              <RefreshCw className={cn("size-4", loading && "animate-spin")} aria-hidden />
-            </Button>
-          </div>
-
-          <div className="mt-3 grid min-w-0 grid-cols-4 gap-1.5" aria-label="Статистика сотрудников">
-            {[["Всего", stats.total], ["Активны", stats.active], ["Админы", stats.admins], ["Без должности", stats.noPosition]].map(([label, value]) => (
-              <div key={String(label)} className="min-w-0 rounded-xl border border-[var(--bf-line)] bg-[var(--bf-surface)] px-1.5 py-2 text-center shadow-sm">
-                <span className="flex h-6 items-center justify-center text-[9px] font-black uppercase leading-3 tracking-[.04em] text-[var(--bf-dim)]">{label}</span>
-                <strong className="mt-0.5 block text-lg font-black leading-6 tabular-nums text-[var(--bf-cream)]">{value}</strong>
-              </div>
-            ))}
-          </div>
-
-          <label className="relative mt-3 block">
-            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[var(--bf-dim)]" aria-hidden />
-            <input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Найти сотрудника, должность или доступ"
-              aria-label="Поиск сотрудника"
-              className="min-h-12 w-full rounded-2xl border border-[var(--bf-line)] bg-[var(--bf-surface)] pl-10 pr-3 text-base text-[var(--bf-cream)] outline-none placeholder:text-[var(--bf-dim)] focus-visible:ring-2 focus-visible:ring-[var(--bf-copper-hi)]"
-            />
-          </label>
-
-          <p className={cn("mt-2 text-xs leading-5", actionMessage?.tone === "error" ? "text-[#e99990]" : "text-[#9dd0a0]")} role="status" aria-live="polite">
-            {actionMessage?.text || ""}
-          </p>
-
-          {loading ? (
-            <div className="mt-3 grid gap-2">{[0, 1, 2].map((item) => <div key={item} className="h-16 animate-pulse rounded-2xl bg-[var(--bf-surface)]" />)}</div>
-          ) : error ? (
-            <Surface className="mt-3 p-4 text-sm text-[#e99990]">
-              {error}
-              <Button type="button" variant="secondary" className="mt-3 w-full" onClick={() => void load(false)}>Повторить</Button>
-            </Surface>
-          ) : filtered.length && me ? (
-            <div className="mt-3 grid gap-2">
-              {filtered.map((user) => (
-                <AdminMemberRow
-                  key={user.id}
-                  user={user}
-                  me={me}
-                  pending={pendingId === user.id}
-                  onMutate={mutate}
-                  onRequestToggle={(item) => setConfirm({ kind: "toggle", user: item })}
-                  onRequestDelete={(item) => setConfirm({ kind: "delete", user: item })}
-                />
-              ))}
-            </div>
-          ) : (
-            <Surface className="mt-3 p-5 text-center text-sm text-[var(--bf-muted)]">Сотрудники по этому запросу не найдены.</Surface>
-          )}
-        </div>
-      ) : null}
-
-      {section === "attempts" ? <AdminAttemptsPanel users={users} /> : null}
-      {section === "audit" ? <AdminAuditPanel users={users} /> : null}
-
-      <AdminConfirmDialog
-        open={Boolean(confirm)}
-        title={confirm?.kind === "delete" ? `Удалить ${confirm ? userName(confirm.user) : "пользователя"}?` : confirm?.user.is_active ? `Отключить доступ ${confirm ? userName(confirm.user) : "сотруднику"}?` : `Включить доступ ${confirm ? userName(confirm.user) : "сотруднику"}?`}
-        description={confirm?.kind === "delete" ? "Пользователь и его личные данные будут удалены. Действие необратимо." : confirm?.user.is_active ? "Сотрудник больше не сможет войти до повторного включения доступа." : "Сотрудник снова сможет войти в портал."}
-        confirmLabel={confirm?.kind === "delete" ? "Удалить навсегда" : confirm?.user.is_active ? "Отключить" : "Включить"}
-        requirePhrase={confirm?.kind === "delete" ? "УДАЛИТЬ" : undefined}
-        pending={Boolean(confirm && pendingId === confirm.user.id)}
-        onCancel={() => { if (!pendingId) setConfirm(null); }}
-        onConfirm={() => void confirmAction()}
-      />
-    </section>
-  );
+  if (!section) return <Navigate to="/settings" replace />;
+  if (section !== "audit" && !canManage) return <Navigate to="/settings" replace />;
+  if (!["team", "attempts", "audit"].includes(section)) return <Navigate to="/settings" replace />;
+  const selected = users.find((user) => user.id === userId);
+  const name = confirm ? staffFullName(confirm.user) : "сотрудника";
+  return <section className="stack bf-editor-page bf-account-page">
+    <WarmBack to={shiftHistory ? "/admin?section=audit" : userId && section === "team" ? "/admin?section=team" : "/settings"} label={shiftHistory ? "В журнал" : userId && section === "team" ? "К сотрудникам" : "В настройки"} />
+    <WarmTitle title={section === "audit" ? shiftHistory ? "История смен" : "Журнал" : section === "attempts" ? "Аттестации" : userId && selected ? staffFullName(selected) : "Сотрудники"} action={section === "team" && !userId ? <Button type="button" variant="primary" onClick={() => setInviting(true)}>Пригласить</Button> : undefined} />
+    {actionMessage ? <WarmNotice error={actionMessage.error}>{actionMessage.text}</WarmNotice> : null}
+    {section === "team" ? <>
+      {userId ? loading ? <p role="status" className="bf-account-hint">Загружаем сотрудника…</p> : error ? <WarmNotice error>{error}</WarmNotice> : selected && me ? <AdminUserCard key={selected.id} user={selected} me={me} pending={pendingId !== null} onMutate={mutate} onRequestToggle={(user) => setConfirm({ kind: "toggle", user })} onRequestDelete={(user) => setConfirm({ kind: "delete", user })} /> : <WarmEmpty title="Сотрудник не найден" body="Вернитесь к списку и выберите доступную запись." /> : <>
+        <div className="bf-bank-tools"><label className="bf-field"><span className="bf-field-label">Найти сотрудника</span><input type="search" placeholder="Имя, должность или доступ" value={search} onChange={(event) => setSearch(event.target.value)} /></label>{!loading && !error ? <p className="bf-bank-counts">Найдено: {filtered.length} из {users.length} · активны {users.filter((user) => user.is_active).length}</p> : null}</div>
+        {loading ? <p role="status" className="bf-account-hint">Загружаем сотрудников…</p> : error ? <><WarmNotice error>{error}</WarmNotice><Button type="button" onClick={() => void load()}>Повторить</Button></> : filtered.length ? <div className="bf-bank-list">{filtered.map((user) => <Link className="bf-directory-row" key={user.id} to={`/admin?section=team&user=${encodeURIComponent(user.id)}`}><span className="bf-directory-copy"><span className="bf-directory-name"><strong>{staffFullName(user)}</strong><span className="bf-directory-status">{user.is_active ? "Активен" : "Отключён"}</span></span><span>{user.position_code ? STAFF_POSITION_LABELS[user.position_code] : "Не назначена"} · {staffVenue(user.position_code)} · {staffAccessLabel(user)}</span></span><WarmIcon name="chevron" size={18} /></Link>)}</div> : <WarmEmpty title="Сотрудник не найден" body="Попробуйте другое имя или очистите поиск." />}
+      </>}
+    </> : null}
+    {section === "attempts" ? <AdminAttemptsPanel users={users} /> : null}
+    {section === "audit" ? shiftHistory ? <ShiftHistoryPanel /> : <>{canManage ? <AdminAuditPanel users={users} /> : null}<WarmRow to="/admin?section=audit&view=shifts" title="История смен" description="Завершённые и открытые смены моей должности" icon="clock" /></> : null}
+    {inviting ? <WarmDialog title="Пригласить сотрудника" onClose={() => setInviting(false)}><div className="bf-invitation"><p>Отсканируйте QR-код, чтобы открыть регистрацию BFStaff.</p><img src={registrationQr} alt="QR-код регистрации BFStaff" width={260} height={260} /><a className="bf-registration-link" href={registrationUrl} target="_blank" rel="noopener noreferrer">bfstaff.vercel.app/#/register<WarmIcon name="arrow" size={17} /></a><p className="bf-account-hint">Регистрация проходит на сайте. Права назначаются отдельно.</p></div></WarmDialog> : null}
+    <AdminConfirmDialog open={Boolean(confirm)} title={confirm?.kind === "delete" ? `Удалить ${name}?` : confirm?.user.is_active ? `Отключить доступ ${name}?` : `Включить доступ ${name}?`} description={confirm?.kind === "delete" ? "Учётная запись и личные данные будут удалены. Действие необратимо." : confirm?.user.is_active ? "Сотрудник не сможет войти до повторного включения доступа." : "Сотрудник снова сможет войти в портал."} confirmLabel={confirm?.kind === "delete" ? "Удалить навсегда" : confirm?.user.is_active ? "Отключить" : "Включить"} requirePhrase={confirm?.kind === "delete" ? "УДАЛИТЬ" : undefined} pending={pendingId !== null} error={actionMessage?.error ? actionMessage.text : null} onCancel={() => { if (!pendingId) setConfirm(null); }} onConfirm={() => void confirmAction()} />
+  </section>;
 }

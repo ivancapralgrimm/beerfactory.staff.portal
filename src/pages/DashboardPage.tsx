@@ -1,21 +1,13 @@
 import { ReadingCarousel } from "@/features/dashboard/ReadingCarousel";
-import { motion } from "motion/react";
+
 import { useEffect, useMemo, useState } from "react";
 import { loadPositionShiftWorkflow } from "@/features/shift/shift-api";
 import type { PositionShiftWorkflow } from "@/features/shift/types";
 import { useAuth } from "@/features/auth/auth-context";
-import {
-  BookOpen,
-  Cake,
-  ChevronRight,
-  ClipboardCheck,
-  Star,
-  StickyNote,
-  UserRound,
-  UtensilsCrossed
-} from "lucide-react";
+import {WarmIcon} from "@/components/warm/WarmIcon";
+import {WarmDialog} from "@/components/warm/WarmDialog";
 import { Link } from "react-router-dom";
-import { Surface } from "@/components/ui/surface";
+import { Button } from "@/components/ui/button";
 import { DashboardFeedSection } from "@/features/feed/DashboardFeedSection";
 import { DashboardGlobalSearch } from "@/features/dashboard/DashboardGlobalSearch";
 import { useUpcomingBirthdays } from "@/features/dashboard/use-upcoming-birthdays";
@@ -30,17 +22,12 @@ import {
   type StaffPosition
 } from "@/types/auth";
 
-const actions = [
-  { to: "/shift", title: "Смена", text: "Открытие, задачи, закрытие", icon: ClipboardCheck },
-  { to: "/menu", title: "Рецепты", text: "Блюда, напитки, технологии", icon: UtensilsCrossed },
-  { to: "/knowledge", title: "Знания", text: "Обучение и статьи", icon: BookOpen },
-  { to: "/feed", title: "Лента", text: "Новости и сообщения", icon: StickyNote }
-];
-
 const BIRTHDAY_LABELS = {
-  0: "Сегодня",
-  1: "Завтра",
-  2: "Послезавтра"
+  [-1]: "Вчера был день рождения",
+  0: "Сегодня день рождения",
+  1: "Завтра день рождения",
+  2: "Послезавтра день рождения",
+  3: "Через 3 дня день рождения"
 } as const;
 
 function personName(firstName: string | null, lastName: string | null) {
@@ -63,6 +50,7 @@ function ageLabel(age: number) {
 
 export function DashboardPage() {
   const { state: auth } = useAuth();
+  const [birthdayOpen,setBirthdayOpen]=useState<string|null>(null);
   const firstName = auth.status === "authenticated" ? auth.user.first_name : "";
   const userId = auth.status === "authenticated" ? auth.user.id : "";
   const [shiftWorkflow, setShiftWorkflow] = useState<PositionShiftWorkflow | null>(null);
@@ -120,67 +108,18 @@ export function DashboardPage() {
   const readingLoading = knowledge.state.status === "loading" || knowledgeProgress.state.loading;
   const showReadingSection = readingLoading || readingArticles.length > 0;
 
-  return (
-    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: "easeOut" }} className="craft-dashboard space-y-5">
-      <section className="bf-dashboard-hero">
-        <div className="bf-dashboard-brand">BFSTAFF <span>BeerFactory<br />Staff Portal</span></div>
-        <h1>Привет{firstName ? `, ${firstName}` : ""}!</h1>
-        <p className="bf-workspace-date">{new Intl.DateTimeFormat("ru-RU", { weekday: "long", day: "numeric", month: "long", timeZone: "Asia/Novosibirsk" }).format(new Date())}</p>
-      </section>
-
-      <DashboardGlobalSearch />
-
-      <div className="bf-dashboard-content">
-        <Link to="/profile" className="bf-dashboard-profile"><UserRound aria-hidden className="size-4" /> Мой профиль <ChevronRight aria-hidden className="size-4" /></Link>
-        <div className="bf-day-status" role="status"><ClipboardCheck aria-hidden className="size-5" /><span><strong>{shiftStatus[0]}</strong><small>{shiftStatus[1]}</small></span></div>
-
-        <h2 className="bf-workspace-label">Рабочий стол</h2>
-        <div className="bf-dashboard-actions">
-          {actions.map(({ to, title, text, icon: Icon }) => (
-            <Link key={to} to={to} className="bf-dashboard-action"><Icon aria-hidden className="size-6" /><ChevronRight aria-hidden className="bf-action-chevron size-4" /><strong>{title}</strong><span>{text}</span></Link>
-          ))}
-        </div>
-        <Link to="/attestation" className="bf-dashboard-wide-action"><Star aria-hidden className="size-5" /><span><strong>Аттестация</strong><small>Проверь свои знания</small></span><ChevronRight aria-hidden className="size-4" /></Link>
-      </div>
-
-      {showBirthdaySection ? (
-        <section>
-          <div className="flex items-end justify-between gap-3"><div><p className="eyebrow">СЕГОДНЯ · КОМАНДА</p><h2 className="mt-1 text-2xl font-black">Ближайшие дни рождения</h2></div><Cake className="size-5 shrink-0 text-[var(--bf-gold)]" aria-hidden /></div>
-          {birthdaysLoading ? (
-            <div className="mt-3 grid gap-2">{[0, 1].map((item) => <div key={item} className="h-20 animate-pulse rounded-[20px] bg-[var(--bf-surface)]" />)}</div>
-          ) : (
-            <div className="mt-3 grid gap-2">
-              {birthdays.map((birthday) => {
-                const name = personName(birthday.first_name, birthday.last_name);
-                const todayAge = birthday.days_until === 0 && birthday.age_years != null ? ageLabel(birthday.age_years) : null;
-                return (
-                  <Surface key={`${birthday.profile_id}:${birthday.days_until}`} className="flex min-h-20 items-center gap-3 p-3.5">
-                    <div className="grid size-11 shrink-0 place-items-center rounded-full border border-[color:color-mix(in_srgb,var(--bf-gold),transparent_48%)] bg-[color:color-mix(in_srgb,var(--bf-gold),transparent_90%)]"><Cake className="size-5 text-[var(--bf-gold)]" aria-hidden /></div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2"><span className="rounded-full border border-[var(--bf-line)] bg-[var(--bf-surface-2)] px-2 py-1 text-[10px] font-black uppercase tracking-[0.08em] text-[var(--bf-cream)]">{BIRTHDAY_LABELS[birthday.days_until]}</span><span className="text-[11px] font-bold text-[var(--bf-dim)]">{positionLabel(birthday.position_code)}</span></div>
-                      <p className="mt-1.5 text-base font-black leading-5 text-[var(--bf-cream)]">{birthday.days_until === 0 ? `${name} сегодня отмечает день рождения` : `${name} — ${BIRTHDAY_LABELS[birthday.days_until].toLowerCase()} день рождения`}</p>
-                      {todayAge ? <p className="mt-1 text-sm font-bold text-[var(--bf-gold)]">Исполняется {todayAge}</p> : null}
-                    </div>
-                  </Surface>
-                );
-              })}
-            </div>
-          )}
-        </section>
-      ) : null}
-
-      <DashboardFeedSection />
-
-      {showReadingSection ? (
-        <section aria-labelledby="dashboard-reading-title">
-          <h2 id="dashboard-reading-title" className="text-[28px] font-black leading-none tracking-[-0.035em]">Что почитать</h2>
-          {readingLoading ? (
-            <div className="bf-scrollbar-none -mr-4 mt-4 flex gap-3 overflow-x-auto pr-4 pb-1" aria-label="Загрузка подборки статей">{Array.from({ length: 3 }, (_, index) => <div key={index} className="h-[188px] w-[156px] shrink-0 animate-pulse rounded-[18px] border border-[var(--bf-line)] bg-[var(--bf-surface)]" />)}</div>
-          ) : (
-            <ReadingCarousel articles={readingArticles} readIds={knowledgeProgress.state.readIds} />
-          )}
-        </section>
-      ) : null}
-    </motion.div>
-  );
+  const user=auth.status==='authenticated'?auth.user:null;
+  const venue=user?.position_code?.endsWith('_bb')?'BeerBistro':'BeerFactory';
+  const position=user?.position_code?STAFF_POSITION_LABELS[user.position_code]:'';
+  const date=new Date(shiftWorkflow?.context.server_now??Date.now());
+  return <div className="warm-dashboard stack">
+    <section className="bf-greeting" aria-labelledby="greeting"><div><h1 id="greeting" tabIndex={-1}>Привет{firstName?',':''}<br/>{firstName?firstName+'.':'команда.'}</h1><p className="muted text-[.8125rem]">{venue}{position?' · '+position:''}</p><p className="muted text-xs mt-2">{new Intl.DateTimeFormat('ru-RU',{weekday:'long',day:'numeric',month:'long',timeZone:'Asia/Novosibirsk'}).format(date)}</p></div><img src="/assets/warm/recipe-photo.jpg" onError={event=>{event.currentTarget.style.visibility="hidden";}} alt="Лимонад Рябиновый Улун" width="132" height="154"/></section>
+    <DashboardGlobalSearch/>
+    {showBirthdaySection&&<section className="warm-birthdays" aria-labelledby="birthdays-title"><h2 id="birthdays-title">Дни рождения</h2>{birthdaysLoading?<p className="small muted" role="status">Загружаем дни рождения…</p>:<ul className="warm-birthday-list">{birthdays.map(birthday=>{const name=personName(birthday.first_name,birthday.last_name);return <li key={birthday.profile_id}><button type="button" className="bf-birthday" onClick={()=>setBirthdayOpen(birthday.profile_id)}><span className="person">{[birthday.first_name,birthday.last_name].map(n=>n?.[0]??'').join('')}</span><span><span className="block small muted">{BIRTHDAY_LABELS[birthday.days_until]}</span><strong>{name}</strong></span><WarmIcon name="chevron"/></button></li>;})}</ul>}</section>}
+    <section className="bf-shift-panel" aria-labelledby="home-shift"><div className="row spread flex-wrap"><h2 id="home-shift">Твоя смена</h2><span className="small">11:00–03:00</span></div><div className="row spread flex-wrap mt-4"><p className="small">{shiftStatus[0]}<br/>{venue}</p><Button asChild variant="secondary"><Link to="/shift">{shiftWorkflow?.shift?.status==='active'?'К задачам':'Открыть смену'}<WarmIcon name="arrow"/></Link></Button></div></section>
+    <DashboardFeedSection/>
+    <Link className="bf-material-link" to="/menu"><span>Открыть рецепты</span><WarmIcon name="chevron"/></Link>
+    {showReadingSection&&<section aria-labelledby="dashboard-reading-title"><h2 id="dashboard-reading-title">Для тебя</h2>{readingLoading?<p className="small muted" role="status">Загружаем статьи…</p>:<ReadingCarousel articles={readingArticles} readIds={knowledgeProgress.state.readIds}/>}</section>}
+    {birthdayOpen&&(()=>{const person=birthdays.find(b=>b.profile_id===birthdayOpen);return person?<WarmDialog title={personName(person.first_name,person.last_name)} onClose={()=>setBirthdayOpen(null)}><p>{BIRTHDAY_LABELS[person.days_until]}.</p><p className="muted mt-2">{positionLabel(person.position_code)}</p>{person.days_until===0&&person.age_years!=null&&<p className="mt-3">Исполняется {ageLabel(person.age_years)}</p>}</WarmDialog>:null;})()}
+  </div>;
 }

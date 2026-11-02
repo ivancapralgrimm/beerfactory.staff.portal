@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { LoaderCircle } from "lucide-react";
+
 import { AuthLayout } from "@/features/auth/AuthLayout";
 import { useAuth } from "@/features/auth/auth-context";
 import { Button } from "@/components/ui/button";
@@ -32,8 +32,11 @@ export function LoginPage() {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     const code = String(form.get("code") || "").trim();
+    const fullName = String(form.get("fullName") || "").normalize("NFKC").trim().replace(/\s+/g," ");
+    const words=fullName.split(" ");
 
     setError("");
+    if(words.length<2 || fullName.length>161){setError("Введи имя и фамилию через пробел.");return;}
     if (!codePattern.test(code)) {
       setError("Пароль должен содержать 4–12 цифр.");
       return;
@@ -42,8 +45,9 @@ export function LoginPage() {
     setPending(true);
     try {
       const result = await login({
-        firstName: String(form.get("firstName") || ""),
-        lastName: String(form.get("lastName") || ""),
+        fullName,
+        firstName: words[0],
+        lastName: words.slice(1).join(" "),
         code
       });
 
@@ -65,24 +69,8 @@ export function LoginPage() {
       description="Имя, фамилия и пароль. Без почты и телефона."
     >
       <form className="grid gap-2.5" onSubmit={onSubmit}>
-        <label className="sr-only" htmlFor="firstName">Имя</label>
-        <Input
-          id="firstName"
-          name="firstName"
-          autoComplete="given-name"
-          placeholder="Имя"
-          required
-          maxLength={80}
-        />
-        <label className="sr-only" htmlFor="lastName">Фамилия</label>
-        <Input
-          id="lastName"
-          name="lastName"
-          autoComplete="family-name"
-          placeholder="Фамилия"
-          required
-          maxLength={80}
-        />
+        <label className="sr-only" htmlFor="fullName">Имя и фамилия</label>
+        <Input id="fullName" name="fullName" autoComplete="username" placeholder="Имя и фамилия" required maxLength={161}/>
         <label className="sr-only" htmlFor="code">Пароль</label>
         <Input
           id="code"
@@ -96,7 +84,7 @@ export function LoginPage() {
         />
 
         <Button variant="primary" size="lg" className="mt-1 w-full" disabled={pending}>
-          {pending ? <LoaderCircle className="size-4 animate-spin" aria-hidden /> : null}
+
           {pending ? "Проверяем…" : "Войти"}
         </Button>
 
@@ -112,7 +100,7 @@ export function LoginPage() {
         <div
           role="alert"
           aria-live="polite"
-          className="min-h-5 text-sm font-medium text-[#ff9d93]"
+          className="min-h-5 text-sm font-medium text-[var(--bf-red)]"
         >
           {error}
         </div>
