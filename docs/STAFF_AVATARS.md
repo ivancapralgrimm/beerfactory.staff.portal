@@ -1,3 +1,5 @@
+> Старые снимки/экспорты этого отчёта удалены из текущей сборки. Они доступны в [Git-истории до очистки](https://github.com/ivancapralgrimm/beerfactory.staff.portal/blob/c72c6e04f13d4e0c16029f9bad4c1096483d938d/docs/STAFF_AVATARS.md). Актуальные проверки и правила хранения: `docs/retention/README.md`.
+
 > Обновление: квадратный внешний фон удалён у всех9 аватаров. Актуальные файлы/QA — [STAFF_AVATAR_CUTOUTS.md](STAFF_AVATAR_CUTOUTS.md). Ниже сохранён первоначальный этап без прозрачности.
 
 # Аватары сотрудников · 02.11.2026 НСК

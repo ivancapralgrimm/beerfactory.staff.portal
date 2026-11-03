@@ -1,3 +1,5 @@
+> Старые снимки/экспорты этого отчёта удалены из текущей сборки. Они доступны в [Git-истории до очистки](https://github.com/ivancapralgrimm/beerfactory.staff.portal/blob/c72c6e04f13d4e0c16029f9bad4c1096483d938d/qa/r407/evidence/profile-date-ios/independent-review.md). Актуальные проверки и правила хранения: `docs/retention/README.md`.
+
 ship
 
 No confirmed defect in the scoped Profile date-input patch. This is a local app-control finish review, not physical-iPhone acceptance or a full application audit.

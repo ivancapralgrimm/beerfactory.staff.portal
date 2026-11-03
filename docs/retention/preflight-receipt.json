@@ -1,0 +1,26 @@
+{
+  "preinstallDryRun": [
+    {
+      "eligible": {}
+    }
+  ],
+  "actors": [
+    {
+      "migration_actor": "postgres",
+      "cron_timezone": "GMT",
+      "cron_actors": [
+        {
+          "jobname": "beerfactory-handover-retention",
+          "database": "postgres",
+          "username": "postgres"
+        },
+        {
+          "jobname": "beerfactory-position-shift-window-summary",
+          "database": "postgres",
+          "username": "postgres"
+        }
+      ]
+    }
+  ],
+  "scope": "60 days AND rank >10. Confirmed per employee/ticket,position,UI section. No question-version/media cleanup."
+}

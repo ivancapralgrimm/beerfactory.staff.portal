@@ -1,0 +1,816 @@
+{
+  "columns": [
+    {
+      "table_schema": "cron",
+      "table_name": "job_run_details",
+      "column_name": "jobid",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "cron",
+      "table_name": "job_run_details",
+      "column_name": "runid",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": "nextval('cron.runid_seq'::regclass)"
+    },
+    {
+      "table_schema": "cron",
+      "table_name": "job_run_details",
+      "column_name": "job_pid",
+      "data_type": "integer",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "cron",
+      "table_name": "job_run_details",
+      "column_name": "database",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "cron",
+      "table_name": "job_run_details",
+      "column_name": "username",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "cron",
+      "table_name": "job_run_details",
+      "column_name": "command",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "cron",
+      "table_name": "job_run_details",
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "cron",
+      "table_name": "job_run_details",
+      "column_name": "return_message",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "cron",
+      "table_name": "job_run_details",
+      "column_name": "start_time",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "cron",
+      "table_name": "job_run_details",
+      "column_name": "end_time",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "audit_log",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "audit_log",
+      "column_name": "actor_id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "audit_log",
+      "column_name": "action",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "audit_log",
+      "column_name": "entity_type",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "audit_log",
+      "column_name": "entity_id",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "audit_log",
+      "column_name": "entity_name",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "audit_log",
+      "column_name": "before_data",
+      "data_type": "jsonb",
+      "is_nullable": "NO",
+      "column_default": "'{}'::jsonb"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "audit_log",
+      "column_name": "after_data",
+      "data_type": "jsonb",
+      "is_nullable": "NO",
+      "column_default": "'{}'::jsonb"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "audit_log",
+      "column_name": "metadata",
+      "data_type": "jsonb",
+      "is_nullable": "NO",
+      "column_default": "'{}'::jsonb"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "audit_log",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "feed_acknowledgements",
+      "column_name": "note_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "feed_acknowledgements",
+      "column_name": "user_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "feed_acknowledgements",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "notes",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "notes",
+      "column_name": "shift_id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "notes",
+      "column_name": "author_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "notes",
+      "column_name": "body",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "notes",
+      "column_name": "priority",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": "'normal'::note_priority"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "notes",
+      "column_name": "is_resolved",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "column_default": "false"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "notes",
+      "column_name": "acknowledged_by",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "notes",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "notes",
+      "column_name": "resolved_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "notes",
+      "column_name": "category",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": "'other'::handover_category"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "notes",
+      "column_name": "status",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": "'new'::handover_status"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "notes",
+      "column_name": "acknowledged_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "notes",
+      "column_name": "resolved_by",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "notes",
+      "column_name": "subject",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "notes",
+      "column_name": "notify_all",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "column_default": "true"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "notes",
+      "column_name": "notify_positions",
+      "data_type": "ARRAY",
+      "is_nullable": "NO",
+      "column_default": "'{}'::staff_position[]"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "position_shift_checks",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "position_shift_checks",
+      "column_name": "position_shift_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "position_shift_checks",
+      "column_name": "check_type",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "position_shift_checks",
+      "column_name": "item_key",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "position_shift_checks",
+      "column_name": "label",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "position_shift_checks",
+      "column_name": "completed",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "column_default": "false"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "position_shift_checks",
+      "column_name": "completed_by",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "position_shift_checks",
+      "column_name": "completed_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "position_shift_states",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "position_shift_states",
+      "column_name": "shift_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "position_shift_states",
+      "column_name": "position_code",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "position_shift_states",
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": "'not_started'::text"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "position_shift_states",
+      "column_name": "opened_by",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "position_shift_states",
+      "column_name": "closed_by",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "position_shift_states",
+      "column_name": "opened_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "position_shift_states",
+      "column_name": "closed_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "position_shift_states",
+      "column_name": "expired_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "position_shift_states",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "position_shift_states",
+      "column_name": "closing_unlocked_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "position_shift_states",
+      "column_name": "closing_unlocked_by",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "position_shift_states",
+      "column_name": "final_audit_logged_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "quiz_attempts",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "quiz_attempts",
+      "column_name": "user_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "quiz_attempts",
+      "column_name": "score",
+      "data_type": "smallint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "quiz_attempts",
+      "column_name": "passed",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "quiz_attempts",
+      "column_name": "total_questions",
+      "data_type": "smallint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "quiz_attempts",
+      "column_name": "correct_answers",
+      "data_type": "smallint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "quiz_attempts",
+      "column_name": "category_results",
+      "data_type": "jsonb",
+      "is_nullable": "NO",
+      "column_default": "'{}'::jsonb"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "quiz_attempts",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "quiz_attempts",
+      "column_name": "category",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "quiz_attempts",
+      "column_name": "category_id",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "quiz_attempts",
+      "column_name": "started_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "quiz_attempts",
+      "column_name": "finished_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "quiz_attempts",
+      "column_name": "client_attempt_id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "quiz_attempts",
+      "column_name": "question_revisions",
+      "data_type": "jsonb",
+      "is_nullable": "NO",
+      "column_default": "'[]'::jsonb"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "quiz_attempts",
+      "column_name": "synced_from_offline",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "column_default": "false"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "shift_checks",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "shift_checks",
+      "column_name": "shift_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "shift_checks",
+      "column_name": "check_type",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "shift_checks",
+      "column_name": "item_key",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "shift_checks",
+      "column_name": "label",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "shift_checks",
+      "column_name": "completed",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "column_default": "false"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "shift_checks",
+      "column_name": "completed_by",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "shift_checks",
+      "column_name": "completed_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "shifts",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "shifts",
+      "column_name": "shift_date",
+      "data_type": "date",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_DATE"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "shifts",
+      "column_name": "status",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": "'not_started'::shift_status"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "shifts",
+      "column_name": "opened_by",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "shifts",
+      "column_name": "closed_by",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "shifts",
+      "column_name": "opened_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "shifts",
+      "column_name": "closed_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_schema": "public",
+      "table_name": "shifts",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    }
+  ],
+  "foreignKeys": [
+    {
+      "table_schema": "public",
+      "table_name": "shift_checks",
+      "column_name": "shift_id",
+      "foreign_schema": "public",
+      "foreign_table": "shifts",
+      "foreign_column": "id",
+      "delete_rule": "CASCADE"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "notes",
+      "column_name": "shift_id",
+      "foreign_schema": "public",
+      "foreign_table": "shifts",
+      "foreign_column": "id",
+      "delete_rule": "SET NULL"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "messages",
+      "column_name": "shift_id",
+      "foreign_schema": "public",
+      "foreign_table": "shifts",
+      "foreign_column": "id",
+      "delete_rule": "SET NULL"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "position_shift_states",
+      "column_name": "shift_id",
+      "foreign_schema": "public",
+      "foreign_table": "shifts",
+      "foreign_column": "id",
+      "delete_rule": "CASCADE"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "position_shift_checks",
+      "column_name": "position_shift_id",
+      "foreign_schema": "public",
+      "foreign_table": "position_shift_states",
+      "foreign_column": "id",
+      "delete_rule": "CASCADE"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "feed_acknowledgements",
+      "column_name": "note_id",
+      "foreign_schema": "public",
+      "foreign_table": "notes",
+      "foreign_column": "id",
+      "delete_rule": "CASCADE"
+    }
+  ],
+  "existingCleanupFunctions": [
+    {
+      "nspname": "public",
+      "proname": "cleanup_recovery_attempts",
+      "definition": "CREATE OR REPLACE FUNCTION public.cleanup_recovery_attempts()\n RETURNS void\n LANGUAGE sql\n SECURITY DEFINER\n SET search_path TO 'public', 'pg_temp'\nAS $function$\n  delete from public.recovery_attempts where attempted_at < now() - interval '24 hours';\n$function$\n"
+    },
+    {
+      "nspname": "private",
+      "proname": "cleanup_handover_history",
+      "definition": "CREATE OR REPLACE FUNCTION private.cleanup_handover_history()\n RETURNS integer\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public', 'private'\nAS $function$\ndeclare\n  v_deleted integer;\nbegin\n  delete from public.notes\n  where created_at < now() - interval '60 days';\n\n  get diagnostics v_deleted = row_count;\n  return v_deleted;\nend;\n$function$\n"
+    }
+  ],
+  "existingJobs": [
+    {
+      "jobid": 1,
+      "jobname": "beerfactory-handover-retention",
+      "schedule": "15 3 1 * *",
+      "command": "select private.cleanup_handover_history();",
+      "active": true
+    },
+    {
+      "jobid": 4,
+      "jobname": "beerfactory-position-shift-window-summary",
+      "schedule": "0 20 * * *",
+      "command": "select private.finalize_position_shift_windows();",
+      "active": true
+    }
+  ]
+}

@@ -1,3 +1,5 @@
+> Старые снимки/экспорты этого отчёта удалены из текущей сборки. Они доступны в [Git-истории до очистки](https://github.com/ivancapralgrimm/beerfactory.staff.portal/blob/c72c6e04f13d4e0c16029f9bad4c1096483d938d/qa/r407/evidence/staff-avatar-cutouts/independent-review.md). Актуальные проверки и правила хранения: `docs/retention/README.md`.
+
 ship
 
 Scoped independent Hallmark finish / Unslop review of the avatar background cutouts, 2026-11-03. App component polish within the existing Warm Hall direction. No confirmed defects requiring a change in this scope.

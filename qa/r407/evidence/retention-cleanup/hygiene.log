@@ -1,0 +1,10 @@
+✔ runtime source tree has no unexpected orphan modules (260.749353ms)
+✔ Knowledge source selection keeps legacy only as an explicit rollback (132.702222ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1547.746154

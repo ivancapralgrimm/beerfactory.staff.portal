@@ -1,3 +1,5 @@
+> Старые снимки/экспорты этого отчёта удалены из текущей сборки. Они доступны в [Git-истории до очистки](https://github.com/ivancapralgrimm/beerfactory.staff.portal/blob/c72c6e04f13d4e0c16029f9bad4c1096483d938d/docs/STAFF_AVATAR_CUTOUTS.md). Актуальные проверки и правила хранения: `docs/retention/README.md`.
+
 > Profile-only size update:avatar now62×62px, with the same60px layout slot. See [PROFILE_AVATAR_SIZE.md](PROFILE_AVATAR_SIZE.md); below is the original cutout-stage record.
 
 # BFStaff — прозрачные аватары

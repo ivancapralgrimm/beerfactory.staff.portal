@@ -1,0 +1,21 @@
+
+> beerfactory-staff-portal@40.6.0-alpha.1 test:retention
+> node tests/history-retention-sql.mjs && node tests/birthday-window-sql.mjs
+
+PASS daily03:15NSK schedule replaces legacy cron; all cleanup entry points private
+PASS attempt floor is independent per employee+ticket and legacy category; revisions remain
+PASS exact60days survives, older60days drops, recently synced offline records survive
+PASS perposition terminal floor keeps live,unstarted and rare history; child snapshots follow only deleted states
+PASS parent FK cascades cannot erase another position retained results,notes or messages
+PASS legacy checklist header floor retains ten snapshots, extra children cascade
+PASS Feed floor percategory; unresolved and newly resolved remain,ack cascades only deleted notes
+PASS old callable handover cleanup enforces same floor,never touches other histories
+PASS audit floors match staff/portal UI groups and protect each position summary
+PASS Cron retention keeps ten finished perjob,all running and rare histories
+PASS dry run is default and null-safe; cleanup stable on timestamp ties and idempotent
+PASS inconsistent resolution flags are preserved rather than guessed
+PASS recent completion and current parent date protect otherwise old terminal rows
+13 retention PostgreSQL scenarios passed
+PASS3daysbefore through1dayafter: 2000-11-06; excludes4before/2after
+PASS3daysbefore through1dayafter: 2000-01-01; excludes4before/2after
+PASS3daysbefore through1dayafter: 2000-02-29; excludes4before/2after

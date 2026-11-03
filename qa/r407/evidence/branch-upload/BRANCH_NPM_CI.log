@@ -1,8 +1,0 @@
-npm warn deprecated glob@11.1.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
-
-added 389 packages in 13s
-npm notice
-npm notice New major version of npm available! 11.9.0 -> 12.2.1
-npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
-npm notice To update run: npm install -g npm@12.2.1
-npm notice

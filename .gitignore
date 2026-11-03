@@ -5,3 +5,14 @@ public
 .env.local
 .vercel
 .DS_Store
+
+# Reproducible QA outputs; keep selected release evidence deliberately.
+qa/r407/evidence/**/*.png
+qa/r407/evidence/**/*.html
+qa/r407/evidence/**/*.log
+.hallmark/shots/
+supabase/.temp/
+qa/r407/evidence/**/*.zip
+qa/r407/evidence/**/hallmark*.json
+docs/*.pdf
+docs/*.zip

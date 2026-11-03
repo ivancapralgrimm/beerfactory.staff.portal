@@ -1,22 +1,21 @@
-# BFStaff r40.7 — Тёплый зал, Unified RC1 v3
+# BFStaff r40.7 — Тёплый зал
 
-Ветка `redesign/r40.7-warm-hall-v3`, создана от `main` r40.6 (`febed30e31de43ff747d7e714cd54c41254fa34e`). Перенос последней согласованной сборки из `BFStaff-r40.7-Unified-RC1-UI-2026-11-01-v3.zip`. Основное приложение — в корне; прежняя конфигурация Vite/Vercel сохраняется. `main` не изменён.
+Mobile-first PWA для команды BeerFactory/BeerBistro. Рабочая ветка:`redesign/r40.7-warm-hall-v3`,функциональная база main r40.6:`febed30e31de43ff747d7e714cd54c41254fa34e`. Приложение находится в корне репозитория. Main не изменялся.
 
-## Сборка
+## Сборка и проверки
 
-Node.js 24, `npm ci`, `npm run typecheck`, `npm test`, `npm run build`. Vercel: Root Directory — корень репозитория; Build Command `npm run build`; Output Directory `dist`. `dist` и `node_modules` генерируются и не коммитятся.
+Node.js24. `npm ci`, `npm run typecheck`, `npm test`, `npm run test:retention`, `npm run build`. Vercel:корень репозитория,Build Command `npm run build`,Output Directory `dist`. `dist`,`node_modules`,`public/assets` генерируются.
 
-Используются существующие Supabase/Cloudflare/NocoDB API. Копирование кода не устанавливает серверные патчи и не создаёт отдельные базы. При тех же настройках preview может обращаться к рабочим данным; операции сохранения в интерфейсе не являются изолированной песочницей.
+[Постоянный Preview ветки](https://bfstaff-git-redesign-r407-warm-hall-v3-ivan-grimm.vercel.app). Preview использует общие рабочие Supabase/Cloudflare/NocoDB данные;это не отдельная база. Сохранения в интерфейсе изменяют общие данные.
 
-## Статус: release candidate
+## Текущее состояние
 
-Интерфейс «Тёплый зал», пивная карта v3.1, последние правки профиля, поиска, дней рождения, метаданных и увеличенного BFStaff включены. Некоторые согласованные изменения требуют отдельной установки серверной части. SQL, Supabase Functions и Cloudflare Worker автоматически не публикуются.
+«Тёплый зал»,пивная карта,ролевые аватары,редакторы и действующие API включены. Знания читаются из Supabase по умолчанию в production/preview;явный legacy режим остаётся для отката.
 
-- Установка и ограничения: [docs/INSTALL_SERVER_RU.md](docs/INSTALL_SERVER_RU.md), [docs/patches/material-lifecycle-README.md](docs/patches/material-lifecycle-README.md).
-- Серверный диапазон дней рождения -1..3: [docs/patches/dashboard-birthday-window.sql](docs/patches/dashboard-birthday-window.sql), пока НЕ применён.
-- Физическая очистка вложений NocoDB: адаптер пока не завершён, связанные возможности закрыты.
-- История визуальных правок: [docs/UI_2026-11-01.md](docs/UI_2026-11-01.md), [docs/UI_2026-11-01-v2.md](docs/UI_2026-11-01-v2.md), [docs/BRAND_SIZE_2026-11-01.md](docs/BRAND_SIZE_2026-11-01.md).
-- Проверки с тестовыми HTTP/WS и снимки: `qa/r407/evidence/`; это не проверка production/RLS.
-- Происхождение архива: [docs/R407_BRANCH_IMPORT.json](docs/R407_BRANCH_IMPORT.json).
+- [Применённый backend-релиз](docs/releases/2026-11-03-backend/README.md):staff-login v9,история смен,R22,дни рождения за3дня до и1день после.
+- [Хранение истории и очистка](docs/retention/README.md):ежедневно03:15НСК,старше60дней,минимум10последних по согласованным группам. Сохранены активные задачи/смены и рабочие материалы.
+- [Контракты и подключения](docs/CONNECTIONS_2026-11-03.md).
+- [Незавершённые lifecycle/media интеграции](docs/patches/material-lifecycle-README.md):автоматическая физическая очистка вложений NocoDB требует готового адаптера;связанные возможности закрыты.
+- [Проверки](qa/r407/evidence/README.md),исходники сценариев в `qa/r407/tests` и `tests`. HTTP/WS fixtures не заменяют реальный production RLS/Storage или проверку телефона.
 
-Preview деплой ветки не означает перенос SQL или готовность всех серверных изменений. Production-публикация и слияние с main не выполнялись.
+Миграции и деплой Edge/Worker не запускаются автоматически при frontend build. Применённые миграции не переигрывать. Старые тяжёлые QA-экспорты удалены из рабочего дерева,сохраняются в Git-истории. Лицензии и источники навыков/графики сохранены. Production frontend и main автоматически не публикуются.

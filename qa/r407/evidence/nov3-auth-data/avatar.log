@@ -1,2 +1,0 @@
-Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
-{"checks":30,"errors":[],"uncaught":[]}

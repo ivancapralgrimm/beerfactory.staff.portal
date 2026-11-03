@@ -1,0 +1,98 @@
+{
+  "project": "oltbkrvernfgymxtsfys",
+  "migration": [
+    {
+      "version": "20261103194544",
+      "name": "r407_history_retention_60d_floor10"
+    }
+  ],
+  "functions": [
+    {
+      "proname": "cleanup_handover_history",
+      "body_md5": "3e5f071b2e0e29cabd35989afa45613e",
+      "owner": "postgres",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "staff_execute": false,
+      "service_execute": false
+    },
+    {
+      "proname": "cleanup_portal_history",
+      "body_md5": "84b5c3b58ab3b8049ad29a8bd79d2059",
+      "owner": "postgres",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "staff_execute": false,
+      "service_execute": false
+    },
+    {
+      "proname": "portal_history_retention_candidates",
+      "body_md5": "3ff1cea402a4611e2939e307eeae5e13",
+      "owner": "postgres",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "staff_execute": false,
+      "service_execute": false
+    }
+  ],
+  "jobs": [
+    {
+      "jobid": 4,
+      "jobname": "beerfactory-position-shift-window-summary",
+      "schedule": "0 20 * * *",
+      "command": "select private.finalize_position_shift_windows();",
+      "active": true,
+      "username": "postgres",
+      "database": "postgres"
+    },
+    {
+      "jobid": 5,
+      "jobname": "bfstaff-history-retention",
+      "schedule": "15 20 * * *",
+      "command": "select private.cleanup_portal_history(false);",
+      "active": true,
+      "username": "postgres",
+      "database": "postgres"
+    }
+  ],
+  "defaultDryRun": [
+    {
+      "dry_run": {
+        "cutoff": "2026-09-04T19:46:11.282577+00:00",
+        "dryRun": true,
+        "eligible": {},
+        "keepAtLeast": 10
+      }
+    }
+  ],
+  "firstExecution": [
+    {
+      "first_execution": {
+        "cutoff": "2026-09-04T19:46:12.213863+00:00",
+        "dryRun": false,
+        "deleted": {
+          "notes": 0,
+          "shifts": 0,
+          "audit_log": 0,
+          "cron_runs": 0,
+          "quiz_attempts": 0,
+          "position_shift_states": 0
+        },
+        "keepAtLeast": 10
+      }
+    }
+  ],
+  "scheduleTimezone": "GMT",
+  "localSchedule": "03:15 Asia/Novosibirsk",
+  "grouping": "employee+ticket;position;UI audit section;resolvedFeed category;finishedcron job",
+  "versionsAndMedia": "No deletion; retained attempt and offline revision integrity preserved."
+}

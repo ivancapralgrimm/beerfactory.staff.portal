@@ -15,4 +15,5 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm test
+      - run: npm run test:retention
       - run: npm run build

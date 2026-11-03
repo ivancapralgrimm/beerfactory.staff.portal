@@ -22,7 +22,8 @@
     "knowledge:seed:dry-run": "node scripts/build-knowledge-legacy-seed.mjs",
     "dev:preview": "npm run sync:public && vite --mode preview",
     "build:preview": "npm run sync:public && tsc -b && vite build --mode preview",
-    "knowledge:seed:live-history": "node tools/build-knowledge-legacy-seed.mjs ."
+    "knowledge:seed:live-history": "node tools/build-knowledge-legacy-seed.mjs .",
+    "test:retention": "node tests/history-retention-sql.mjs && node tests/birthday-window-sql.mjs"
   },
   "dependencies": {
     "@radix-ui/react-slot": "1.3.3",
