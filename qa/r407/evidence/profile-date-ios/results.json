@@ -1,0 +1,700 @@
+{
+  "scope": "Actual Chromium and Linux WebKit; ru-RU, iPhone UA, touch/mobile viewport. This does NOT emulate the native iOS renderer or prove physical iPhone PASS. All APIs fixture-only; no production writes.",
+  "results": [
+    {
+      "name": "chromium staff date 320 ru-RU touch",
+      "pass": true,
+      "geometry": {
+        "input": {
+          "left": 17,
+          "right": 303,
+          "width": 286
+        },
+        "frame": {
+          "left": 16,
+          "right": 304,
+          "width": 288,
+          "height": 44
+        },
+        "label": {
+          "left": 16,
+          "right": 304,
+          "width": 288
+        },
+        "border": [
+          "1px",
+          "1px"
+        ],
+        "overflow": "clip",
+        "ring": "rgb(81, 58, 46) solid 2px",
+        "offset": "-2px",
+        "appearance": "none",
+        "nativeBorder": "0px",
+        "page": 320,
+        "viewport": 320
+      }
+    },
+    {
+      "name": "chromium staff date 375 ru-RU touch",
+      "pass": true,
+      "geometry": {
+        "input": {
+          "left": 21,
+          "right": 354,
+          "width": 333
+        },
+        "frame": {
+          "left": 20,
+          "right": 355,
+          "width": 335,
+          "height": 44
+        },
+        "label": {
+          "left": 20,
+          "right": 355,
+          "width": 335
+        },
+        "border": [
+          "1px",
+          "1px"
+        ],
+        "overflow": "clip",
+        "ring": "rgb(81, 58, 46) solid 2px",
+        "offset": "-2px",
+        "appearance": "none",
+        "nativeBorder": "0px",
+        "page": 375,
+        "viewport": 375
+      }
+    },
+    {
+      "name": "chromium staff date 390 ru-RU touch",
+      "pass": true,
+      "geometry": {
+        "input": {
+          "left": 21,
+          "right": 369,
+          "width": 348
+        },
+        "frame": {
+          "left": 20,
+          "right": 370,
+          "width": 350,
+          "height": 44
+        },
+        "label": {
+          "left": 20,
+          "right": 370,
+          "width": 350
+        },
+        "border": [
+          "1px",
+          "1px"
+        ],
+        "overflow": "clip",
+        "ring": "rgb(81, 58, 46) solid 2px",
+        "offset": "-2px",
+        "appearance": "none",
+        "nativeBorder": "0px",
+        "page": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "name": "chromium staff date 430 ru-RU touch",
+      "pass": true,
+      "geometry": {
+        "input": {
+          "left": 21,
+          "right": 409,
+          "width": 388
+        },
+        "frame": {
+          "left": 20,
+          "right": 410,
+          "width": 390,
+          "height": 44
+        },
+        "label": {
+          "left": 20,
+          "right": 410,
+          "width": 390
+        },
+        "border": [
+          "1px",
+          "1px"
+        ],
+        "overflow": "clip",
+        "ring": "rgb(81, 58, 46) solid 2px",
+        "offset": "-2px",
+        "appearance": "none",
+        "nativeBorder": "0px",
+        "page": 430,
+        "viewport": 430
+      }
+    },
+    {
+      "name": "chromium staff date 768 ru-RU touch",
+      "pass": true,
+      "geometry": {
+        "input": {
+          "left": 165,
+          "right": 603,
+          "width": 438
+        },
+        "frame": {
+          "left": 164,
+          "right": 604,
+          "width": 440,
+          "height": 44
+        },
+        "label": {
+          "left": 164,
+          "right": 604,
+          "width": 440
+        },
+        "border": [
+          "1px",
+          "1px"
+        ],
+        "overflow": "clip",
+        "ring": "rgb(81, 58, 46) solid 2px",
+        "offset": "-2px",
+        "appearance": "none",
+        "nativeBorder": "0px",
+        "page": 768,
+        "viewport": 768
+      }
+    },
+    {
+      "name": "chromium staff edits and saves ISO birth date",
+      "pass": true
+    },
+    {
+      "name": "chromium staff keyboard reaches native date",
+      "pass": true
+    },
+    {
+      "name": "chromium owner date 320 ru-RU touch",
+      "pass": true,
+      "geometry": {
+        "input": {
+          "left": 17,
+          "right": 303,
+          "width": 286
+        },
+        "frame": {
+          "left": 16,
+          "right": 304,
+          "width": 288,
+          "height": 44
+        },
+        "label": {
+          "left": 16,
+          "right": 304,
+          "width": 288
+        },
+        "border": [
+          "1px",
+          "1px"
+        ],
+        "overflow": "clip",
+        "ring": "rgb(81, 58, 46) solid 2px",
+        "offset": "-2px",
+        "appearance": "none",
+        "nativeBorder": "0px",
+        "page": 320,
+        "viewport": 320
+      }
+    },
+    {
+      "name": "chromium owner date 375 ru-RU touch",
+      "pass": true,
+      "geometry": {
+        "input": {
+          "left": 21,
+          "right": 354,
+          "width": 333
+        },
+        "frame": {
+          "left": 20,
+          "right": 355,
+          "width": 335,
+          "height": 44
+        },
+        "label": {
+          "left": 20,
+          "right": 355,
+          "width": 335
+        },
+        "border": [
+          "1px",
+          "1px"
+        ],
+        "overflow": "clip",
+        "ring": "rgb(81, 58, 46) solid 2px",
+        "offset": "-2px",
+        "appearance": "none",
+        "nativeBorder": "0px",
+        "page": 375,
+        "viewport": 375
+      }
+    },
+    {
+      "name": "chromium owner date 390 ru-RU touch",
+      "pass": true,
+      "geometry": {
+        "input": {
+          "left": 21,
+          "right": 369,
+          "width": 348
+        },
+        "frame": {
+          "left": 20,
+          "right": 370,
+          "width": 350,
+          "height": 44
+        },
+        "label": {
+          "left": 20,
+          "right": 370,
+          "width": 350
+        },
+        "border": [
+          "1px",
+          "1px"
+        ],
+        "overflow": "clip",
+        "ring": "rgb(81, 58, 46) solid 2px",
+        "offset": "-2px",
+        "appearance": "none",
+        "nativeBorder": "0px",
+        "page": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "name": "chromium owner date 430 ru-RU touch",
+      "pass": true,
+      "geometry": {
+        "input": {
+          "left": 21,
+          "right": 409,
+          "width": 388
+        },
+        "frame": {
+          "left": 20,
+          "right": 410,
+          "width": 390,
+          "height": 44
+        },
+        "label": {
+          "left": 20,
+          "right": 410,
+          "width": 390
+        },
+        "border": [
+          "1px",
+          "1px"
+        ],
+        "overflow": "clip",
+        "ring": "rgb(81, 58, 46) solid 2px",
+        "offset": "-2px",
+        "appearance": "none",
+        "nativeBorder": "0px",
+        "page": 430,
+        "viewport": 430
+      }
+    },
+    {
+      "name": "chromium owner date 768 ru-RU touch",
+      "pass": true,
+      "geometry": {
+        "input": {
+          "left": 165,
+          "right": 603,
+          "width": 438
+        },
+        "frame": {
+          "left": 164,
+          "right": 604,
+          "width": 440,
+          "height": 44
+        },
+        "label": {
+          "left": 164,
+          "right": 604,
+          "width": 440
+        },
+        "border": [
+          "1px",
+          "1px"
+        ],
+        "overflow": "clip",
+        "ring": "rgb(81, 58, 46) solid 2px",
+        "offset": "-2px",
+        "appearance": "none",
+        "nativeBorder": "0px",
+        "page": 768,
+        "viewport": 768
+      }
+    },
+    {
+      "name": "chromium owner edits and saves ISO birth date",
+      "pass": true
+    },
+    {
+      "name": "chromium owner keyboard reaches native date",
+      "pass": true
+    },
+    {
+      "name": "webkit staff date 320 ru-RU touch",
+      "pass": true,
+      "geometry": {
+        "input": {
+          "left": 17,
+          "right": 303,
+          "width": 286
+        },
+        "frame": {
+          "left": 16,
+          "right": 304,
+          "width": 288,
+          "height": 44
+        },
+        "label": {
+          "left": 16,
+          "right": 304,
+          "width": 288
+        },
+        "border": [
+          "1px",
+          "1px"
+        ],
+        "overflow": "clip",
+        "ring": "2px solid rgb(81, 58, 46)",
+        "offset": "-2px",
+        "appearance": "none",
+        "nativeBorder": "0px",
+        "page": 320,
+        "viewport": 320
+      }
+    },
+    {
+      "name": "webkit staff date 375 ru-RU touch",
+      "pass": true,
+      "geometry": {
+        "input": {
+          "left": 21,
+          "right": 354,
+          "width": 333
+        },
+        "frame": {
+          "left": 20,
+          "right": 355,
+          "width": 335,
+          "height": 44
+        },
+        "label": {
+          "left": 20,
+          "right": 355,
+          "width": 335
+        },
+        "border": [
+          "1px",
+          "1px"
+        ],
+        "overflow": "clip",
+        "ring": "2px solid rgb(81, 58, 46)",
+        "offset": "-2px",
+        "appearance": "none",
+        "nativeBorder": "0px",
+        "page": 375,
+        "viewport": 375
+      }
+    },
+    {
+      "name": "webkit staff date 390 ru-RU touch",
+      "pass": true,
+      "geometry": {
+        "input": {
+          "left": 21,
+          "right": 369,
+          "width": 348
+        },
+        "frame": {
+          "left": 20,
+          "right": 370,
+          "width": 350,
+          "height": 44
+        },
+        "label": {
+          "left": 20,
+          "right": 370,
+          "width": 350
+        },
+        "border": [
+          "1px",
+          "1px"
+        ],
+        "overflow": "clip",
+        "ring": "2px solid rgb(81, 58, 46)",
+        "offset": "-2px",
+        "appearance": "none",
+        "nativeBorder": "0px",
+        "page": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "name": "webkit staff date 430 ru-RU touch",
+      "pass": true,
+      "geometry": {
+        "input": {
+          "left": 21,
+          "right": 409,
+          "width": 388
+        },
+        "frame": {
+          "left": 20,
+          "right": 410,
+          "width": 390,
+          "height": 44
+        },
+        "label": {
+          "left": 20,
+          "right": 410,
+          "width": 390
+        },
+        "border": [
+          "1px",
+          "1px"
+        ],
+        "overflow": "clip",
+        "ring": "2px solid rgb(81, 58, 46)",
+        "offset": "-2px",
+        "appearance": "none",
+        "nativeBorder": "0px",
+        "page": 430,
+        "viewport": 430
+      }
+    },
+    {
+      "name": "webkit staff date 768 ru-RU touch",
+      "pass": true,
+      "geometry": {
+        "input": {
+          "left": 165,
+          "right": 603,
+          "width": 438
+        },
+        "frame": {
+          "left": 164,
+          "right": 604,
+          "width": 440,
+          "height": 44
+        },
+        "label": {
+          "left": 164,
+          "right": 604,
+          "width": 440
+        },
+        "border": [
+          "1px",
+          "1px"
+        ],
+        "overflow": "clip",
+        "ring": "2px solid rgb(81, 58, 46)",
+        "offset": "-2px",
+        "appearance": "none",
+        "nativeBorder": "0px",
+        "page": 768,
+        "viewport": 768
+      }
+    },
+    {
+      "name": "webkit staff edits and saves ISO birth date",
+      "pass": true
+    },
+    {
+      "name": "webkit staff keyboard reaches native date",
+      "pass": true
+    },
+    {
+      "name": "webkit owner date 320 ru-RU touch",
+      "pass": true,
+      "geometry": {
+        "input": {
+          "left": 17,
+          "right": 303,
+          "width": 286
+        },
+        "frame": {
+          "left": 16,
+          "right": 304,
+          "width": 288,
+          "height": 44
+        },
+        "label": {
+          "left": 16,
+          "right": 304,
+          "width": 288
+        },
+        "border": [
+          "1px",
+          "1px"
+        ],
+        "overflow": "clip",
+        "ring": "2px solid rgb(81, 58, 46)",
+        "offset": "-2px",
+        "appearance": "none",
+        "nativeBorder": "0px",
+        "page": 320,
+        "viewport": 320
+      }
+    },
+    {
+      "name": "webkit owner date 375 ru-RU touch",
+      "pass": true,
+      "geometry": {
+        "input": {
+          "left": 21,
+          "right": 354,
+          "width": 333
+        },
+        "frame": {
+          "left": 20,
+          "right": 355,
+          "width": 335,
+          "height": 44
+        },
+        "label": {
+          "left": 20,
+          "right": 355,
+          "width": 335
+        },
+        "border": [
+          "1px",
+          "1px"
+        ],
+        "overflow": "clip",
+        "ring": "2px solid rgb(81, 58, 46)",
+        "offset": "-2px",
+        "appearance": "none",
+        "nativeBorder": "0px",
+        "page": 375,
+        "viewport": 375
+      }
+    },
+    {
+      "name": "webkit owner date 390 ru-RU touch",
+      "pass": true,
+      "geometry": {
+        "input": {
+          "left": 21,
+          "right": 369,
+          "width": 348
+        },
+        "frame": {
+          "left": 20,
+          "right": 370,
+          "width": 350,
+          "height": 44
+        },
+        "label": {
+          "left": 20,
+          "right": 370,
+          "width": 350
+        },
+        "border": [
+          "1px",
+          "1px"
+        ],
+        "overflow": "clip",
+        "ring": "2px solid rgb(81, 58, 46)",
+        "offset": "-2px",
+        "appearance": "none",
+        "nativeBorder": "0px",
+        "page": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "name": "webkit owner date 430 ru-RU touch",
+      "pass": true,
+      "geometry": {
+        "input": {
+          "left": 21,
+          "right": 409,
+          "width": 388
+        },
+        "frame": {
+          "left": 20,
+          "right": 410,
+          "width": 390,
+          "height": 44
+        },
+        "label": {
+          "left": 20,
+          "right": 410,
+          "width": 390
+        },
+        "border": [
+          "1px",
+          "1px"
+        ],
+        "overflow": "clip",
+        "ring": "2px solid rgb(81, 58, 46)",
+        "offset": "-2px",
+        "appearance": "none",
+        "nativeBorder": "0px",
+        "page": 430,
+        "viewport": 430
+      }
+    },
+    {
+      "name": "webkit owner date 768 ru-RU touch",
+      "pass": true,
+      "geometry": {
+        "input": {
+          "left": 165,
+          "right": 603,
+          "width": 438
+        },
+        "frame": {
+          "left": 164,
+          "right": 604,
+          "width": 440,
+          "height": 44
+        },
+        "label": {
+          "left": 164,
+          "right": 604,
+          "width": 440
+        },
+        "border": [
+          "1px",
+          "1px"
+        ],
+        "overflow": "clip",
+        "ring": "2px solid rgb(81, 58, 46)",
+        "offset": "-2px",
+        "appearance": "none",
+        "nativeBorder": "0px",
+        "page": 768,
+        "viewport": 768
+      }
+    },
+    {
+      "name": "webkit owner edits and saves ISO birth date",
+      "pass": true
+    },
+    {
+      "name": "webkit owner keyboard reaches native date",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "uncaught": [],
+  "unknown": []
+}

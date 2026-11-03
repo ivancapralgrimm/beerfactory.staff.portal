@@ -1,0 +1,24 @@
+PASS chromium birthday and position fit 320
+PASS chromium birthday and position fit 375
+PASS chromium birthday and position fit 390
+PASS chromium birthday and position fit 430
+PASS chromium birthday and position fit 768
+PASS chromium birthday and position fit 1280
+PASS chromium history score and single heading
+PASS chromium compact ticket actions and complete quiz
+PASS chromium hover focus and press on shared control families
+PASS chromium all route families retain inner keyboard focus
+PASS chromium auth focus is dark and inset
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+PASS webkit birthday and position fit 320
+PASS webkit birthday and position fit 375
+PASS webkit birthday and position fit 390
+PASS webkit birthday and position fit 430
+PASS webkit birthday and position fit 768
+PASS webkit birthday and position fit 1280
+PASS webkit history score and single heading
+PASS webkit compact ticket actions and complete quiz
+PASS webkit hover focus and press on shared control families
+PASS webkit all route families retain inner keyboard focus
+PASS webkit auth focus is dark and inset
+{"checks":24,"issues":[]}

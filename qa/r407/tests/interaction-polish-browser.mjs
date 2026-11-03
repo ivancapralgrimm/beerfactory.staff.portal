@@ -18,7 +18,7 @@ for(const [engine,type,options] of engines){let b;try{b=await type.launch(option
  for(const width of [320,375,390,430,768,1280])await test(`${engine} birthday and position fit ${width}`,async()=>{
   await p.setViewportSize({width,height:844});await open('/profile?view=details');const date=p.getByLabel('Дата рождения',{exact:true});await date.waitFor();await date.focus();
   const value=await date.inputValue();assert.equal(value,s.store.profile.birth_date);
-  const measure=await date.evaluate(e=>{const r=e.getBoundingClientRect(),a=e.closest('label').getBoundingClientRect(),c=getComputedStyle(e);return{width:r.width,parent:a.width,left:r.left,right:r.right,view:innerWidth,offset:parseFloat(c.outlineOffset),outline:parseFloat(c.outlineWidth),style:c.outlineStyle,scroll:document.documentElement.scrollWidth}});
+  const measure=await date.evaluate(e=>{const r=e.getBoundingClientRect(),a=e.closest('label').getBoundingClientRect(),c=getComputedStyle(e.closest('.bf-profile-date-control')||e);return{width:r.width,parent:a.width,left:r.left,right:r.right,view:innerWidth,offset:parseFloat(c.outlineOffset),outline:parseFloat(c.outlineWidth),style:c.outlineStyle,scroll:document.documentElement.scrollWidth}});
   assert.ok(measure.width<=measure.parent+.5&&measure.right<=width-15&&measure.left>=15,JSON.stringify(measure));assert.ok(measure.scroll<=width+1);assert.equal(measure.style,'solid');assert.ok(measure.outline>=2&&measure.offset<=-measure.outline,JSON.stringify(measure));
   if(width===375||width===390)await p.screenshot({path:path.join(dir,`after-profile-${engine}-${width}.png`),fullPage:true});
  });
@@ -38,7 +38,7 @@ for(const [engine,type,options] of engines){let b;try{b=await type.launch(option
   const targets=[['/settings','.bf-nav-row'],['/feed','.bf-reader-button'],['/menu/bar%3Areview-drink','.bf-photo-button'],['/settings/attestation/questions','select'],['/knowledge/new','[contenteditable=true]'],['/feed/new','textarea'],['/beer','.bc-replay'],['/profile?view=details','input[type=date]']];
   for(const [url,selector] of targets){await open(url);const el=p.locator(selector).first();await el.waitFor();await el.hover();
    for(const kind of ['hover','focus','press']){if(kind==='focus')await el.focus();if(kind==='press'){await el.hover();await p.mouse.down()}
-    const ring=await el.evaluate(e=>{const c=getComputedStyle(e),r=e.getBoundingClientRect();return {style:c.outlineStyle,width:parseFloat(c.outlineWidth),offset:parseFloat(c.outlineOffset),color:c.outlineColor,w:r.width,h:r.height}});if(kind==='press'){await p.mouse.move(0,0);await p.mouse.up();}assert.equal(ring.style,'solid',url+' '+kind);assert.ok(ring.width>=2&&ring.offset<=-ring.width,JSON.stringify({url,kind,...ring}));
+    const ring=await el.evaluate(e=>{const c=getComputedStyle(e.closest('.bf-profile-date-control')||e),r=e.getBoundingClientRect();return {style:c.outlineStyle,width:parseFloat(c.outlineWidth),offset:parseFloat(c.outlineOffset),color:c.outlineColor,w:r.width,h:r.height}});if(kind==='press'){await p.mouse.move(0,0);await p.mouse.up();}assert.equal(ring.style,'solid',url+' '+kind);assert.ok(ring.width>=2&&ring.offset<=-ring.width,JSON.stringify({url,kind,...ring}));
    }
    if(url==='/feed'||url==='/knowledge/new'||url==='/beer')await p.screenshot({path:path.join(dir,`after-ring-${engine}-${url.replace(/[^a-z]/g,'')}.png`),fullPage:true});
   }
@@ -48,7 +48,7 @@ for(const [engine,type,options] of engines){let b;try{b=await type.launch(option
    await open(url);const controls=p.locator('button:not(:disabled),a[href],input:not(:disabled):not([type=hidden]),textarea,select:not(:disabled),summary,[contenteditable=true]');
    for(const el of await controls.all()){
     if(!await el.isVisible()||await el.getAttribute('aria-disabled')==='true'||await el.getAttribute('type')==='checkbox'||await el.getAttribute('type')==='radio')continue;
-    await el.focus();const m=await el.evaluate(e=>{const c=getComputedStyle(e);return {cls:e.className,style:c.outlineStyle,width:parseFloat(c.outlineWidth),offset:parseFloat(c.outlineOffset),text:e.textContent?.slice(0,30)}});assert.ok(m.style==='solid'&&m.width>=2&&m.offset<=-m.width,JSON.stringify({url,...m}));checked++;
+    await el.focus();const m=await el.evaluate(e=>{const c=getComputedStyle(e.closest('.bf-profile-date-control')||e);return {cls:e.className,style:c.outlineStyle,width:parseFloat(c.outlineWidth),offset:parseFloat(c.outlineOffset),text:e.textContent?.slice(0,30)}});assert.ok(m.style==='solid'&&m.width>=2&&m.offset<=-m.width,JSON.stringify({url,...m}));checked++;
    }
    assert.ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),url+' overflow');
   }results.push({name:engine+' scanned focus controls',checked,pass:true});

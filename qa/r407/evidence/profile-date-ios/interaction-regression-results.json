@@ -1,0 +1,106 @@
+{
+  "scope": "Compiled actual app. All external HTTP/WS intercepted; fixture data. Browser engines do not substitute for physical Safari/iPhone. No production/RLS PASS.",
+  "results": [
+    {
+      "name": "chromium birthday and position fit 320",
+      "pass": true
+    },
+    {
+      "name": "chromium birthday and position fit 375",
+      "pass": true
+    },
+    {
+      "name": "chromium birthday and position fit 390",
+      "pass": true
+    },
+    {
+      "name": "chromium birthday and position fit 430",
+      "pass": true
+    },
+    {
+      "name": "chromium birthday and position fit 768",
+      "pass": true
+    },
+    {
+      "name": "chromium birthday and position fit 1280",
+      "pass": true
+    },
+    {
+      "name": "chromium history score and single heading",
+      "pass": true
+    },
+    {
+      "name": "chromium compact ticket actions and complete quiz",
+      "pass": true
+    },
+    {
+      "name": "chromium hover focus and press on shared control families",
+      "pass": true
+    },
+    {
+      "name": "chromium scanned focus controls",
+      "checked": 176,
+      "pass": true
+    },
+    {
+      "name": "chromium all route families retain inner keyboard focus",
+      "pass": true
+    },
+    {
+      "name": "chromium auth focus is dark and inset",
+      "pass": true
+    },
+    {
+      "name": "webkit birthday and position fit 320",
+      "pass": true
+    },
+    {
+      "name": "webkit birthday and position fit 375",
+      "pass": true
+    },
+    {
+      "name": "webkit birthday and position fit 390",
+      "pass": true
+    },
+    {
+      "name": "webkit birthday and position fit 430",
+      "pass": true
+    },
+    {
+      "name": "webkit birthday and position fit 768",
+      "pass": true
+    },
+    {
+      "name": "webkit birthday and position fit 1280",
+      "pass": true
+    },
+    {
+      "name": "webkit history score and single heading",
+      "pass": true
+    },
+    {
+      "name": "webkit compact ticket actions and complete quiz",
+      "pass": true
+    },
+    {
+      "name": "webkit hover focus and press on shared control families",
+      "pass": true
+    },
+    {
+      "name": "webkit scanned focus controls",
+      "checked": 176,
+      "pass": true
+    },
+    {
+      "name": "webkit all route families retain inner keyboard focus",
+      "pass": true
+    },
+    {
+      "name": "webkit auth focus is dark and inset",
+      "pass": true
+    }
+  ],
+  "issues": [],
+  "uncaught": [],
+  "unknown": []
+}
