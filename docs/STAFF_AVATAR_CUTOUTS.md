@@ -1,3 +1,5 @@
+> Profile-only size update:avatar now62×62px, with the same60px layout slot. See [PROFILE_AVATAR_SIZE.md](PROFILE_AVATAR_SIZE.md); below is the original cutout-stage record.
+
 # BFStaff — прозрачные аватары
 
 Все9 существующих аватаров переведены в WebP512 с настоящим alpha-каналом. Удалён только квадратный фон снаружи золотого круга; сам круг, интерьер внутри него и выступающие полотенца/детали сохранены. Это не жёсткая CSS-обрезка по радиусу50%, которая могла бы срезать персонажа.
