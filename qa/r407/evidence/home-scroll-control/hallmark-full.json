@@ -1,0 +1,25 @@
+{
+  "summary": {
+    "fails": 0,
+    "reflex": 1,
+    "warns": 0,
+    "waived": 0,
+    "rejected": 0,
+    "answered": 0,
+    "dismissed": 0,
+    "notes": 0,
+    "files": 2,
+    "render": "ran"
+  },
+  "findings": [
+    {
+      "gate": "39b",
+      "grade": "REFLEX",
+      "tier": "reflex",
+      "file": "http://127.0.0.1:4417/chromium-home.html",
+      "line": 1,
+      "evidence": "[1440px] control height outside 32 to 52px: button.bf-birthday 64px",
+      "fix": "Marketing controls stand 44 to 52px; app UI 32 to 40px with a 44px hit target"
+    }
+  ]
+}

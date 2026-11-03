@@ -27,6 +27,6 @@ export function AppShell(){
    <main id="mainContent" tabIndex={-1} className="bf-main"><Outlet/></main>
   </div>
   {menu&&!examActive&&<WarmDialog title="Куда перейдём?" onClose={()=>setMenu(false)}><nav aria-label="Разделы приложения" className="grid gap-1">{sections.map(([to,label,icon])=><Link key={to} to={to} onClick={()=>setMenu(false)} className="bf-menu-row warm-header-menu" aria-current={selected(to)?'page':undefined}><WarmIcon name={icon}/><span>{label}</span><WarmIcon name={selected(to)?'check':'chevron'} size={17}/></Link>)}</nav></WarmDialog>}
-  {showTop&&!examActive&&<button type="button" className="bf-button warm-button warm-scroll-top" aria-label="Вернуться наверх" onClick={()=>window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'})}><WarmIcon name="back" style={{transform:'rotate(90deg)'}}/></button>}
+  {showTop&&!examActive&&!atHome&&<button type="button" className="bf-button warm-button warm-scroll-top" aria-label="Вернуться наверх" onClick={()=>window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'})}><WarmIcon name="back" style={{transform:'rotate(90deg)'}}/></button>}
  </div></WarmHeaderProvider>;
 }

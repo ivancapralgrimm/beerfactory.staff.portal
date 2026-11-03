@@ -1,0 +1,55 @@
+{
+  "scope": "Actual Chromium and Linux WebKit with long-content fixture transport. No production writes/device claim.",
+  "results": [
+    {
+      "engine": "chromium",
+      "case": "Home has no scroll-to-top when scrolled",
+      "pass": true
+    },
+    {
+      "engine": "chromium",
+      "case": "Home query parameters preserve exclusion",
+      "pass": true
+    },
+    {
+      "engine": "chromium",
+      "case": "Recipes retain accessible working scroll-to-top",
+      "pass": true
+    },
+    {
+      "engine": "chromium",
+      "case": "Article retains working scroll-to-top",
+      "pass": true
+    },
+    {
+      "engine": "chromium",
+      "case": "Returning home removes control again",
+      "pass": true
+    },
+    {
+      "engine": "webkit",
+      "case": "Home has no scroll-to-top when scrolled",
+      "pass": true
+    },
+    {
+      "engine": "webkit",
+      "case": "Home query parameters preserve exclusion",
+      "pass": true
+    },
+    {
+      "engine": "webkit",
+      "case": "Recipes retain accessible working scroll-to-top",
+      "pass": true
+    },
+    {
+      "engine": "webkit",
+      "case": "Article retains working scroll-to-top",
+      "pass": true
+    },
+    {
+      "engine": "webkit",
+      "case": "Returning home removes control again",
+      "pass": true
+    }
+  ]
+}
