@@ -1,0 +1,10 @@
+import fs from 'node:fs';import path from 'node:path';import assert from 'node:assert/strict';import {chromium,webkit} from 'playwright';import {mockActualApp} from './unified-fixtures.mjs';
+const dir=path.resolve('qa/r407/evidence/interaction-polish'),rows=[];
+for(const [name,type,opts] of [['chromium',chromium,{executablePath:'/usr/bin/chromium',args:['--no-sandbox']}],['webkit',webkit,{}]]){
+ const b=await type.launch(opts);try{for(const width of [320,375,390,430]){
+  const s=await mockActualApp(b,{base:process.env.BF_UNIFIED_URL||'http://127.0.0.1:4410',role:'admin',width});await s.page.emulateMedia({reducedMotion:'reduce'});await s.open('/attestation');await s.page.getByLabel('Выбери тему',{exact:true}).selectOption('bar');await s.page.getByRole('button',{name:'Начать аттестацию',exact:true}).click();await s.page.getByRole('heading',{name:/Бар: вопрос/}).waitFor();await s.page.getByRole('radio',{name:'Правильный ответ',exact:true}).check();await s.page.getByRole('button',{name:'Следующий вопрос',exact:true}).click();await s.page.getByRole('radio',{name:'Правильный ответ',exact:true}).check();
+  const action=s.page.getByRole('button',{name:'Завершить аттестацию',exact:true});await action.focus();const m=await action.evaluate(e=>{const r=e.getBoundingClientRect(),range=document.createRange();range.selectNodeContents(e);const t=range.getBoundingClientRect(),c=getComputedStyle(e);return {height:r.height,width:r.width,left:t.left-r.left,right:r.right-t.right,ring:c.outline,offset:c.outlineOffset}});assert.ok(m.left>=7&&m.right>=7&&m.height<=46,JSON.stringify({name,width,...m}));rows.push({...m,engine:name,viewport:width,pass:true});
+  if(width===375||width===390)await s.page.screenshot({path:path.join(dir,`after-quiz-${name}-${width}-focus.png`),fullPage:true});await s.context.close();
+ }}finally{await b.close()}
+}
+fs.writeFileSync(path.join(dir,'quiz-geometry.json'),JSON.stringify({scope:'Actual Chromium/WebKit compiled app; fixture APIs. Physical iPhone not checked.',rows},null,2));console.log(JSON.stringify(rows));

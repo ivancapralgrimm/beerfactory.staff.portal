@@ -40,9 +40,12 @@ export async function mockActualApp(browser, {base='http://127.0.0.1:4407',role=
     const req=route.request(),url=new URL(req.url()),path=url.pathname,method=req.method();
     if(url.origin===base) return route.continue();
     // Every nonlocal request is fulfilled or aborted here. Never continue remotely.
-    const json=(body,status=200)=>route.fulfill({status,contentType:'application/json',body:JSON.stringify(body),headers:{'access-control-allow-origin':'*'}});
+    // Match real CORS preflight semantics in WebKit as well as Chromium.
+    // Authorization is a non-wildcard request header under the Fetch spec.
+    const cors={'access-control-allow-origin':req.headers().origin||base,'access-control-allow-credentials':'true','vary':'Origin'};
+    const json=(body,status=200)=>route.fulfill({status,contentType:'application/json',body:JSON.stringify(body),headers:cors});
     const denied=(message='forbidden',status=403)=>json({code:status===404?'PGRST202':'P0001',message,error:message},status);
-    if(method==='OPTIONS') return route.fulfill({status:204,headers:{'access-control-allow-origin':'*','access-control-allow-methods':'GET,POST,PATCH,DELETE,OPTIONS','access-control-allow-headers':'*'}});
+    if(method==='OPTIONS') return route.fulfill({status:204,headers:{...cors,'access-control-allow-methods':'GET,POST,PATCH,DELETE,OPTIONS','access-control-allow-headers':req.headers()['access-control-request-headers']||'authorization,apikey,content-type,x-client-info,x-supabase-api-version'}});
     const body=()=>{try{return req.postDataJSON()||{};}catch{return {};}};
     if(path.endsWith('/staff-login')){store.writes.push({api:'staff-login',body:body()});return store.loginFailure?denied('invalid_credentials',401):json({session,recovery_configured:store.profile.recovery_configured});}
     if(path.endsWith('/staff-register')){store.writes.push({api:'staff-register',body:body()});return store.registrationFailure?denied('user_exists',409):json({ok:true});}
@@ -130,7 +133,7 @@ export async function mockActualApp(browser, {base='http://127.0.0.1:4407',role=
     if(path.endsWith('/feed_acknowledgements'))return json(store.acks);
     if(path.endsWith('/quiz_attempts'))return json(store.history);
     if(path.endsWith('/audit_log'))return privileged()?json([{id:'review-audit',actor_id:store.profile.id,action:'profile_update',entity_type:'profile',entity_id:store.profile.id,entity_name:'Иван Проверяющий',before_data:{},after_data:{},metadata:{},created_at:store.now}]):denied();
-    if(path.endsWith('/training_progress')){if(method==='POST'){store.writes.push({api:'training_progress',body:body()});if(store.fail.has('training_progress'))return denied();store.progress.push({...body(),completed:true});return route.fulfill({status:201,body:''});}return json(store.progress);}
+    if(path.endsWith('/training_progress')){if(method==='POST'){store.writes.push({api:'training_progress',body:body()});if(store.fail.has('training_progress'))return denied();store.progress.push({...body(),completed:true});return route.fulfill({status:201,body:'',headers:cors});}return json(store.progress);}
     store.blocked.push({method,url:url.origin+path});return route.abort('blockedbyclient');
   });
   await context.routeWebSocket(/.*/, socket=>{

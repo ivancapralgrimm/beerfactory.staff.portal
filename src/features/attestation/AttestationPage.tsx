@@ -36,7 +36,7 @@ function buildResult(attempt: QuizAttempt, answers: number[]): QuizResult {
 }
 
 function HistoryList({ items, source, onOpen, personal = false }: { items: QuizHistoryItem[]; source: QuizHistorySource; onOpen: (item: QuizHistoryItem) => void; personal?: boolean }) {
-  return <section className="stack bf-attestation-history"><div><h2>{personal ? "Мои результаты" : "Последние попытки"}</h2><p className="small muted">{source === "device" ? "На этом устройстве" : personal ? "История завершённых билетов" : "Команда"}</p></div>
+  return <section className="stack bf-attestation-history" aria-label={personal ? "История завершённых билетов" : "Последние попытки"}><div>{!personal && <h2>Последние попытки</h2>}<p className="small muted">{source === "device" ? "На этом устройстве" : personal ? "История завершённых билетов" : "Команда"}</p></div>
     {items.length ? <div className="bf-bank-list">{items.map((item,index) => <button type="button" className="item-row bf-attestation-history-row" key={item.id || `${item.time}-${index}`} onClick={() => onOpen(item)}>
       <span><strong>{item.displayName ? `${item.displayName} · ` : ""}{item.category}</strong><span className="small muted">{formatHistoryTime(item.time)}</span></span>
       <span className="bf-attempt-score"><strong className={item.passed ? "bf-answer-correct" : "bf-answer-wrong"}>{item.score}%</strong><span className="small muted">{item.correct}/{item.total}</span></span>

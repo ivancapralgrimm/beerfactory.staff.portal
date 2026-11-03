@@ -1,0 +1,93 @@
+{
+  "scope": "Actual Chromium/WebKit compiled app; fixture APIs. Physical iPhone not checked.",
+  "rows": [
+    {
+      "height": 44,
+      "width": 288,
+      "left": 62.28125,
+      "right": 62.296875,
+      "ring": "rgb(255, 249, 239) solid 2px",
+      "offset": "-2px",
+      "engine": "chromium",
+      "viewport": 320,
+      "pass": true
+    },
+    {
+      "height": 44,
+      "width": 219.390625,
+      "left": 27.984375,
+      "right": 27.984375,
+      "ring": "rgb(255, 249, 239) solid 2px",
+      "offset": "-2px",
+      "engine": "chromium",
+      "viewport": 375,
+      "pass": true
+    },
+    {
+      "height": 44,
+      "width": 229.515625,
+      "left": 33.046875,
+      "right": 33.046875,
+      "ring": "rgb(255, 249, 239) solid 2px",
+      "offset": "-2px",
+      "engine": "chromium",
+      "viewport": 390,
+      "pass": true
+    },
+    {
+      "height": 44,
+      "width": 256.515625,
+      "left": 46.546875,
+      "right": 46.546875,
+      "ring": "rgb(255, 249, 239) solid 2px",
+      "offset": "-2px",
+      "engine": "chromium",
+      "viewport": 430,
+      "pass": true
+    },
+    {
+      "height": 44,
+      "width": 288,
+      "left": 62.28852844238281,
+      "right": 62.30415344238281,
+      "ring": "2px solid rgb(255, 249, 239)",
+      "offset": "-2px",
+      "engine": "webkit",
+      "viewport": 320,
+      "pass": true
+    },
+    {
+      "height": 44,
+      "width": 219.375,
+      "left": 27.976028442382812,
+      "right": 27.99163818359375,
+      "ring": "2px solid rgb(255, 249, 239)",
+      "offset": "-2px",
+      "engine": "webkit",
+      "viewport": 375,
+      "pass": true
+    },
+    {
+      "height": 44,
+      "width": 229.5,
+      "left": 33.03852844238281,
+      "right": 33.05413818359375,
+      "ring": "2px solid rgb(255, 249, 239)",
+      "offset": "-2px",
+      "engine": "webkit",
+      "viewport": 390,
+      "pass": true
+    },
+    {
+      "height": 44,
+      "width": 256.5,
+      "left": 46.53852844238281,
+      "right": 46.55413818359375,
+      "ring": "2px solid rgb(255, 249, 239)",
+      "offset": "-2px",
+      "engine": "webkit",
+      "viewport": 430,
+      "pass": true
+    }
+  ]
+}

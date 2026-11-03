@@ -12,6 +12,7 @@ import "@/mobile-input-guard.css";
 import "@/styles/photo-frame-safety.css";
 import "@/components/warm/prototype.css";
 import "@/components/warm/warm.css";
+import "@/styles/interaction-safety.css";
 
 // A data router provides navigation blocking while retaining existing hash URLs.
 const router = createHashRouter([{ path: "*", element: <AuthProvider><App /></AuthProvider> }]);

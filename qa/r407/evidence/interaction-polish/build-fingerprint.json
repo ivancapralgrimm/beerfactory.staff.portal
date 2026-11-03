@@ -1,0 +1,7 @@
+{
+  "scope": "Final local compiled bundle at verification. Documentation edits do not rebuild product assets.",
+  "sha256": {
+    "dist/index.html": "6108265950957131a33dae966af320efc494232a750b8ed34d2431e91580b696",
+    "dist/assets/index-Ce9W9UYd.css": "0b01b1203dc000163e1918d2eb3dcb78a4b3ca008316467d0aeba995f1da3fc6"
+  }
+}

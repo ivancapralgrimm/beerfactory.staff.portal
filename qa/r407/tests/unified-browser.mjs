@@ -46,6 +46,9 @@ await check('normal login Edge response establishes SDK session and reloads prof
 });
 for(const [role,owner,editRecipes,editStaff] of [['staff',false,false,false],['senior',false,true,false],['admin',false,true,true],['staff',true,true,true]])await check(`permissions ${owner?'owner':role}: server capabilities and direct routes`,async()=>{
   const s=await session({role,owner});await s.open('/settings');await visible(s.page.getByRole('heading',{name:'Настройки и редактирование',exact:true}));await wait(()=>s.store.reads.includes('portal_access_context'));
+  // A logged RPC request precedes its response and React commit. Keep every
+  // permission assertion, but inspect the loaded screen rather than that race.
+  await s.page.waitForLoadState('networkidle');
   assert.equal(await s.page.getByRole('link',{name:/^Сотрудники/}).count(),editStaff?1:0);
   assert.equal(await s.page.getByRole('link',{name:/^Рецепты/}).count(),editRecipes?1:0);
   assert.equal(await s.page.getByRole('link',{name:/^Аттестации/}).count(),editStaff?1:0);

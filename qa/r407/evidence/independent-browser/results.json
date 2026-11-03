@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-02T13:04:24.077Z",
+  "generatedAt": "2026-11-03T10:22:10.313Z",
   "base": "http://127.0.0.1:4410",
   "scope": "Compiled actual app; all nonlocalhost HTTP and WebSocket traffic intercepted. Explicit in-memory transport fixtures; production, SQL, Edge deployment and RLS NOT VERIFIED.",
   "results": [
@@ -478,7 +478,7 @@
       ],
       "errors": [],
       "consoleErrors": [
-        "BeerFactory login Error: invalid_credentials\n    at le (http://127.0.0.1:4410/assets/index-BuEPZTre.js:10:51458)\n    at async http://127.0.0.1:4410/assets/index-BuEPZTre.js:10:56609\n    at async s (http://127.0.0.1:4410/assets/index-BuEPZTre.js:10:246317)"
+        "BeerFactory login Error: invalid_credentials\n    at le (http://127.0.0.1:4410/assets/index-Cib01dC6.js:10:51458)\n    at async http://127.0.0.1:4410/assets/index-Cib01dC6.js:10:56609\n    at async s (http://127.0.0.1:4410/assets/index-Cib01dC6.js:10:246299)"
       ]
     },
     {
@@ -529,7 +529,11 @@
         "get_knowledge_editor_context",
         "recipes",
         "get_knowledge_editor_context",
-        "get_knowledge_editor_context"
+        "get_knowledge_editor_context",
+        "get_knowledge_editor_context",
+        "get_knowledge_editor_context",
+        "get_material_lifecycle_capabilities",
+        "get_material_lifecycle_capabilities"
       ],
       "writes": [],
       "unknown": [],
@@ -608,8 +612,8 @@
       "owner": false,
       "reads": [
         "staff-profile",
-        "get_checklist_editor_snapshot",
         "get_attestation_bank_v3",
+        "get_checklist_editor_snapshot",
         "get_checklist_editor_snapshot",
         "staff-profile",
         "get_attestation_bank_v3",
@@ -764,15 +768,11 @@
         "get_attestation_bank_v3",
         "get_knowledge_editor_context",
         "get_knowledge_editor_context",
-        "get_material_lifecycle_capabilities",
         "get_knowledge_article",
-        "get_knowledge_editor_context",
-        "get_knowledge_editor_context",
         "get_material_lifecycle_capabilities",
         "get_knowledge_editor_context",
         "get_knowledge_editor_context",
-        "get_knowledge_editor_context",
-        "get_knowledge_editor_context"
+        "get_material_lifecycle_capabilities"
       ],
       "writes": [
         {
@@ -957,7 +957,7 @@
         {
           "api": "acknowledge_feed_post",
           "body": {
-            "p_note_id": "review-note-deaeafc3-c1d2-479c-bf1e-c0eb8b27040d"
+            "p_note_id": "review-note-913ec47a-a478-43ac-9f81-5fc461426b75"
           }
         }
       ],
@@ -984,7 +984,7 @@
         {
           "api": "submit_attestation_attempt",
           "body": {
-            "p_client_attempt_id": "16e93d6a-ad91-4a07-9ec4-4c846500ed77",
+            "p_client_attempt_id": "0487fa5d-23be-4055-b09d-9c8dde6a9d39",
             "p_category": "Бар проверка",
             "p_category_id": "bar",
             "p_total_questions": 2,
@@ -1015,11 +1015,11 @@
                     "q": "Бар: вопрос 2",
                     "answers": [
                       {
-                        "text": "Ошибка В",
+                        "text": "Ошибка Б",
                         "correct": false
                       },
                       {
-                        "text": "Ошибка А",
+                        "text": "Ошибка В",
                         "correct": false
                       },
                       {
@@ -1027,7 +1027,7 @@
                         "correct": true
                       },
                       {
-                        "text": "Ошибка Б",
+                        "text": "Ошибка А",
                         "correct": false
                       }
                     ],
@@ -1053,7 +1053,7 @@
                         "correct": false
                       },
                       {
-                        "text": "Ошибка Б",
+                        "text": "Ошибка В",
                         "correct": false
                       },
                       {
@@ -1061,7 +1061,7 @@
                         "correct": true
                       },
                       {
-                        "text": "Ошибка В",
+                        "text": "Ошибка Б",
                         "correct": false
                       }
                     ],
@@ -1077,13 +1077,13 @@
                   }
                 ],
                 "answers": [
-                  1,
+                  3,
                   2
                 ]
               }
             },
-            "p_started_at": "2026-11-02T13:03:58.646Z",
-            "p_finished_at": "2026-11-02T13:03:59.182Z",
+            "p_started_at": "2026-11-03T10:21:47.323Z",
+            "p_finished_at": "2026-11-03T10:21:47.803Z",
             "p_question_revisions": [
               {
                 "id": "review-bar-2",
@@ -1374,6 +1374,9 @@
       "reads": [
         "staff-profile",
         "get_attestation_bank_v3",
+        "get_knowledge_articles",
+        "get_position_shift_workflow",
+        "get_dashboard_upcoming_birthdays",
         "recipes",
         "get_position_shift_workflow",
         "portal_access_context",

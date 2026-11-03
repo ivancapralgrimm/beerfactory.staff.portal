@@ -1,0 +1,99 @@
+/* Hallmark · checked: app polish · brand: existing Warm Hall
+ * Unslop direction: warm, collected, friendly; preserve content and wiring.
+ * Review outcomes are recorded in docs/INTERACTION_POLISH_QA.md, not assumed. */
+.bfstaff-app {
+  --bf-interaction-ring: var(--bf-cocoa);
+}
+
+/* Keep the stroke inside the hit area, including clipped cards and scrollers.
+   These two properties intentionally override older route-specific rings. */
+.bfstaff-app :is(button, a[href], input, select, textarea, summary, [role="button"], [role="tab"], [contenteditable="true"], .bf-exam-option, .bf-ticket-choice, .bf-editor-correct):not(:disabled):not([aria-disabled="true"]):is(:focus, :focus-visible, :active),
+.bfstaff-app :is(input, select, textarea, [contenteditable="true"]):not(:disabled):focus {
+  outline: 2px solid var(--bf-interaction-ring) !important;
+  outline-offset: -2px !important;
+}
+
+@media (hover: hover) {
+  .bfstaff-app :is(button, a[href], input, select, textarea, summary, [role="button"], [role="tab"], [contenteditable="true"], .bf-exam-option, .bf-ticket-choice, .bf-editor-correct):not(:disabled):not([aria-disabled="true"]):hover {
+    outline: 2px solid var(--bf-interaction-ring) !important;
+    outline-offset: -2px !important;
+  }
+  .bfstaff-app .bf-notify-choice:hover .bf-notify-capsule {
+    outline: 2px solid var(--bf-interaction-ring);
+    outline-offset: -2px;
+  }
+}
+
+/* A pale inner stroke stays distinguishable on a filled cocoa action. */
+.bfstaff-app :is(.primary, .bf-menu-trigger, .bc-scene-arrow, .bc-sort-names button[aria-pressed="true"], .bf-notify-choice input:checked + .bf-notify-capsule) {
+  --bf-interaction-ring: var(--bf-paper);
+}
+
+/* Composite native controls draw one ring on their complete visible surface. */
+.bfstaff-app :is(.bf-exam-option, .bf-ticket-choice, .bf-editor-correct):has(input:focus),
+.bfstaff-app .bf-notify-choice:focus-within .bf-notify-capsule {
+  outline: 2px solid var(--bf-interaction-ring) !important;
+  outline-offset: -2px !important;
+}
+.bfstaff-app :is(.bf-exam-option, .bf-ticket-choice, .bf-editor-correct, .bf-notify-choice) input:not(:disabled):not([aria-disabled="true"]):is(:focus, :focus-visible, :hover, :active) {
+  outline: none !important;
+}
+
+/* Native WebKit date fields must not contribute their intrinsic minimum to
+   the form grid; keep the existing centered value and native date picker. */
+.bfstaff-app .bf-personal-form,
+.bfstaff-app .bf-personal-form > .bf-field {
+  grid-template-columns: minmax(0, 1fr);
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+.bfstaff-app input[type="date"] {
+  inline-size: 100%;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  box-sizing: border-box;
+}
+.bfstaff-app input[type="date"]::-webkit-date-and-time-value,
+.bfstaff-app input[type="date"]::-webkit-datetime-edit {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+
+.bfstaff-app .bf-article-editor .bf-editor-details textarea {
+  border-color: var(--bf-cocoa);
+}
+.bfstaff-app .bf-page-title > .bf-button {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.bfstaff-app .bc-tabs button { flex-basis: max-content; white-space: nowrap; }
+.bfstaff-app .bf-photo-button {
+  border-end-start-radius: inherit;
+  border-end-end-radius: inherit;
+}
+
+/* At the smallest supported width, keep the action label intact rather than
+   squeezing it or drawing it through its own interaction stroke. */
+@media (max-width: 360px) {
+  .bfstaff-app .bf-page-title { flex-wrap: wrap; }
+  .bfstaff-app .bf-page-title > .bf-button {
+    margin-inline-start: auto;
+  }
+  .bfstaff-app :is(.bf-main, .warm-dialog) :is(.warm-recipe-editor-actions, .bf-result-actions),
+  .bfstaff-app .bf-checklist-item-form .bf-material-action-buttons {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .bfstaff-app :is(.warm-recipe-editor-actions, .bf-result-actions, .bf-checklist-item-form .bf-material-action-buttons) .bf-button {
+    white-space: nowrap;
+  }
+  .bfstaff-app .bf-account-actions { flex-direction: column; }
+  .bfstaff-app .bf-account-actions > :is(button, a) { flex: 0 1 auto; width: 100%; }
+  .bfstaff-app .bc-tabs button { flex-basis: 100%; white-space: nowrap; }
+}
+
+@media (forced-colors: active) {
+  .bfstaff-app { --bf-interaction-ring: Highlight; }
+  .bfstaff-app :is(.primary, .bf-menu-trigger, .bc-scene-arrow, .bc-sort-names button[aria-pressed="true"], .bf-notify-choice input:checked + .bf-notify-capsule) {
+    --bf-interaction-ring: Highlight;
+  }
+}

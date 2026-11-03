@@ -10,7 +10,11 @@
 .bfstaff-app .bf-attestation-ticket-list .item-row>span:last-child{flex-shrink:0}
 .bfstaff-app .bf-attestation-history-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;width:100%;min-width:0;text-align:start}
 .bfstaff-app .bf-attestation-history-row strong{display:block;overflow-wrap:anywhere}
-.bfstaff-app .bf-attestation-history-row .bf-attempt-score{display:grid;align-content:center;text-align:end;gap:4px}
+.bfstaff-app .bf-attestation-history-row>span.bf-attempt-score:last-child{display:grid;align-content:center;text-align:end;gap:4px;min-width:64px;max-width:none;white-space:nowrap}
+.bfstaff-app .bf-attestation-history-row .bf-attempt-score strong{overflow-wrap:normal}
+.bfstaff-app .bf-attestation-domain .bf-exam-actions{grid-template-columns:minmax(72px,.65fr) minmax(0,1.35fr)}
+.bfstaff-app .bf-attestation-domain .bf-exam-actions .bf-button{white-space:nowrap;padding-inline:8px}
+.bfstaff-app .bf-exam-editor>.bf-page-title>.bf-button{flex-shrink:0;white-space:nowrap}
 .bfstaff-app .bf-attestation-domain .bf-bank-question summary{display:flex;justify-content:space-between;list-style:none;cursor:pointer}
 .bfstaff-app .bf-attestation-domain .bf-bank-question summary::-webkit-details-marker{display:none}
 .bfstaff-app .bf-attestation-domain .bf-result-stage{position:relative;isolation:isolate;overflow:hidden}

@@ -1,0 +1,82 @@
+{
+  "scope": "Real compiled Chromium,320px; isolated fixture APIs. Native checkbox focus is visibly delegated to label capsule.",
+  "records": [
+    {
+      "name": "Staff action",
+      "buttonName": "Отключить доступ",
+      "file": "staff.png",
+      "height": 44,
+      "left": 78.390625,
+      "right": 78.40625,
+      "scroll": 320,
+      "pass": true
+    },
+    {
+      "name": "Create recipe",
+      "buttonName": "Сохранить рецепт",
+      "file": "recipe-new.png",
+      "height": 44,
+      "left": 80.390625,
+      "right": 80.40625,
+      "scroll": 320,
+      "pass": true
+    },
+    {
+      "name": "Edit recipe",
+      "buttonName": "Сохранить рецепт",
+      "file": "recipe-edit.png",
+      "height": 44,
+      "left": 80.390625,
+      "right": 80.40625,
+      "scroll": 320,
+      "pass": true
+    },
+    {
+      "name": "Bank action",
+      "buttonName": "Добавить вопрос",
+      "file": "bank.png",
+      "height": 44,
+      "left": 15,
+      "right": 15,
+      "scroll": 320,
+      "pass": true
+    },
+    {
+      "name": "Checklist draft",
+      "buttonName": "Сохранить пункт",
+      "file": "checklist.png",
+      "height": 44,
+      "left": 73.0625,
+      "right": 73.078125,
+      "scroll": 320,
+      "pass": true
+    },
+    {
+      "name": "Result actions",
+      "buttonName": "Новая попытка",
+      "file": "result.png",
+      "height": 44,
+      "left": 75.21875,
+      "right": 75.234375,
+      "scroll": 320,
+      "pass": true
+    },
+    {
+      "name": "Beer guest tab",
+      "buttonName": "Как рассказать гостю",
+      "file": "beer.png",
+      "height": 42,
+      "left": 53.015625,
+      "right": 53.03125,
+      "scroll": 320,
+      "pass": true
+    },
+    {
+      "name": "Delegated native checkbox ring",
+      "outline": "rgb(255, 249, 239) solid 2px",
+      "offset": "-2px",
+      "pass": true
+    }
+  ],
+  "errors": []
+}

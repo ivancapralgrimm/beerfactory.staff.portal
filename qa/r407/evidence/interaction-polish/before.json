@@ -1,0 +1,28 @@
+[
+  {
+    "engine": "chromium",
+    "details": {
+      "width": 335,
+      "parentWidth": 335,
+      "left": 20,
+      "right": 355,
+      "viewport": 375,
+      "outline": "rgb(139, 89, 71) solid 3px",
+      "offset": "3px",
+      "scroll": 375
+    }
+  },
+  {
+    "engine": "webkit",
+    "details": {
+      "width": 335,
+      "parentWidth": 335,
+      "left": 20,
+      "right": 355,
+      "viewport": 375,
+      "outline": "3px solid rgb(139, 89, 71)",
+      "offset": "3px",
+      "scroll": 375
+    }
+  }
+]

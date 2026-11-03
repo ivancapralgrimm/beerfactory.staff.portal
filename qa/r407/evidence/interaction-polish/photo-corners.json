@@ -1,0 +1,9 @@
+{
+  "engine": "webkit",
+  "child": "21px",
+  "parent": "21px",
+  "outline": "2px solid rgb(81, 58, 46)",
+  "offset": "-2px",
+  "errors": [],
+  "pass": true
+}

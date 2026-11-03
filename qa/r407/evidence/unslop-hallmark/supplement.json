@@ -1,0 +1,328 @@
+{
+  "scope": "Real compiled app in Chromium; synthetic isolated APIs; no production writes. Screenshot metrics are audit observations, not blanket PASS.",
+  "records": [
+    {
+      "title": "Рецепт: раскрытые блоки и действия",
+      "route": "#/menu/bar%3Areview-drink",
+      "file": "44.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 1130
+    },
+    {
+      "title": "Статья: действия с материалом",
+      "route": "#/knowledge/review-article",
+      "file": "45.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "title": "Главная: 375px",
+      "route": "#/",
+      "file": "supp-375-01.png",
+      "width": 375,
+      "scrollWidth": 375,
+      "height": 1462
+    },
+    {
+      "title": "Рецепты: 375px",
+      "route": "#/menu",
+      "file": "supp-375-02.png",
+      "width": 375,
+      "scrollWidth": 375,
+      "height": 900
+    },
+    {
+      "title": "Знания: 375px",
+      "route": "#/knowledge",
+      "file": "supp-375-03.png",
+      "width": 375,
+      "scrollWidth": 375,
+      "height": 900
+    },
+    {
+      "title": "Передача: 375px",
+      "route": "#/feed",
+      "file": "supp-375-04.png",
+      "width": 375,
+      "scrollWidth": 375,
+      "height": 900
+    },
+    {
+      "title": "Профиль: 375px",
+      "route": "#/profile",
+      "file": "supp-375-05.png",
+      "width": 375,
+      "scrollWidth": 375,
+      "height": 900
+    },
+    {
+      "title": "Настройки: 375px",
+      "route": "#/settings",
+      "file": "supp-375-06.png",
+      "width": 375,
+      "scrollWidth": 375,
+      "height": 900
+    },
+    {
+      "title": "Смена: 375px",
+      "route": "#/shift",
+      "file": "supp-375-07.png",
+      "width": 375,
+      "scrollWidth": 375,
+      "height": 900
+    },
+    {
+      "title": "Банк вопросов: 375px",
+      "route": "#/settings/attestation/questions",
+      "file": "supp-375-08.png",
+      "width": 375,
+      "scrollWidth": 375,
+      "height": 959
+    },
+    {
+      "title": "Билеты: 375px",
+      "route": "#/settings/attestation?view=tickets",
+      "file": "supp-375-09.png",
+      "width": 375,
+      "scrollWidth": 375,
+      "height": 900
+    },
+    {
+      "title": "Редактор рецепта: 375px",
+      "route": "#/settings/recipes?editor=new",
+      "file": "supp-375-10.png",
+      "width": 375,
+      "scrollWidth": 375,
+      "height": 1139
+    },
+    {
+      "title": "Редактор статьи: 375px",
+      "route": "#/knowledge/new",
+      "file": "supp-375-11.png",
+      "width": 375,
+      "scrollWidth": 375,
+      "height": 900
+    },
+    {
+      "title": "Редактор чек-листов: 375px",
+      "route": "#/shift/editor",
+      "file": "supp-375-12.png",
+      "width": 375,
+      "scrollWidth": 375,
+      "height": 900
+    },
+    {
+      "title": "Сотрудники: 375px",
+      "route": "#/admin?section=team",
+      "file": "supp-375-13.png",
+      "width": 375,
+      "scrollWidth": 375,
+      "height": 900
+    },
+    {
+      "title": "Уведомления: 375px",
+      "route": "#/settings/notifications",
+      "file": "supp-375-14.png",
+      "width": 375,
+      "scrollWidth": 375,
+      "height": 900
+    },
+    {
+      "title": "Пивная карта: 375px",
+      "route": "#/beer",
+      "file": "supp-375-15.png",
+      "width": 375,
+      "scrollWidth": 375,
+      "height": 1214
+    },
+    {
+      "title": "Главная: 1440px",
+      "route": "#/",
+      "file": "supp-1440-01.png",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "height": 1462
+    },
+    {
+      "title": "Рецепты: 1440px",
+      "route": "#/menu",
+      "file": "supp-1440-02.png",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "height": 900
+    },
+    {
+      "title": "Знания: 1440px",
+      "route": "#/knowledge",
+      "file": "supp-1440-03.png",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "height": 900
+    },
+    {
+      "title": "Передача: 1440px",
+      "route": "#/feed",
+      "file": "supp-1440-04.png",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "height": 900
+    },
+    {
+      "title": "Профиль: 1440px",
+      "route": "#/profile",
+      "file": "supp-1440-05.png",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "height": 900
+    },
+    {
+      "title": "Настройки: 1440px",
+      "route": "#/settings",
+      "file": "supp-1440-06.png",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "height": 900
+    },
+    {
+      "title": "Смена: 1440px",
+      "route": "#/shift",
+      "file": "supp-1440-07.png",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "height": 900
+    },
+    {
+      "title": "Банк вопросов: 1440px",
+      "route": "#/settings/attestation/questions",
+      "file": "supp-1440-08.png",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "height": 900
+    },
+    {
+      "title": "Билеты: 1440px",
+      "route": "#/settings/attestation?view=tickets",
+      "file": "supp-1440-09.png",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "height": 900
+    },
+    {
+      "title": "Редактор рецепта: 1440px",
+      "route": "#/settings/recipes?editor=new",
+      "file": "supp-1440-10.png",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "height": 1119
+    },
+    {
+      "title": "Редактор статьи: 1440px",
+      "route": "#/knowledge/new",
+      "file": "supp-1440-11.png",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "height": 904
+    },
+    {
+      "title": "Редактор чек-листов: 1440px",
+      "route": "#/shift/editor",
+      "file": "supp-1440-12.png",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "height": 900
+    },
+    {
+      "title": "Сотрудники: 1440px",
+      "route": "#/admin?section=team",
+      "file": "supp-1440-13.png",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "height": 900
+    },
+    {
+      "title": "Уведомления: 1440px",
+      "route": "#/settings/notifications",
+      "file": "supp-1440-14.png",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "height": 900
+    },
+    {
+      "title": "Пивная карта: 1440px",
+      "route": "#/beer",
+      "file": "supp-1440-15.png",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "height": 1180
+    },
+    {
+      "title": "История результатов: повтор дефекта",
+      "route": "#/attestation?view=history",
+      "file": "supp-history.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "title": "Знания: ошибка загрузки",
+      "route": "#/knowledge",
+      "file": "supp-error-get_knowledge_articles.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "title": "Знания: пустой список",
+      "route": "#/knowledge",
+      "file": "supp-empty-knowledge.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "title": "Знания: загрузка",
+      "route": "#/knowledge",
+      "file": "supp-loading-knowledge.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "title": "Разделы: фокус клавиатуры",
+      "route": "#/settings",
+      "file": "supp-focus.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 899
+    },
+    {
+      "title": "Смена: ошибка загрузки",
+      "route": "#/shift",
+      "file": "supp-error-get_position_shift_workflow.png",
+      "width": 390
+    }
+  ],
+  "checks": [
+    {
+      "name": "Expanded material actions /menu/bar%3Areview-drink",
+      "pass": true
+    },
+    {
+      "name": "Expanded material actions /knowledge/review-article",
+      "pass": true
+    },
+    {
+      "name": "Keyboard focus in sections",
+      "tag": "A",
+      "text": "Home 1 Streamline Icon: https://streamlinehq.comСегодняArrow Right Circle 1 Streamline Icon: https://streamlinehq.com",
+      "outline": "rgb(139, 89, 71) solid 3px",
+      "transition": "none"
+    }
+  ],
+  "issues": [],
+  "uncaught": [],
+  "consoleErrors": [],
+  "unknown": []
+}

@@ -1,0 +1,643 @@
+{
+  "generatedAt": "2026-11-03T06:23:34.623Z",
+  "scope": "Actual browser screenshots of locally built app; fixture data, simulated permissions and APIs; no production access/writes. Redirect aliases are represented by destination screens. All routes and extra states listed below.",
+  "pages": [
+    {
+      "number": 1,
+      "title": "Вход",
+      "route": "#/login",
+      "file": "01.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "number": 2,
+      "title": "Регистрация",
+      "route": "#/register",
+      "file": "02.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 1156
+    },
+    {
+      "number": 3,
+      "title": "Восстановление доступа",
+      "route": "#/recovery",
+      "file": "03.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 1005
+    },
+    {
+      "number": 4,
+      "title": "Создание секретного кода",
+      "route": "#/setup-recovery",
+      "file": "04.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "number": 5,
+      "title": "Главная",
+      "route": "#/",
+      "file": "05.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 1462
+    },
+    {
+      "number": 6,
+      "title": "Рецепты",
+      "route": "#/menu",
+      "file": "06.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "number": 7,
+      "title": "Рецепт: напиток",
+      "route": "#/menu/bar%3Areview-drink",
+      "file": "07.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 967
+    },
+    {
+      "number": 8,
+      "title": "Рецепт: блюдо",
+      "route": "#/menu/kitchen%3Areview-food",
+      "file": "08.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "number": 9,
+      "title": "Знания",
+      "route": "#/knowledge",
+      "file": "09.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "number": 10,
+      "title": "Статья",
+      "route": "#/knowledge/review-article",
+      "file": "10.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "number": 11,
+      "title": "Аттестация: выбор билета",
+      "route": "#/attestation",
+      "file": "11.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "number": 12,
+      "title": "Личные результаты: до прохождения",
+      "route": "#/attestation?view=history",
+      "file": "12.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "number": 13,
+      "title": "Смена: открытие",
+      "route": "#/shift",
+      "file": "13.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "number": 14,
+      "title": "Лента",
+      "route": "#/feed",
+      "file": "14.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "number": 15,
+      "title": "Заметка",
+      "route": "#/feed/review-note",
+      "file": "15.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "number": 16,
+      "title": "Новая заметка",
+      "route": "#/feed/new",
+      "file": "16.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "number": 17,
+      "title": "Мой профиль: администратор",
+      "route": "#/profile",
+      "file": "17.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "number": 18,
+      "title": "Личные данные",
+      "route": "#/profile?view=details",
+      "file": "18.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "number": 19,
+      "title": "Настройки и редактирование",
+      "route": "#/settings",
+      "file": "19.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 899
+    },
+    {
+      "number": 20,
+      "title": "Установка и уведомления",
+      "route": "#/settings/notifications",
+      "file": "20.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "number": 21,
+      "title": "Сотрудники",
+      "route": "#/admin?section=team",
+      "file": "21.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "number": 22,
+      "title": "Сотрудник: права и должность",
+      "route": "#/admin?section=team&user=22222222-2222-4222-8222-222222222222",
+      "file": "22.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "number": 23,
+      "title": "Журнал",
+      "route": "#/admin?section=audit",
+      "file": "23.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "number": 24,
+      "title": "История смен",
+      "route": "#/admin?section=audit&view=shifts",
+      "file": "24.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "number": 25,
+      "title": "Результаты команды",
+      "route": "#/admin?section=attempts",
+      "file": "25.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "number": 26,
+      "title": "Редактор рецептов: список",
+      "route": "#/settings/recipes",
+      "file": "26.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "number": 27,
+      "title": "Создание рецепта",
+      "route": "#/settings/recipes?editor=new",
+      "file": "27.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 1139
+    },
+    {
+      "number": 28,
+      "title": "Редактирование рецепта",
+      "route": "#/settings/recipes?editor=bar%3Areview-drink",
+      "file": "28.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 1512
+    },
+    {
+      "number": 29,
+      "title": "Редактор знаний: список",
+      "route": "#/settings/knowledge",
+      "file": "29.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "number": 30,
+      "title": "Создание статьи",
+      "route": "#/knowledge/new",
+      "file": "30.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 966
+    },
+    {
+      "number": 31,
+      "title": "Редактирование статьи",
+      "route": "#/knowledge/review-article/edit",
+      "file": "31.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 961
+    },
+    {
+      "number": 32,
+      "title": "Редактор чек-листов",
+      "route": "#/shift/editor",
+      "file": "32.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "number": 33,
+      "title": "Управление аттестацией",
+      "route": "#/settings/attestation",
+      "file": "33.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "number": 34,
+      "title": "Билеты и настройки: список",
+      "route": "#/settings/attestation?view=tickets",
+      "file": "34.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "number": 35,
+      "title": "Банк вопросов",
+      "route": "#/settings/attestation/questions",
+      "file": "35.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 959
+    },
+    {
+      "number": 36,
+      "title": "Разделы: меню",
+      "route": "#/",
+      "file": "36.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 1462
+    },
+    {
+      "number": 37,
+      "title": "Приглашение: QR-код",
+      "route": "#/admin?section=team",
+      "file": "37.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "number": 38,
+      "title": "Новая заметка: выбор должностей",
+      "route": "#/feed/new",
+      "file": "38.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 884
+    },
+    {
+      "number": 39,
+      "title": "Заметка: кто ознакомился",
+      "route": "#/feed",
+      "file": "39.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 866
+    },
+    {
+      "number": 40,
+      "title": "Настройки билета",
+      "route": "#/settings/attestation?view=tickets",
+      "file": "40.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 1071
+    },
+    {
+      "number": 41,
+      "title": "Создание билета",
+      "route": "#/settings/attestation?view=tickets",
+      "file": "41.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "number": 42,
+      "title": "Редактирование вопроса",
+      "route": "#/settings/attestation/questions",
+      "file": "42.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 998
+    },
+    {
+      "number": 43,
+      "title": "Создание вопроса",
+      "route": "#/settings/attestation/questions",
+      "file": "43.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 979
+    },
+    {
+      "number": 44,
+      "title": "Рецепт: раскрытые блоки и действия",
+      "route": "#/menu/bar%3Areview-drink",
+      "file": "44.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 967
+    },
+    {
+      "number": 45,
+      "title": "Статья: действия с материалом",
+      "route": "#/knowledge/review-article",
+      "file": "45.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "number": 46,
+      "title": "Смена: закрытие",
+      "route": "#/shift",
+      "file": "46.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "number": 47,
+      "title": "Смена: завершена",
+      "route": "#/shift",
+      "file": "47.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "number": 48,
+      "title": "Редактор чек-листов: пункт и дни недели",
+      "route": "#/shift/editor",
+      "file": "48.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 1120
+    },
+    {
+      "number": 49,
+      "title": "Аттестация: вопрос",
+      "route": "#/attestation",
+      "file": "49.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "number": 50,
+      "title": "Аттестация: подтверждение выхода",
+      "route": "#/attestation",
+      "file": "50.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "number": 51,
+      "title": "Аттестация: результат и повторение",
+      "route": "#/attestation",
+      "file": "51.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 995
+    },
+    {
+      "number": 52,
+      "title": "Личные результаты: после прохождения",
+      "route": "#/attestation?view=history",
+      "file": "52.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "number": 53,
+      "title": "Пивная карта: Хеллес",
+      "route": "#/beer",
+      "file": "53.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 1214
+    },
+    {
+      "number": 54,
+      "title": "Пивная карта: Пильзенское",
+      "route": "#/beer",
+      "file": "54.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 1248
+    },
+    {
+      "number": 55,
+      "title": "Пивная карта: Пшеничное",
+      "route": "#/beer",
+      "file": "55.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 1214
+    },
+    {
+      "number": 56,
+      "title": "Пивная карта: Мартовское",
+      "route": "#/beer",
+      "file": "56.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 1223
+    },
+    {
+      "number": 57,
+      "title": "Пивная карта: Бархатное",
+      "route": "#/beer",
+      "file": "57.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 1248
+    },
+    {
+      "number": 58,
+      "title": "Пивная карта: IPA Factory",
+      "route": "#/beer",
+      "file": "58.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 1199
+    },
+    {
+      "number": 59,
+      "title": "Пивная карта: Вишнёвый эль",
+      "route": "#/beer",
+      "file": "59.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 1190
+    },
+    {
+      "number": 60,
+      "title": "Пивная карта: рассказ гостю",
+      "route": "#/beer",
+      "file": "60.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 1165
+    },
+    {
+      "number": 61,
+      "title": "Мой профиль: сотрудник",
+      "route": "#/profile",
+      "file": "61.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "number": 62,
+      "title": "Настройки: сотрудник",
+      "route": "#/settings",
+      "file": "62.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 844
+    },
+    {
+      "number": 63,
+      "title": "Рецепты: ширина 375px",
+      "route": "#/menu?place=current",
+      "file": "63.png",
+      "width": 375,
+      "scrollWidth": 375,
+      "height": 844
+    },
+    {
+      "number": 64,
+      "title": "Профиль: ширина 375px",
+      "route": "#/profile",
+      "file": "64.png",
+      "width": 375,
+      "scrollWidth": 375,
+      "height": 844
+    },
+    {
+      "number": 65,
+      "title": "Рецепты: ширина 430px",
+      "route": "#/menu?place=current",
+      "file": "65.png",
+      "width": 430,
+      "scrollWidth": 430,
+      "height": 844
+    },
+    {
+      "number": 66,
+      "title": "Рецепты: ширина 768px",
+      "route": "#/menu?place=current",
+      "file": "66.png",
+      "width": 768,
+      "scrollWidth": 768,
+      "height": 844
+    },
+    {
+      "number": 67,
+      "title": "Рецепты: ширина 1280px",
+      "route": "#/menu?place=current",
+      "file": "67.png",
+      "width": 1280,
+      "scrollWidth": 1280,
+      "height": 844
+    }
+  ],
+  "issues": [],
+  "network": [
+    {
+      "unknown": [],
+      "blocked": [],
+      "errors": [],
+      "consoleErrors": []
+    },
+    {
+      "unknown": [],
+      "blocked": [],
+      "errors": [],
+      "consoleErrors": []
+    },
+    {
+      "unknown": [],
+      "blocked": [],
+      "errors": [],
+      "consoleErrors": []
+    },
+    {
+      "unknown": [],
+      "blocked": [],
+      "errors": [],
+      "consoleErrors": []
+    }
+  ],
+  "recapture": {
+    "files": [
+      "44.png",
+      "45.png"
+    ],
+    "assertion": "native details open after real summary clicks, no DOM styling/content injection"
+  }
+}
