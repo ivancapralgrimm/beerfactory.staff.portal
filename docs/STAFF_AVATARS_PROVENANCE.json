@@ -101,5 +101,7 @@
         512
       ]
     }
-  ]
+  ],
+  "status": "Historical full-square resize manifest. These hashes now identify artwork/staff-avatars/source, not the current transparent assets.",
+  "currentCutoutsManifest": "artwork/staff-avatars/cutout-provenance.json"
 }

@@ -1,0 +1,96 @@
+{
+  "source": "User-provided BeerFactory_Staff_Avatars.zip; RGB sources copied from d52f7db assets/staff-avatars. See docs/STAFF_AVATARS_PROVENANCE.json for original upload hashes.",
+  "method": "ImageGen background-removal alpha only; mattes resized to512px and leveled2%/97% to remove faint noise and keep badge interiors opaque. Original source RGB copied with CopyOpacity, encoded lossless WebP. No face/logo redraw. Source artwork/masks do not enter public assets.",
+  "files": [
+    {
+      "name": "owner",
+      "sourceSHA256": "1bd0c1a9e54297dda85f077d4b5de5e453408e0ad54ab3530366d2fcb485da14",
+      "maskSHA256": "dd297dbb98300c0447111c8b604dcad6af7ae96314011b4419ab5fd6f82692dc",
+      "outputSHA256": "0eafc7dd128ca2fe7539c514183a7e815aa2ed08ddedc930165636e8d51e1ba0",
+      "bytes": 301388,
+      "transparentPixels": 66331,
+      "opaquePixels": 193693,
+      "changedOpaquePixels": 0
+    },
+    {
+      "name": "bartender-1",
+      "sourceSHA256": "e068810562d6a55cd9c20235b440d0b54fbed3d7387f5b0acf9be55b2fb51397",
+      "maskSHA256": "9aec16eb0ff6246dabfb6a7a14c693b3ca5431a1f8b0bc5ac198e82d2c475ac5",
+      "outputSHA256": "c1e3f169a2775210e47492f52ea4bba104db9ea58edcfe241882af6ecb104506",
+      "bytes": 292600,
+      "transparentPixels": 62921,
+      "opaquePixels": 197109,
+      "changedOpaquePixels": 0
+    },
+    {
+      "name": "bartender-2",
+      "sourceSHA256": "a3cfbe4ff9917d3c37a66a8bb7a189ed834cbe435820663bac22e1586b713b5e",
+      "maskSHA256": "d408f17097a1ac4ad2e547bed5775caeb5353a1bd02506dfef77bdb59e1d74ca",
+      "outputSHA256": "37c420928a7de370a69a69e4ab883c334e722190d7e2868d277bb7443229d158",
+      "bytes": 294628,
+      "transparentPixels": 64290,
+      "opaquePixels": 195569,
+      "changedOpaquePixels": 0
+    },
+    {
+      "name": "waiter-1",
+      "sourceSHA256": "93f0373470add2dc5a83fa4c1914baa48a3304c237e43c51750f080f53ed54c7",
+      "maskSHA256": "5617b025ce91bb31e49b652d9f6141ccc6b0f5da9e9429c4b0d4dbd26c5b2c47",
+      "outputSHA256": "7bb92468114797487ad85df0ca0e850a71ca719d8723d4f6d9153a398cef2771",
+      "bytes": 286052,
+      "transparentPixels": 63511,
+      "opaquePixels": 196485,
+      "changedOpaquePixels": 0
+    },
+    {
+      "name": "waiter-2",
+      "sourceSHA256": "e7b7634b3668183eaf040e534f59b68a6775c1e92d855f584527c7fbe6304d7c",
+      "maskSHA256": "1d8c13e05790cb5b1cbc6289fae10b65a1138c1782e468fed553a1eae2be9b2e",
+      "outputSHA256": "66e7e623b660845fb7c405161b2c36383fb3c8f8ed590731e278eeb0bffb0c74",
+      "bytes": 279004,
+      "transparentPixels": 67348,
+      "opaquePixels": 192694,
+      "changedOpaquePixels": 0
+    },
+    {
+      "name": "manager-1",
+      "sourceSHA256": "fd160c2a1e456ed7be18647b672c1a121de70a9294a344a3e0ed047938f7a2c2",
+      "maskSHA256": "ae601e3e443900e63b4e4ff998689ad4e4b60af6fcd33d8e5995fa0882db60c0",
+      "outputSHA256": "8454d5d8939203f0ef68a0dc11b282f96d05a9e247212c9a6711fc939bcb5d54",
+      "bytes": 268518,
+      "transparentPixels": 67152,
+      "opaquePixels": 192930,
+      "changedOpaquePixels": 0
+    },
+    {
+      "name": "manager-2",
+      "sourceSHA256": "da66005b10944caffacbc0a09102130849733c2f181f9b8db667e66ba82bb131",
+      "maskSHA256": "a89b192cd837c490644b796dc98398ffd3f2f6f05b71909af27817878bd01dc3",
+      "outputSHA256": "faae1854f7b70751621372bd1719ac41a2a84efd0980959fd75986193b16e573",
+      "bytes": 276172,
+      "transparentPixels": 66160,
+      "opaquePixels": 193883,
+      "changedOpaquePixels": 0
+    },
+    {
+      "name": "hostess-1",
+      "sourceSHA256": "b827f76f1454fecf487473d0237ff98efb2ee1ec251e77bb322d3e2b8c0a1575",
+      "maskSHA256": "4992891d1df85167aa4450a98145d59cf954732a3ae71b526f6880688ef0a4ad",
+      "outputSHA256": "356d1a6d19e52ce2c1e9e454a085cb9a6e7a4166c2ea435327b3d97522945361",
+      "bytes": 278540,
+      "transparentPixels": 66165,
+      "opaquePixels": 193934,
+      "changedOpaquePixels": 0
+    },
+    {
+      "name": "hostess-2",
+      "sourceSHA256": "32bfb3b6c65ab76047f8707b55a3ed6b459e83208f98e0b50fc63a45853564d0",
+      "maskSHA256": "fd91aa03d5505bef9c2618184d42cdea1030a75df227e7a27ef3d4140e6aa654",
+      "outputSHA256": "de26836783a6cde867c63be957e64c1c46e327850761dea63d3ebe21483b12c3",
+      "bytes": 281206,
+      "transparentPixels": 66264,
+      "opaquePixels": 193846,
+      "changedOpaquePixels": 0
+    }
+  ]
+}

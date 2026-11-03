@@ -1,6 +1,9 @@
-.bfstaff-app .bf-staff-avatar { display:grid;place-items:center;overflow:hidden;flex-shrink:0;background:#513a2e;color:#e0ccba; }
+/* Hallmark · checked: app polish · brand: existing Warm Hall · built: the project
+ * Unslop: preserve the supplied portraits and layout; use alpha edges, quiet chrome.
+ * Actual outcomes and scope: docs/STAFF_AVATAR_CUTOUTS.md. */
+.bfstaff-app .bf-staff-avatar { display:grid;place-items:center;overflow:visible;flex-shrink:0;background:transparent;color:var(--bf-cocoa); }
 .bfstaff-app .bf-staff-avatar img { display:block;width:100%;height:100%;object-fit:contain; }
-.bfstaff-app .bf-staff-avatar.bf-profile-avatar { width:60px;height:60px;border-radius:20px; }
-.bfstaff-app .bf-staff-avatar--greeting { width:132px;height:132px;border-radius:24px;box-shadow:0 12px 20px #3e24123b; }
+.bfstaff-app .bf-staff-avatar.bf-profile-avatar { width:60px;height:60px;border-radius:0;background:transparent;color:var(--bf-paper);box-shadow:none; }
+.bfstaff-app .bf-staff-avatar--greeting { width:132px;height:132px;border-radius:0;box-shadow:none;filter:drop-shadow(0 5px 8px color-mix(in srgb,var(--bf-cocoa) 22%,transparent)); }
 .bfstaff-app .bf-greeting .bf-staff-avatar img { width:100%;height:100%;background:none;border-radius:0;transform:none;box-shadow:none; }
 @media(max-width:360px) { .bfstaff-app .bf-staff-avatar--greeting { width:112px;height:112px; } }

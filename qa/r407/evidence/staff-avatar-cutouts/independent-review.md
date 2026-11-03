@@ -1,0 +1,15 @@
+ship
+
+Scoped independent Hallmark finish / Unslop review of the avatar background cutouts, 2026-11-03. App component polish within the existing Warm Hall direction. No confirmed defects requiring a change in this scope.
+
+- Visually compared all nine original and final images on paper and cocoa, including reduced 132px and 60px versions. External square corners are removed; gold rings and amber interiors remain continuous. Bartender-1, bartender-2 and waiter-1 towels extending past the circle remain. Faces, BeerFactory marks, trays and hands retain the original appearance. Independently decoded source/final files: zero RGB differences at every fully opaque final pixel for each of the nine files; four corner alphas are zero for each. This verifies preserved opaque image content, not perfection of every partially transparent edge pixel.
+- Inspected actual compiled-app Chromium home at 375px and Linux WebKit profile at 390px, plus the recorded 30-check alpha/geometry results. The home image reads as a round badge against paper with a silhouette shadow; the profile badge blends with its dark identity panel without square background or clipping. Source confirms transparent wrappers, visible overflow, no box shadow and unchanged 132/112px home / 60px profile dimensions. Independently forced image failures in the actual Chromium app at 375px: both routes render the people SVG with no broken img; cocoa on paper at home and paper on cocoa in profile. The fallback is decorative beside identifying text and remains visible.
+- Total final image payload independently measured at 2,558,108 bytes (2.56 MB decimal; 2.44 MiB), with individual files 268,518–301,388 bytes. This is a real cost for the nine-file PWA precache; no transfer-speed, physical-device or production performance claim is made. The supplied browser results use isolated HTTP/WS fixtures. No production, RLS, physical iPhone, or global legacy-CSS clean-audit conclusion is implied.
+
+Idea check: the BeerFactory staff illustration now sits naturally on the existing app surfaces. No gap in the requested cutout treatment. The original did not make any existing text, action or information easier to find in the reviewed views. Existing greeting copy, shadows and layout are established app choices outside this image-only polish, not newly introduced signs.
+
+Evidence: qa/r407/evidence/staff-avatar-cutouts/chromium-home-375.png; qa/r407/evidence/staff-avatar-cutouts/webkit-profile-390.png; qa/r407/evidence/staff-avatar-cutouts/results.json; independent comparison sheets /workspace/bfstaff-avatar-cutouts/review/final-original-{paper,dark}.png; forced-error captures /workspace/bfstaff-avatar-cutouts/review/fallback-{home,profile}.png. Comparison sheets are review composites, not app screenshots. No product files were edited by this review.
+
+Preserve the original faces, BeerFactory marks, gold circles, interior amber scenes and protruding foreground fabric; do not simplify them into a generic circular CSS crop.
+
+Unslop by Damir Sokolovsky (https://heydamir.design/unslop), CC BY 4.0; repository source credit and licenses remain intact.

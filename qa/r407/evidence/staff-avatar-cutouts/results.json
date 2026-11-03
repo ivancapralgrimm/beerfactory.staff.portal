@@ -1,0 +1,524 @@
+{
+  "scope": "Actual Chromium and Linux WebKit, compiled BFStaff; real WebP pixels. HTTP/WS fixtures only. No production writes/RLS/device claim.",
+  "results": [
+    {
+      "engine": "chromium",
+      "name": "owner",
+      "pass": true,
+      "width": 512,
+      "height": 512,
+      "corners": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "center": 255
+    },
+    {
+      "engine": "chromium",
+      "name": "bartender-1",
+      "pass": true,
+      "width": 512,
+      "height": 512,
+      "corners": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "center": 255
+    },
+    {
+      "engine": "chromium",
+      "name": "bartender-2",
+      "pass": true,
+      "width": 512,
+      "height": 512,
+      "corners": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "center": 255
+    },
+    {
+      "engine": "chromium",
+      "name": "waiter-1",
+      "pass": true,
+      "width": 512,
+      "height": 512,
+      "corners": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "center": 255
+    },
+    {
+      "engine": "chromium",
+      "name": "waiter-2",
+      "pass": true,
+      "width": 512,
+      "height": 512,
+      "corners": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "center": 255
+    },
+    {
+      "engine": "chromium",
+      "name": "manager-1",
+      "pass": true,
+      "width": 512,
+      "height": 512,
+      "corners": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "center": 255
+    },
+    {
+      "engine": "chromium",
+      "name": "manager-2",
+      "pass": true,
+      "width": 512,
+      "height": 512,
+      "corners": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "center": 255
+    },
+    {
+      "engine": "chromium",
+      "name": "hostess-1",
+      "pass": true,
+      "width": 512,
+      "height": 512,
+      "corners": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "center": 255
+    },
+    {
+      "engine": "chromium",
+      "name": "hostess-2",
+      "pass": true,
+      "width": 512,
+      "height": 512,
+      "corners": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "center": 255
+    },
+    {
+      "engine": "chromium",
+      "name": "Transparent wrappers at 320",
+      "pass": true,
+      "home": {
+        "width": 112,
+        "height": 112,
+        "background": "rgba(0, 0, 0, 0)",
+        "overflow": "visible",
+        "shadow": "none"
+      },
+      "profile": {
+        "width": 60,
+        "height": 60,
+        "background": "rgba(0, 0, 0, 0)",
+        "overflow": "visible",
+        "shadow": "none"
+      }
+    },
+    {
+      "engine": "chromium",
+      "name": "Transparent wrappers at 375",
+      "pass": true,
+      "home": {
+        "width": 132,
+        "height": 132,
+        "background": "rgba(0, 0, 0, 0)",
+        "overflow": "visible",
+        "shadow": "none"
+      },
+      "profile": {
+        "width": 60,
+        "height": 60,
+        "background": "rgba(0, 0, 0, 0)",
+        "overflow": "visible",
+        "shadow": "none"
+      }
+    },
+    {
+      "engine": "chromium",
+      "name": "Transparent wrappers at 390",
+      "pass": true,
+      "home": {
+        "width": 132,
+        "height": 132,
+        "background": "rgba(0, 0, 0, 0)",
+        "overflow": "visible",
+        "shadow": "none"
+      },
+      "profile": {
+        "width": 60,
+        "height": 60,
+        "background": "rgba(0, 0, 0, 0)",
+        "overflow": "visible",
+        "shadow": "none"
+      }
+    },
+    {
+      "engine": "chromium",
+      "name": "Transparent wrappers at 430",
+      "pass": true,
+      "home": {
+        "width": 132,
+        "height": 132,
+        "background": "rgba(0, 0, 0, 0)",
+        "overflow": "visible",
+        "shadow": "none"
+      },
+      "profile": {
+        "width": 60,
+        "height": 60,
+        "background": "rgba(0, 0, 0, 0)",
+        "overflow": "visible",
+        "shadow": "none"
+      }
+    },
+    {
+      "engine": "chromium",
+      "name": "Transparent wrappers at 768",
+      "pass": true,
+      "home": {
+        "width": 132,
+        "height": 132,
+        "background": "rgba(0, 0, 0, 0)",
+        "overflow": "visible",
+        "shadow": "none"
+      },
+      "profile": {
+        "width": 60,
+        "height": 60,
+        "background": "rgba(0, 0, 0, 0)",
+        "overflow": "visible",
+        "shadow": "none"
+      }
+    },
+    {
+      "engine": "chromium",
+      "name": "Transparent wrappers at 1280",
+      "pass": true,
+      "home": {
+        "width": 132,
+        "height": 132,
+        "background": "rgba(0, 0, 0, 0)",
+        "overflow": "visible",
+        "shadow": "none"
+      },
+      "profile": {
+        "width": 60,
+        "height": 60,
+        "background": "rgba(0, 0, 0, 0)",
+        "overflow": "visible",
+        "shadow": "none"
+      }
+    },
+    {
+      "engine": "webkit",
+      "name": "owner",
+      "pass": true,
+      "width": 512,
+      "height": 512,
+      "corners": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "center": 255
+    },
+    {
+      "engine": "webkit",
+      "name": "bartender-1",
+      "pass": true,
+      "width": 512,
+      "height": 512,
+      "corners": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "center": 255
+    },
+    {
+      "engine": "webkit",
+      "name": "bartender-2",
+      "pass": true,
+      "width": 512,
+      "height": 512,
+      "corners": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "center": 255
+    },
+    {
+      "engine": "webkit",
+      "name": "waiter-1",
+      "pass": true,
+      "width": 512,
+      "height": 512,
+      "corners": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "center": 255
+    },
+    {
+      "engine": "webkit",
+      "name": "waiter-2",
+      "pass": true,
+      "width": 512,
+      "height": 512,
+      "corners": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "center": 255
+    },
+    {
+      "engine": "webkit",
+      "name": "manager-1",
+      "pass": true,
+      "width": 512,
+      "height": 512,
+      "corners": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "center": 255
+    },
+    {
+      "engine": "webkit",
+      "name": "manager-2",
+      "pass": true,
+      "width": 512,
+      "height": 512,
+      "corners": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "center": 255
+    },
+    {
+      "engine": "webkit",
+      "name": "hostess-1",
+      "pass": true,
+      "width": 512,
+      "height": 512,
+      "corners": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "center": 255
+    },
+    {
+      "engine": "webkit",
+      "name": "hostess-2",
+      "pass": true,
+      "width": 512,
+      "height": 512,
+      "corners": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "center": 255
+    },
+    {
+      "engine": "webkit",
+      "name": "Transparent wrappers at 320",
+      "pass": true,
+      "home": {
+        "width": 112,
+        "height": 112,
+        "background": "rgba(0, 0, 0, 0)",
+        "overflow": "visible",
+        "shadow": "none"
+      },
+      "profile": {
+        "width": 60,
+        "height": 60,
+        "background": "rgba(0, 0, 0, 0)",
+        "overflow": "visible",
+        "shadow": "none"
+      }
+    },
+    {
+      "engine": "webkit",
+      "name": "Transparent wrappers at 375",
+      "pass": true,
+      "home": {
+        "width": 132,
+        "height": 132,
+        "background": "rgba(0, 0, 0, 0)",
+        "overflow": "visible",
+        "shadow": "none"
+      },
+      "profile": {
+        "width": 60,
+        "height": 60,
+        "background": "rgba(0, 0, 0, 0)",
+        "overflow": "visible",
+        "shadow": "none"
+      }
+    },
+    {
+      "engine": "webkit",
+      "name": "Transparent wrappers at 390",
+      "pass": true,
+      "home": {
+        "width": 132,
+        "height": 132,
+        "background": "rgba(0, 0, 0, 0)",
+        "overflow": "visible",
+        "shadow": "none"
+      },
+      "profile": {
+        "width": 60,
+        "height": 60,
+        "background": "rgba(0, 0, 0, 0)",
+        "overflow": "visible",
+        "shadow": "none"
+      }
+    },
+    {
+      "engine": "webkit",
+      "name": "Transparent wrappers at 430",
+      "pass": true,
+      "home": {
+        "width": 132,
+        "height": 132,
+        "background": "rgba(0, 0, 0, 0)",
+        "overflow": "visible",
+        "shadow": "none"
+      },
+      "profile": {
+        "width": 60,
+        "height": 60,
+        "background": "rgba(0, 0, 0, 0)",
+        "overflow": "visible",
+        "shadow": "none"
+      }
+    },
+    {
+      "engine": "webkit",
+      "name": "Transparent wrappers at 768",
+      "pass": true,
+      "home": {
+        "width": 132,
+        "height": 132,
+        "background": "rgba(0, 0, 0, 0)",
+        "overflow": "visible",
+        "shadow": "none"
+      },
+      "profile": {
+        "width": 60,
+        "height": 60,
+        "background": "rgba(0, 0, 0, 0)",
+        "overflow": "visible",
+        "shadow": "none"
+      }
+    },
+    {
+      "engine": "webkit",
+      "name": "Transparent wrappers at 1280",
+      "pass": true,
+      "home": {
+        "width": 132,
+        "height": 132,
+        "background": "rgba(0, 0, 0, 0)",
+        "overflow": "visible",
+        "shadow": "none"
+      },
+      "profile": {
+        "width": 60,
+        "height": 60,
+        "background": "rgba(0, 0, 0, 0)",
+        "overflow": "visible",
+        "shadow": "none"
+      }
+    }
+  ],
+  "errors": [],
+  "uncaught": [],
+  "unknown": []
+}
