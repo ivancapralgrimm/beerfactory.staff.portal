@@ -1,0 +1,65 @@
+{
+  "startedAt": "2026-11-03T19:00:40Z",
+  "calls": [
+    {
+      "status": 401,
+      "error": "login_failed",
+      "requestId": "01a1a2c8-fb5a-7fc5-8649-5d18dd25a853",
+      "elapsedMs": 1908
+    },
+    {
+      "status": 401,
+      "error": "login_failed",
+      "requestId": "01a1a2c9-02f7-76d2-824f-f84370ee79aa",
+      "elapsedMs": 1287
+    },
+    {
+      "status": 401,
+      "error": "login_failed",
+      "requestId": "01a1a2c9-0762-756c-9305-90f56a1e082c",
+      "elapsedMs": 1223
+    },
+    {
+      "status": 401,
+      "error": "login_failed",
+      "requestId": "01a1a2c9-0c1c-7c6d-b362-714f22a12197",
+      "elapsedMs": 1234
+    },
+    {
+      "status": 401,
+      "error": "login_failed",
+      "requestId": "01a1a2c9-115d-7a9c-a281-74ba7218a7c2",
+      "elapsedMs": 1313
+    },
+    {
+      "status": 401,
+      "error": "login_failed",
+      "requestId": "01a1a2c9-1619-7477-98da-8ac355ad2e32",
+      "elapsedMs": 1513
+    },
+    {
+      "status": 429,
+      "error": "rate_limited",
+      "requestId": "01a1a2c9-1bfd-7542-ae6b-2b62107c4195",
+      "elapsedMs": 1109
+    }
+  ],
+  "historyAnon": {
+    "status": 401,
+    "error": "42501",
+    "requestId": "01a1a2c8-f36e-748d-b09c-45ee977fd2fc",
+    "elapsedMs": 905
+  },
+  "birthdayAnon": {
+    "status": 401,
+    "error": "42501",
+    "requestId": "01a1a2c8-f6df-78f3-8f1b-115a24368ee0",
+    "elapsedMs": 652
+  },
+  "invalidInput": {
+    "status": 400,
+    "error": "login_failed",
+    "requestId": "01a1a2c8-f900-708f-b3db-726faa1ef73e",
+    "elapsedMs": 515
+  }
+}

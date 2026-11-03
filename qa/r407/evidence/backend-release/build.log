@@ -1,0 +1,107 @@
+
+> beerfactory-staff-portal@40.6.0-alpha.1 prebuild
+> npm run sync:public
+
+
+> beerfactory-staff-portal@40.6.0-alpha.1 sync:public
+> node scripts/sync-public.mjs
+
+Synced ./assets -> ./public/assets
+
+> beerfactory-staff-portal@40.6.0-alpha.1 build
+> tsc -b && vite build
+
+vite v8.3.0 building client environment for production...
+transforming...
+✓ 632 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/manifest.webmanifest                            0.55 kB
+dist/index.html                                      1.46 kB │ gzip:   0.68 kB
+dist/assets/foam-photo-5n1mD4hB.webp                 4.96 kB
+dist/assets/beer-counter-2vT8Yjt4.webp              12.38 kB
+dist/assets/beer-entry-DWcqidx6.webp                21.87 kB
+dist/assets/beer-foam-mug-CVcDBItu.webp             22.59 kB
+dist/assets/beer-foam-wheat-CgmFGF1v.webp           22.87 kB
+dist/assets/beer-foam-chalice-Ba4M9aTQ.webp         25.19 kB
+dist/assets/beer-foam-snifter-w4vH8VZv.webp         25.65 kB
+dist/assets/micrograin-BFy6kYPD.webp                31.08 kB
+dist/assets/logo-chalice-CI5xr58g.webp              50.67 kB
+dist/assets/logo-snifter-BhJSi35J.webp              55.21 kB
+dist/assets/logo-wheat-DUs5OBOi.webp                57.88 kB
+dist/assets/glass-wheat-DOHhQI-o.webp               58.13 kB
+dist/assets/beer-full-weissbier-Bs-BrxgQ.webp       64.81 kB
+dist/assets/glass-chalice-C5d4V3i-.webp             68.15 kB
+dist/assets/glass-snifter-DBWKARYx.webp             69.05 kB
+dist/assets/beer-geist-BktvGMAi.ttf                 72.91 kB
+dist/assets/beer-geist-semibold-DsJNybWY.ttf        73.04 kB
+dist/assets/beer-full-cherry-BiZMLHND.webp          82.32 kB
+dist/assets/beer-full-dunkel-DmdYc1TW.webp          89.11 kB
+dist/assets/logo-mug-sarz5tMf.webp                  90.98 kB
+dist/assets/beer-full-ipa-Dyzzq0xM.webp             95.14 kB
+dist/assets/beer-front-wheat-Dn2ph-oz.webp         101.39 kB
+dist/assets/beer-front-chalice-D2JHvs1L.webp       115.32 kB
+dist/assets/beer-front-snifter-B0UqpBN3.webp       117.01 kB
+dist/assets/glass-mug-Bi6VzaOb.webp                121.77 kB
+dist/assets/beer-full-marzen-orDVr8VT.webp         131.61 kB
+dist/assets/beer-full-helles-DH1kjO9J.webp         142.36 kB
+dist/assets/beer-full-pilsner-DeOq4XH3.webp        145.59 kB
+dist/assets/beer-front-mug-CCRfaDYp.webp           266.84 kB
+dist/assets/StaffAvatar-QU43hx2S.css                 0.77 kB │ gzip:   0.34 kB
+dist/assets/attestation-D7Lc4Xl-.css                 2.59 kB │ gzip:   0.78 kB
+dist/assets/recipes-BN6Qy1Z_.css                     4.25 kB │ gzip:   1.07 kB
+dist/assets/profile-admin-D2Bq_2e0.css               4.39 kB │ gzip:   1.08 kB
+dist/assets/shift-CCTQUGZg.css                       5.00 kB │ gzip:   1.33 kB
+dist/assets/use-feed-YZBQ4n6i.css                    6.83 kB │ gzip:   1.74 kB
+dist/assets/BeerPage-CFs17xst.css                    8.88 kB │ gzip:   2.91 kB
+dist/assets/knowledge-warm-CcVJ8XII.css             10.09 kB │ gzip:   2.24 kB
+dist/assets/index-DoVQLBkq.css                     144.44 kB │ gzip:  27.46 kB
+dist/assets/staff-presentation-BbpW-1nq.js           0.35 kB │ gzip:   0.28 kB │ map:     1.14 kB
+dist/assets/WarmBack-D5XjiHqb.js                     0.41 kB │ gzip:   0.32 kB │ map:     1.13 kB
+dist/assets/knowledge-data-DWwc09bg.js               0.78 kB │ gzip:   0.47 kB │ map:     6.79 kB
+dist/assets/coalesced-resume-refresh-A6Cnq0Jx.js     0.83 kB │ gzip:   0.44 kB │ map:     3.38 kB
+dist/assets/StaffAvatar-7owYmjcI.js                  0.93 kB │ gzip:   0.60 kB │ map:     3.37 kB
+dist/assets/WarmPage-BB-x3mg-.js                     1.13 kB │ gzip:   0.48 kB │ map:     2.70 kB
+dist/assets/knowledge-errors-wkoTZI7u.js             2.28 kB │ gzip:   1.01 kB │ map:     3.13 kB
+dist/assets/knowledge-server-BQ41c6Kx.js             2.45 kB │ gzip:   1.16 kB │ map:     8.95 kB
+dist/assets/SettingsPage-CyG9bF9G.js                 2.99 kB │ gzip:   1.35 kB │ map:     6.46 kB
+dist/assets/attestation-editor-api-SPQNxAuI.js       3.16 kB │ gzip:   0.96 kB │ map:     9.88 kB
+dist/assets/shift-api-D-_YLXPv.js                    3.17 kB │ gzip:   1.23 kB │ map:     7.07 kB
+dist/assets/use-knowledge-progress-HpgLe3Yh.js       3.92 kB │ gzip:   1.58 kB │ map:    15.86 kB
+dist/assets/KnowledgeManagePage-Dz1HUbLF.js          4.10 kB │ gzip:   1.76 kB │ map:     9.63 kB
+dist/assets/NotificationSettingsPage-DhAqmKpY.js     4.65 kB │ gzip:   1.79 kB │ map:    10.15 kB
+dist/assets/KnowledgePage-DTxjitJS.js                4.69 kB │ gzip:   2.00 kB │ map:    11.60 kB
+dist/assets/recipe-data-D_MOrViX.js                  6.94 kB │ gzip:   2.97 kB │ map:    25.61 kB
+dist/assets/KnowledgeArticlePage-CWteVRjO.js         7.56 kB │ gzip:   3.15 kB │ map:    25.21 kB
+dist/assets/FeedPage-BZZ1Aq6s.js                     7.57 kB │ gzip:   2.88 kB │ map:    20.71 kB
+dist/assets/use-feed-C_YPzZKT.js                     7.95 kB │ gzip:   3.02 kB │ map:    23.82 kB
+dist/assets/beer-data-CvajV2cy.js                    8.00 kB │ gzip:   2.42 kB │ map:    11.29 kB
+dist/assets/ProfilePage-BQj_ePcp.js                  8.75 kB │ gzip:   3.31 kB │ map:    21.64 kB
+dist/assets/jsx-runtime-Dk72oS4N.js                  8.82 kB │ gzip:   3.38 kB │ map:    32.83 kB
+dist/assets/ShiftPage-CGEAiAuK.js                    9.37 kB │ gzip:   3.24 kB │ map:    27.24 kB
+dist/assets/KnowledgeDocumentView-DnaFt7o4.js       10.21 kB │ gzip:   3.91 kB │ map:    33.47 kB
+dist/assets/recipes-CkJlbd04.js                     10.34 kB │ gzip:   4.12 kB │ map:    33.81 kB
+dist/assets/RecipeDetailPage-TW38yrOe.js            11.46 kB │ gzip:   4.43 kB │ map:    28.76 kB
+dist/assets/use-editor-access-Bq4AWcrr.js           11.55 kB │ gzip:   4.25 kB │ map:    37.44 kB
+dist/assets/ChecklistEditorPage-BK_PgFuP.js         14.02 kB │ gzip:   4.37 kB │ map:    39.91 kB
+dist/assets/RecipesPage-CitSS20w.js                 15.38 kB │ gzip:   5.38 kB │ map:    40.55 kB
+dist/assets/DashboardPage-RiEcF2ek.js               15.75 kB │ gzip:   6.06 kB │ map:    48.86 kB
+dist/assets/AttestationBankAdminPanel-D4PSwyI9.js   18.47 kB │ gzip:   5.67 kB │ map:    44.64 kB
+dist/assets/AttestationPage-D0dfGjZg.js             18.55 kB │ gzip:   6.27 kB │ map:    48.05 kB
+dist/assets/KnowledgeEditorPage-mhQvQ14A.js         26.25 kB │ gzip:   9.17 kB │ map:    77.61 kB
+dist/assets/AttestationSettingsPage-BI8Nf9VL.js     29.26 kB │ gzip:   8.09 kB │ map:    76.68 kB
+dist/assets/AdminPage-DAdGJCHx.js                   32.52 kB │ gzip:  10.13 kB │ map:    81.82 kB
+dist/assets/BeerPage-DG-F-81A.js                    44.98 kB │ gzip:  14.84 kB │ map:    86.26 kB
+dist/assets/WarmIcon-Dpnvtap-.js                   344.65 kB │ gzip:  96.33 kB │ map: 1,779.60 kB
+dist/assets/index-CbJeR9th.js                      430.85 kB │ gzip: 134.84 kB │ map: 2,106.70 kB
+
+✓ built in 1.59s
+
+PWA v1.3.0
+mode      generateSW
+precache  98 entries (3699.34 KiB)
+files generated
+  dist/sw.js.map
+  dist/sw.js
+  dist/workbox-2fbc6a65.js.map
+  dist/workbox-2fbc6a65.js

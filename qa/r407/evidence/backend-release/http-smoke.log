@@ -1,0 +1,8 @@
+Synthetic login 1 401 login_failed
+Synthetic login 2 401 login_failed
+Synthetic login 3 401 login_failed
+Synthetic login 4 401 login_failed
+Synthetic login 5 401 login_failed
+Synthetic login 6 401 login_failed
+Synthetic login 7 429 rate_limited
+PASS deployed validation, first rejection, name-order shared limiter, 6-attempt real block, anonymous RPC denial

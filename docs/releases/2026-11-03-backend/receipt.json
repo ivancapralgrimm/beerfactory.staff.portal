@@ -1,0 +1,148 @@
+{
+  "authorizedScope": "staff-login + own-position shift history + R22 incomplete checklists + birthday window; no lifecycle/cleanup activation",
+  "project": "oltbkrvernfgymxtsfys",
+  "migration": [
+    {
+      "version": "20261103185831",
+      "name": "r407_core_connections"
+    }
+  ],
+  "edge": {
+    "id": "69b4a0fb-093d-436a-8f0c-2489a656eaba",
+    "slug": "staff-login",
+    "name": "staff-login",
+    "status": "ACTIVE",
+    "version": 9,
+    "created_at": 1789461205666,
+    "updated_at": 1793732328080,
+    "verify_jwt": false,
+    "import_map": true,
+    "entrypoint_path": "file:///tmp/user_fn_oltbkrvernfgymxtsfys_69b4a0fb-093d-436a-8f0c-2489a656eaba_9/source/index.ts",
+    "import_map_path": "file:///tmp/user_fn_oltbkrvernfgymxtsfys_69b4a0fb-093d-436a-8f0c-2489a656eaba_9/source/deno.json",
+    "ezbr_sha256": "506f8d9f05cfcc89c369034642228d3ad5223e67467aebc827f13556ebf9f057"
+  },
+  "catalog": [
+    {
+      "proname": "confirm_position_shift",
+      "prosecdef": true,
+      "provolatile": "v",
+      "proconfig": [
+        "search_path=public, private"
+      ],
+      "anon_execute": false,
+      "staff_execute": true,
+      "opening_check_required": false,
+      "closing_check_required": false,
+      "birthday_window_updated": false
+    },
+    {
+      "proname": "get_dashboard_upcoming_birthdays",
+      "prosecdef": true,
+      "provolatile": "s",
+      "proconfig": [
+        "search_path=public, private"
+      ],
+      "anon_execute": false,
+      "staff_execute": true,
+      "opening_check_required": false,
+      "closing_check_required": false,
+      "birthday_window_updated": true
+    },
+    {
+      "proname": "get_own_position_shift_history_v1",
+      "prosecdef": true,
+      "provolatile": "s",
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "staff_execute": true,
+      "opening_check_required": false,
+      "closing_check_required": false,
+      "birthday_window_updated": false
+    },
+    {
+      "proname": "login_rate_limit_allowed",
+      "prosecdef": true,
+      "provolatile": "v",
+      "proconfig": [
+        "search_path=private, extensions, pg_temp"
+      ],
+      "anon_execute": false,
+      "staff_execute": false,
+      "opening_check_required": false,
+      "closing_check_required": false,
+      "birthday_window_updated": false
+    }
+  ],
+  "liveReadOnlyRoleChecks": [
+    {
+      "shift_count": 13,
+      "within_limit": true,
+      "only_current_position": true,
+      "no_colleague_ids": true,
+      "birthday_count": 0,
+      "within_birthday_window": true
+    }
+  ],
+  "qaCleanup": {
+    "before": [
+      {
+        "exact_qa_rows": 2,
+        "min_attempts": 6,
+        "max_attempts": 6
+      }
+    ],
+    "removed": [
+      {
+        "removed_synthetic_rows": 2
+      }
+    ],
+    "after": [
+      {
+        "remaining_qa_rows": 0
+      }
+    ]
+  },
+  "advisors": {
+    "before": [
+      {
+        "name": "rls_enabled_no_policy",
+        "level": "INFO",
+        "count": 6
+      },
+      {
+        "name": "authenticated_security_definer_function_executable",
+        "level": "WARN",
+        "count": 42
+      },
+      {
+        "name": "auth_leaked_password_protection",
+        "level": "WARN",
+        "count": 1
+      }
+    ],
+    "after": [
+      {
+        "name": "rls_enabled_no_policy",
+        "level": "INFO",
+        "count": 6
+      },
+      {
+        "name": "authenticated_security_definer_function_executable",
+        "level": "WARN",
+        "count": 43
+      },
+      {
+        "name": "auth_leaked_password_protection",
+        "level": "WARN",
+        "count": 1
+      }
+    ]
+  },
+  "limits": [
+    "No successful employee login exercised: no real password or QA employee account used.",
+    "Production transitions on real shifts not executed; local PostgreSQL tests cover mutations.",
+    "No production frontend promotion or main branch change."
+  ]
+}

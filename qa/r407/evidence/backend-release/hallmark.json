@@ -1,0 +1,25 @@
+{
+  "summary": {
+    "fails": 0,
+    "reflex": 0,
+    "warns": 0,
+    "waived": 1,
+    "rejected": 0,
+    "answered": 0,
+    "dismissed": 0,
+    "notes": 0,
+    "files": 3,
+    "render": "ran"
+  },
+  "findings": [
+    {
+      "gate": "24b",
+      "grade": "WAIVED",
+      "tier": "reflex",
+      "file": "src/components/staff/staff-avatar.css",
+      "line": 7,
+      "evidence": "margin: -3px (off the 4px scale) on .bfstaff-app .bf-staff-avatar.bf-profile-avatar",
+      "fix": "Use the 4px spacing scale"
+    }
+  ]
+}

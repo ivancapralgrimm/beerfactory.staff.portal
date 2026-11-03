@@ -1,0 +1,18 @@
+✔ healthy gate (115.190787ms)
+✔ cold gateway 401 recovers inside first login (176.603157ms)
+✔ temporary 503 recovers (171.339411ms)
+✔ network failure recovers (176.651267ms)
+✔ actual limit false never retries (25.805083ms)
+✔ recovered gate still enforces a real block (179.160897ms)
+✔ persistent 401 stays closed and is not a credential error (169.465342ms)
+✔ permission failure does not retry (14.761642ms)
+✔ malformed response never permits login (12.195049ms)
+✔ employee limit blocks even when scoped gateway recovers (165.205163ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1431.080518

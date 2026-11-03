@@ -37,4 +37,15 @@ try{
  console.log('PASS missing position and inactive actor stay restricted');
  await asActor('', 'anon');await assert.rejects(query('select public.get_own_position_shift_history_v1()'),/permission denied/);await assert.rejects(query('select * from public.get_dashboard_upcoming_birthdays()'),/permission denied/);
  console.log('PASS anonymous cannot execute either prepared RPC');
+ await db.exec('reset role');
+ await db.exec("create type public.staff_position as enum('bartender','waiter')");
+ const countBefore=(await query('select count(*) as total from public.position_shift_states'))[0].total;
+ await db.exec(readFileSync(new URL('../docs/releases/2026-11-03-backend/rollback.sql',import.meta.url),'utf8'));
+ const rollback=(await query(`select
+ to_regprocedure('public.get_own_position_shift_history_v1()') is null as history_removed,
+ position('generate_series(0, 2)' in pg_get_functiondef('public.get_dashboard_upcoming_birthdays()'::regprocedure))>0 as birthday_restored,
+ position('opening_incomplete' in pg_get_functiondef('public.confirm_position_shift(text)'::regprocedure))>0 as shift_restored`))[0];
+ assert.ok(rollback.history_removed&&rollback.birthday_restored&&rollback.shift_restored);
+ assert.equal((await query('select count(*) as total from public.position_shift_states'))[0].total,countBefore);
+ console.log('PASS exact rollback parses, restores prior functions and preserves business rows');
 }finally{await db.close()}
