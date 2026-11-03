@@ -20,7 +20,7 @@ insert into public.profiles(id,role) values('${admin}','admin'),('${staff}','sta
 for(const name of ['20260930151257_r40_5_knowledge_content_foundation.sql','20260930151818_r40_5_knowledge_security_hardening.sql','20260930214301_r40_5_knowledge_integrity_hardening.sql','20261005130639_attestation_bank_online_editor_foundation.sql','20261005153815_attestation_attempt_snapshot_threshold.sql','20261005174308_attestation_question_subcategories.sql','20261006211201_attestation_editor_settings_categories.sql','20261007082211_attestation_category_ticket_sizes.sql']) await db.exec(read('../supabase/migrations/'+name));
 await db.exec('update public.attestation_categories set is_active=false');
 await db.exec(read('../supabase/migrations/20261012120000_attestation_independent_tickets_v3.sql'));
-for(const name of ['material-lifecycle-01.sql','material-lifecycle-02-underline.sql','material-lifecycle-03-media-cleanup.sql']) await db.exec(read('../../docs/patches/'+name));
+for(const name of ['material-lifecycle-01.sql','material-lifecycle-02-underline.sql','material-lifecycle-03-media-cleanup.sql']) await db.exec(read('../docs/patches/'+name));
 const identity=async(id=admin,role='authenticated')=>{await db.exec('reset role');await q("select set_config('request.jwt.claim.sub',$1,true)",[id]);await db.exec('set local role '+role);};
 const superQ=async(s,a=[])=>{await db.exec('reset role');const r=await q(s,a);await identity();return r;};
 const reject=async(fn,re)=>{await db.exec('savepoint expected');let e;try{await fn();}catch(x){e=x;}await db.exec('rollback to savepoint expected');await db.exec('release savepoint expected');assert.ok(e,'Expected error '+re);assert.match(e.message,re);};

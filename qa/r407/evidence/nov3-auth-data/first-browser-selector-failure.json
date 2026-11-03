@@ -1,0 +1,99 @@
+{
+  "scope": "Compiled app, Chromium/Linux WebKit, fixture HTTP/WS. DOM autofill simulation, not OS password manager. Reverse-name server policy separately tested in Edge VM, not deployed. No production writes/RLS/device claim.",
+  "results": [
+    {
+      "engine": "chromium",
+      "name": "DOM-filled login on one click: Иван Проверяющий",
+      "pass": true
+    },
+    {
+      "engine": "chromium",
+      "name": "DOM-filled login on one click: Проверяющий Иван",
+      "pass": true
+    },
+    {
+      "engine": "chromium",
+      "name": "one in-flight request for repeated synchronous submissions",
+      "pass": true
+    },
+    {
+      "engine": "chromium",
+      "name": "server 401 remains on login without retry",
+      "pass": true
+    },
+    {
+      "engine": "chromium",
+      "name": "server 429 remains on login without retry",
+      "pass": true
+    },
+    {
+      "engine": "chromium",
+      "name": "server 503 remains on login without retry",
+      "pass": true
+    },
+    {
+      "engine": "chromium",
+      "name": "66px avatar preserves card/name/position geometry false",
+      "pass": true
+    },
+    {
+      "engine": "chromium",
+      "name": "66px avatar preserves card/name/position geometry true",
+      "pass": true
+    },
+    {
+      "engine": "webkit",
+      "name": "DOM-filled login on one click: Иван Проверяющий",
+      "pass": true
+    },
+    {
+      "engine": "webkit",
+      "name": "DOM-filled login on one click: Проверяющий Иван",
+      "pass": true
+    },
+    {
+      "engine": "webkit",
+      "name": "one in-flight request for repeated synchronous submissions",
+      "pass": true
+    },
+    {
+      "engine": "webkit",
+      "name": "server 401 remains on login without retry",
+      "pass": true
+    },
+    {
+      "engine": "webkit",
+      "name": "server 429 remains on login without retry",
+      "pass": true
+    },
+    {
+      "engine": "webkit",
+      "name": "server 503 remains on login without retry",
+      "pass": true
+    },
+    {
+      "engine": "webkit",
+      "name": "default source lists, opens and searches server articles",
+      "pass": true
+    },
+    {
+      "engine": "webkit",
+      "name": "66px avatar preserves card/name/position geometry false",
+      "pass": true
+    },
+    {
+      "engine": "webkit",
+      "name": "66px avatar preserves card/name/position geometry true",
+      "pass": true
+    }
+  ],
+  "errors": [
+    {
+      "engine": "chromium",
+      "name": "default source lists, opens and searches server articles",
+      "error": "locator.waitFor: Error: strict mode violation: getByRole('link', { name: /Сервис проверка/ }) resolved to 2 elements:\n    1) <a class=\"bf-nav-row\" data-discover=\"true\" href=\"#/knowledge/review-article\">…</a> aka getByRole('link', { name: 'Сервис проверка Знания · Сервис' })\n    2) <a data-discover=\"true\" class=\"bf-reading-card\" href=\"#/knowledge/review-article\" aria-label=\"Открыть статью Сервис проверка\">…</a> aka getByRole('link', { name: 'Открыть статью Сервис проверка' })\n\nCall log:\n\u001b[2m  - waiting for getByRole('link', { name: /Сервис проверка/ }) to be visible\u001b[22m\n\n    at /workspace/bfstaff-publish-r407-2026-11-02/qa/r407/tests/nov3-auth-data-browser.mjs:38:224\n    at async run (/workspace/bfstaff-publish-r407-2026-11-02/qa/r407/tests/nov3-auth-data-browser.mjs:13:33)\n    at async file:///workspace/bfstaff-publish-r407-2026-11-02/qa/r407/tests/nov3-auth-data-browser.mjs:35:3"
+    }
+  ],
+  "uncaught": [],
+  "unknown": []
+}

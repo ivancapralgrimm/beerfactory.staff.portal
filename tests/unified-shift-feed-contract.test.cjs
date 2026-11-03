@@ -102,7 +102,7 @@ test('offline R22 SQL allows incomplete open/close while enforcing access, windo
       create function private.current_staff_position() returns public.staff_position language sql as $$select nullif(coalesce(current_setting('bf.test_position',true),'waiter_bb'),'')::public.staff_position$$;
       create function private.shift_window_context() returns jsonb language sql as $$select jsonb_build_object('window_state',coalesce(current_setting('bf.test_window',true),'open'),'operational_iso_weekday',5)$$;
       create function private.ensure_position_shift_state() returns uuid language sql as $$select '00000000-0000-0000-0000-000000000001'::uuid$$;`);
-    await db.exec(fs.readFileSync(path.resolve(__dirname,'../../docs/patches/r22-allow-incomplete-position-shift.sql'),'utf8'));
+    await db.exec(fs.readFileSync(path.resolve(__dirname,'../docs/patches/r22-allow-incomplete-position-shift.sql'),'utf8'));
     const confirm=async action=>(await db.query('select public.confirm_position_shift($1) as value',[action])).rows[0].value;
     assert.equal((await confirm('open')).status,'active');
     assert.equal((await confirm('close')).status,'closed');

@@ -1,0 +1,10 @@
+PASS staged readiness and UTF16 underline validation
+PASS permissions and expected revision leave state intact
+PASS archive reallocates optimal topic slots and preserves historical snapshots
+PASS impossible full-size ticket is archived with its plan retained
+PASS delete returns real cascade counts and durable image outbox
+PASS required material rejects missing links and reactivation of archived source
+PASS service-only saga preserves actor, payload, idempotency and durable completion
+PASS main senior recipe positions are authorized; hostess and inactive actors denied
+PASS outbox cancels safe reattach, leases failures, guards late attach, completes idempotently
+9 local SQL scenarios passed; no external SQL executed.

@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { AuthLayout } from "@/features/auth/AuthLayout";
@@ -27,9 +27,13 @@ export function LoginPage() {
   const { login } = useAuth();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
+  const submitting = useRef(false);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (submitting.current) return;
+    // Read the DOM at submission: password managers may fill fields without
+    // dispatching React change events.
     const form = new FormData(event.currentTarget);
     const code = String(form.get("code") || "").trim();
     const fullName = String(form.get("fullName") || "").normalize("NFKC").trim().replace(/\s+/g," ");
@@ -42,6 +46,7 @@ export function LoginPage() {
       return;
     }
 
+    submitting.current = true;
     setPending(true);
     try {
       const result = await login({
@@ -58,6 +63,7 @@ export function LoginPage() {
       console.error("BeerFactory login", loginError);
       setError(loginErrorMessage(loginError));
     } finally {
+      submitting.current = false;
       setPending(false);
     }
   }

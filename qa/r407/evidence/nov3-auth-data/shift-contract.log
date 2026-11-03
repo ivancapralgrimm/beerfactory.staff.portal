@@ -1,0 +1,13 @@
+✔ shift workflow coalesces concurrent reads; writes await exact main position RPCs and propagate denial (2.907534ms)
+✔ checklist edits preserve revision, weekdays, position and groups; conflicts do not become successes (0.647185ms)
+✔ feed maps actual readers, preserves an inaccessible identity and keeps notification audience out of visibility (7.807759ms)
+✔ feed creation and acknowledgement use exact main payloads and reject server refusal (0.590682ms)
+✔ offline R22 SQL allows incomplete open/close while enforcing access, window, state and live template guards (3519.349906ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4011.309331

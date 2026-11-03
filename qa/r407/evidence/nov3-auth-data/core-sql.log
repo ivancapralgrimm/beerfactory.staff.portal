@@ -1,0 +1,4 @@
+PASS history keeps30 newest snapshots of current position, even for admin, without colleague IDs
+PASS birthday NSK window exactly yesterday through three days ahead, age only today
+PASS missing position and inactive actor stay restricted
+PASS anonymous cannot execute either prepared RPC

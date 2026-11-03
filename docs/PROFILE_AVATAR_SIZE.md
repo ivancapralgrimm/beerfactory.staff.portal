@@ -1,3 +1,5 @@
+Текущее обновление 2026-11-03:аватар66×66px (+4к62),margin:-3px сохраняет60pxслот и центр;имя и карточка не сдвинулись. Проверки:docs/CONNECTIONS_2026-11-03.md. Ниже исторический отчёт предыдущего увеличения.
+
 # Profile avatar:60px →62px
 
 User-requested2px optical enlargement, only in the brown profile identity card. The62×62 image uses margin−1px, retaining the existing60px grid slot and the same image center. Greeting portraits and image assets/role mapping are untouched. Name and job text are not moved or resized.

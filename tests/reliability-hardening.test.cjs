@@ -23,7 +23,8 @@ test("staff login rate limiting is persistent and service-role only", () => {
   assert.match(migration, /private\.login_rate_limits/);
   assert.match(migration, /revoke all .* from public, anon, authenticated/is);
   assert.match(migration, /grant execute .* to service_role/is);
-  assert.match(login, /login_rate_limit_allowed/);
+  assert.match(login, /import \{ readLoginRateLimit \} from "\.\/rate-limit\.ts"/);
+  assert.match(read("supabase/functions/staff-login/rate-limit.ts"), /login_rate_limit_allowed/);
   assert.match(login, /record_login_failure/);
   assert.match(login, /clear_login_failures/);
   assert.match(login, /p_limit:\s*6/);

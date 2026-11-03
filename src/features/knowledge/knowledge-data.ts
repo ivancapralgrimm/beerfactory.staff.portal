@@ -1,7 +1,9 @@
 import type { KnowledgeArticle } from "@/features/knowledge/types";
 import { loadServerKnowledgeArticles } from './knowledge-server';
 
-export const knowledgeSource = import.meta.env.VITE_KNOWLEDGE_SOURCE === 'supabase' ? 'supabase' : 'legacy';
+// The live shared database is the normal source, including branch previews
+// without environment overrides. Legacy files remain an explicit fallback.
+export const knowledgeSource = import.meta.env.VITE_KNOWLEDGE_SOURCE === 'legacy' ? 'legacy' : 'supabase';
 let cacheGeneration = 0;
 export function invalidateKnowledgeArticles() {
   cacheGeneration++;

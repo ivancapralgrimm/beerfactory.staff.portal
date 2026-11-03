@@ -1,0 +1,392 @@
+[
+  {
+    "key": "webkit-false-320",
+    "geometry": {
+      "card": {
+        "x": 16,
+        "y": 195,
+        "width": 288,
+        "height": 147,
+        "right": 304,
+        "bottom": 342
+      },
+      "avatar": {
+        "x": 31,
+        "y": 212,
+        "width": 66,
+        "height": 66,
+        "right": 97,
+        "bottom": 278
+      },
+      "name": {
+        "x": 108,
+        "y": 215,
+        "width": 178,
+        "height": 54,
+        "right": 286,
+        "bottom": 269
+      },
+      "position": {
+        "x": 108,
+        "y": 273,
+        "width": 178,
+        "height": 21,
+        "right": 286,
+        "bottom": 294
+      },
+      "scroll": 320,
+      "viewport": 320
+    }
+  },
+  {
+    "key": "webkit-false-375",
+    "geometry": {
+      "card": {
+        "x": 20,
+        "y": 195,
+        "width": 335,
+        "height": 120,
+        "right": 355,
+        "bottom": 315
+      },
+      "avatar": {
+        "x": 35,
+        "y": 212,
+        "width": 66,
+        "height": 66,
+        "right": 101,
+        "bottom": 278
+      },
+      "name": {
+        "x": 112,
+        "y": 215,
+        "width": 225,
+        "height": 27,
+        "right": 337,
+        "bottom": 242
+      },
+      "position": {
+        "x": 112,
+        "y": 246,
+        "width": 225,
+        "height": 21,
+        "right": 337,
+        "bottom": 267
+      },
+      "scroll": 375,
+      "viewport": 375
+    }
+  },
+  {
+    "key": "webkit-false-390",
+    "geometry": {
+      "card": {
+        "x": 20,
+        "y": 195,
+        "width": 350,
+        "height": 120,
+        "right": 370,
+        "bottom": 315
+      },
+      "avatar": {
+        "x": 35,
+        "y": 212,
+        "width": 66,
+        "height": 66,
+        "right": 101,
+        "bottom": 278
+      },
+      "name": {
+        "x": 112,
+        "y": 215,
+        "width": 240,
+        "height": 27,
+        "right": 352,
+        "bottom": 242
+      },
+      "position": {
+        "x": 112,
+        "y": 246,
+        "width": 240,
+        "height": 21,
+        "right": 352,
+        "bottom": 267
+      },
+      "scroll": 390,
+      "viewport": 390
+    }
+  },
+  {
+    "key": "webkit-false-430",
+    "geometry": {
+      "card": {
+        "x": 20,
+        "y": 195,
+        "width": 390,
+        "height": 120,
+        "right": 410,
+        "bottom": 315
+      },
+      "avatar": {
+        "x": 35,
+        "y": 212,
+        "width": 66,
+        "height": 66,
+        "right": 101,
+        "bottom": 278
+      },
+      "name": {
+        "x": 112,
+        "y": 215,
+        "width": 280,
+        "height": 27,
+        "right": 392,
+        "bottom": 242
+      },
+      "position": {
+        "x": 112,
+        "y": 246,
+        "width": 280,
+        "height": 21,
+        "right": 392,
+        "bottom": 267
+      },
+      "scroll": 430,
+      "viewport": 430
+    }
+  },
+  {
+    "key": "webkit-false-768",
+    "geometry": {
+      "card": {
+        "x": 164,
+        "y": 195,
+        "width": 440,
+        "height": 120,
+        "right": 604,
+        "bottom": 315
+      },
+      "avatar": {
+        "x": 179,
+        "y": 212,
+        "width": 66,
+        "height": 66,
+        "right": 245,
+        "bottom": 278
+      },
+      "name": {
+        "x": 256,
+        "y": 215,
+        "width": 330,
+        "height": 27,
+        "right": 586,
+        "bottom": 242
+      },
+      "position": {
+        "x": 256,
+        "y": 246,
+        "width": 330,
+        "height": 21,
+        "right": 586,
+        "bottom": 267
+      },
+      "scroll": 768,
+      "viewport": 768
+    }
+  },
+  {
+    "key": "webkit-true-320",
+    "geometry": {
+      "card": {
+        "x": 16,
+        "y": 195,
+        "width": 288,
+        "height": 174,
+        "right": 304,
+        "bottom": 369
+      },
+      "avatar": {
+        "x": 31,
+        "y": 212,
+        "width": 66,
+        "height": 66,
+        "right": 97,
+        "bottom": 278
+      },
+      "name": {
+        "x": 108,
+        "y": 215,
+        "width": 178,
+        "height": 81,
+        "right": 286,
+        "bottom": 296
+      },
+      "position": {
+        "x": 108,
+        "y": 300,
+        "width": 178,
+        "height": 21,
+        "right": 286,
+        "bottom": 321
+      },
+      "scroll": 320,
+      "viewport": 320
+    }
+  },
+  {
+    "key": "webkit-true-375",
+    "geometry": {
+      "card": {
+        "x": 20,
+        "y": 195,
+        "width": 335,
+        "height": 174,
+        "right": 355,
+        "bottom": 369
+      },
+      "avatar": {
+        "x": 35,
+        "y": 212,
+        "width": 66,
+        "height": 66,
+        "right": 101,
+        "bottom": 278
+      },
+      "name": {
+        "x": 112,
+        "y": 215,
+        "width": 225,
+        "height": 81,
+        "right": 337,
+        "bottom": 296
+      },
+      "position": {
+        "x": 112,
+        "y": 300,
+        "width": 225,
+        "height": 21,
+        "right": 337,
+        "bottom": 321
+      },
+      "scroll": 375,
+      "viewport": 375
+    }
+  },
+  {
+    "key": "webkit-true-390",
+    "geometry": {
+      "card": {
+        "x": 20,
+        "y": 195,
+        "width": 350,
+        "height": 147,
+        "right": 370,
+        "bottom": 342
+      },
+      "avatar": {
+        "x": 35,
+        "y": 212,
+        "width": 66,
+        "height": 66,
+        "right": 101,
+        "bottom": 278
+      },
+      "name": {
+        "x": 112,
+        "y": 215,
+        "width": 240,
+        "height": 54,
+        "right": 352,
+        "bottom": 269
+      },
+      "position": {
+        "x": 112,
+        "y": 273,
+        "width": 240,
+        "height": 21,
+        "right": 352,
+        "bottom": 294
+      },
+      "scroll": 390,
+      "viewport": 390
+    }
+  },
+  {
+    "key": "webkit-true-430",
+    "geometry": {
+      "card": {
+        "x": 20,
+        "y": 195,
+        "width": 390,
+        "height": 147,
+        "right": 410,
+        "bottom": 342
+      },
+      "avatar": {
+        "x": 35,
+        "y": 212,
+        "width": 66,
+        "height": 66,
+        "right": 101,
+        "bottom": 278
+      },
+      "name": {
+        "x": 112,
+        "y": 215,
+        "width": 280,
+        "height": 54,
+        "right": 392,
+        "bottom": 269
+      },
+      "position": {
+        "x": 112,
+        "y": 273,
+        "width": 280,
+        "height": 21,
+        "right": 392,
+        "bottom": 294
+      },
+      "scroll": 430,
+      "viewport": 430
+    }
+  },
+  {
+    "key": "webkit-true-768",
+    "geometry": {
+      "card": {
+        "x": 164,
+        "y": 195,
+        "width": 440,
+        "height": 147,
+        "right": 604,
+        "bottom": 342
+      },
+      "avatar": {
+        "x": 179,
+        "y": 212,
+        "width": 66,
+        "height": 66,
+        "right": 245,
+        "bottom": 278
+      },
+      "name": {
+        "x": 256,
+        "y": 215,
+        "width": 330,
+        "height": 54,
+        "right": 586,
+        "bottom": 269
+      },
+      "position": {
+        "x": 256,
+        "y": 273,
+        "width": 330,
+        "height": 21,
+        "right": 586,
+        "bottom": 294
+      },
+      "scroll": 768,
+      "viewport": 768
+    }
+  }
+]

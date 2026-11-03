@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import {identityCandidates,identityFilter,identityFingerprint,normalizeIdentityName} from "./name-identity.ts";
+import { readLoginRateLimit } from "./rate-limit.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.116.0";
 
 const cors = {
@@ -70,27 +71,16 @@ Deno.serve(async (req) => {
     const employeeFingerprint =
       "login-employee:" + identityKey;
 
-    const [
-      { data: scopedAllowed, error: scopedAllowedError },
-      { data: employeeAllowed, error: employeeAllowedError }
-    ] = await Promise.all([
-      admin.rpc("login_rate_limit_allowed", {
-        p_fingerprint: scopedFingerprint,
-        p_limit: 6
-      }),
-      admin.rpc("login_rate_limit_allowed", {
-        p_fingerprint: employeeFingerprint,
-        p_limit: 30
-      })
+    const limits = await Promise.all([
+      readLoginRateLimit(admin, scopedFingerprint, 6),
+      readLoginRateLimit(admin, employeeFingerprint, 30)
     ]);
 
-    if (
-      scopedAllowedError ||
-      employeeAllowedError ||
-      scopedAllowed !== true ||
-      employeeAllowed !== true
-    ) {
+    if (limits.includes("blocked")) {
       return json({ error: "rate_limited" }, 429);
+    }
+    if (limits.includes("unavailable")) {
+      return json({ error: "login_unavailable" }, 503);
     }
 
     let lookup = admin.from("profiles").select(
