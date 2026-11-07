@@ -1,0 +1,9 @@
+{
+  "scope": "Real WebGL rendered frames; synthetic auth/data, controlled simulation time. Encoded16fps is not a phone FPS measurement.",
+  "record": true,
+  "frames": 48,
+  "simulationMs": 3000,
+  "snapshots": 4,
+  "errors": [],
+  "consoleErrors": []
+}

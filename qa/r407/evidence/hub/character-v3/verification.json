@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-07",
+  "change": "Articulated mascot, third-person camera, saturated warm lighting, rounded obstacles and recycled GPU-instanced scenery",
+  "build": "PASS TypeScript, production and PWA; Vite chunk-size advisory remains",
+  "unit_contracts": {
+    "pass": 138,
+    "fail": 0,
+    "gameplay": 9,
+    "character_and_scene": 6
+  },
+  "browser": {
+    "pass": 14,
+    "fail": 0,
+    "scope": "Compiled app, synthetic auth/data fixtures, external HTTP/WS intercepted; real CDP touch, WebGL context loss/fallback, reduced motion,6viewport sizes, actual instanced draw API and Linux WebKit"
+  },
+  "capture": {
+    "scope": "Real WebGL rendered frames; synthetic auth/data, controlled simulation time. Encoded16fps is not a phone FPS measurement.",
+    "record": true,
+    "frames": 48,
+    "simulationMs": 3000,
+    "snapshots": 4,
+    "errors": [],
+    "consoleErrors": []
+  },
+  "camera": "Intro/over keep mascot face visible; simulation-time ease into third-person running view, immediate reduced-motion framing",
+  "lerp": "Existing frame-rate-independent exponential LERP in requestAnimationFrame;30/60/120Hz position agreement tested; no R3F dependency",
+  "instancing": "7tank rows per side,8hall segments,90pickup capacity,3cached obstacle models; instance buffers tracked/disposed",
+  "scene_reuse": "Unit checks far-row births beyond fog, spacing continuity on wrap and bounded coordinates at100000distance",
+  "design": "Unslop and real Hallmark source+3render states,0FAIL/REFLEX/WARN each; independent report separate",
+  "network": "No new backend endpoints, database writes or external asset APIs",
+  "portal_scope": "Shared portal UI/auth/backend unchanged; previous portal regression baseline retained rather than re-run",
+  "not_verified": [
+    "Physical iPhone/Android FPS, thermal or battery performance",
+    "Measured GPU memory profile on employee devices",
+    "Production employee authentication or RLS/security"
+  ],
+  "new_dependencies": [],
+  "three_chunk_kb": {
+    "raw": 590.52,
+    "gzip": 151.81
+  },
+  "independent_review": "ship; source, actual screenshots and rendered movement frames reviewed; no open findings"
+}

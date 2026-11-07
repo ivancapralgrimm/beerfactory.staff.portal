@@ -1,0 +1,61 @@
+{
+  "scope": "Compiled app, synthetic auth/data transport. Actual Chromium CDP touch; Linux WebKit is not a physical iPhone. No production writes or RLS/security claim.",
+  "results": [
+    {
+      "name": "Hub is an authenticated section; one project opens its real game route",
+      "status": "PASS"
+    },
+    {
+      "name": "real touch events change lanes, jump and slide without a directional button pad",
+      "status": "PASS"
+    },
+    {
+      "name": "keyboard opening Sections pauses the game and Back returns to Hub",
+      "status": "PASS"
+    },
+    {
+      "name": "WebGL context loss pauses and switches to a working Canvas fallback",
+      "status": "PASS"
+    },
+    {
+      "name": "no WebGL and reduced motion retain play, result, restart and local best",
+      "status": "PASS"
+    },
+    {
+      "name": "viewport 320x568, help scroll and focus stay in bounds",
+      "status": "PASS"
+    },
+    {
+      "name": "viewport 375x667, help scroll and focus stay in bounds",
+      "status": "PASS"
+    },
+    {
+      "name": "viewport 390x844, help scroll and focus stay in bounds",
+      "status": "PASS"
+    },
+    {
+      "name": "viewport 430x932, help scroll and focus stay in bounds",
+      "status": "PASS"
+    },
+    {
+      "name": "viewport 768x900, help scroll and focus stay in bounds",
+      "status": "PASS"
+    },
+    {
+      "name": "viewport 1440x900, help scroll and focus stay in bounds",
+      "status": "PASS"
+    },
+    {
+      "name": "articulated slide and reduced-motion WebGL preserve the game and Hub lifecycle",
+      "status": "PASS"
+    },
+    {
+      "name": "the real WebGL scene draws repeated scenery and pickups with GPU instancing",
+      "status": "PASS"
+    },
+    {
+      "name": "Linux WebKit supports the section and touch/keyboard fallback lifecycle",
+      "status": "PASS"
+    }
+  ]
+}

@@ -52,6 +52,7 @@ export function tick(s:RunState,seconds:number) {
   if(s.phase!=='running'||!Number.isFinite(seconds)||seconds<=0)return;
   const dt=Math.min(seconds,.06),speed=Math.min(20,10+s.distance/140);
   s.time+=dt;s.distance+=speed*dt;s.spawnIn-=dt;
+  // Frame-rate-independent LERP; the existing animation-frame loop drives this.
   s.x+=(s.lane-s.x)*(1-Math.exp(-19*dt));
   s.jump=Math.max(0,s.jump-dt);s.slide=Math.max(0,s.slide-dt);s.shield=Math.max(0,s.shield-dt);
   if(s.spawnIn<=0){spawn(s);s.spawnIn=2.1+random(s)*.45;}

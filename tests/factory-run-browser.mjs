@@ -74,6 +74,7 @@ for(const [width,height] of [[320,568],[375,667],[390,844],[430,932],[768,900],[
 await check('articulated slide and reduced-motion WebGL preserve the game and Hub lifecycle',async()=>{
   const s=await session();await s.page.clock.install();await game(s);
   await s.page.locator('.runner-canvas[data-renderer=webgl]').waitFor();
+  await s.page.clock.pauseAt(new Date(await s.page.evaluate(()=>Date.now())+1000));
   await s.page.getByRole('button',{name:'Поехали'}).click();await s.page.clock.runFor(160);
   await s.page.keyboard.press('ArrowDown');await s.page.clock.runFor(200);
   assert.equal(await s.page.locator('.runner-frame').getAttribute('data-motion'),'slide');
@@ -81,10 +82,34 @@ await check('articulated slide and reduced-motion WebGL preserve the game and Hu
   await s.page.emulateMedia({reducedMotion:'reduce'});await s.page.clock.runFor(100);
   assert.equal(await s.page.locator('.runner-frame').getAttribute('data-phase'),'running');
   await s.page.keyboard.press('Escape');assert.equal(await s.page.locator('.runner-frame').getAttribute('data-phase'),'paused');
+  // Restore real browser time before React's lazy-route transition.
+  await s.page.clock.resume();
   await s.page.getByRole('button',{name:'В Hub',exact:true}).click();await s.page.getByRole('heading',{name:'Hub',exact:true}).waitFor();
   await s.page.locator('canvas[data-renderer=webgl]').waitFor();
   await s.page.getByRole('link',{name:/Factory Run/}).click();await s.page.getByRole('button',{name:'Поехали'}).waitFor();
   await s.page.locator('.runner-canvas[data-renderer=webgl]').waitFor();
+  assert.deepEqual(s.errors,[]);assert.deepEqual(s.consoleErrors,[]);await s.context.close();
+});
+await check('the real WebGL scene draws repeated scenery and pickups with GPU instancing',async()=>{
+  const s=await session();await s.context.addInitScript(()=>{
+    const original=HTMLCanvasElement.prototype.getContext,seen=new WeakSet();
+    window.__bfInstanceProof={calls:0,instances:0};
+    HTMLCanvasElement.prototype.getContext=function(type,...args){
+      const gl=original.call(this,type,...args);
+      if(type==='webgl2'&&gl&&!seen.has(gl)){
+        seen.add(gl);
+        for(const name of ['drawElementsInstanced','drawArraysInstanced']){
+          const draw=gl[name].bind(gl);gl[name]=(...values)=>{window.__bfInstanceProof.calls++;window.__bfInstanceProof.instances+=values.at(-1);return draw(...values);};
+        }
+      }return gl;
+    };
+  });
+  await game(s);await s.page.locator('.runner-canvas[data-renderer=webgl]').waitFor();
+  const proof=await s.page.evaluate(()=>window.__bfInstanceProof);
+  assert.ok(proof.calls>0);assert.ok(proof.instances>=10);
+  await s.page.getByRole('button',{name:'Поехали'}).click();await s.page.waitForTimeout(200);
+  await s.page.getByRole('button',{name:'Пауза',exact:true}).click();
+  const after=await s.page.evaluate(()=>window.__bfInstanceProof);assert.ok(after.calls>proof.calls);
   assert.deepEqual(s.errors,[]);assert.deepEqual(s.consoleErrors,[]);await s.context.close();
 });
 await browser.close();
