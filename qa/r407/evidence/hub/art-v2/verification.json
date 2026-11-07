@@ -1,0 +1,26 @@
+{
+  "date": "2026-11-07",
+  "change": "Factory Run procedural textures, industrial detail, mascot uniform and articulated slide",
+  "build": "PASS production + TypeScript + PWA; Vite chunk-size advisory remains",
+  "unit_contracts": {
+    "pass": 132,
+    "fail": 0,
+    "runner_cases": 9
+  },
+  "hub_browser": {
+    "pass": 13,
+    "fail": 0
+  },
+  "design": "Unslop and real Hallmark source + 3 actual frozen-DOM render states; independent review is stored separately",
+  "graphics": "Original procedural materials and models; stylized, not photographic scans",
+  "network_scope": "Synthetic auth/data fixtures; external HTTP/WS intercepted; no backend writes",
+  "portal_regression": "Previous21-case baseline preserved; shared portal code was not changed or retested in this graphics-only update",
+  "not_verified": [
+    "Physical iPhone/Android",
+    "FPS/energy on actual team phones",
+    "Production employee authentication, RLS or Supabase security"
+  ],
+  "assets": "No new external runtime fetches or dependencies; existing brand logo preserved",
+  "memory": "Per-renderer disposal, bounded CPU map cache, two tank/four obstacle prototypes reviewed in source; not a measured physical-device memory profile",
+  "independent_review": "ship; one floor-speed finding resolved; no open findings"
+}

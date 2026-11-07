@@ -1,0 +1,50 @@
+{
+  "source": {
+    "fails": 0,
+    "reflex": 0,
+    "warns": 0,
+    "waived": 0,
+    "rejected": 0,
+    "answered": 1,
+    "dismissed": 0,
+    "notes": 0,
+    "files": 3,
+    "render": "off"
+  },
+  "hub": {
+    "fails": 0,
+    "reflex": 0,
+    "warns": 0,
+    "waived": 0,
+    "rejected": 0,
+    "answered": 1,
+    "dismissed": 0,
+    "notes": 0,
+    "files": 3,
+    "render": "ran"
+  },
+  "game-ready": {
+    "fails": 0,
+    "reflex": 0,
+    "warns": 0,
+    "waived": 0,
+    "rejected": 0,
+    "answered": 1,
+    "dismissed": 0,
+    "notes": 0,
+    "files": 3,
+    "render": "ran"
+  },
+  "game-running": {
+    "fails": 0,
+    "reflex": 0,
+    "warns": 0,
+    "waived": 0,
+    "rejected": 0,
+    "answered": 1,
+    "dismissed": 0,
+    "notes": 0,
+    "files": 3,
+    "render": "ran"
+  }
+}

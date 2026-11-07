@@ -71,6 +71,22 @@ for(const [width,height] of [[320,568],[375,667],[390,844],[430,932],[768,900],[
   if([375,1440].includes(width)){await capture(s,`ready-3d-${width}`);await s.page.getByRole('button',{name:'Поехали'}).click();await s.page.waitForTimeout(450);await capture(s,`running-3d-${width}`);await s.page.getByRole('button',{name:'В Hub',exact:true}).click();await s.page.getByRole('heading',{name:'Hub',exact:true}).waitFor();await capture(s,`hub-3d-${width}`);}
   assert.deepEqual(s.errors,[]);assert.deepEqual(s.consoleErrors,[]);await s.context.close();
 });
+await check('articulated slide and reduced-motion WebGL preserve the game and Hub lifecycle',async()=>{
+  const s=await session();await s.page.clock.install();await game(s);
+  await s.page.locator('.runner-canvas[data-renderer=webgl]').waitFor();
+  await s.page.getByRole('button',{name:'Поехали'}).click();await s.page.clock.runFor(160);
+  await s.page.keyboard.press('ArrowDown');await s.page.clock.runFor(200);
+  assert.equal(await s.page.locator('.runner-frame').getAttribute('data-motion'),'slide');
+  await capture(s,'slide-3d-390');
+  await s.page.emulateMedia({reducedMotion:'reduce'});await s.page.clock.runFor(100);
+  assert.equal(await s.page.locator('.runner-frame').getAttribute('data-phase'),'running');
+  await s.page.keyboard.press('Escape');assert.equal(await s.page.locator('.runner-frame').getAttribute('data-phase'),'paused');
+  await s.page.getByRole('button',{name:'В Hub',exact:true}).click();await s.page.getByRole('heading',{name:'Hub',exact:true}).waitFor();
+  await s.page.locator('canvas[data-renderer=webgl]').waitFor();
+  await s.page.getByRole('link',{name:/Factory Run/}).click();await s.page.getByRole('button',{name:'Поехали'}).waitFor();
+  await s.page.locator('.runner-canvas[data-renderer=webgl]').waitFor();
+  assert.deepEqual(s.errors,[]);assert.deepEqual(s.consoleErrors,[]);await s.context.close();
+});
 await browser.close();
 await check('Linux WebKit supports the section and touch/keyboard fallback lifecycle',async()=>{
   const b=await webkit.launch();try{const s=await mockActualApp(b,{base});await game(s);await s.page.getByRole('button',{name:'Поехали'}).click();await s.page.keyboard.press('ArrowLeft');assert.match(await s.page.locator('.runner-canvas').getAttribute('aria-label'),/Дорожка 1/);await s.page.keyboard.press('Escape');assert.equal(await s.page.locator('.runner-frame').getAttribute('data-phase'),'paused');assert.deepEqual(s.errors,[]);await s.context.close();}finally{await b.close();}

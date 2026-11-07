@@ -6,7 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {mockActualApp} from './unified-fixtures.mjs';
 const base=process.env.BF_HUB_URL||'http://127.0.0.1:4418';
-const out='/workspace/bfstaff-factory-run-evidence/snapshots';fs.mkdirSync(out,{recursive:true});
+const out=process.env.BF_HUB_CAPTURE_OUT||'/workspace/bfstaff-factory-run-evidence/snapshots';fs.mkdirSync(out,{recursive:true});
 const browser=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--no-sandbox','--enable-unsafe-swiftshader']});
 const s=await mockActualApp(browser,{base});
 async function capture(name){
