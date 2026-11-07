@@ -1,0 +1,77 @@
+{
+  "hub": {
+    "summary": {
+      "fails": 0,
+      "reflex": 0,
+      "warns": 0,
+      "waived": 0,
+      "rejected": 0,
+      "answered": 1,
+      "dismissed": 0,
+      "notes": 0,
+      "files": 3,
+      "render": "ran"
+    },
+    "findings": [
+      {
+        "gate": "F4",
+        "grade": "ANSWERED",
+        "tier": "finish",
+        "file": "src/features/hub/FactoryRunPage.tsx",
+        "line": 110,
+        "evidence": "two filled buttons side by side in the hero: \"Пауза\" and \"\"",
+        "fix": "One filled primary per screen; the second action is outlined or a typographic link"
+      }
+    ]
+  },
+  "game-ready": {
+    "summary": {
+      "fails": 0,
+      "reflex": 0,
+      "warns": 0,
+      "waived": 0,
+      "rejected": 0,
+      "answered": 1,
+      "dismissed": 0,
+      "notes": 0,
+      "files": 3,
+      "render": "ran"
+    },
+    "findings": [
+      {
+        "gate": "F4",
+        "grade": "ANSWERED",
+        "tier": "finish",
+        "file": "src/features/hub/FactoryRunPage.tsx",
+        "line": 110,
+        "evidence": "two filled buttons side by side in the hero: \"Пауза\" and \"\"",
+        "fix": "One filled primary per screen; the second action is outlined or a typographic link"
+      }
+    ]
+  },
+  "game-running": {
+    "summary": {
+      "fails": 0,
+      "reflex": 0,
+      "warns": 0,
+      "waived": 0,
+      "rejected": 0,
+      "answered": 1,
+      "dismissed": 0,
+      "notes": 0,
+      "files": 3,
+      "render": "ran"
+    },
+    "findings": [
+      {
+        "gate": "F4",
+        "grade": "ANSWERED",
+        "tier": "finish",
+        "file": "src/features/hub/FactoryRunPage.tsx",
+        "line": 110,
+        "evidence": "two filled buttons side by side in the hero: \"Пауза\" and \"\"",
+        "fix": "One filled primary per screen; the second action is outlined or a typographic link"
+      }
+    ]
+  }
+}

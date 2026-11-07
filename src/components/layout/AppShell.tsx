@@ -9,16 +9,16 @@ import {WarmDialog} from '@/components/warm/WarmDialog';
 import {useInterfaceViewport} from '@/components/warm/motion';
 import '@/styles/mobile-form-stability.css';
 
-const sections=[['/','Сегодня','home'],['/menu','Рецепты','recipes'],['/beer','Пивная карта','beer'],['/knowledge','Знания и аттестация','book'],['/shift','Смена','shift'],['/feed','Лента','feed'],['/profile','Мой профиль','people'],['/settings','Настройки и редактирование','admin']];
+const sections=[['/','Сегодня','home'],['/menu','Рецепты','recipes'],['/beer','Пивная карта','beer'],['/knowledge','Знания и аттестация','book'],['/shift','Смена','shift'],['/feed','Лента','feed'],['/profile','Мой профиль','people'],['/hub','Hub','plus'],['/settings','Настройки и редактирование','admin']];
 export function AppShell(){
  const {state}=useAuth(),location=useLocation(),navigate=useNavigate(),root=useRef<HTMLDivElement>(null);
  const [menu,setMenu]=useState(false),[examActive,setExamActive]=useState(false),[registered,setRegistered]=useState<{id:string;target:WarmBackTarget}|null>(null),[showTop,setShowTop]=useState(false);
  const registerBack=useCallback((id:string,target:WarmBackTarget|null)=>setRegistered(current=>target?{id,target}:current?.id===id?null:current),[]);
  useInterfaceViewport(root);
- useEffect(()=>{setMenu(false);document.title=location.pathname==='/beer'?'Пивная карта · BFStaff':'BFStaff';},[location.pathname,location.search]);
+ useEffect(()=>{setMenu(false);document.title=location.pathname==='/beer'?'Пивная карта · BFStaff':location.pathname==='/hub'?'Hub · BFStaff':location.pathname==='/hub/factory-run'?'Factory Run · BFStaff':'BFStaff';},[location.pathname,location.search]);
  useEffect(()=>{const clear=()=>{void clearPushBadge();};const visible=()=>{if(document.visibilityState==='visible')clear();};clear();window.addEventListener('focus',clear);document.addEventListener('visibilitychange',visible);return()=>{window.removeEventListener('focus',clear);document.removeEventListener('visibilitychange',visible);};},[]);
  useEffect(()=>{const update=()=>setShowTop(window.scrollY>Math.max(420,innerHeight*.7));window.addEventListener('scroll',update,{passive:true});return()=>window.removeEventListener('scroll',update);},[]);
- const atHome=location.pathname==='/',brandPage=['/','/menu','/knowledge','/feed','/profile','/settings'].includes(location.pathname)&&!location.search.includes('editor=')&&!location.search.includes('view='),target=registered?.target??{to:location.pathname.startsWith('/settings/')?'/settings':'/',label:location.pathname.startsWith('/settings/')?'В настройки':'На главную'};
+ const atHome=location.pathname==='/',brandPage=['/','/menu','/knowledge','/feed','/profile','/settings','/hub'].includes(location.pathname)&&!location.search.includes('editor=')&&!location.search.includes('view='),target=registered?.target??{to:location.pathname.startsWith('/settings/')?'/settings':'/',label:location.pathname.startsWith('/settings/')?'В настройки':'На главную'};
  function selected(path:string){return path==='/'?atHome:path==='/knowledge'?location.pathname.startsWith('/knowledge')||location.pathname.startsWith('/attestation'):path==='/settings'?location.pathname.startsWith('/settings')||location.pathname.startsWith('/admin'):location.pathname.startsWith(path);}
  return <WarmHeaderProvider value={{registerBack,setExamActive}}><div className="bfstaff-app" ref={root} lang="ru" data-app="warm-hall-unified">
   {state.status==='authenticated'&&<AttestationSyncBridge userId={state.user.id}/>}

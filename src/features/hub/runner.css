@@ -1,0 +1,59 @@
+/* Hallmark · shape: app screen · genre: playful · theme: BFStaff Warm Hall · signature: copper brewery runner · v2.0.0 */
+/* Critique: the actual playable scene carries the detail; compact controls reuse the portal's quiet warm materials. */
+/* Hallmark · answered F4 · Factory Run renders pause only while running and start or resume only while stopped; the actions never coexist. */
+:root{
+  --run-font:BFGeist,Geist,sans-serif;
+  --run-sky:#e9dcc0;--run-haze:#f9edcb;--run-wall:#d2b892;--run-wallShade:#ba9a77;
+  --run-floor:#b48b5f;--run-plank:#bd966c;--run-seam:#93704d;--run-wood:#785137;--run-woodLight:#b38550;
+  --run-copper:#bd7749;--run-copperLight:#e7b77b;--run-copperShade:#73472f;
+  --run-steel:#c4ccbc;--run-steelShade:#687b70;--run-ink:#38291f;--run-paper:#fff8e9;
+  --run-gold:#dcae43;--run-amber:#e5a72d;--run-green:#315d36;--run-leaf:#5f8040;
+  --run-glass:#f5d88b;--run-danger:#a43e27;--run-shade:#38291f38;
+  --run-frame-shadow:0 12px 28px #50321f20;--run-control-shadow:inset 0 1px 0 #ffffff70,0 3px 0 #75513330,0 5px 12px #50321f14;
+  --run-button-shadow:inset 0 1px 0 #ffffff30,0 3px 0 #2d1d12,0 6px 12px #38291f26;
+  --run-panel-shadow:0 8px 28px #38291f26;--run-focus:#73472f;
+}
+.hub-page{display:grid;gap:24px;min-width:0}
+.hub-project{display:block;min-width:0;text-decoration:none;color:var(--bf-ink);border-radius:24px;background:var(--bf-paper);box-shadow:var(--bf-panel);overflow:clip;transition:transform 140ms ease-out,box-shadow 140ms ease-out}
+.hub-project:hover{box-shadow:var(--run-frame-shadow)}
+.hub-project:active{transform:translateY(2px)}
+.hub-project:focus-visible{outline:3px solid var(--run-focus);outline-offset:4px}
+.hub-project-art{height:260px;overflow:clip;background:var(--run-sky)}
+.runner-preview{display:block;width:100%;height:100%}
+.hub-project-copy{padding:20px;display:grid;gap:16px;min-width:0}
+.hub-project-copy h2{font-size:24px;line-height:1.2;font-weight:800;margin:0;min-width:0;overflow-wrap:break-word}
+.hub-project-copy p{margin:8px 0 0;color:var(--bf-muted);font-size:16px;line-height:1.5}
+.hub-project-launch{display:flex;align-items:center;justify-content:space-between;padding-top:4px;font-size:16px;font-weight:700;color:var(--bf-ink)}
+.runner-page{display:grid;gap:12px;min-width:0;font-family:var(--run-font)}
+.runner-title{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0}
+.runner-title h1{font-size:24px;font-weight:800;line-height:1.2;margin:0;min-width:0;overflow-wrap:break-word}
+.runner-title>span{font-size:12px;line-height:1.4;text-align:right;color:var(--bf-muted);max-width:144px}
+.runner-title>span strong{display:block;font-size:16px;font-weight:700;color:var(--bf-ink);font-variant-numeric:tabular-nums}
+.runner-frame{position:relative;isolation:isolate;height:clamp(360px,calc(100svh - 210px),680px);border-radius:24px;background:var(--run-sky);box-shadow:var(--run-frame-shadow);min-width:0;overflow:clip}
+.runner-canvas{display:block;width:100%;height:100%;touch-action:none;border-radius:inherit;outline:none}
+.runner-canvas:focus-visible{outline:3px solid var(--run-focus);outline-offset:-5px}
+.runner-hud{position:absolute;inset:12px 12px auto;display:flex;align-items:center;gap:12px;pointer-events:none;color:var(--run-ink)}
+.runner-score{display:grid;line-height:1.05;gap:4px;min-width:72px}
+.runner-score>span{font-size:12px;font-weight:600}.runner-score>strong{font-size:28px;font-weight:800;font-variant-numeric:tabular-nums}
+.runner-stats{display:grid;gap:4px;font-size:12px;font-weight:600;line-height:1.2}
+.runner-stats strong{font-variant-numeric:tabular-nums}.runner-lives{display:flex;gap:4px}.runner-lives>[data-full=false]{opacity:.3}
+.runner-pause{margin-left:auto;pointer-events:auto;min-height:44px;min-width:64px;padding:8px 12px;border:0;border-radius:12px;background:var(--run-paper);color:var(--run-ink);font:600 14px var(--run-font);box-shadow:var(--run-control-shadow);cursor:pointer}
+.runner-panel{position:absolute;inset:18% 20px auto;padding:20px;max-height:calc(82% - 16px);overflow-y:auto;overscroll-behavior:contain;border-radius:20px;background:var(--run-paper);box-shadow:var(--run-panel-shadow);color:var(--run-ink);text-align:center}
+.runner-panel-mark{display:flex;justify-content:center;margin-bottom:8px;color:var(--run-copperShade)}
+.runner-panel h2{font-size:26px;font-weight:800;line-height:1.15;margin:0;min-width:0;overflow-wrap:break-word}
+.runner-panel>p{font-size:14px;line-height:1.5;margin:12px 0 16px;color:var(--run-wood)}
+.runner-primary{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:48px;padding:12px 16px;border:0;border-radius:14px;color:var(--run-paper);background:var(--run-ink);box-shadow:var(--run-button-shadow);font:700 16px/1.3 var(--run-font);cursor:pointer}
+.runner-help-toggle{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 12px;margin-top:8px;border:0;background:var(--run-paper);color:var(--run-wood);font:600 14px var(--run-font);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.runner-panel .runner-help{font-size:13px;text-align:left;margin:8px 0 0}
+.runner-event{position:absolute;inset:24% 20px auto;margin:0;padding:12px 16px;border-radius:14px;background:var(--run-paper);color:var(--run-ink);font-size:14px;line-height:1.4;font-weight:700;text-align:center;box-shadow:var(--run-panel-shadow);pointer-events:none}
+.runner-ground-label{position:absolute;bottom:12px;inset-inline:12px;text-align:center;font-size:12px;font-weight:600;color:var(--run-ink);pointer-events:none}
+.runner-pause:hover{background:var(--bf-surface-2)}
+.runner-pause:active,.runner-primary:not(:disabled):active{transform:translateY(2px)}
+.runner-primary:not(:disabled):hover{background:var(--run-copperShade)}
+.runner-primary:disabled{opacity:.5;cursor:wait;box-shadow:none}
+.runner-primary,.runner-pause{transition:transform 100ms ease-out,background-color 100ms ease-out}
+.runner-primary:focus-visible,.runner-pause:focus-visible,.runner-help-toggle:focus-visible{outline:3px solid var(--run-focus);outline-offset:3px}
+.runner-footnote{font-size:12px;line-height:1.5;margin:0;color:var(--bf-muted)}
+.hub-project-copy h2,.runner-title h1,.runner-panel h2{text-wrap:balance}
+@media(max-height:700px){.runner-panel{inset:16% 16px auto;padding:16px}.runner-panel-mark{display:none}.runner-panel h2{font-size:24px}.runner-panel>p{margin:8px 0 12px}}
+@media(prefers-reduced-motion:reduce){.hub-project,.runner-primary,.runner-pause{transition:none}.hub-project:active,.runner-pause:active,.runner-primary:active{transform:none}}

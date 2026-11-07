@@ -45,6 +45,8 @@ const RecipeDetailPage = lazy(() =>
 );
 
 const BeerPage = lazy(() => import("@/features/beer/BeerPage").then(module => ({default:module.BeerPage})));
+const HubPage = lazy(() => import("@/features/hub/HubPage").then(module => ({default:module.HubPage})));
+const FactoryRunPage = lazy(() => import("@/features/hub/FactoryRunPage").then(module => ({default:module.FactoryRunPage})));
 
 const KnowledgePage = lazy(() =>
   import(
@@ -374,6 +376,8 @@ export function App() {
           }
         />
         <Route path="beer" element={<LazyRoute><BeerPage /></LazyRoute>} />
+        <Route path="hub" element={<LazyRoute><HubPage /></LazyRoute>} />
+        <Route path="hub/factory-run" element={<LazyRoute><FactoryRunPage /></LazyRoute>} />
         <Route path="knowledge/beer" element={<Navigate to="/beer" replace />} />
         <Route
           path="knowledge/new"

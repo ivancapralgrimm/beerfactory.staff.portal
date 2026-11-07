@@ -15,7 +15,7 @@
     "preview": "vite preview",
     "typecheck": "tsc -b --pretty false",
     "test": "npm run test:ci",
-    "test:ci": "node --test --test-isolation=none tests/edge-contract.test.cjs tests/backend-hardening.test.cjs tests/performance-network.test.cjs tests/visual-architecture-hardening.test.cjs tests/reliability-hardening.test.cjs tests/attestation-editor-r40.6.test.cjs tests/attestation-independent-tickets-v3.test.cjs tests/attestation-staged-upgrade-v4.test.cjs tests/attestation-offline-sync-v3.test.cjs tests/shift-workflow-r40.6.test.cjs tests/repository-hygiene.test.cjs tests/recipe-photo-dialog-r40.6.test.cjs tests/feed-pulse-r40.6.test.cjs tests/staff-avatars.test.cjs tests/staff-login-gateway.test.cjs",
+    "test:ci": "node --test --test-isolation=none tests/edge-contract.test.cjs tests/backend-hardening.test.cjs tests/performance-network.test.cjs tests/visual-architecture-hardening.test.cjs tests/reliability-hardening.test.cjs tests/attestation-editor-r40.6.test.cjs tests/attestation-independent-tickets-v3.test.cjs tests/attestation-staged-upgrade-v4.test.cjs tests/attestation-offline-sync-v3.test.cjs tests/shift-workflow-r40.6.test.cjs tests/repository-hygiene.test.cjs tests/recipe-photo-dialog-r40.6.test.cjs tests/feed-pulse-r40.6.test.cjs tests/staff-avatars.test.cjs tests/staff-login-gateway.test.cjs tests/factory-run.test.mjs",
     "test:browser": "node tests/run-browser.mjs",
     "test:attestation:sql": "node tests/attestation-sql-v3.mjs",
     "test:attestation:browser": "node tests/attestation-browser-v3.mjs",
@@ -35,7 +35,8 @@
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-router-dom": "7.18.4",
-    "tailwind-merge": "3.7.0"
+    "tailwind-merge": "3.7.0",
+    "three": "0.187.0"
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.5.8",
@@ -43,6 +44,7 @@
     "@types/node": "^24.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@types/three": "0.187.0",
     "@vitejs/plugin-react": "6.1.1",
     "playwright": "1.58.2",
     "tailwindcss": "4.3.3",

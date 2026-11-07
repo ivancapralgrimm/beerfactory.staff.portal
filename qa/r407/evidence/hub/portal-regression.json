@@ -1,0 +1,1430 @@
+{
+  "generatedAt": "2026-11-07T16:22:42.932Z",
+  "base": "http://127.0.0.1:4418",
+  "scope": "Compiled actual app; all nonlocalhost HTTP and WebSocket traffic intercepted. Explicit in-memory transport fixtures; production, SQL, Edge deployment and RLS NOT VERIFIED.",
+  "results": [
+    {
+      "name": "compiled actual application entry",
+      "status": "PASS"
+    },
+    {
+      "name": "public registration and recovery validate and await Edge responses",
+      "status": "PASS"
+    },
+    {
+      "name": "normal login Edge response establishes SDK session and reloads profile",
+      "status": "PASS"
+    },
+    {
+      "name": "permissions staff: server capabilities and direct routes",
+      "status": "PASS"
+    },
+    {
+      "name": "permissions senior: server capabilities and direct routes",
+      "status": "PASS"
+    },
+    {
+      "name": "permissions admin: server capabilities and direct routes",
+      "status": "PASS"
+    },
+    {
+      "name": "permissions owner: server capabilities and direct routes",
+      "status": "PASS"
+    },
+    {
+      "name": "recovery setup gate waits for successful server write",
+      "status": "PASS"
+    },
+    {
+      "name": "senior checklist editor uses server position scope, writes, reloads and rejects",
+      "status": "PASS"
+    },
+    {
+      "name": "menu BeerMap and global search navigate real app routes",
+      "status": "PASS"
+    },
+    {
+      "name": "recipe successful write survives reload and rejected write retains form",
+      "status": "PASS"
+    },
+    {
+      "name": "knowledge live B I U persists to RPC then reload; rejected write has no success",
+      "status": "PASS"
+    },
+    {
+      "name": "shift checklist write/reload/rejection; incomplete open and close stay server actions",
+      "status": "PASS"
+    },
+    {
+      "name": "feed recipients capsules, failed post, successful reload, acknowledgement and readers",
+      "status": "PASS"
+    },
+    {
+      "name": "attestation shuffled radio answers, exit confirmation, result and history snapshot",
+      "status": "PASS"
+    },
+    {
+      "name": "admin bank question and ticket settings write/reload/rejection",
+      "status": "PASS"
+    },
+    {
+      "name": "profile immutable names, failed update, saved birthday reload, staff and audit",
+      "status": "PASS"
+    },
+    {
+      "name": "unapplied backend capability gates remain honest",
+      "status": "PASS"
+    },
+    {
+      "name": "visual viewport 375: actual dashboard shell menu recipes knowledge shift feed profile settings",
+      "status": "PASS"
+    },
+    {
+      "name": "visual viewport 390: actual dashboard shell menu recipes knowledge shift feed profile settings",
+      "status": "PASS"
+    },
+    {
+      "name": "visual viewport 430: actual dashboard shell menu recipes knowledge shift feed profile settings",
+      "status": "PASS"
+    }
+  ],
+  "geometry": [
+    {
+      "name": "login-dashboard",
+      "width": 390,
+      "viewport": 390,
+      "scroll": 390,
+      "app": "warm-hall-unified",
+      "font": "BFGeist, Geist, sans-serif",
+      "brokenImages": [],
+      "duplicates": [],
+      "overflow": [],
+      "smallInputs": []
+    },
+    {
+      "name": "dashboard",
+      "width": 375,
+      "viewport": 375,
+      "scroll": 375,
+      "app": "warm-hall-unified",
+      "font": "BFGeist, Geist, sans-serif",
+      "brokenImages": [],
+      "duplicates": [],
+      "overflow": [],
+      "smallInputs": []
+    },
+    {
+      "name": "recipes",
+      "width": 375,
+      "viewport": 375,
+      "scroll": 375,
+      "app": "warm-hall-unified",
+      "font": "BFGeist, Geist, sans-serif",
+      "brokenImages": [],
+      "duplicates": [],
+      "overflow": [],
+      "smallInputs": []
+    },
+    {
+      "name": "knowledge",
+      "width": 375,
+      "viewport": 375,
+      "scroll": 375,
+      "app": "warm-hall-unified",
+      "font": "BFGeist, Geist, sans-serif",
+      "brokenImages": [],
+      "duplicates": [],
+      "overflow": [],
+      "smallInputs": []
+    },
+    {
+      "name": "shift",
+      "width": 375,
+      "viewport": 375,
+      "scroll": 375,
+      "app": "warm-hall-unified",
+      "font": "BFGeist, Geist, sans-serif",
+      "brokenImages": [],
+      "duplicates": [],
+      "overflow": [],
+      "smallInputs": []
+    },
+    {
+      "name": "feed",
+      "width": 375,
+      "viewport": 375,
+      "scroll": 375,
+      "app": "warm-hall-unified",
+      "font": "BFGeist, Geist, sans-serif",
+      "brokenImages": [],
+      "duplicates": [],
+      "overflow": [],
+      "smallInputs": []
+    },
+    {
+      "name": "profile",
+      "width": 375,
+      "viewport": 375,
+      "scroll": 375,
+      "app": "warm-hall-unified",
+      "font": "BFGeist, Geist, sans-serif",
+      "brokenImages": [],
+      "duplicates": [],
+      "overflow": [],
+      "smallInputs": []
+    },
+    {
+      "name": "settings",
+      "width": 375,
+      "viewport": 375,
+      "scroll": 375,
+      "app": "warm-hall-unified",
+      "font": "BFGeist, Geist, sans-serif",
+      "brokenImages": [],
+      "duplicates": [],
+      "overflow": [],
+      "smallInputs": []
+    },
+    {
+      "name": "menu",
+      "width": 375,
+      "viewport": 375,
+      "scroll": 375,
+      "app": "warm-hall-unified",
+      "font": "BFGeist, Geist, sans-serif",
+      "brokenImages": [],
+      "duplicates": [],
+      "overflow": [],
+      "smallInputs": []
+    },
+    {
+      "name": "dashboard",
+      "width": 390,
+      "viewport": 390,
+      "scroll": 390,
+      "app": "warm-hall-unified",
+      "font": "BFGeist, Geist, sans-serif",
+      "brokenImages": [],
+      "duplicates": [],
+      "overflow": [],
+      "smallInputs": []
+    },
+    {
+      "name": "recipes",
+      "width": 390,
+      "viewport": 390,
+      "scroll": 390,
+      "app": "warm-hall-unified",
+      "font": "BFGeist, Geist, sans-serif",
+      "brokenImages": [],
+      "duplicates": [],
+      "overflow": [],
+      "smallInputs": []
+    },
+    {
+      "name": "knowledge",
+      "width": 390,
+      "viewport": 390,
+      "scroll": 390,
+      "app": "warm-hall-unified",
+      "font": "BFGeist, Geist, sans-serif",
+      "brokenImages": [],
+      "duplicates": [],
+      "overflow": [],
+      "smallInputs": []
+    },
+    {
+      "name": "shift",
+      "width": 390,
+      "viewport": 390,
+      "scroll": 390,
+      "app": "warm-hall-unified",
+      "font": "BFGeist, Geist, sans-serif",
+      "brokenImages": [],
+      "duplicates": [],
+      "overflow": [],
+      "smallInputs": []
+    },
+    {
+      "name": "feed",
+      "width": 390,
+      "viewport": 390,
+      "scroll": 390,
+      "app": "warm-hall-unified",
+      "font": "BFGeist, Geist, sans-serif",
+      "brokenImages": [],
+      "duplicates": [],
+      "overflow": [],
+      "smallInputs": []
+    },
+    {
+      "name": "profile",
+      "width": 390,
+      "viewport": 390,
+      "scroll": 390,
+      "app": "warm-hall-unified",
+      "font": "BFGeist, Geist, sans-serif",
+      "brokenImages": [],
+      "duplicates": [],
+      "overflow": [],
+      "smallInputs": []
+    },
+    {
+      "name": "settings",
+      "width": 390,
+      "viewport": 390,
+      "scroll": 390,
+      "app": "warm-hall-unified",
+      "font": "BFGeist, Geist, sans-serif",
+      "brokenImages": [],
+      "duplicates": [],
+      "overflow": [],
+      "smallInputs": []
+    },
+    {
+      "name": "menu",
+      "width": 390,
+      "viewport": 390,
+      "scroll": 390,
+      "app": "warm-hall-unified",
+      "font": "BFGeist, Geist, sans-serif",
+      "brokenImages": [],
+      "duplicates": [],
+      "overflow": [],
+      "smallInputs": []
+    },
+    {
+      "name": "dashboard",
+      "width": 430,
+      "viewport": 430,
+      "scroll": 430,
+      "app": "warm-hall-unified",
+      "font": "BFGeist, Geist, sans-serif",
+      "brokenImages": [],
+      "duplicates": [],
+      "overflow": [],
+      "smallInputs": []
+    },
+    {
+      "name": "recipes",
+      "width": 430,
+      "viewport": 430,
+      "scroll": 430,
+      "app": "warm-hall-unified",
+      "font": "BFGeist, Geist, sans-serif",
+      "brokenImages": [],
+      "duplicates": [],
+      "overflow": [],
+      "smallInputs": []
+    },
+    {
+      "name": "knowledge",
+      "width": 430,
+      "viewport": 430,
+      "scroll": 430,
+      "app": "warm-hall-unified",
+      "font": "BFGeist, Geist, sans-serif",
+      "brokenImages": [],
+      "duplicates": [],
+      "overflow": [],
+      "smallInputs": []
+    },
+    {
+      "name": "shift",
+      "width": 430,
+      "viewport": 430,
+      "scroll": 430,
+      "app": "warm-hall-unified",
+      "font": "BFGeist, Geist, sans-serif",
+      "brokenImages": [],
+      "duplicates": [],
+      "overflow": [],
+      "smallInputs": []
+    },
+    {
+      "name": "feed",
+      "width": 430,
+      "viewport": 430,
+      "scroll": 430,
+      "app": "warm-hall-unified",
+      "font": "BFGeist, Geist, sans-serif",
+      "brokenImages": [],
+      "duplicates": [],
+      "overflow": [],
+      "smallInputs": []
+    },
+    {
+      "name": "profile",
+      "width": 430,
+      "viewport": 430,
+      "scroll": 430,
+      "app": "warm-hall-unified",
+      "font": "BFGeist, Geist, sans-serif",
+      "brokenImages": [],
+      "duplicates": [],
+      "overflow": [],
+      "smallInputs": []
+    },
+    {
+      "name": "settings",
+      "width": 430,
+      "viewport": 430,
+      "scroll": 430,
+      "app": "warm-hall-unified",
+      "font": "BFGeist, Geist, sans-serif",
+      "brokenImages": [],
+      "duplicates": [],
+      "overflow": [],
+      "smallInputs": []
+    },
+    {
+      "name": "menu",
+      "width": 430,
+      "viewport": 430,
+      "scroll": 430,
+      "app": "warm-hall-unified",
+      "font": "BFGeist, Geist, sans-serif",
+      "brokenImages": [],
+      "duplicates": [],
+      "overflow": [],
+      "smallInputs": []
+    }
+  ],
+  "network": [
+    {
+      "role": "staff",
+      "owner": false,
+      "reads": [],
+      "writes": [
+        {
+          "api": "staff-register",
+          "body": {
+            "first_name": "Новый",
+            "last_name": "Сотрудник",
+            "password": "1234",
+            "secret_code": "8765"
+          }
+        },
+        {
+          "api": "staff-register",
+          "body": {
+            "first_name": "Новый",
+            "last_name": "Сотрудник",
+            "password": "1234",
+            "secret_code": "8765"
+          }
+        },
+        {
+          "api": "staff-recover",
+          "body": {
+            "first_name": "Новый",
+            "last_name": "Сотрудник",
+            "recovery_code": "8765",
+            "new_code": "6789"
+          }
+        },
+        {
+          "api": "staff-recover",
+          "body": {
+            "first_name": "Новый",
+            "last_name": "Сотрудник",
+            "recovery_code": "8765",
+            "new_code": "6789"
+          }
+        }
+      ],
+      "unknown": [],
+      "blocked": [],
+      "websockets": [],
+      "errors": [],
+      "consoleErrors": []
+    },
+    {
+      "role": "staff",
+      "owner": false,
+      "reads": [
+        "staff-profile",
+        "get_attestation_bank_v3",
+        "staff-profile",
+        "get_attestation_bank_v3",
+        "get_knowledge_articles",
+        "get_position_shift_workflow",
+        "get_dashboard_upcoming_birthdays"
+      ],
+      "writes": [
+        {
+          "api": "staff-login",
+          "body": {
+            "first_name": "Иван",
+            "last_name": "Проверяющий",
+            "full_name": "Иван Проверяющий",
+            "code": "1234"
+          }
+        },
+        {
+          "api": "staff-login",
+          "body": {
+            "first_name": "Иван",
+            "last_name": "Проверяющий",
+            "full_name": "Иван Проверяющий",
+            "code": "1234"
+          }
+        }
+      ],
+      "unknown": [],
+      "blocked": [],
+      "websockets": [
+        "wss://oltbkrvernfgymxtsfys.supabase.co/realtime/v1/websocket"
+      ],
+      "errors": [],
+      "consoleErrors": [
+        "BeerFactory login Error: invalid_credentials\n    at ua (http://127.0.0.1:4418/assets/index-D4N_pRK6.js:13:31373)\n    at async http://127.0.0.1:4418/assets/index-D4N_pRK6.js:13:36522\n    at async s (http://127.0.0.1:4418/assets/index-D4N_pRK6.js:13:259228)"
+      ]
+    },
+    {
+      "role": "staff",
+      "owner": false,
+      "reads": [
+        "staff-profile",
+        "get_attestation_bank_v3",
+        "portal_access_context",
+        "get_knowledge_editor_context",
+        "recipes",
+        "get_knowledge_editor_context",
+        "get_knowledge_editor_context"
+      ],
+      "writes": [],
+      "unknown": [],
+      "blocked": [],
+      "websockets": [],
+      "errors": [],
+      "consoleErrors": []
+    },
+    {
+      "role": "senior",
+      "owner": false,
+      "reads": [
+        "staff-profile",
+        "get_attestation_bank_v3",
+        "portal_access_context",
+        "get_knowledge_editor_context",
+        "recipes",
+        "get_knowledge_editor_context",
+        "get_knowledge_editor_context"
+      ],
+      "writes": [],
+      "unknown": [],
+      "blocked": [],
+      "websockets": [],
+      "errors": [],
+      "consoleErrors": []
+    },
+    {
+      "role": "admin",
+      "owner": false,
+      "reads": [
+        "staff-profile",
+        "get_attestation_bank_v3",
+        "portal_access_context",
+        "get_knowledge_editor_context",
+        "recipes",
+        "get_knowledge_editor_context",
+        "get_knowledge_editor_context",
+        "get_material_lifecycle_capabilities",
+        "get_knowledge_editor_context",
+        "get_knowledge_editor_context"
+      ],
+      "writes": [],
+      "unknown": [],
+      "blocked": [],
+      "websockets": [],
+      "errors": [],
+      "consoleErrors": []
+    },
+    {
+      "role": "staff",
+      "owner": true,
+      "reads": [
+        "staff-profile",
+        "get_attestation_bank_v3",
+        "portal_access_context",
+        "get_knowledge_editor_context",
+        "recipes",
+        "get_knowledge_editor_context",
+        "get_knowledge_editor_context",
+        "get_material_lifecycle_capabilities",
+        "get_knowledge_editor_context",
+        "get_knowledge_editor_context"
+      ],
+      "writes": [],
+      "unknown": [],
+      "blocked": [],
+      "websockets": [],
+      "errors": [],
+      "consoleErrors": []
+    },
+    {
+      "role": "staff",
+      "owner": false,
+      "reads": [
+        "staff-profile",
+        "staff-profile",
+        "get_attestation_bank_v3",
+        "get_knowledge_articles",
+        "get_position_shift_workflow",
+        "get_dashboard_upcoming_birthdays"
+      ],
+      "writes": [
+        {
+          "api": "staff-login",
+          "body": {
+            "first_name": "Иван",
+            "last_name": "Проверяющий",
+            "full_name": "Иван Проверяющий",
+            "code": "1234"
+          }
+        },
+        {
+          "api": "staff-set-recovery",
+          "body": {
+            "recovery_code": "8765"
+          }
+        },
+        {
+          "api": "staff-set-recovery",
+          "body": {
+            "recovery_code": "8765"
+          }
+        }
+      ],
+      "unknown": [],
+      "blocked": [],
+      "websockets": [
+        "wss://oltbkrvernfgymxtsfys.supabase.co/realtime/v1/websocket"
+      ],
+      "errors": [],
+      "consoleErrors": []
+    },
+    {
+      "role": "senior",
+      "owner": false,
+      "reads": [
+        "staff-profile",
+        "get_attestation_bank_v3",
+        "get_checklist_editor_snapshot",
+        "get_checklist_editor_snapshot",
+        "staff-profile",
+        "get_attestation_bank_v3",
+        "get_checklist_editor_snapshot",
+        "get_own_position_shift_history_v1"
+      ],
+      "writes": [
+        {
+          "api": "save_checklist_definition",
+          "body": {
+            "p_position_code": "bartender",
+            "p_item_key": null,
+            "p_check_type": "opening",
+            "p_label": "Пункт независимой проверки",
+            "p_critical": false,
+            "p_is_active": true,
+            "p_active_iso_weekdays": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "p_group_key": null,
+            "p_group_label": null,
+            "p_expected_revision": null
+          }
+        },
+        {
+          "api": "save_checklist_definition",
+          "body": {
+            "p_position_code": "bartender",
+            "p_item_key": null,
+            "p_check_type": "opening",
+            "p_label": "Пункт независимой проверки",
+            "p_critical": false,
+            "p_is_active": true,
+            "p_active_iso_weekdays": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "p_group_key": null,
+            "p_group_label": null,
+            "p_expected_revision": null
+          }
+        }
+      ],
+      "unknown": [],
+      "blocked": [],
+      "websockets": [],
+      "errors": [],
+      "consoleErrors": []
+    },
+    {
+      "role": "staff",
+      "owner": false,
+      "reads": [
+        "staff-profile",
+        "get_attestation_bank_v3",
+        "get_knowledge_articles",
+        "get_position_shift_workflow",
+        "get_dashboard_upcoming_birthdays",
+        "recipes",
+        "get_position_shift_workflow",
+        "get_dashboard_upcoming_birthdays"
+      ],
+      "writes": [],
+      "unknown": [],
+      "blocked": [],
+      "websockets": [
+        "wss://oltbkrvernfgymxtsfys.supabase.co/realtime/v1/websocket"
+      ],
+      "errors": [],
+      "consoleErrors": []
+    },
+    {
+      "role": "senior",
+      "owner": false,
+      "reads": [
+        "staff-profile",
+        "get_attestation_bank_v3",
+        "recipes",
+        "recipes",
+        "staff-profile",
+        "get_attestation_bank_v3"
+      ],
+      "writes": [
+        {
+          "api": "recipe",
+          "method": "POST",
+          "body": {
+            "name": "Рецепт независимой проверки",
+            "category": "Лимонад",
+            "status": "Актуальный",
+            "venue": "BF/BB",
+            "description": "",
+            "ingredients": "Вода — 250 мл",
+            "method": "",
+            "serving": "",
+            "tags": "",
+            "change_note": "",
+            "remove_photo": false
+          }
+        },
+        {
+          "api": "recipe",
+          "method": "POST",
+          "body": {
+            "name": "Рецепт независимой проверки",
+            "category": "Лимонад",
+            "status": "Актуальный",
+            "venue": "BF/BB",
+            "description": "",
+            "ingredients": "Вода — 250 мл",
+            "method": "",
+            "serving": "",
+            "tags": "",
+            "change_note": "",
+            "remove_photo": false
+          }
+        }
+      ],
+      "unknown": [],
+      "blocked": [],
+      "websockets": [],
+      "errors": [],
+      "consoleErrors": []
+    },
+    {
+      "role": "admin",
+      "owner": false,
+      "reads": [
+        "staff-profile",
+        "get_attestation_bank_v3",
+        "get_knowledge_editor_context",
+        "get_knowledge_editor_context",
+        "get_knowledge_article",
+        "get_material_lifecycle_capabilities",
+        "get_knowledge_editor_context",
+        "get_knowledge_editor_context",
+        "get_material_lifecycle_capabilities",
+        "get_knowledge_editor_context",
+        "get_knowledge_editor_context",
+        "staff-profile",
+        "get_attestation_bank_v3",
+        "get_knowledge_editor_context",
+        "get_knowledge_editor_context",
+        "get_knowledge_article",
+        "get_material_lifecycle_capabilities",
+        "get_knowledge_editor_context",
+        "get_knowledge_editor_context",
+        "get_material_lifecycle_capabilities",
+        "get_knowledge_editor_context",
+        "get_knowledge_editor_context",
+        "get_knowledge_editor_context",
+        "get_knowledge_editor_context"
+      ],
+      "writes": [
+        {
+          "api": "save_knowledge_article",
+          "body": {
+            "p_document": {
+              "schemaVersion": 2,
+              "id": "review-article",
+              "category": "Сервис",
+              "title": "Сервис проверка",
+              "description": "Проверенная статья из сетевой фикстуры",
+              "status": "published",
+              "blocks": [
+                {
+                  "id": "paragraph-review",
+                  "type": "paragraph",
+                  "content": {
+                    "text": "Живое форматирование проверки",
+                    "marks": [
+                      {
+                        "type": "bold",
+                        "from": 0,
+                        "to": 29
+                      },
+                      {
+                        "type": "italic",
+                        "from": 0,
+                        "to": 29
+                      },
+                      {
+                        "type": "underline",
+                        "from": 0,
+                        "to": 29
+                      }
+                    ]
+                  }
+                }
+              ],
+              "revision": 1,
+              "dashboard_featured": true
+            },
+            "p_expected_revision": 1
+          }
+        },
+        {
+          "api": "save_knowledge_article",
+          "body": {
+            "p_document": {
+              "schemaVersion": 2,
+              "id": "review-article",
+              "category": "Сервис",
+              "title": "Сервис проверка",
+              "description": "Проверенная статья из сетевой фикстуры",
+              "status": "published",
+              "blocks": [
+                {
+                  "id": "paragraph-review",
+                  "type": "paragraph",
+                  "content": {
+                    "text": "Живое форматирование проверки",
+                    "marks": [
+                      {
+                        "type": "bold",
+                        "from": 0,
+                        "to": 29
+                      },
+                      {
+                        "type": "italic",
+                        "from": 0,
+                        "to": 29
+                      },
+                      {
+                        "type": "underline",
+                        "from": 0,
+                        "to": 29
+                      }
+                    ]
+                  }
+                }
+              ],
+              "revision": 1,
+              "dashboard_featured": true
+            },
+            "p_expected_revision": 1
+          }
+        }
+      ],
+      "unknown": [],
+      "blocked": [],
+      "websockets": [],
+      "errors": [],
+      "consoleErrors": []
+    },
+    {
+      "role": "staff",
+      "owner": false,
+      "reads": [
+        "staff-profile",
+        "get_attestation_bank_v3",
+        "get_position_shift_workflow",
+        "staff-profile",
+        "get_attestation_bank_v3",
+        "get_position_shift_workflow",
+        "get_position_shift_workflow",
+        "get_position_shift_workflow",
+        "staff-profile",
+        "get_attestation_bank_v3",
+        "get_position_shift_workflow"
+      ],
+      "writes": [
+        {
+          "api": "set_position_shift_check",
+          "body": {
+            "p_check_type": "opening",
+            "p_item_key": "opening-1",
+            "p_completed": true
+          }
+        },
+        {
+          "api": "set_position_shift_check",
+          "body": {
+            "p_check_type": "opening",
+            "p_item_key": "opening-2",
+            "p_completed": true
+          }
+        },
+        {
+          "api": "confirm_position_shift",
+          "body": {
+            "p_action": "open"
+          }
+        },
+        {
+          "api": "confirm_position_shift",
+          "body": {
+            "p_action": "close"
+          }
+        }
+      ],
+      "unknown": [],
+      "blocked": [],
+      "websockets": [],
+      "errors": [],
+      "consoleErrors": []
+    },
+    {
+      "role": "staff",
+      "owner": false,
+      "reads": [
+        "staff-profile",
+        "get_attestation_bank_v3",
+        "staff-profile",
+        "get_attestation_bank_v3",
+        "staff-profile",
+        "get_attestation_bank_v3"
+      ],
+      "writes": [
+        {
+          "api": "create_feed_post",
+          "body": {
+            "p_subject": "Запись независимой проверки",
+            "p_body": "Состояние сохраняет явный сетевой mock store.",
+            "p_priority": "normal",
+            "p_notify_all": false,
+            "p_notify_positions": [
+              "bartender"
+            ]
+          }
+        },
+        {
+          "api": "create_feed_post",
+          "body": {
+            "p_subject": "Запись независимой проверки",
+            "p_body": "Состояние сохраняет явный сетевой mock store.",
+            "p_priority": "normal",
+            "p_notify_all": false,
+            "p_notify_positions": [
+              "bartender"
+            ]
+          }
+        },
+        {
+          "api": "acknowledge_feed_post",
+          "body": {
+            "p_note_id": "review-note-c4c228dc-1332-4b69-bd1b-9a6bbb240ccd"
+          }
+        }
+      ],
+      "unknown": [],
+      "blocked": [],
+      "websockets": [
+        "wss://oltbkrvernfgymxtsfys.supabase.co/realtime/v1/websocket",
+        "wss://oltbkrvernfgymxtsfys.supabase.co/realtime/v1/websocket",
+        "wss://oltbkrvernfgymxtsfys.supabase.co/realtime/v1/websocket"
+      ],
+      "errors": [],
+      "consoleErrors": []
+    },
+    {
+      "role": "staff",
+      "owner": false,
+      "reads": [
+        "staff-profile",
+        "get_attestation_bank_v3",
+        "get_recent_attestation_attempts",
+        "get_recent_attestation_attempts"
+      ],
+      "writes": [
+        {
+          "api": "submit_attestation_attempt",
+          "body": {
+            "p_client_attempt_id": "c89f45b5-5f91-405b-93ee-1404f0e4ba3b",
+            "p_category": "Бар проверка",
+            "p_category_id": "bar",
+            "p_total_questions": 2,
+            "p_correct_answers": 1,
+            "p_category_results": {
+              "pass_percent": 80,
+              "topics": {
+                "Основы": {
+                  "total": 2,
+                  "correct": 1
+                }
+              },
+              "weak_topics": [
+                {
+                  "topic": "Основы",
+                  "total": 2,
+                  "correct": 1
+                }
+              ],
+              "attempt_snapshot": {
+                "schemaVersion": 1,
+                "questions": [
+                  {
+                    "id": "review-bar-2",
+                    "categoryId": "bar",
+                    "knowledgeType": "bar",
+                    "venue": "common",
+                    "q": "Бар: вопрос 2",
+                    "answers": [
+                      {
+                        "text": "Правильный ответ",
+                        "correct": true
+                      },
+                      {
+                        "text": "Ошибка Б",
+                        "correct": false
+                      },
+                      {
+                        "text": "Ошибка В",
+                        "correct": false
+                      },
+                      {
+                        "text": "Ошибка А",
+                        "correct": false
+                      }
+                    ],
+                    "topic": "Основы",
+                    "group": "bar-group-2",
+                    "source": "Материал проверки",
+                    "sourceRef": "knowledge:review-article",
+                    "reviewUrl": "#/knowledge/review-article",
+                    "reviewLabel": "Сервис проверка",
+                    "status": "active",
+                    "sortOrder": 20,
+                    "revision": 1
+                  },
+                  {
+                    "id": "review-bar-1",
+                    "categoryId": "bar",
+                    "knowledgeType": "bar",
+                    "venue": "common",
+                    "q": "Бар: вопрос 1",
+                    "answers": [
+                      {
+                        "text": "Ошибка В",
+                        "correct": false
+                      },
+                      {
+                        "text": "Ошибка А",
+                        "correct": false
+                      },
+                      {
+                        "text": "Ошибка Б",
+                        "correct": false
+                      },
+                      {
+                        "text": "Правильный ответ",
+                        "correct": true
+                      }
+                    ],
+                    "topic": "Основы",
+                    "group": "bar-group-1",
+                    "source": "Материал проверки",
+                    "sourceRef": "knowledge:review-article",
+                    "reviewUrl": "#/knowledge/review-article",
+                    "reviewLabel": "Сервис проверка",
+                    "status": "active",
+                    "sortOrder": 10,
+                    "revision": 1
+                  }
+                ],
+                "answers": [
+                  3,
+                  3
+                ]
+              }
+            },
+            "p_started_at": "2026-11-07T16:22:12.317Z",
+            "p_finished_at": "2026-11-07T16:22:13.200Z",
+            "p_question_revisions": [
+              {
+                "id": "review-bar-2",
+                "revision": 1
+              },
+              {
+                "id": "review-bar-1",
+                "revision": 1
+              }
+            ],
+            "p_synced_from_offline": false
+          }
+        }
+      ],
+      "unknown": [],
+      "blocked": [],
+      "websockets": [],
+      "errors": [],
+      "consoleErrors": []
+    },
+    {
+      "role": "admin",
+      "owner": false,
+      "reads": [
+        "staff-profile",
+        "get_attestation_bank_v3",
+        "get_attestation_editor_bank_v3",
+        "recipes",
+        "get_knowledge_articles",
+        "get_attestation_editor_bank_v3",
+        "staff-profile",
+        "get_attestation_bank_v3",
+        "get_attestation_editor_bank_v3",
+        "get_attestation_editor_bank_v3",
+        "get_attestation_editor_bank_v3",
+        "staff-profile",
+        "get_attestation_bank_v3",
+        "get_attestation_editor_bank_v3"
+      ],
+      "writes": [
+        {
+          "api": "save_attestation_question_v3",
+          "body": {
+            "p_document": {
+              "id": "review-bar-1",
+              "categoryId": "bar",
+              "knowledgeType": "bar",
+              "venue": "common",
+              "q": "Изменённый независимой проверкой вопрос",
+              "answers": [
+                {
+                  "text": "Правильный ответ",
+                  "correct": true
+                },
+                {
+                  "text": "Ошибка А",
+                  "correct": false
+                },
+                {
+                  "text": "Ошибка Б",
+                  "correct": false
+                },
+                {
+                  "text": "Ошибка В",
+                  "correct": false
+                }
+              ],
+              "topic": "Основы",
+              "group": "bar-group-1",
+              "source": "knowledge",
+              "sourceRef": "review-article",
+              "reviewUrl": "#/knowledge/review-article",
+              "reviewLabel": "Открыть статью",
+              "status": "active",
+              "sortOrder": 10,
+              "revision": 1,
+              "subcategory": null,
+              "reviewNote": null
+            },
+            "p_expected_revision": 1
+          }
+        },
+        {
+          "api": "save_attestation_question_v3",
+          "body": {
+            "p_document": {
+              "id": "review-bar-1",
+              "categoryId": "bar",
+              "knowledgeType": "bar",
+              "venue": "common",
+              "q": "Изменённый независимой проверкой вопрос",
+              "answers": [
+                {
+                  "text": "Правильный ответ",
+                  "correct": true
+                },
+                {
+                  "text": "Ошибка А",
+                  "correct": false
+                },
+                {
+                  "text": "Ошибка Б",
+                  "correct": false
+                },
+                {
+                  "text": "Ошибка В",
+                  "correct": false
+                }
+              ],
+              "topic": "Основы",
+              "group": "bar-group-1",
+              "source": "knowledge",
+              "sourceRef": "review-article",
+              "reviewUrl": "#/knowledge/review-article",
+              "reviewLabel": "Открыть статью",
+              "status": "active",
+              "sortOrder": 10,
+              "revision": 1,
+              "subcategory": null,
+              "reviewNote": null
+            },
+            "p_expected_revision": 1
+          }
+        },
+        {
+          "api": "save_attestation_editor_settings_v3",
+          "body": {
+            "p_pass_percent": 85,
+            "p_category_settings": [
+              {
+                "categoryId": "bar",
+                "label": "Бар проверка",
+                "questionsPerTest": 2,
+                "knowledgeType": "bar",
+                "venue": "bf",
+                "specificQuestionCount": 0
+              },
+              {
+                "categoryId": "service",
+                "label": "Сервис проверка",
+                "questionsPerTest": 2,
+                "knowledgeType": "service",
+                "venue": "bf",
+                "specificQuestionCount": 0
+              }
+            ],
+            "p_ticket_plan": [
+              {
+                "categoryId": "bar",
+                "topic": "Основы",
+                "count": 2,
+                "sortOrder": 10
+              },
+              {
+                "categoryId": "service",
+                "topic": "Основы",
+                "count": 2,
+                "sortOrder": 10
+              }
+            ],
+            "p_expected_revision": 2
+          }
+        },
+        {
+          "api": "save_attestation_editor_settings_v3",
+          "body": {
+            "p_pass_percent": 85,
+            "p_category_settings": [
+              {
+                "categoryId": "bar",
+                "label": "Бар проверка",
+                "questionsPerTest": 2,
+                "knowledgeType": "bar",
+                "venue": "bf",
+                "specificQuestionCount": 0
+              },
+              {
+                "categoryId": "service",
+                "label": "Сервис проверка",
+                "questionsPerTest": 2,
+                "knowledgeType": "service",
+                "venue": "bf",
+                "specificQuestionCount": 0
+              }
+            ],
+            "p_ticket_plan": [
+              {
+                "categoryId": "bar",
+                "topic": "Основы",
+                "count": 2,
+                "sortOrder": 10
+              },
+              {
+                "categoryId": "service",
+                "topic": "Основы",
+                "count": 2,
+                "sortOrder": 10
+              }
+            ],
+            "p_expected_revision": 2
+          }
+        }
+      ],
+      "unknown": [],
+      "blocked": [],
+      "websockets": [],
+      "errors": [],
+      "consoleErrors": []
+    },
+    {
+      "role": "admin",
+      "owner": false,
+      "reads": [
+        "staff-profile",
+        "get_attestation_bank_v3",
+        "staff-profile",
+        "staff-profile",
+        "staff-profile",
+        "get_attestation_bank_v3"
+      ],
+      "writes": [
+        {
+          "api": "staff-profile",
+          "body": {
+            "birth_date": "1995-10-30"
+          }
+        },
+        {
+          "api": "staff-profile",
+          "body": {
+            "birth_date": "1995-10-30"
+          }
+        }
+      ],
+      "unknown": [],
+      "blocked": [],
+      "websockets": [],
+      "errors": [],
+      "consoleErrors": []
+    },
+    {
+      "role": "admin",
+      "owner": false,
+      "reads": [
+        "staff-profile",
+        "get_attestation_bank_v3",
+        "portal_access_context",
+        "get_knowledge_editor_context",
+        "get_knowledge_editor_context",
+        "get_knowledge_editor_context",
+        "get_knowledge_article",
+        "get_material_lifecycle_capabilities",
+        "get_knowledge_editor_context",
+        "get_knowledge_editor_context",
+        "get_material_lifecycle_capabilities",
+        "get_own_position_shift_history_v1"
+      ],
+      "writes": [],
+      "unknown": [],
+      "blocked": [],
+      "websockets": [],
+      "errors": [],
+      "consoleErrors": []
+    },
+    {
+      "role": "admin",
+      "owner": false,
+      "reads": [
+        "staff-profile",
+        "get_attestation_bank_v3",
+        "get_knowledge_articles",
+        "get_position_shift_workflow",
+        "get_dashboard_upcoming_birthdays",
+        "recipes",
+        "get_knowledge_editor_context",
+        "get_position_shift_workflow",
+        "portal_access_context",
+        "get_knowledge_editor_context"
+      ],
+      "writes": [],
+      "unknown": [],
+      "blocked": [],
+      "websockets": [
+        "wss://oltbkrvernfgymxtsfys.supabase.co/realtime/v1/websocket"
+      ],
+      "errors": [],
+      "consoleErrors": []
+    },
+    {
+      "role": "admin",
+      "owner": false,
+      "reads": [
+        "staff-profile",
+        "get_attestation_bank_v3",
+        "get_knowledge_articles",
+        "get_position_shift_workflow",
+        "get_dashboard_upcoming_birthdays",
+        "recipes",
+        "get_knowledge_editor_context",
+        "get_position_shift_workflow",
+        "portal_access_context",
+        "get_knowledge_editor_context"
+      ],
+      "writes": [],
+      "unknown": [],
+      "blocked": [],
+      "websockets": [
+        "wss://oltbkrvernfgymxtsfys.supabase.co/realtime/v1/websocket"
+      ],
+      "errors": [],
+      "consoleErrors": []
+    },
+    {
+      "role": "admin",
+      "owner": false,
+      "reads": [
+        "staff-profile",
+        "get_attestation_bank_v3",
+        "get_knowledge_articles",
+        "get_position_shift_workflow",
+        "get_dashboard_upcoming_birthdays",
+        "recipes",
+        "get_knowledge_editor_context",
+        "get_position_shift_workflow",
+        "portal_access_context",
+        "get_knowledge_editor_context"
+      ],
+      "writes": [],
+      "unknown": [],
+      "blocked": [],
+      "websockets": [
+        "wss://oltbkrvernfgymxtsfys.supabase.co/realtime/v1/websocket"
+      ],
+      "errors": [],
+      "consoleErrors": []
+    }
+  ],
+  "counts": {
+    "pass": 21,
+    "fail": 0
+  }
+}

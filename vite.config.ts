@@ -30,6 +30,7 @@ export default defineConfig(({ mode }) => {
         registerType: "prompt",
         injectRegister: null,
         includeAssets: [
+          "assets/licenses/three.txt",
           "assets/warm/recipe-photo.jpg",
           "assets/staff-avatars/*.webp",
           "assets/auth/*.webp",
